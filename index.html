@@ -258,6 +258,146 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/03/浅析webpack-merge源码/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/03/浅析webpack-merge源码/" itemprop="url">浅析webpack-merge源码</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-03T14:48:30+08:00">2018-02-03</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="merge方法"><a href="#merge方法" class="headerlink" title="merge方法"></a>merge方法</h2><p>webpack-merge 类库的 merge 方法基于 lodash 类库的 mergeWith 方法实现。</p>
+<p>mergeWith 方法用于遍历数组项或对象属性，通过尾参 customizer 定制化数据处理函数，获得新的数组项或对象属性。customizer 函数的参数为 (objValue, srcValue, key, object, source, stack)。</p>
+<p>webpack-merge 通过 join-arrays 模块导出的 joinArrays 函数将用户配置项 { customizeArray, customizeObject } 对象构建为 customizer 函数生成器。customizer 函数的处理逻辑为：当 objValue, srcValue 为函数时，该函数的返回值由 customizer 函数再次处理。当 objValue, srcValue 为数组时，通过 customizeArray 函数处理，参数为（objValue, srcValue, key）；若 customizeArray 函数未定义，合并数组项。当 objValue, srcValue 为对象时，通过 customizeObject 函数处理，若无返回值或 customizeObject 函数未定义，构建新的key值，调用 joinArrays 函数将 { customizeArray, customizeObject } 配置项转化成内层数据处理函数，并对 objValue, srcValue 的子孙属性深度处理。除此而外，深拷贝 source 或者将 source 作为返回值。特别的，当 customizeArray, customizeObject 函数均未作配置时，customizer 函数作深拷贝处理。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> default <span class="keyword">function</span> joinArrays(&#123;</span><br><span class="line">  customizeArray,</span><br><span class="line">  customizeObject,</span><br><span class="line">  key</span><br><span class="line">&#125; = &#123;&#125;) &#123;</span><br><span class="line">  <span class="built_in">return</span> <span class="keyword">function</span> _joinArrays(a, b, k) &#123;</span><br><span class="line">    const newKey = key ? `<span class="variable">$&#123;key&#125;</span>.<span class="variable">$&#123;k&#125;</span>` : k;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (isFunction(a) &amp;&amp; isFunction(b)) &#123;</span><br><span class="line">      <span class="built_in">return</span> (...args) =&gt; _joinArrays(a(...args), b(...args), k);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (isArray(a) &amp;&amp; isArray(b)) &#123;</span><br><span class="line">      const customResult = customizeArray &amp;&amp; customizeArray(a, b, newKey);</span><br><span class="line"></span><br><span class="line">      <span class="built_in">return</span> customResult || [...a, ...b];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (isPlainObject(a) &amp;&amp; isPlainObject(b)) &#123;</span><br><span class="line">      const customResult = customizeObject &amp;&amp; customizeObject(a, b, newKey);</span><br><span class="line"></span><br><span class="line">      // 第二层以同样的逻辑处理，如 <span class="string">'module.rules'</span>等</span><br><span class="line">      <span class="built_in">return</span> customResult || mergeWith(&#123;&#125;, a, b, joinArrays(&#123;</span><br><span class="line">        customizeArray,</span><br><span class="line">        customizeObject,</span><br><span class="line">        key: newKey</span><br><span class="line">      &#125;));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (isPlainObject(b)) &#123;</span><br><span class="line">      <span class="built_in">return</span> cloneDeep(b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">return</span> b;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在此基础上，webpack-merge 实现了 merge 方法。该方法支持单参数，通过接受{ customizeArray, customizeObject } 对象，返回值用于对数据（格式可以是数组，或多参数）做处理；也支持多参数，数据处理模式即为深拷贝。</p>
+<h2 id="multiple-方法"><a href="#multiple-方法" class="headerlink" title="multiple 方法"></a>multiple 方法</h2><p>multiple 方法在 merge 方法的基础上构建，首先通过 merge 方法将配置数据复合为一，然后通过 lodash.values 方法以数组形式返回复合对象各属性的值。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">var path = require(<span class="string">'path'</span>);</span><br><span class="line">var baseConfig = &#123;</span><br><span class="line">    server: &#123;</span><br><span class="line">      target: <span class="string">'node'</span>,</span><br><span class="line">      output: &#123;</span><br><span class="line">        path: path.resolve(__dirname, <span class="string">'dist'</span>),</span><br><span class="line">        filename: <span class="string">'lib.node.js'</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    client: &#123;</span><br><span class="line">      output: &#123;</span><br><span class="line">        path: path.resolve(__dirname, <span class="string">'dist'</span>),</span><br><span class="line">        filename: <span class="string">'lib.js'</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">// specialized configuration</span><br><span class="line">var production = &#123;</span><br><span class="line">    client: &#123;</span><br><span class="line">      output: &#123;</span><br><span class="line">        path: path.resolve(__dirname, <span class="string">'dist'</span>),</span><br><span class="line">        filename: <span class="string">'[name].[hash].js'</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">// output</span><br><span class="line">[&#123;</span><br><span class="line">  target: <span class="string">'node'</span>,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: path.resolve(__dirname, <span class="string">'dist'</span>),</span><br><span class="line">    filename: <span class="string">'lib.node.js'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;,&#123;</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: path.resolve(__dirname, <span class="string">'dist'</span>),</span><br><span class="line">    filename: <span class="string">'[name].[hash].js'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;]</span><br></pre></td></tr></table></figure>
+<h2 id="unique-方法"><a href="#unique-方法" class="headerlink" title="unique 方法"></a>unique 方法</h2><p>unique 方法通过 lodash 类库的 differenceWith 方法实现。differenceWith 方法接受参数为 (array, values, comparator)，通过遍历 array 数组项，并调用 comparator 函数将数组项和 values 数组比较，将返回否值的数组项构建成新的数组。unique 方法用于构建 customizeArray 配置函数，且其接受参数为 (key, uniques, getter)，key 即属性名，uniques, getter 参数用于构建 differenceWith 方法中的参数 comparator。若getter返回值已存在 uniques 中，comparator 返回真值；否则返回否值，即该数组项拷贝到新数组中。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// unique 方法源码</span><br><span class="line"><span class="keyword">function</span> mergeUnique(key, uniques, getter = a =&gt; a) &#123;</span><br><span class="line">  <span class="built_in">return</span> (a, b, k) =&gt; (</span><br><span class="line">    k === key &amp;&amp; [</span><br><span class="line">      ...a,</span><br><span class="line">      ...differenceWith(</span><br><span class="line">        b, a, item =&gt; uniques.indexOf(getter(item)) &gt;= 0</span><br><span class="line">      )</span><br><span class="line">    ]</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// unique 方法使用</span><br><span class="line">// 需要注意的是，若首个 plugins 中没有 HotModuleReplacementPlugin 构造函数</span><br><span class="line">// 第二个 plugins 中的HotModuleReplacementPlugin 也不会拷贝到新数组中</span><br><span class="line">const output = merge(&#123;</span><br><span class="line">  customizeArray: merge.unique(</span><br><span class="line">    <span class="string">'plugins'</span>,</span><br><span class="line">    [<span class="string">'HotModuleReplacementPlugin'</span>],</span><br><span class="line">    plugin =&gt; plugin.constructor &amp;&amp; plugin.constructor.name</span><br><span class="line">  )</span><br><span class="line">&#125;)(&#123;</span><br><span class="line">  plugins: [</span><br><span class="line">    new webpack.HotModuleReplacementPlugin()</span><br><span class="line">  ]</span><br><span class="line">&#125;, &#123;</span><br><span class="line">  plugins: [</span><br><span class="line">    new webpack.HotModuleReplacementPlugin()</span><br><span class="line">  ]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="strategy-方法"><a href="#strategy-方法" class="headerlink" title="strategy 方法"></a>strategy 方法</h2><p>strategy 方法在 merge 方法基础上实现，通过配置项 rules 构建 { customizeArray, customizeObject } 对象，最终生成 customizer 数据处理函数。rules 以对象形式配置，定义了数据处理策略，其中，’prepend’ 为反向深拷贝，’replace’ 替换，默认为 ‘append’ 即正向深拷贝。与 merge 方法相同，rules 可以设置深度嵌套属性的处理规则，如 ‘module.rules’: ‘prepend’。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">const mergeStrategy = (rules = &#123;&#125;) =&gt; merge(&#123;</span><br><span class="line">  customizeArray: customizeArray(rules),</span><br><span class="line">  customizeObject: customizeObject(rules)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> customizeArray(rules) &#123;</span><br><span class="line">  <span class="built_in">return</span> (a, b, key) =&gt; &#123;</span><br><span class="line">    switch (rules[key]) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">'prepend'</span>:</span><br><span class="line">        <span class="built_in">return</span> [...b, ...a];</span><br><span class="line">      <span class="keyword">case</span> <span class="string">'replace'</span>:</span><br><span class="line">        <span class="built_in">return</span> b;</span><br><span class="line">      default: // append</span><br><span class="line">        <span class="built_in">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> customizeObject(rules) &#123;</span><br><span class="line">  <span class="built_in">return</span> (a, b, key) =&gt; &#123;</span><br><span class="line">    switch (rules[key]) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">'prepend'</span>:</span><br><span class="line">        <span class="built_in">return</span> mergeWith(&#123;&#125;, b, a, joinArrays());</span><br><span class="line">      <span class="keyword">case</span> <span class="string">'replace'</span>:</span><br><span class="line">        <span class="built_in">return</span> b;</span><br><span class="line">      default: // append</span><br><span class="line">        <span class="built_in">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="smart-方法"><a href="#smart-方法" class="headerlink" title="smart 方法"></a>smart 方法</h2><p>smart 方法为处理 module.rules 配置项而设计。首先提取 module.rules 数组，交由 lodash 模块的 unionWith 方法处理。unionWith 方法接受参数为 (…array, compator)，comparator(arrVal, othVal) 函数返回 false 时保留两个数组项，返回真值只保留 arrVal。特别的，comparator 执行过程中，可对引用对象 arrVal 进行再度插值操作，使其具有 othVal 的特性。为此，webpack-merge 类库构造了 uniteRules 函数对 module.rules 数组项进行处理。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">const mergeSmart = merge(&#123;</span><br><span class="line">  customizeArray: (a, b, key) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (isRule(key.split(<span class="string">'.'</span>).slice(-1)[0])) &#123;</span><br><span class="line">      <span class="built_in">return</span> unionWith(a, b, uniteRules.bind(null, &#123;&#125;, key));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">return</span> null;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>uniteRules 函数接受参数为 {rules, key, newRule, rule}，其中 rules 用于配置 module.rules 合并策略，如 { rules.use: ‘prepend’ | ‘append’ | ‘replace’ }，key 即 ‘rules’，newRule, rule 为待合并的两个加载器配置项。uniteRules 函数的处理逻辑为：首先比较 newRule, rule 的 test, include, exclude, enforce, query 查询字符串，是否跳过合并；其次，将 newRule.loader 配置项赋给rule，作为返回值，因为无论 ‘prepend’ | ‘append’ | ‘replace’ 策略，都将返回 newRule.loader；其次将 rule.loader 转换为 [{ loader }]数组，同时newRule.use, rule.use 也转换为 [{ loader }] 数组，该数组同名 loader 将会被合并。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> uniteRules(rules, key, newRule, rule) &#123;</span><br><span class="line">  <span class="keyword">if</span> (String(rule.test) !== String(newRule.test)</span><br><span class="line">      || ((newRule.enforce || rule.enforce) &amp;&amp; rule.enforce !== newRule.enforce)</span><br><span class="line">      || (newRule.include &amp;&amp; !isSameValue(rule.include, newRule.include))</span><br><span class="line">      || (newRule.exclude &amp;&amp; !isSameValue(rule.exclude, newRule.exclude))) &#123;</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!rule.test &amp;&amp; !rule.include &amp;&amp; !rule.exclude</span><br><span class="line">      &amp;&amp; (rule.loader &amp;&amp; rule.loader.split(<span class="string">'?'</span>)[0]) !== (newRule.loader &amp;&amp; newRule.loader.split(<span class="string">'?'</span>)[0])) &#123;</span><br><span class="line">    // Don<span class="string">'t merge the rule if there isn'</span>t any identifying fields and the loaders don<span class="string">'t match</span></span><br><span class="line"><span class="string">    return false;</span></span><br><span class="line"><span class="string">  &#125; else if ((rule.include || rule.exclude) &amp;&amp; (!newRule.include &amp;&amp; !newRule.exclude)) &#123;</span></span><br><span class="line"><span class="string">    // Don'</span>t merge child without include/exclude to parent that has either</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // newRule.loader should always override</span><br><span class="line">  <span class="keyword">if</span> (newRule.loader) &#123;</span><br><span class="line">    const optionsKey = newRule.options ? <span class="string">'options'</span> : newRule.query &amp;&amp; <span class="string">'query'</span>;</span><br><span class="line"></span><br><span class="line">    delete rule.use;</span><br><span class="line">    delete rule.loaders;</span><br><span class="line">    rule.loader = newRule.loader;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (optionsKey) &#123;</span><br><span class="line">      rule[optionsKey] = newRule[optionsKey];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((rule.use || rule.loaders || rule.loader) &amp;&amp; (newRule.use || newRule.loaders)) &#123;</span><br><span class="line">    const expandEntry = loader =&gt; (</span><br><span class="line">      typeof loader === <span class="string">'string'</span> ? &#123; loader &#125; : loader</span><br><span class="line">    );</span><br><span class="line">    // this is only here to avoid breaking existing tests</span><br><span class="line">    const unwrapEntry = entry =&gt; (</span><br><span class="line">      !entry.options &amp;&amp; !entry.query ? entry.loader : entry</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="built_in">let</span> entries;</span><br><span class="line"></span><br><span class="line">    // 将 &#123; loader &#125; 转化成 [&#123; loader, option?, query? &#125;]数组</span><br><span class="line">    <span class="keyword">if</span> (rule.loader) &#123;</span><br><span class="line">      const optionsKey = rule.options ? <span class="string">'options'</span> : rule.query &amp;&amp; <span class="string">'query'</span>;</span><br><span class="line">      entries = [&#123; loader: rule.loader &#125;];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (optionsKey) &#123;</span><br><span class="line">        entries[0][optionsKey] = rule[optionsKey];</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      delete rule.loader;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (optionsKey) &#123;</span><br><span class="line">        delete rule[optionsKey];</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      // rule.use, rule.loaders 数组项若为字符串，转化为 &#123; loader &#125; 对象</span><br><span class="line">      entries = [].concat(rule.use || rule.loaders).map(expandEntry);</span><br><span class="line">    &#125;</span><br><span class="line">    const newEntries = [].concat(newRule.use || newRule.loaders).map(expandEntry);</span><br><span class="line"></span><br><span class="line">    const loadersKey = rule.use || newRule.use ? <span class="string">'use'</span> : <span class="string">'loaders'</span>;</span><br><span class="line">    const resolvedKey = `<span class="variable">$&#123;key&#125;</span>.<span class="variable">$&#123;loadersKey&#125;</span>`;</span><br><span class="line"></span><br><span class="line">    switch (rules[resolvedKey]) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">'prepend'</span>:</span><br><span class="line">        rule[loadersKey] = [</span><br><span class="line">          ...differenceWith(newEntries, entries, uniteEntries),</span><br><span class="line">          ...entries</span><br><span class="line">        ].map(unwrapEntry);</span><br><span class="line">        <span class="built_in">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">'replace'</span>:</span><br><span class="line">        rule[loadersKey] = newRule.use || newRule.loaders;</span><br><span class="line">        <span class="built_in">break</span>;</span><br><span class="line">      default:</span><br><span class="line">        rule[loadersKey] = unionWith(</span><br><span class="line">          // Remove existing entries so that we can respect the order of the new</span><br><span class="line">          // entries</span><br><span class="line">          differenceWith(entries, newEntries, isEqual),</span><br><span class="line">          newEntries,</span><br><span class="line">          uniteEntries</span><br><span class="line">        ).map(unwrapEntry);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (newRule.include) &#123;</span><br><span class="line">    rule.include = newRule.include;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (newRule.exclude) &#123;</span><br><span class="line">    rule.exclude = newRule.exclude;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> uniteEntries(newEntry, entry) &#123;</span><br><span class="line">  const loaderNameRe = /^([^?]+)/ig;</span><br><span class="line"></span><br><span class="line">  const [loaderName] = entry.loader.match(loaderNameRe);</span><br><span class="line">  const [newLoaderName] = newEntry.loader.match(loaderNameRe);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (loaderName !== newLoaderName) &#123;</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // Replace query values with newer ones</span><br><span class="line">  mergeWith(entry, newEntry);</span><br><span class="line">  <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="smartStrategy-方法"><a href="#smartStrategy-方法" class="headerlink" title="smartStrategy 方法"></a>smartStrategy 方法</h2><p>smartStrategy 方法不同于 smart 方法只处理 module.rules 配置项，smartStrategy 方法对整个 webpack 配置进行处理。其中，对 module.rules 配置项，smartStrategy 方法处理逻辑雷同 smart 方法，其他配置项则同 strategy 方法。针对 module.rules 配置项，合并规则 rules 须配置为 { ‘module.rules’: ‘prepend’ | ‘replace’ | ‘append’, ‘module.rules.use’: ‘prepend’ | ‘replace’ | ‘append’ } 形式。’module.rules’ 属性设定 module.rules 合并策略，’module.rules.use’ 属性设定 rule.use 合并策略。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">const mergeSmartStrategy = (rules = &#123;&#125;) =&gt; merge(&#123;</span><br><span class="line">  customizeArray: (a, b, key) =&gt; &#123;</span><br><span class="line">    const topKey = key.split(<span class="string">'.'</span>).slice(-1)[0];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (isRule(topKey)) &#123;</span><br><span class="line">      switch (rules[key]) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'prepend'</span>:</span><br><span class="line">          <span class="built_in">return</span> [</span><br><span class="line">            ...differenceWith(b, a, (newRule, seenRule) =&gt; (</span><br><span class="line">              uniteRules(rules, key, newRule, seenRule, <span class="string">'prepend'</span>))</span><br><span class="line">            ),</span><br><span class="line">            ...a</span><br><span class="line">          ];</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'replace'</span>:</span><br><span class="line">          <span class="built_in">return</span> b;</span><br><span class="line">        default: // append</span><br><span class="line">          <span class="built_in">return</span> unionWith(a, b, uniteRules.bind(null, rules, key));</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">return</span> customizeArray(rules)(a, b, key);</span><br><span class="line">  &#125;,</span><br><span class="line">  customizeObject: customizeObject(rules)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://lodash.com/docs" target="_blank" rel="noopener">lodash官方文档</a></p>
+<p><a href="https://github.com/survivejs/webpack-merge" target="_blank" rel="noopener">webpack-merge仓库</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/webpack配置指南/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -588,68 +728,10 @@
 <h3 id="类型校验"><a href="#类型校验" class="headerlink" title="类型校验"></a>类型校验</h3><p>要分析async-validator模块的实现，容笔者先从类型校验说起。</p>
 <p>在async-validator模块中，单个校验器被定义为validator函数。该validator函数接受rule、value、callback、source、options作为参数。source、options这两个参数姑且按下不论。参数rule是以对象形式配置的校验规则，value是待校验的数据，callback是由开发者手动执行的回调函数。</p>
 <p>容易猜想的是，在实现类型校验的过程中，async-validator模块采用了{ type: ‘array’ }的形式配置rule。其中type可接受的值包含’integer’, ‘float’, ‘array’, ‘regexp’, ‘object’, ‘method’, ‘email’, ‘number’, ‘date’, ‘url’, ‘hex’这几种类型。在其背后的实现机制中，async-validator模块没有采用switch语句在单一的函数中完成类型判断，而是通过types对象设定每种类型的校验方法，接着通过调用types<a href="value">type</a>方法实现类型校验，这样能使代码的结构变得清晰。</p>
-<pre><code>// src/rule/type.js
-const types = {
-  integer(value) {
-    return types.number(value) &amp;&amp; parseInt(value, 10) === value;
-  },
-  float(value) {
-    return types.number(value) &amp;&amp; !types.integer(value);
-  },
-  array(value) {
-    return Array.isArray(value);
-  },
-  regexp(value) {
-    if (value instanceof RegExp) {
-      return true;
-    }
-    try {
-      return !!new RegExp(value);
-    } catch (e) {
-      return false;
-    }
-  },
-  date(value) {
-    return typeof value.getTime === &apos;function&apos; &amp;&amp;
-      typeof value.getMonth === &apos;function&apos; &amp;&amp;
-      typeof value.getYear === &apos;function&apos;;
-  },
-  number(value) {
-    if (isNaN(value)) {
-      return false;
-    }
-    return typeof (value) === &apos;number&apos;;
-  },
-  object(value) {
-    return typeof (value) === &apos;object&apos; &amp;&amp; !types.array(value);
-  },
-  method(value) {
-    return typeof (value) === &apos;function&apos;;
-  },
-  email(value) {
-    return typeof (value) === &apos;string&apos; &amp;&amp; !!value.match(pattern.email) &amp;&amp; value.length &lt; 255;
-  },
-  url(value) {
-    return typeof (value) === &apos;string&apos; &amp;&amp; !!value.match(pattern.url);
-  },
-  hex(value) {
-    return typeof (value) === &apos;string&apos; &amp;&amp; !!value.match(pattern.hex);
-  },
-};
-</code></pre><p>从上面的代码中，可以发现types并不包含’boolean’, ‘string’，那么是不是async-validator模块遗漏了这两种数据类型呢？不是的。async-validator通过if-else if语句校验了这两种数据类型（没有else语句，意味着不满足条件的视为校验通过）。</p>
-<pre><code>// src/rule/type.js
-const custom = [&apos;integer&apos;, &apos;float&apos;, &apos;array&apos;, &apos;regexp&apos;, &apos;object&apos;,
-  &apos;method&apos;, &apos;email&apos;, &apos;number&apos;, &apos;date&apos;, &apos;url&apos;, &apos;hex&apos;];
-const ruleType = rule.type;
-if (custom.indexOf(ruleType) &gt; -1) {
-  if (!types[ruleType](value)) {
-    errors.push(util.format(options.messages.types[ruleType], rule.fullField, rule.type));
-  }
-  // straight typeof check
-} else if (ruleType &amp;&amp; typeof (value) !== rule.type) {
-  errors.push(util.format(options.messages.types[ruleType], rule.fullField, rule.type));
-}
-</code></pre><p>奇怪的是，在async-validator模块中，既然type的种类包含了’email’(邮箱), ‘url’(网址)，为什么没有包含’phone’(手机号)呢？或者，为什么async-validator模块不对开发者开放注册type的方法呢？那样开发者可以在types对象中添加方法，使得类型校验更为多样，不是吗？实际上，在async-validator模块的设计中，这个type只是单条校验规则，还不是校验器。作为不可变动的底层，它没有提供向types对象注入新类型的方法。关于可注册的校验器类型，将在下文予以分析。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">// src/rule/type.js</span><br><span class="line">const types = &#123;</span><br><span class="line">  <span class="built_in">integer</span>(value) &#123;</span><br><span class="line">    <span class="built_in">return</span> types.number(value) &amp;&amp; parseInt(value, 10) === value;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="built_in">float</span>(value) &#123;</span><br><span class="line">    <span class="built_in">return</span> types.number(value) &amp;&amp; !types.integer(value);</span><br><span class="line">  &#125;,</span><br><span class="line">  array(value) &#123;</span><br><span class="line">    <span class="built_in">return</span> Array.isArray(value);</span><br><span class="line">  &#125;,</span><br><span class="line">  regexp(value) &#123;</span><br><span class="line">    <span class="keyword">if</span> (value instanceof RegExp) &#123;</span><br><span class="line">      <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    try &#123;</span><br><span class="line">      <span class="built_in">return</span> !!new RegExp(value);</span><br><span class="line">    &#125; catch (e) &#123;</span><br><span class="line">      <span class="built_in">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  date(value) &#123;</span><br><span class="line">    <span class="built_in">return</span> typeof value.getTime === <span class="string">'function'</span> &amp;&amp;</span><br><span class="line">      typeof value.getMonth === <span class="string">'function'</span> &amp;&amp;</span><br><span class="line">      typeof value.getYear === <span class="string">'function'</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  number(value) &#123;</span><br><span class="line">    <span class="keyword">if</span> (isNaN(value)) &#123;</span><br><span class="line">      <span class="built_in">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> typeof (value) === <span class="string">'number'</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  object(value) &#123;</span><br><span class="line">    <span class="built_in">return</span> typeof (value) === <span class="string">'object'</span> &amp;&amp; !types.array(value);</span><br><span class="line">  &#125;,</span><br><span class="line">  method(value) &#123;</span><br><span class="line">    <span class="built_in">return</span> typeof (value) === <span class="string">'function'</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  email(value) &#123;</span><br><span class="line">    <span class="built_in">return</span> typeof (value) === <span class="string">'string'</span> &amp;&amp; !!value.match(pattern.email) &amp;&amp; value.length &lt; 255;</span><br><span class="line">  &#125;,</span><br><span class="line">  url(value) &#123;</span><br><span class="line">    <span class="built_in">return</span> typeof (value) === <span class="string">'string'</span> &amp;&amp; !!value.match(pattern.url);</span><br><span class="line">  &#125;,</span><br><span class="line">  hex(value) &#123;</span><br><span class="line">    <span class="built_in">return</span> typeof (value) === <span class="string">'string'</span> &amp;&amp; !!value.match(pattern.hex);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>从上面的代码中，可以发现types并不包含’boolean’, ‘string’，那么是不是async-validator模块遗漏了这两种数据类型呢？不是的。async-validator通过if-else if语句校验了这两种数据类型（没有else语句，意味着不满足条件的视为校验通过）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// src/rule/type.js</span><br><span class="line">const custom = [<span class="string">'integer'</span>, <span class="string">'float'</span>, <span class="string">'array'</span>, <span class="string">'regexp'</span>, <span class="string">'object'</span>,</span><br><span class="line">  <span class="string">'method'</span>, <span class="string">'email'</span>, <span class="string">'number'</span>, <span class="string">'date'</span>, <span class="string">'url'</span>, <span class="string">'hex'</span>];</span><br><span class="line">const ruleType = rule.type;</span><br><span class="line"><span class="keyword">if</span> (custom.indexOf(ruleType) &gt; -1) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!types[ruleType](value)) &#123;</span><br><span class="line">    errors.push(util.format(options.messages.types[ruleType], rule.fullField, rule.type));</span><br><span class="line">  &#125;</span><br><span class="line">  // straight typeof check</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (ruleType &amp;&amp; typeof (value) !== rule.type) &#123;</span><br><span class="line">  errors.push(util.format(options.messages.types[ruleType], rule.fullField, rule.type));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>奇怪的是，在async-validator模块中，既然type的种类包含了’email’(邮箱), ‘url’(网址)，为什么没有包含’phone’(手机号)呢？或者，为什么async-validator模块不对开发者开放注册type的方法呢？那样开发者可以在types对象中添加方法，使得类型校验更为多样，不是吗？实际上，在async-validator模块的设计中，这个type只是单条校验规则，还不是校验器。作为不可变动的底层，它没有提供向types对象注入新类型的方法。关于可注册的校验器类型，将在下文予以分析。</p>
 <h3 id="其他基本校验"><a href="#其他基本校验" class="headerlink" title="其他基本校验"></a>其他基本校验</h3><p>在async-validator模块中，其他基本校验包含’required’(非空校验), ‘whitespace’(空白字符校验), ‘range’(范围校验), ‘enum’(枚举校验), ‘pattern’(正则校验)。’required’, ‘whitespace’校验自不必多说，笔者将着重介绍’range’, ‘enum’, ‘pattern’校验。</p>
 <p>关于’range’校验，其能力包含校验数值的大小、字符串或数组的长度，因此rule对象相应添加了min、max、len属性，其中len属性的优先级高于min、max属性。在async-validator源码的实现中，通过先将字符串和数组形式的value转换成待校验的value.length，再通过if语句协调len与min、max校验规则的优先级。具体可参详src/rule/range.js文件的源码。</p>
 <p>关于’enum’校验，其能力为校验数据value是否某个枚举数组的一份子，相应rule对象添加了enum属性。若value在rule.enum中，则校验通过；否则校验失败。</p>
@@ -677,62 +759,11 @@ if (custom.indexOf(ruleType) &gt; -1) {
 <p>值得说明的是，参数source是整个待校验的数据，value也是source的一个属性。这样，async-validator模块就为开发者提供了关联校验的能力。假使有字段min、max需要校验，对min字段，需要校验其数值不大于max字段的值，开发者就可以通过source[max]属性获取到max字段的值，从而实现关联校验。</p>
 <p>关于参数options，笔者将在后文予以分析。</p>
 <h3 id="注册校验器"><a href="#注册校验器" class="headerlink" title="注册校验器"></a>注册校验器</h3><p>前文已经提到，async-validator模块并未提供注入基础校验规则的方法，相应的，它提供了注册单个校验器的能力。通过调用AsyncValidator.register(type, validator)静态方法，开发者即可以注册一个类型为type的validator校验器。</p>
-<pre><code>// src/index.js
-Schema.property = {
-  //...
-  getType(rule) {
-    if (rule.type === undefined &amp;&amp; (rule.pattern instanceof RegExp)) {
-      rule.type = &apos;pattern&apos;;
-    }
-    if (typeof (rule.validator) !== &apos;function&apos; &amp;&amp;
-      (rule.type &amp;&amp; !validators.hasOwnProperty(rule.type))) {
-      throw new Error(format(&apos;Unknown rule type %s&apos;, rule.type));
-    }
-    return rule.type || &apos;string&apos;;
-  },
-  getValidationMethod(rule) {
-    if (typeof rule.validator === &apos;function&apos;) {
-      return rule.validator;
-    }
-    const keys = Object.keys(rule);
-    const messageIndex = keys.indexOf(&apos;message&apos;);
-    if (messageIndex !== -1) {
-      keys.splice(messageIndex, 1);
-    }
-    if (keys.length === 1 &amp;&amp; keys[0] === &apos;required&apos;) {
-      return validators.required;
-    }
-    return validators[this.getType(rule)] || false;
-  },
-};
-
-Schema.register = function register(type, validator) {
-  if (typeof validator !== &apos;function&apos;) {
-    throw new Error(&apos;Cannot register a validator by type, validator is not a function&apos;);
-  }
-  validators[type] = validator;
-};
-</code></pre><p>通过源码，我们也可以看到该校验器和内置校验器如array、boolean校验器平级。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">// src/index.js</span><br><span class="line">Schema.property = &#123;</span><br><span class="line">  //...</span><br><span class="line">  getType(rule) &#123;</span><br><span class="line">    <span class="keyword">if</span> (rule.type === undefined &amp;&amp; (rule.pattern instanceof RegExp)) &#123;</span><br><span class="line">      rule.type = <span class="string">'pattern'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (typeof (rule.validator) !== <span class="string">'function'</span> &amp;&amp;</span><br><span class="line">      (rule.type &amp;&amp; !validators.hasOwnProperty(rule.type))) &#123;</span><br><span class="line">      throw new Error(format(<span class="string">'Unknown rule type %s'</span>, rule.type));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> rule.type || <span class="string">'string'</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  getValidationMethod(rule) &#123;</span><br><span class="line">    <span class="keyword">if</span> (typeof rule.validator === <span class="string">'function'</span>) &#123;</span><br><span class="line">      <span class="built_in">return</span> rule.validator;</span><br><span class="line">    &#125;</span><br><span class="line">    const keys = Object.keys(rule);</span><br><span class="line">    const messageIndex = keys.indexOf(<span class="string">'message'</span>);</span><br><span class="line">    <span class="keyword">if</span> (messageIndex !== -1) &#123;</span><br><span class="line">      keys.splice(messageIndex, 1);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (keys.length === 1 &amp;&amp; keys[0] === <span class="string">'required'</span>) &#123;</span><br><span class="line">      <span class="built_in">return</span> validators.required;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> validators[this.getType(rule)] || <span class="literal">false</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Schema.register = <span class="keyword">function</span> register(<span class="built_in">type</span>, validator) &#123;</span><br><span class="line">  <span class="keyword">if</span> (typeof validator !== <span class="string">'function'</span>) &#123;</span><br><span class="line">    throw new Error(<span class="string">'Cannot register a validator by type, validator is not a function'</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  validators[<span class="built_in">type</span>] = validator;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>通过源码，我们也可以看到该校验器和内置校验器如array、boolean校验器平级。</p>
 <p>因此我们也可以实现一个type类型为’remote’远程校验器。</p>
-<pre><code>function remoteValidator = (rule, value, callback, source, options){
-  const { field, action, queryData = {}, format } = rule;
-  if ( !action ){
-    console.warn(&apos;action is required&apos;);
-    return;
-  };
-
-  let data = {
-    ...queryData,
-    [field]: value
-  };
-  data = format &amp;&amp; typeof format === &apos;function&apos; ? format(data, source, options) : data;
-
-  fetch(action,queryData).then(res =&gt; {
-    if ( res.model === true ) callback();
-    else callback(&apos;error&apos;);
-  }); 
-};
-</code></pre><p>如上的’remote’远程校验器用到了validator函数能够访问rule对象的能力。相应的rule对象也需要{ type: ‘remote’, action: url, queryData: {} }之类的数据格式。需要说明的是，format函数也可以通过async-validator模块内置的transform配置函数实现，该transform函数只接受value作为其参数，虽然完整的待校验数据source需要由外部注入transform函数体内。在async-validator模块中，rule对象中可配置的transform属性即提供了预制校验数据转化的能力。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> remoteValidator = (rule, value, callback, <span class="built_in">source</span>, options)&#123;</span><br><span class="line">  const &#123; field, action, queryData = &#123;&#125;, format &#125; = rule;</span><br><span class="line">  <span class="keyword">if</span> ( !action )&#123;</span><br><span class="line">    console.warn(<span class="string">'action is required'</span>);</span><br><span class="line">    <span class="built_in">return</span>;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">let</span> data = &#123;</span><br><span class="line">    ...queryData,</span><br><span class="line">    [field]: value</span><br><span class="line">  &#125;;</span><br><span class="line">  data = format &amp;&amp; typeof format === <span class="string">'function'</span> ? format(data, <span class="built_in">source</span>, options) : data;</span><br><span class="line"></span><br><span class="line">  fetch(action,queryData).<span class="keyword">then</span>(res =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> ( res.model === <span class="literal">true</span> ) callback();</span><br><span class="line">    <span class="keyword">else</span> callback(<span class="string">'error'</span>);</span><br><span class="line">  &#125;); </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>如上的’remote’远程校验器用到了validator函数能够访问rule对象的能力。相应的rule对象也需要{ type: ‘remote’, action: url, queryData: {} }之类的数据格式。需要说明的是，format函数也可以通过async-validator模块内置的transform配置函数实现，该transform函数只接受value作为其参数，虽然完整的待校验数据source需要由外部注入transform函数体内。在async-validator模块中，rule对象中可配置的transform属性即提供了预制校验数据转化的能力。</p>
 <h3 id="校验组合"><a href="#校验组合" class="headerlink" title="校验组合"></a>校验组合</h3><p>通常，单个校验器无法满足实际的开发需求，async-validator模块使用校验规则数组[ rule ]校验source数据的某个属性。因此在校验某个数据的时候，可以设置多个校验器如[{ type: ‘array’, required: true, min: 1 }, { validator: function(rule, value, callback){} }]。</p>
 <h3 id="深度校验"><a href="#深度校验" class="headerlink" title="深度校验"></a>深度校验</h3><p>对于复杂的对象，async-validator模块提供了深度校验的能力。当rule.type为’object’或’object’时，通过设置rule.defaultField或rule.fields属性(其值为{ key: [rule] }结构)，async-validator模块将会以rule.defaultField与rule.fields合并对象作为校验规则，并校验source内的深层属性。特别的，rule.defaultField可以用来校验数据结构相同的数组项；rule.fields只作用于某个对象属性或某个数组项。该深层属性可以是数组或对象，通过for…in获得数组项或对象属性，并作相应校验。关于这一点，笔者也将在校验流程那一段落加以描述。</p>
 <h2 id="校验流程"><a href="#校验流程" class="headerlink" title="校验流程"></a>校验流程</h2><p>整体校验流程为：</p>
@@ -761,348 +792,34 @@ Schema.register = function register(type, validator) {
 <img src="/2018/01/24/浅析async-validator源码/async-validator.png">
 <h3 id="平行、有序校验逻辑再梳理"><a href="#平行、有序校验逻辑再梳理" class="headerlink" title="平行、有序校验逻辑再梳理"></a>平行、有序校验逻辑再梳理</h3><p>在async-validator源码中，平行、有序校验逻辑由util.js文件中asyncMap、asyncSerialArray、asyncParallelArray这三个函数支撑，其实现原理类似于async模块。其中，asyncParallelArray函数用于实现平行校验，在某个异步校验器执行过程中，平行调用下一个校验器；asyncSerialArray用于实现有序校验，在异步校验器执行完成后，再启用下一个校验器。</p>
 <p>关于asyncParallelArray(arr, func, callback)函数，其工作流即遍历数组arr，对数组项分别调用func函数加以处理，并通过手动执行的次参收集错误对象或调用callback回调。当遍历完成时，callback回调将被执行。</p>
-<pre><code>// src/util.js
-function asyncParallelArray(arr, func, callback) {
-  const results = [];
-  let total = 0;
-  const arrLength = arr.length;
-
-  function count(errors) {
-    results.push.apply(results, errors);
-    total++;
-    if (total === arrLength) {
-      callback(results);
-    }
-  }
-
-  arr.forEach((a) =&gt; {
-    func(a, count);
-  });
-}
-</code></pre><p>关于asyncSerialArray(arr, func, callback)函数，其工作流是在内部构建一个next函数，通过该next函数调用func，并将arr数组项及next函数本身作为func的参数，由此有序遍历arr。</p>
-<pre><code>// src/util.js
-function asyncSerialArray(arr, func, callback) {
-let index = 0;
-const arrLength = arr.length;
-
-function next(errors) {
-  if (errors &amp;&amp; errors.length) {
-    callback(errors);
-    return;
-  }
-  const original = index;
-  index = index + 1;
-  if (original &lt; arrLength) {
-    func(arr[original], next);
-  } else {
-    callback([]);
-  }
-}
-
-next([]);
-</code></pre><p>  }</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// src/util.js</span><br><span class="line"><span class="keyword">function</span> asyncParallelArray(arr, func, callback) &#123;</span><br><span class="line">  const results = [];</span><br><span class="line">  <span class="built_in">let</span> total = 0;</span><br><span class="line">  const arrLength = arr.length;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> count(errors) &#123;</span><br><span class="line">    results.push.apply(results, errors);</span><br><span class="line">    total++;</span><br><span class="line">    <span class="keyword">if</span> (total === arrLength) &#123;</span><br><span class="line">      callback(results);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  arr.forEach((a) =&gt; &#123;</span><br><span class="line">    func(a, count);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关于asyncSerialArray(arr, func, callback)函数，其工作流是在内部构建一个next函数，通过该next函数调用func，并将arr数组项及next函数本身作为func的参数，由此有序遍历arr。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">// src/util.js</span><br><span class="line"><span class="keyword">function</span> asyncSerialArray(arr, func, callback) &#123;</span><br><span class="line">  <span class="built_in">let</span> index = 0;</span><br><span class="line">  const arrLength = arr.length;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> next(errors) &#123;</span><br><span class="line">    <span class="keyword">if</span> (errors &amp;&amp; errors.length) &#123;</span><br><span class="line">      callback(errors);</span><br><span class="line">      <span class="built_in">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    const original = index;</span><br><span class="line">    index = index + 1;</span><br><span class="line">    <span class="keyword">if</span> (original &lt; arrLength) &#123;</span><br><span class="line">      func(arr[original], next);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      callback([]);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  next([]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>关于asyncMap函数，首先它判断options.first是否为真值，若为真值，调用asyncSerialArray处理series数组，当某一规则校验失败时，即终止校验，执行callback回调。若options.first为否值，构建next函数包装callback，目的是将所有校验器的失败文案合二为一，在传入callback回调中；再根据options.firstFields是否为真值，分别执行asyncSerialArray、asyncParallelArray函数。</p>
-<pre><code>// src/util.js
-export function asyncMap(objArr, option, func, callback) {
-  if (option.first) {
-    const flattenArr = flattenObjArr(objArr);
-    return asyncSerialArray(flattenArr, func, callback);
-  }
-  let firstFields = option.firstFields || [];
-  if (firstFields === true) {
-    firstFields = Object.keys(objArr);
-  }
-  const objArrKeys = Object.keys(objArr);
-  const objArrLength = objArrKeys.length;
-  let total = 0;
-  const results = [];
-  const next = (errors) =&gt; {
-    results.push.apply(results, errors);
-    total++;
-    if (total === objArrLength) {
-      callback(results);
-    }
-  };
-  objArrKeys.forEach((key) =&gt; {
-    const arr = objArr[key];
-    if (firstFields.indexOf(key) !== -1) {
-      asyncSerialArray(arr, func, next);
-    } else {
-      asyncParallelArray(arr, func, next);
-    }
-  });
-}
-</code></pre><h3 id="反思校验流程"><a href="#反思校验流程" class="headerlink" title="反思校验流程"></a>反思校验流程</h3><p>首先笔者需要介绍的是怎样在自定义校验器中应用promise。代码见下。</p>
-<pre><code>function covertErrToPromise(err) {
-  let promise = new Promise(function(resolve, reject){
-    if ( err ) reject(err);
-    else resolve();
-  }));
-
-  return promise;
-};
-
-function ValidatorDecorator(validator){
-  return function(rule, value, cb, source, options){
-    let result = validator(rule, value, cb, source, options);
-    return covertErrToPromise(result);
-  };
-}
-
-@ValidatorDecorator
-function customValidator(rule, value, cb, source, options){
-  // ...validate 
-};
-</code></pre><p>不得不说，async-validator模块有个缺点，即需要调用者自行构建Promise实例，而不能直接使用unjq-ajax、react-resource、fetch之类模块返回的Promise实例。与此同时，返回的Promise实例将阻塞后续的校验器。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">// src/util.js</span><br><span class="line"><span class="built_in">export</span> <span class="keyword">function</span> asyncMap(objArr, option, func, callback) &#123;</span><br><span class="line">  <span class="keyword">if</span> (option.first) &#123;</span><br><span class="line">    const flattenArr = flattenObjArr(objArr);</span><br><span class="line">    <span class="built_in">return</span> asyncSerialArray(flattenArr, func, callback);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">let</span> firstFields = option.firstFields || [];</span><br><span class="line">  <span class="keyword">if</span> (firstFields === <span class="literal">true</span>) &#123;</span><br><span class="line">    firstFields = Object.keys(objArr);</span><br><span class="line">  &#125;</span><br><span class="line">  const objArrKeys = Object.keys(objArr);</span><br><span class="line">  const objArrLength = objArrKeys.length;</span><br><span class="line">  <span class="built_in">let</span> total = 0;</span><br><span class="line">  const results = [];</span><br><span class="line">  const next = (errors) =&gt; &#123;</span><br><span class="line">    results.push.apply(results, errors);</span><br><span class="line">    total++;</span><br><span class="line">    <span class="keyword">if</span> (total === objArrLength) &#123;</span><br><span class="line">      callback(results);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">  objArrKeys.forEach((key) =&gt; &#123;</span><br><span class="line">    const arr = objArr[key];</span><br><span class="line">    <span class="keyword">if</span> (firstFields.indexOf(key) !== -1) &#123;</span><br><span class="line">      asyncSerialArray(arr, func, next);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      asyncParallelArray(arr, func, next);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="反思校验流程"><a href="#反思校验流程" class="headerlink" title="反思校验流程"></a>反思校验流程</h3><p>首先笔者需要介绍的是怎样在自定义校验器中应用promise。代码见下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> covertErrToPromise(err) &#123;</span><br><span class="line">  <span class="built_in">let</span> promise = new Promise(<span class="keyword">function</span>(resolve, reject)&#123;</span><br><span class="line">    <span class="keyword">if</span> ( err ) reject(err);</span><br><span class="line">    <span class="keyword">else</span> resolve();</span><br><span class="line">  &#125;));</span><br><span class="line"></span><br><span class="line">  <span class="built_in">return</span> promise;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> ValidatorDecorator(validator)&#123;</span><br><span class="line">  <span class="built_in">return</span> <span class="keyword">function</span>(rule, value, cb, <span class="built_in">source</span>, options)&#123;</span><br><span class="line">    <span class="built_in">let</span> result = validator(rule, value, cb, <span class="built_in">source</span>, options);</span><br><span class="line">    <span class="built_in">return</span> covertErrToPromise(result);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@ValidatorDecorator</span><br><span class="line"><span class="keyword">function</span> customValidator(rule, value, cb, <span class="built_in">source</span>, options)&#123;</span><br><span class="line">  // ...validate </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>不得不说，async-validator模块有个缺点，即需要调用者自行构建Promise实例，而不能直接使用unjq-ajax、react-resource、fetch之类模块返回的Promise实例。与此同时，返回的Promise实例将阻塞后续的校验器。</p>
 <p>因此笔者有个疑问，为什么async-validator模块在组织异步逻辑的时候，没有采用Promise的写法？</p>
 <p>如果async-validator模块在实现中率先判断rule.validator的返回值是否为Promise实例（通过instanceof判断是否Promise实例，或者通过thenable之类的函数判断返回值是否包含then方法），对于同步校验校验器，将其转化为Promise实例，再将cb回调挂载到该Promise的then方法上；对于异步校验器，不作任何处理。这样可以简化自定义校验器的书写流程，校验通过返回错误文案，成功返回null或不返回；异步校验可以采用async函数书写，也不需要构建Promise实例。</p>
 <p>在性能方面，仍旧参数options的first、firstFields属性判断是否该启用有序校验；默认使用平行校验。</p>
 <h2 id="错误文案"><a href="#错误文案" class="headerlink" title="错误文案"></a>错误文案</h2><p>在async-validator模块中，错误文案通过Schema实例的messages方法添加。在内置或自定义校验器中，通过options参数的messages方法获得，再由util.js文件里的format函数格式化。介于async-validator模块不对外提供format方法，对于使用者注册的type校验器，需要自行构建format函数，手动格式化。</p>
 <p>此外，async-validator模块不提供国际化的能力。因此，在切换语言时，需要使用者自行调用Schema实例的messages方法切换加载的语言包。关于async-validator模块的设计，完全可以为Schema实例添加一个setLanguage方法，用以切换语言，随后再调用messages添加当前项目实际需要的错误文案。</p>
-<pre><code>schema.messages({
-  default: &apos;字段 %s 校验失败&apos;,
-  required: &apos;%s 必填&apos;,
-  enum: &apos;%s 必须是 %s 中的一个&apos;,
-  whitespace: &apos;%s 不能为空&apos;,
-  date: {
-    format: &apos;%s 日期对象 %s 无效，当转换 %s时&apos;,
-    parse: &apos;%s 日期对象不能被解析, %s 无效&apos;,
-    invalid: &apos;%s 日期对象 %s 无效&apos;,
-  },
-  types: {
-    string: &apos;%s 不是一个 %s&apos;,
-    method: &apos;%s 不是一个 %s (function)&apos;,
-    array: &apos;%s 不是一个 %s&apos;,
-    object: &apos;%s 不是一个 %s&apos;,
-    number: &apos;%s 不是一个 %s&apos;,
-    date: &apos;%s 不是一个 %s&apos;,
-    boolean: &apos;%s 不是一个 %s&apos;,
-    integer: &apos;%s 不是一个 %s&apos;,
-    float: &apos;%s 不是一个 %s&apos;,
-    regexp: &apos;%s 不是一个有效的 %s&apos;,
-    email: &apos;%s 不是一个有效的 %s&apos;,
-    url: &apos;%s 不是一个有效的 %s&apos;,
-    hex: &apos;%s 不是一个有效的 %s&apos;,
-  },
-  string: {
-    len: &apos;字段 %s 须包含 %s 个字符&apos;,
-    min: &apos;字段 %s 须大于 %s 个字符&apos;,
-    max: &apos;字段 %s 须小于 %s 个字符&apos;,
-    range: &apos;字段 %s 须小于 %s 到 %s 个字符&apos;,
-  },
-  number: {
-    len: &apos;字段 %s 须等于 %s&apos;,
-    min: &apos;字段 %s 须大于 %s&apos;,
-    max: &apos;字段 %s 须小于 %s&apos;,
-    range: &apos;字段 %s 须介于 %s 、 %s 之间&apos;,
-  },
-  array: {
-    len: &apos;字段 %s 的长度须等于 %s&apos;,
-    min: &apos;字段 %s 的长度须大于 %s&apos;,
-    max: &apos;字段 %s 的长度须小于 %s&apos;,
-    range: &apos;字段 %s 的长度须介于 %s 、 %s 之间&apos;,
-  },
-  pattern: {
-    mismatch: &apos;字段 %s 的值 %s 不匹配正则 %s&apos;,
-  },
-})
-</code></pre><h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="async-validator在rc-form组件中的应用"><a href="#async-validator在rc-form组件中的应用" class="headerlink" title="async-validator在rc-form组件中的应用"></a>async-validator在rc-form组件中的应用</h3><p>rc-form组件是ant-design组件库中表单组件的底层实现。关于该表单组件的实现，笔者将在以后的文章中探讨。在这篇文章中，笔者只截取rc-form组件(2.1.6版本)对async-validator模块的使用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">schema.messages(&#123;</span><br><span class="line">  default: <span class="string">'字段 %s 校验失败'</span>,</span><br><span class="line">  required: <span class="string">'%s 必填'</span>,</span><br><span class="line">  enum: <span class="string">'%s 必须是 %s 中的一个'</span>,</span><br><span class="line">  whitespace: <span class="string">'%s 不能为空'</span>,</span><br><span class="line">  date: &#123;</span><br><span class="line">    format: <span class="string">'%s 日期对象 %s 无效，当转换 %s时'</span>,</span><br><span class="line">    parse: <span class="string">'%s 日期对象不能被解析, %s 无效'</span>,</span><br><span class="line">    invalid: <span class="string">'%s 日期对象 %s 无效'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  types: &#123;</span><br><span class="line">    string: <span class="string">'%s 不是一个 %s'</span>,</span><br><span class="line">    method: <span class="string">'%s 不是一个 %s (function)'</span>,</span><br><span class="line">    array: <span class="string">'%s 不是一个 %s'</span>,</span><br><span class="line">    object: <span class="string">'%s 不是一个 %s'</span>,</span><br><span class="line">    number: <span class="string">'%s 不是一个 %s'</span>,</span><br><span class="line">    date: <span class="string">'%s 不是一个 %s'</span>,</span><br><span class="line">    boolean: <span class="string">'%s 不是一个 %s'</span>,</span><br><span class="line">    <span class="built_in">integer</span>: <span class="string">'%s 不是一个 %s'</span>,</span><br><span class="line">    <span class="built_in">float</span>: <span class="string">'%s 不是一个 %s'</span>,</span><br><span class="line">    regexp: <span class="string">'%s 不是一个有效的 %s'</span>,</span><br><span class="line">    email: <span class="string">'%s 不是一个有效的 %s'</span>,</span><br><span class="line">    url: <span class="string">'%s 不是一个有效的 %s'</span>,</span><br><span class="line">    hex: <span class="string">'%s 不是一个有效的 %s'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  string: &#123;</span><br><span class="line">    len: <span class="string">'字段 %s 须包含 %s 个字符'</span>,</span><br><span class="line">    min: <span class="string">'字段 %s 须大于 %s 个字符'</span>,</span><br><span class="line">    max: <span class="string">'字段 %s 须小于 %s 个字符'</span>,</span><br><span class="line">    range: <span class="string">'字段 %s 须小于 %s 到 %s 个字符'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  number: &#123;</span><br><span class="line">    len: <span class="string">'字段 %s 须等于 %s'</span>,</span><br><span class="line">    min: <span class="string">'字段 %s 须大于 %s'</span>,</span><br><span class="line">    max: <span class="string">'字段 %s 须小于 %s'</span>,</span><br><span class="line">    range: <span class="string">'字段 %s 须介于 %s 、 %s 之间'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  array: &#123;</span><br><span class="line">    len: <span class="string">'字段 %s 的长度须等于 %s'</span>,</span><br><span class="line">    min: <span class="string">'字段 %s 的长度须大于 %s'</span>,</span><br><span class="line">    max: <span class="string">'字段 %s 的长度须小于 %s'</span>,</span><br><span class="line">    range: <span class="string">'字段 %s 的长度须介于 %s 、 %s 之间'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  pattern: &#123;</span><br><span class="line">    mismatch: <span class="string">'字段 %s 的值 %s 不匹配正则 %s'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="async-validator在rc-form组件中的应用"><a href="#async-validator在rc-form组件中的应用" class="headerlink" title="async-validator在rc-form组件中的应用"></a>async-validator在rc-form组件中的应用</h3><p>rc-form组件是ant-design组件库中表单组件的底层实现。关于该表单组件的实现，笔者将在以后的文章中探讨。在这篇文章中，笔者只截取rc-form组件(2.1.6版本)对async-validator模块的使用。</p>
 <p>在业务上，一则当表单元素失去焦点时需要校验该表单项，另一方面整张表单在提交时需要校验所有未隐藏的表单项。以上两点，rc-form组件都基于validateFieldsInternal方法创建新的AsyncValidator实例实现。参数action用于过滤校验条件，适用于第一种情形。参数options.force为真时，在事件过程中已被校验的表单项仍需再度校验；options.firstFields需要执行阻塞式校验的字段；其他属性同async-validator模块。</p>
-<pre><code>// rc-form/src/createBaseField.js
-validateFieldsInternal(fields, {
-  fieldNames,
-  action,
-  options = {},
-}, callback) {
-  const allRules = {};
-  const allValues = {};
-  const allFields = {};
-  const alreadyErrors = {};
-  fields.forEach((field) =&gt; {
-    const name = field.name;
-    // 表单项在事件过程中已被校验，将不予再次校验
-    if (options.force !== true &amp;&amp; field.dirty === false) {
-      if (field.errors) {
-        set(alreadyErrors, name, { errors: field.errors });
-      }
-      return;
-    }
-    const fieldMeta = this.fieldsStore.getFieldMeta(name);
-    const newField = {
-      ...field,
-    };
-    newField.errors = undefined;
-    newField.validating = true;
-    newField.dirty = true;
-    allRules[name] = this.getRules(fieldMeta, action);
-    allValues[name] = newField.value;
-    allFields[name] = newField;
-  });
-  this.setFields(allFields);
-  // in case normalize
-  Object.keys(allValues).forEach((f) =&gt; {
-    allValues[f] = this.fieldsStore.getFieldValue(f);
-  });
-  if (callback &amp;&amp; isEmptyObject(allFields)) {
-    callback(isEmptyObject(alreadyErrors) ? null : alreadyErrors,
-      this.fieldsStore.getFieldsValue(fieldNames));
-    return;
-  }
-  const validator = new AsyncValidator(allRules);
-  if (validateMessages) {
-    validator.messages(validateMessages);
-  }
-  validator.validate(allValues, options, (errors) =&gt; {
-    const errorsGroup = {
-      ...alreadyErrors,
-    };
-    if (errors &amp;&amp; errors.length) {
-      errors.forEach((e) =&gt; {
-        const fieldName = e.field;
-        if (!has(errorsGroup, fieldName)) {
-          set(errorsGroup, fieldName, { errors: [] });
-        }
-        const fieldErrors = get(errorsGroup, fieldName.concat(&apos;.errors&apos;));
-        fieldErrors.push(e);
-      });
-    }
-    const expired = [];
-    const nowAllFields = {};
-    Object.keys(allRules).forEach((name) =&gt; {
-      const fieldErrors = get(errorsGroup, name);
-      const nowField = this.fieldsStore.getField(name);
-      // avoid concurrency problems
-      // 校验过程中数据变更，提醒需要再次校验
-      if (nowField.value !== allValues[name]) {
-        expired.push({
-          name,
-        });
-      } else {
-        nowField.errors = fieldErrors &amp;&amp; fieldErrors.errors;
-        nowField.value = allValues[name];
-        nowField.validating = false;
-        nowField.dirty = false;
-        nowAllFields[name] = nowField;
-      }
-    });
-    this.setFields(nowAllFields);
-    if (callback) {
-      if (expired.length) {
-        expired.forEach(({ name }) =&gt; {
-          const fieldErrors = [{
-            message: `${name} need to revalidate`,
-            field: name,
-          }];
-          set(errorsGroup, name, {
-            expired: true,
-            errors: fieldErrors,
-          });
-        });
-      }
-
-      callback(isEmptyObject(errorsGroup) ? null : errorsGroup,
-        this.fieldsStore.getFieldsValue(fieldNames));
-    }
-  });
-},
-
-getRules(fieldMeta, action) {
-  const actionRules = fieldMeta.validate.filter((item) =&gt; {
-    return !action || item.trigger.indexOf(action) &gt;= 0;
-  }).map((item) =&gt; item.rules);
-  return flattenArray(actionRules);
-},
-</code></pre><h4 id="表单项校验"><a href="#表单项校验" class="headerlink" title="表单项校验"></a>表单项校验</h4><p>针对第一点，rc-form组件的实现策略是通过getFieldProps方法生成传入表单元素的事件绑定函数props如{ onChange: () =&gt; {} }。绑定函数内部将调用validateFieldsInternal方法对当前的表单项进行校验。</p>
-<pre><code>// rc-form/src/createBaseField.js
-getFieldProps(name, usersFieldOption = {}) {
-  // ...
-
-  const validateRules = normalizeValidateRules(validate, rules, validateTrigger);
-  const validateTriggers = getValidateTriggers(validateRules);
-  validateTriggers.forEach((action) =&gt; {
-    if (inputProps[action]) return;
-    inputProps[action] = this.getCacheBind(name, action, this.onCollectValidate);
-  });
-
-  // ...
-
-  return inputProps;
-},
-</code></pre><p>其中，参数validate = [{ rules, trigger }]、rules、validateTrigger均为usersFieldOption的属性。validate可以设置多组校验规则的不同触发方式，如失去焦点(‘onBlur’)或数据改变(‘onChange’)。参数validateTrigger即usersFieldOption.rules校验规则的触发方式，默认为’onChange’。this.getCacheBind方法用于以this.cachedBind = { name: { action: () =&gt; {} } }缓存校验函数。</p>
-<pre><code>// rc-form/src/createBaseField.js
-onCollectValidate(name_, action, ...args) {
-  // this.onCollectCommon方法用于执行onChange等副作用函数，并获取表单项的值
-  const { field, fieldMeta } = this.onCollectCommon(name_, action, args);
-  const newField = {
-    ...field,
-    dirty: true,
-  };
-  this.validateFieldsInternal([newField], {
-    action,
-    options: {
-      firstFields: !!fieldMeta.validateFirst,
-    },
-  });
-},
-</code></pre><p>可以看到，inputProps注入表单项的绑定函数this.onCollectValidate方法将调用this.validateFieldsInternal校验表单项。特别需要指明的是，fieldMeta为{ name, trigger, valuePropName, …usersFieldOption, validate }数据格式。其中，usersFieldOption.validateFirst决定当前校验字段是否执行阻塞式校验；usersFieldOption.getValueFromEvent用于将事件参数event等转化成表单项额值。usersFieldOption.onChange等方法当同名事件发生时将被调用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line">// rc-form/src/createBaseField.js</span><br><span class="line">validateFieldsInternal(fields, &#123;</span><br><span class="line">  fieldNames,</span><br><span class="line">  action,</span><br><span class="line">  options = &#123;&#125;,</span><br><span class="line">&#125;, callback) &#123;</span><br><span class="line">  const allRules = &#123;&#125;;</span><br><span class="line">  const allValues = &#123;&#125;;</span><br><span class="line">  const allFields = &#123;&#125;;</span><br><span class="line">  const alreadyErrors = &#123;&#125;;</span><br><span class="line">  fields.forEach((field) =&gt; &#123;</span><br><span class="line">    const name = field.name;</span><br><span class="line">    // 表单项在事件过程中已被校验，将不予再次校验</span><br><span class="line">    <span class="keyword">if</span> (options.force !== <span class="literal">true</span> &amp;&amp; field.dirty === <span class="literal">false</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (field.errors) &#123;</span><br><span class="line">        <span class="built_in">set</span>(alreadyErrors, name, &#123; errors: field.errors &#125;);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    const fieldMeta = this.fieldsStore.getFieldMeta(name);</span><br><span class="line">    const newField = &#123;</span><br><span class="line">      ...field,</span><br><span class="line">    &#125;;</span><br><span class="line">    newField.errors = undefined;</span><br><span class="line">    newField.validating = <span class="literal">true</span>;</span><br><span class="line">    newField.dirty = <span class="literal">true</span>;</span><br><span class="line">    allRules[name] = this.getRules(fieldMeta, action);</span><br><span class="line">    allValues[name] = newField.value;</span><br><span class="line">    allFields[name] = newField;</span><br><span class="line">  &#125;);</span><br><span class="line">  this.setFields(allFields);</span><br><span class="line">  // <span class="keyword">in</span> <span class="keyword">case</span> normalize</span><br><span class="line">  Object.keys(allValues).forEach((f) =&gt; &#123;</span><br><span class="line">    allValues[f] = this.fieldsStore.getFieldValue(f);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">if</span> (callback &amp;&amp; isEmptyObject(allFields)) &#123;</span><br><span class="line">    callback(isEmptyObject(alreadyErrors) ? null : alreadyErrors,</span><br><span class="line">      this.fieldsStore.getFieldsValue(fieldNames));</span><br><span class="line">    <span class="built_in">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  const validator = new AsyncValidator(allRules);</span><br><span class="line">  <span class="keyword">if</span> (validateMessages) &#123;</span><br><span class="line">    validator.messages(validateMessages);</span><br><span class="line">  &#125;</span><br><span class="line">  validator.validate(allValues, options, (errors) =&gt; &#123;</span><br><span class="line">    const errorsGroup = &#123;</span><br><span class="line">      ...alreadyErrors,</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">if</span> (errors &amp;&amp; errors.length) &#123;</span><br><span class="line">      errors.forEach((e) =&gt; &#123;</span><br><span class="line">        const fieldName = e.field;</span><br><span class="line">        <span class="keyword">if</span> (!has(errorsGroup, fieldName)) &#123;</span><br><span class="line">          <span class="built_in">set</span>(errorsGroup, fieldName, &#123; errors: [] &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        const fieldErrors = get(errorsGroup, fieldName.concat(<span class="string">'.errors'</span>));</span><br><span class="line">        fieldErrors.push(e);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    const expired = [];</span><br><span class="line">    const nowAllFields = &#123;&#125;;</span><br><span class="line">    Object.keys(allRules).forEach((name) =&gt; &#123;</span><br><span class="line">      const fieldErrors = get(errorsGroup, name);</span><br><span class="line">      const nowField = this.fieldsStore.getField(name);</span><br><span class="line">      // avoid concurrency problems</span><br><span class="line">      // 校验过程中数据变更，提醒需要再次校验</span><br><span class="line">      <span class="keyword">if</span> (nowField.value !== allValues[name]) &#123;</span><br><span class="line">        expired.push(&#123;</span><br><span class="line">          name,</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        nowField.errors = fieldErrors &amp;&amp; fieldErrors.errors;</span><br><span class="line">        nowField.value = allValues[name];</span><br><span class="line">        nowField.validating = <span class="literal">false</span>;</span><br><span class="line">        nowField.dirty = <span class="literal">false</span>;</span><br><span class="line">        nowAllFields[name] = nowField;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    this.setFields(nowAllFields);</span><br><span class="line">    <span class="keyword">if</span> (callback) &#123;</span><br><span class="line">      <span class="keyword">if</span> (expired.length) &#123;</span><br><span class="line">        expired.forEach((&#123; name &#125;) =&gt; &#123;</span><br><span class="line">          const fieldErrors = [&#123;</span><br><span class="line">            message: `<span class="variable">$&#123;name&#125;</span> need to revalidate`,</span><br><span class="line">            field: name,</span><br><span class="line">          &#125;];</span><br><span class="line">          <span class="built_in">set</span>(errorsGroup, name, &#123;</span><br><span class="line">            expired: <span class="literal">true</span>,</span><br><span class="line">            errors: fieldErrors,</span><br><span class="line">          &#125;);</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      callback(isEmptyObject(errorsGroup) ? null : errorsGroup,</span><br><span class="line">        this.fieldsStore.getFieldsValue(fieldNames));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">getRules(fieldMeta, action) &#123;</span><br><span class="line">  const actionRules = fieldMeta.validate.filter((item) =&gt; &#123;</span><br><span class="line">    <span class="built_in">return</span> !action || item.trigger.indexOf(action) &gt;= 0;</span><br><span class="line">  &#125;).map((item) =&gt; item.rules);</span><br><span class="line">  <span class="built_in">return</span> flattenArray(actionRules);</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<h4 id="表单项校验"><a href="#表单项校验" class="headerlink" title="表单项校验"></a>表单项校验</h4><p>针对第一点，rc-form组件的实现策略是通过getFieldProps方法生成传入表单元素的事件绑定函数props如{ onChange: () =&gt; {} }。绑定函数内部将调用validateFieldsInternal方法对当前的表单项进行校验。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// rc-form/src/createBaseField.js</span><br><span class="line">getFieldProps(name, usersFieldOption = &#123;&#125;) &#123;</span><br><span class="line">  // ...</span><br><span class="line"></span><br><span class="line">  const validateRules = normalizeValidateRules(validate, rules, validateTrigger);</span><br><span class="line">  const validateTriggers = getValidateTriggers(validateRules);</span><br><span class="line">  validateTriggers.forEach((action) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (inputProps[action]) <span class="built_in">return</span>;</span><br><span class="line">    inputProps[action] = this.getCacheBind(name, action, this.onCollectValidate);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  // ...</span><br><span class="line"></span><br><span class="line">  <span class="built_in">return</span> inputProps;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>其中，参数validate = [{ rules, trigger }]、rules、validateTrigger均为usersFieldOption的属性。validate可以设置多组校验规则的不同触发方式，如失去焦点(‘onBlur’)或数据改变(‘onChange’)。参数validateTrigger即usersFieldOption.rules校验规则的触发方式，默认为’onChange’。this.getCacheBind方法用于以this.cachedBind = { name: { action: () =&gt; {} } }缓存校验函数。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// rc-form/src/createBaseField.js</span><br><span class="line">onCollectValidate(name_, action, ...args) &#123;</span><br><span class="line">  // this.onCollectCommon方法用于执行onChange等副作用函数，并获取表单项的值</span><br><span class="line">  const &#123; field, fieldMeta &#125; = this.onCollectCommon(name_, action, args);</span><br><span class="line">  const newField = &#123;</span><br><span class="line">    ...field,</span><br><span class="line">    dirty: <span class="literal">true</span>,</span><br><span class="line">  &#125;;</span><br><span class="line">  this.validateFieldsInternal([newField], &#123;</span><br><span class="line">    action,</span><br><span class="line">    options: &#123;</span><br><span class="line">      firstFields: !!fieldMeta.validateFirst,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>可以看到，inputProps注入表单项的绑定函数this.onCollectValidate方法将调用this.validateFieldsInternal校验表单项。特别需要指明的是，fieldMeta为{ name, trigger, valuePropName, …usersFieldOption, validate }数据格式。其中，usersFieldOption.validateFirst决定当前校验字段是否执行阻塞式校验；usersFieldOption.getValueFromEvent用于将事件参数event等转化成表单项额值。usersFieldOption.onChange等方法当同名事件发生时将被调用。</p>
 <h4 id="表单校验"><a href="#表单校验" class="headerlink" title="表单校验"></a>表单校验</h4><p>rc-form组件中，校验整张表单通过显式调用this.validateFields方法实现。在该方法内部，也将调用this.validateFieldsInternal校验所有表单项。</p>
-<pre><code>// rc-form/src/createBaseField.js
-validateFields(ns, opt, cb) {
-  // getParams用于参数转化
-  const { names, callback, options } = getParams(ns, opt, cb);
-  const fieldNames = names ?
-    this.fieldsStore.getValidFieldsFullName(names) :
-    this.fieldsStore.getValidFieldsName();
-  const fields = fieldNames
-    .filter(name =&gt; {
-      const fieldMeta = this.fieldsStore.getFieldMeta(name);
-      return hasRules(fieldMeta.validate);
-    }).map((name) =&gt; {
-      const field = this.fieldsStore.getField(name);
-      field.value = this.fieldsStore.getFieldValue(name);
-      return field;
-    });
-  if (!fields.length) {
-    if (callback) {
-      callback(null, this.fieldsStore.getFieldsValue(fieldNames));
-    }
-    return;
-  }
-  if (!(&apos;firstFields&apos; in options)) {
-    options.firstFields = fieldNames.filter((name) =&gt; {
-      const fieldMeta = this.fieldsStore.getFieldMeta(name);
-      return !!fieldMeta.validateFirst;
-    });
-  }
-  this.validateFieldsInternal(fields, {
-    fieldNames,
-    options,
-  }, callback);
-},
-</code></pre><h3 id="后台校验"><a href="#后台校验" class="headerlink" title="后台校验"></a>后台校验</h3><p>笔者将探讨的是async-validator模块在koa框架中的使用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">// rc-form/src/createBaseField.js</span><br><span class="line">validateFields(ns, opt, cb) &#123;</span><br><span class="line">  // getParams用于参数转化</span><br><span class="line">  const &#123; names, callback, options &#125; = getParams(ns, opt, cb);</span><br><span class="line">  const fieldNames = names ?</span><br><span class="line">    this.fieldsStore.getValidFieldsFullName(names) :</span><br><span class="line">    this.fieldsStore.getValidFieldsName();</span><br><span class="line">  const fields = fieldNames</span><br><span class="line">    .filter(name =&gt; &#123;</span><br><span class="line">      const fieldMeta = this.fieldsStore.getFieldMeta(name);</span><br><span class="line">      <span class="built_in">return</span> hasRules(fieldMeta.validate);</span><br><span class="line">    &#125;).map((name) =&gt; &#123;</span><br><span class="line">      const field = this.fieldsStore.getField(name);</span><br><span class="line">      field.value = this.fieldsStore.getFieldValue(name);</span><br><span class="line">      <span class="built_in">return</span> field;</span><br><span class="line">    &#125;);</span><br><span class="line">  <span class="keyword">if</span> (!fields.length) &#123;</span><br><span class="line">    <span class="keyword">if</span> (callback) &#123;</span><br><span class="line">      callback(null, this.fieldsStore.getFieldsValue(fieldNames));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!(<span class="string">'firstFields'</span> <span class="keyword">in</span> options)) &#123;</span><br><span class="line">    options.firstFields = fieldNames.filter((name) =&gt; &#123;</span><br><span class="line">      const fieldMeta = this.fieldsStore.getFieldMeta(name);</span><br><span class="line">      <span class="built_in">return</span> !!fieldMeta.validateFirst;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  this.validateFieldsInternal(fields, &#123;</span><br><span class="line">    fieldNames,</span><br><span class="line">    options,</span><br><span class="line">  &#125;, callback);</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<h3 id="后台校验"><a href="#后台校验" class="headerlink" title="后台校验"></a>后台校验</h3><p>笔者将探讨的是async-validator模块在koa框架中的使用。</p>
 <p>因为AsyncValidator实例的validate方法采用回调的方式组织异步逻辑，所以需要将其转化为Promise实例，这个过程又可以通过在中间件中提供ctx.validate方法实现。</p>
-<pre><code>const asyncValidatorMiddleware = async function(ctx, next){
-  ctx.validate = (rules, values, opts) =&gt; {
-    let options = Object.assign(opts);
-
-    let validator = new AsyncValidator(rules);
-    let promise = new Promise(resolve =&gt; {
-      validator.validate(values, options, errs =&gt; {
-        if ( errs ){
-          resolve();
-        } else {
-          let msgs = errs.map(err=&gt;err.message).join(&apos;; &apos;);
-          ctx.throw(400, msgs);
-        };
-      });
-    }));
-
-    return promise;
-  };
-
-  next();
-};
-</code></pre><h3 id="制作校验器图形界面"><a href="#制作校验器图形界面" class="headerlink" title="制作校验器图形界面"></a>制作校验器图形界面</h3><p>在本小节，笔者将结合实际的项目经验，概要地设计一个可订制校验规则的图形界面。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">const asyncValidatorMiddleware = async <span class="keyword">function</span>(ctx, next)&#123;</span><br><span class="line">  ctx.validate = (rules, values, opts) =&gt; &#123;</span><br><span class="line">    <span class="built_in">let</span> options = Object.assign(opts);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">let</span> validator = new AsyncValidator(rules);</span><br><span class="line">    <span class="built_in">let</span> promise = new Promise(resolve =&gt; &#123;</span><br><span class="line">      validator.validate(values, options, errs =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> ( errs )&#123;</span><br><span class="line">          resolve();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="built_in">let</span> msgs = errs.map(err=&gt;err.message).join(<span class="string">'; '</span>);</span><br><span class="line">          ctx.throw(400, msgs);</span><br><span class="line">        &#125;;</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">return</span> promise;</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line">  next();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="制作校验器图形界面"><a href="#制作校验器图形界面" class="headerlink" title="制作校验器图形界面"></a>制作校验器图形界面</h3><p>在本小节，笔者将结合实际的项目经验，概要地设计一个可订制校验规则的图形界面。</p>
 <p>首先，我们需要一个面板预设单组校验器的校验模式，比如限制某字段必须介于1到10之间，我们就可以在这块面板中限定该字段的值只能为数值，且开启’range’范围校验；接着，在另一块面板配置实际的校验数据，如min = 1, max = 10，由此生成实际的校验规则。</p>
 <p>在第一块面板中，预设的校验模式最终将会吐出{ validatorCode, validatorName, validatorDescription, validatorRules }形式的数据结构。其中validatorCode为校验器code，validatorName为校验器名称，validatorDesription为校验器描述，validatorRules = [ rule ]以数组形式存储各字段的校验规则。rule对象的数据结构譬如{ fieldCode, fieldName, fieldDecription, type, validateStrategy, renderType }。在rule对象中，fieldCode为校验字段code；fieldName为校验字段名称；fieldDecription为校验字段描述；type为类型，可选’number’, ‘string’, ‘date’, ‘enum’, ‘array’, ‘object’, ‘custom’（当type为’array’或’object’时，嵌套设置其下属数组项或属性的校验规则；当type为’custom’时，校验方式由程序约定，通过fieldCode查找）；validateStrategy为校验策略，当type为’string’时，可选的校验策略包含’regexp’（正则匹配）, ‘expired’（严格相等）, ‘url’等，余略；renderType为渲染形式，当type为’string’时，renderType自然为输入框形式，这意味着在第二块面板中需要渲染一个输入框以配置正则或期望值，余略。</p>
 <p>关于校验类型type和校验策略validateStrategy、渲染形式renderType的关系，笔者用下图简要说明：</p>
@@ -1119,452 +836,19 @@ validateFields(ns, opt, cb) {
 <h2 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h2><h3 id="jquery-validate"><a href="#jquery-validate" class="headerlink" title="jquery-validate"></a>jquery-validate</h3><p>相比async-validator模块专司于数据校验，jquery-validate模块还承担着视图层的工作。因此数据在流入流出校验器时，都可能需要判断数据所属节点的标签名。在这里，笔者只概要地介绍该插件数据校验方面的流程。</p>
 <h4 id="内置校验器-1"><a href="#内置校验器-1" class="headerlink" title="内置校验器"></a>内置校验器</h4><p>在jquery-validate模块源码中，校验方法注册在$.validator.prototype.methods（后文将用methods代替）属性中。校验方法的函数形式均为function(value, element, param)，参数value为待校验的值，element为待校验的元素，param为相应校验规则的值。校验方法又包含required非空检验，email校验，url校验，date校验，dateISO年-月-日校验，number数值（包含小数）校验，digits正整数校验，creditcard信用卡号校验，minlength最小长度校验，maxlength最大长度校验，rangelength长度范围校验，min最小值校验，max最大值校验，range范围校验，equalTo关联元素等值校验，remote远程校验。</p>
 <p>挂载在元素上的校验规则通过let rules = { fieldName:{ required: true, min: 1 } }; $(“#form”).validate({ rules })形式设定。因此各校验方法获得的param参数也在于配置项rules.filedName对象，如methods.required校验方法获得的param为true，methods.min方法获得的param为1。特别的，在methods.required校验方法中，预先调用this.depend方法判断先决条件是否成立（前提是将required校验方法作为预先设置的最基础的校验器，其他校验方法都调用this.optional方法校验元素的值非空后，才进行特定的数据校验。该先决条件的成立与否都不影响校验显示结果），当param为字符串时，需要相应元素在页面中存在，这在联动显示隐藏的业务场景特别有用；当param为函数时，需要函数返回真值，这可用在关联校验等业务场景中；当param为布尔值时，无须判断先决条件。</p>
-<pre><code>$.validator.prototype.methods = {
-    // ...
-
-    elementValue: function (element) {
-        var val,
-            $element = $(element),
-            type = element.type;
-
-        if (type === &quot;radio&quot; || type === &quot;checkbox&quot;) {
-            return this.findByName(element.name).filter(&quot;:checked&quot;).val();
-        } else if (type === &quot;number&quot; &amp;&amp; typeof element.validity !== &quot;undefined&quot;) {
-            return element.validity.badInput ? false : $element.val();
-        }
-
-        val = $element.val();
-        if (typeof val === &quot;string&quot;) {
-            return val.replace(/\r/g, &quot;&quot;);
-        }
-        return val;
-    },
-
-    checkable: function (element) {
-        return (/radio|checkbox/i).test(element.type);
-    },
-
-    getLength: function (value, element) {
-        switch (element.nodeName.toLowerCase()) {
-            case &quot;select&quot;:
-                return $(&quot;option:selected&quot;, element).length;
-            case &quot;input&quot;:
-                if (this.checkable(element)) {
-                    return this.findByName(element.name).filter(&quot;:checked&quot;).length;
-                }
-        }
-        return value.length;
-    },
-
-    depend: function (param, element) {
-        return this.dependTypes[typeof param] ? this.dependTypes[typeof param](param, element) : true;
-    },
-
-    dependTypes: {
-        &quot;boolean&quot;: function (param) {
-            return param;
-        },
-        &quot;string&quot;: function (param, element) {
-            return !!$(param, element.form).length;
-        },
-        &quot;function&quot;: function (param, element) {
-            return param(element);
-        }
-    },
-
-    optional: function (element) {
-        var val = this.elementValue(element);
-        return !$.validator.methods.required.call(this, val, element) &amp;&amp; &quot;dependency-mismatch&quot;;
-    },
-
-    methods: {
-        // {required:true}、{required:function(){return $(anotherEle).val()&lt;12}}依赖条件  
-        required: function(value, element, param) { 
-            if (!this.depend(param, element)) {
-                return &quot;dependency-mismatch&quot;;
-            }
-            if (element.nodeName.toLowerCase() === &quot;select&quot;) {
-                // could be an array for select-multiple or a string, both are fine this way  
-                var val = $(element).val();
-                return val &amp;&amp; val.length &gt; 0;
-            }
-            if (this.checkable(element)) {
-                return this.getLength(value, element) &gt; 0;
-            }
-            return value.length &gt; 0;
-        },
-
-        email: function(value, element) {
-            return this.optional(element) || /^[a-zA-Z0-9.!#$%&amp;&apos;*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(value);
-        },
-        url: function(value, element) {
-            return this.optional(element) || /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
-        },
-        date: function(value, element) {
-            return this.optional(element) || !/Invalid|NaN/.test(new Date(value).toString());
-        },
-        dateISO: function(value, element) {
-            return this.optional(element) || /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(value);
-        },
-        number: function(value, element) {
-            return this.optional(element) || /^(?:-?\d+|-?\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(value);
-        },
-        digits: function(value, element) {
-            return this.optional(element) || /^\d+$/.test(value);
-        },
-
-        // http://jqueryvalidation.org/creditcard-method/  
-        // based on http://en.wikipedia.org/wiki/Luhn_algorithm  
-        creditcard: function(value, element) {
-            if (this.optional(element)) {
-                return &quot;dependency-mismatch&quot;;
-            }
-
-            if (/[^0-9 \-]+/.test(value)) {
-                return false;
-            }
-            var nCheck = 0,
-                nDigit = 0,
-                bEven = false,
-                n, cDigit;
-
-            value = value.replace(/\D/g, &quot;&quot;);
-
-            // http://developer.ean.com/general_info/Valid_Credit_Card_Types  
-            if (value.length &lt; 13 || value.length &gt; 19) {
-                return false;
-            }
-
-            for (n = value.length - 1; n &gt;= 0; n--) {
-                cDigit = value.charAt(n);
-                nDigit = parseInt(cDigit, 10);
-                if (bEven) {
-                    if ((nDigit *= 2) &gt; 9) {
-                        nDigit -= 9;
-                    }
-                }
-                nCheck += nDigit;
-                bEven = !bEven;
-            }
-
-            return (nCheck % 10) === 0;
-        },
-
-        minlength: function(value, element, param) {
-            var length = $.isArray(value) ? value.length : this.getLength(value, element);
-            return this.optional(element) || length &gt;= param;
-        },
-        maxlength: function(value, element, param) {
-            var length = $.isArray(value) ? value.length : this.getLength(value, element);
-            return this.optional(element) || length &lt;= param;
-        },
-        rangelength: function(value, element, param) {
-            var length = $.isArray(value) ? value.length : this.getLength(value, element);
-            return this.optional(element) || (length &gt;= param[0] &amp;&amp; length &lt;= param[1]);
-        },
-
-        min: function(value, element, param) {
-            return this.optional(element) || value &gt;= param;
-        },
-        max: function(value, element, param) {
-            return this.optional(element) || value &lt;= param;
-        },
-        range: function(value, element, param) {
-            return this.optional(element) || (value &gt;= param[0] &amp;&amp; value &lt;= param[1]);
-        },
-
-        equalTo: function(value, element, param) {
-            // bind to the blur event of the target in order to revalidate whenever the target field is updated  
-            // TODO find a way to bind the event just once, avoiding the unbind-rebind overhead  
-            var target = $(param);
-            if (this.settings.onfocusout) {
-                target.off(&quot;.validate-equalTo&quot;).on(&quot;blur.validate-equalTo&quot;, function () {
-                    $(element).valid();// 执行验证  
-                });
-            }
-            return value === target.val();
-        },
-
-        // ...
-    }
-}
-</code></pre><h4 id="远程校验"><a href="#远程校验" class="headerlink" title="远程校验"></a>远程校验</h4><p>关于methods.remote远程校验。与async-validadtor模块不同的是，首先async-validadtor模块并没有提供远程校验方法，其次async-validadtor模块有异步流程控制，jquery-validate模块没有，而是通过远程校验起始时自增1、结束时自减1的标识符this.pendingRequest，以及远程校验中元素的集合this.pending来感知远程校验的状态，随后才能提交表单。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br></pre></td><td class="code"><pre><span class="line">$.validator.prototype.methods = &#123;</span><br><span class="line">  // ...</span><br><span class="line">  </span><br><span class="line">  elementValue: <span class="keyword">function</span> (element) &#123;</span><br><span class="line">    var val,</span><br><span class="line">      <span class="variable">$element</span> = $(element),</span><br><span class="line">      <span class="built_in">type</span> = element.type;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">type</span> === <span class="string">"radio"</span> || <span class="built_in">type</span> === <span class="string">"checkbox"</span>) &#123;</span><br><span class="line">      <span class="built_in">return</span> this.findByName(element.name).filter(<span class="string">":checked"</span>).val();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">type</span> === <span class="string">"number"</span> &amp;&amp; typeof element.validity !== <span class="string">"undefined"</span>) &#123;</span><br><span class="line">      <span class="built_in">return</span> element.validity.badInput ? <span class="literal">false</span> : <span class="variable">$element</span>.val();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    val = <span class="variable">$element</span>.val();</span><br><span class="line">    <span class="keyword">if</span> (typeof val === <span class="string">"string"</span>) &#123;</span><br><span class="line">      <span class="built_in">return</span> val.replace(/\r/g, <span class="string">""</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> val;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  checkable: <span class="keyword">function</span> (element) &#123;</span><br><span class="line">    <span class="built_in">return</span> (/radio|checkbox/i).<span class="built_in">test</span>(element.type);</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  getLength: <span class="keyword">function</span> (value, element) &#123;</span><br><span class="line">    switch (element.nodeName.toLowerCase()) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">"select"</span>:</span><br><span class="line">        <span class="built_in">return</span> $(<span class="string">"option:selected"</span>, element).length;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">"input"</span>:</span><br><span class="line">        <span class="keyword">if</span> (this.checkable(element)) &#123;</span><br><span class="line">          <span class="built_in">return</span> this.findByName(element.name).filter(<span class="string">":checked"</span>).length;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> value.length;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  depend: <span class="keyword">function</span> (param, element) &#123;</span><br><span class="line">    <span class="built_in">return</span> this.dependTypes[typeof param] ? this.dependTypes[typeof param](param, element) : <span class="literal">true</span>;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  dependTypes: &#123;</span><br><span class="line">    <span class="string">"boolean"</span>: <span class="keyword">function</span> (param) &#123;</span><br><span class="line">      <span class="built_in">return</span> param;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"string"</span>: <span class="keyword">function</span> (param, element) &#123;</span><br><span class="line">      <span class="built_in">return</span> !!$(param, element.form).length;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"function"</span>: <span class="keyword">function</span> (param, element) &#123;</span><br><span class="line">      <span class="built_in">return</span> param(element);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  optional: <span class="keyword">function</span> (element) &#123;</span><br><span class="line">    var val = this.elementValue(element);</span><br><span class="line">    <span class="built_in">return</span> !$.validator.methods.required.call(this, val, element) &amp;&amp; <span class="string">"dependency-mismatch"</span>;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  methods: &#123;</span><br><span class="line">    // &#123;required:<span class="literal">true</span>&#125;、&#123;required:<span class="function"><span class="title">function</span></span>()&#123;<span class="built_in">return</span> $(anotherEle).val()&lt;12&#125;&#125;依赖条件  </span><br><span class="line">    required: <span class="keyword">function</span>(value, element, param) &#123; </span><br><span class="line">      <span class="keyword">if</span> (!this.depend(param, element)) &#123;</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"dependency-mismatch"</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (element.nodeName.toLowerCase() === <span class="string">"select"</span>) &#123;</span><br><span class="line">        // could be an array <span class="keyword">for</span> select-multiple or a string, both are fine this way  </span><br><span class="line">        var val = $(element).val();</span><br><span class="line">        <span class="built_in">return</span> val &amp;&amp; val.length &gt; 0;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (this.checkable(element)) &#123;</span><br><span class="line">        <span class="built_in">return</span> this.getLength(value, element) &gt; 0;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">return</span> value.length &gt; 0;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    email: <span class="keyword">function</span>(value, element) &#123;</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || /^[a-zA-Z0-9.!<span class="comment">#$%&amp;'*+\/=?^_`&#123;|&#125;~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]&#123;0,61&#125;[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]&#123;0,61&#125;[a-zA-Z0-9])?)*$/.test(value);</span></span><br><span class="line">    &#125;,</span><br><span class="line">    url: <span class="keyword">function</span>(value, element) &#123;</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d&#123;1,3&#125;)&#123;3&#125;)(?!(?:169\.254|192\.168)(?:\.\d&#123;1,3&#125;)&#123;2&#125;)(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d&#123;1,3&#125;)&#123;2&#125;)(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d&#123;1,2&#125;|2[0-4]\d|25[0-5]))&#123;2&#125;(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]&#123;2,&#125;)).?)(?::\d&#123;2,5&#125;)?(?:[/?<span class="comment">#]\S*)?$/i.test(value);</span></span><br><span class="line">    &#125;,</span><br><span class="line">    date: <span class="keyword">function</span>(value, element) &#123;</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || !/Invalid|NaN/.<span class="built_in">test</span>(new Date(value).toString());</span><br><span class="line">    &#125;,</span><br><span class="line">    dateISO: <span class="keyword">function</span>(value, element) &#123;</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || /^\d&#123;4&#125;[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.<span class="built_in">test</span>(value);</span><br><span class="line">    &#125;,</span><br><span class="line">    number: <span class="keyword">function</span>(value, element) &#123;</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || /^(?:-?\d+|-?\d&#123;1,3&#125;(?:,\d&#123;3&#125;)+)?(?:\.\d+)?$/.<span class="built_in">test</span>(value);</span><br><span class="line">    &#125;,</span><br><span class="line">    digits: <span class="keyword">function</span>(value, element) &#123;</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || /^\d+$/.<span class="built_in">test</span>(value);</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    // http://jqueryvalidation.org/creditcard-method/  </span><br><span class="line">    // based on http://en.wikipedia.org/wiki/Luhn_algorithm  </span><br><span class="line">    creditcard: <span class="keyword">function</span>(value, element) &#123;</span><br><span class="line">      <span class="keyword">if</span> (this.optional(element)) &#123;</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"dependency-mismatch"</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (/[^0-9 \-]+/.<span class="built_in">test</span>(value)) &#123;</span><br><span class="line">        <span class="built_in">return</span> <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      var nCheck = 0,</span><br><span class="line">        nDigit = 0,</span><br><span class="line">        bEven = <span class="literal">false</span>,</span><br><span class="line">        n, cDigit;</span><br><span class="line"></span><br><span class="line">      value = value.replace(/\D/g, <span class="string">""</span>);</span><br><span class="line"></span><br><span class="line">      // http://developer.ean.com/general_info/Valid_Credit_Card_Types  </span><br><span class="line">      <span class="keyword">if</span> (value.length &lt; 13 || value.length &gt; 19) &#123;</span><br><span class="line">        <span class="built_in">return</span> <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">for</span> (n = value.length - 1; n &gt;= 0; n--) &#123;</span><br><span class="line">        cDigit = value.charAt(n);</span><br><span class="line">        nDigit = parseInt(cDigit, 10);</span><br><span class="line">        <span class="keyword">if</span> (bEven) &#123;</span><br><span class="line">          <span class="keyword">if</span> ((nDigit *= 2) &gt; 9) &#123;</span><br><span class="line">            nDigit -= 9;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        nCheck += nDigit;</span><br><span class="line">        bEven = !bEven;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="built_in">return</span> (nCheck % 10) === 0;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    minlength: <span class="keyword">function</span>(value, element, param) &#123;</span><br><span class="line">      var length = $.isArray(value) ? value.length : this.getLength(value, element);</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || length &gt;= param;</span><br><span class="line">    &#125;,</span><br><span class="line">    maxlength: <span class="keyword">function</span>(value, element, param) &#123;</span><br><span class="line">      var length = $.isArray(value) ? value.length : this.getLength(value, element);</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || length &lt;= param;</span><br><span class="line">    &#125;,</span><br><span class="line">    rangelength: <span class="keyword">function</span>(value, element, param) &#123;</span><br><span class="line">      var length = $.isArray(value) ? value.length : this.getLength(value, element);</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || (length &gt;= param[0] &amp;&amp; length &lt;= param[1]);</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    min: <span class="keyword">function</span>(value, element, param) &#123;</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || value &gt;= param;</span><br><span class="line">    &#125;,</span><br><span class="line">    max: <span class="keyword">function</span>(value, element, param) &#123;</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || value &lt;= param;</span><br><span class="line">    &#125;,</span><br><span class="line">    range: <span class="keyword">function</span>(value, element, param) &#123;</span><br><span class="line">      <span class="built_in">return</span> this.optional(element) || (value &gt;= param[0] &amp;&amp; value &lt;= param[1]);</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    equalTo: <span class="keyword">function</span>(value, element, param) &#123;</span><br><span class="line">      // <span class="built_in">bind</span> to the blur event of the target <span class="keyword">in</span> order to revalidate whenever the target field is updated  </span><br><span class="line">      // TODO find a way to <span class="built_in">bind</span> the event just once, avoiding the unbind-rebind overhead  </span><br><span class="line">      var target = $(param);</span><br><span class="line">      <span class="keyword">if</span> (this.settings.onfocusout) &#123;</span><br><span class="line">        target.off(<span class="string">".validate-equalTo"</span>).on(<span class="string">"blur.validate-equalTo"</span>, <span class="function"><span class="title">function</span></span> () &#123;</span><br><span class="line">          $(element).valid();// 执行验证  </span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">return</span> value === target.val();</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    // ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="远程校验"><a href="#远程校验" class="headerlink" title="远程校验"></a>远程校验</h4><p>关于methods.remote远程校验。与async-validadtor模块不同的是，首先async-validadtor模块并没有提供远程校验方法，其次async-validadtor模块有异步流程控制，jquery-validate模块没有，而是通过远程校验起始时自增1、结束时自减1的标识符this.pendingRequest，以及远程校验中元素的集合this.pending来感知远程校验的状态，随后才能提交表单。</p>
 <p>在jquery-validate模块中，远程校验的校验规则配置形式为rule = { remote: url }或rule = { url, …params }。参数url为请求地址，其余参数params以深拷贝的形式改变$.ajax方法的参数，可以包含data属性改变请求数据（默认值为表单项name值和表单项数据组成的键值对），success改变成功时的回调函数。默认的成功回调success中，当响应为真值，即为校验成功；为否值，即为校验失败。改写这个成功回调，需要调用者对jquery-validate模块的机制比较理解。</p>
 <p>在性能方面，jquery-validate模块会在校验元素的’data-previousValue’属性中缓存上次的校验数据及结果。当元素的当前值和缓存数据相同时，直接使用缓存中的校验结果。为避免同一个校验元素连续发送多次请求，jquery-validate模块通过扩展$.ajax实现，当有新一轮请求时，将前一轮请求abort终结掉。</p>
-<pre><code>  $.validator.prototype = {
-      // ...
-
-previousValue: function (element) {
-  return $.data(element, &quot;previousValue&quot;) || $.data(element, &quot;previousValue&quot;, {
-    old: null,
-    valid: true,
-    message: this.defaultMessage(element, &quot;remote&quot;)
-  });
-},
-
-startRequest: function (element) {
-  if (!this.pending[element.name]) {
-    this.pendingRequest++;
-    this.pending[element.name] = true;
-  }
-},
-
-stopRequest: function (element, valid) {
-  this.pendingRequest--;
-  // sometimes synchronization fails, make sure pendingRequest is never &lt; 0  
-  if (this.pendingRequest &lt; 0) {
-    this.pendingRequest = 0;
-  }
-  delete this.pending[element.name];
-  if (valid &amp;&amp; this.pendingRequest === 0 &amp;&amp; this.formSubmitted &amp;&amp; this.form()) {
-    $(this.currentForm).submit();
-    this.formSubmitted = false;
-  } else if (!valid &amp;&amp; this.pendingRequest === 0 &amp;&amp; this.formSubmitted) {
-    $(this.currentForm).triggerHandler(&quot;invalid-form&quot;, [this]);
-    this.formSubmitted = false;
-  }
-},
-  }
-
-  // http://jqueryvalidation.org/remote-method/
-  $.validator.prototype.methods.remote = function(value, element, param) {
-      if (this.optional(element)) {
-          return &quot;dependency-mismatch&quot;;
-      }
-
-      var previous = this.previousValue(element),// 获取上一次的验证结果、值。提示文本  
-          validator, data;
-
-      if (!this.settings.messages[element.name]) {
-          this.settings.messages[element.name] = {};
-      }
-      previous.originalMessage = this.settings.messages[element.name].remote;
-      this.settings.messages[element.name].remote = previous.message;
-
-      param = typeof param === &quot;string&quot; &amp;&amp; { url: param } || param;
-
-      // 当前验证与上一次情形相同，返回前一次验证结果  
-      if (previous.old === value) {
-          return previous.valid;
-      }
-
-      previous.old = value;
-      validator = this;
-      this.startRequest(element);
-      data = {};
-      data[element.name] = value;
-      $.ajax($.extend(true, {
-          mode: &quot;abort&quot;,
-          port: &quot;validate&quot; + element.name,// port和元素name相关，发送ajax后pendingRequests[port]标记为有值，阻止同一个元素发送两次ajax  
-          dataType: &quot;json&quot;,
-          data: data, 
-          context: validator.currentForm,
-          success: function (response) {
-              var valid = response === true || response === &quot;true&quot;,
-                  errors, message, submitted;
-
-              validator.settings.messages[element.name].remote = previous.originalMessage;
-              if (valid) {
-                  submitted = validator.formSubmitted;
-                  validator.prepareElement(element);
-                  validator.formSubmitted = submitted;
-                  validator.successList.push(element);
-                  delete validator.invalid[element.name];
-                  validator.showErrors();
-              } else {
-                  errors = {};
-                  message = response || validator.defaultMessage(element, &quot;remote&quot;);
-                  errors[element.name] = previous.message = $.isFunction(message) ? message(value) : message;
-                  validator.invalid[element.name] = true;
-                  validator.showErrors(errors);
-              }
-              previous.valid = valid;
-              validator.stopRequest(element, valid);
-          }
-      }, param));
-      return &quot;pending&quot;;  
-  }
-
-  var pendingRequests = {},
-      ajax;
-  // Use a prefilter if available (1.5+)  
-  // 为ajax方法添加abort、port标志，阻止同一验证元素在前一次ajax未完成时，再度发起ajax请求
-  if ($.ajaxPrefilter) {
-      // ajaxPrefilter发送前的预处理，setting请求的所有参数，xhr经过jquery封装的XMLHttpRequest对象  
-      $.ajaxPrefilter(function (settings, _, xhr) {
-          var port = settings.port;
-          if (settings.mode === &quot;abort&quot;) {
-              if (pendingRequests[port]) {
-                  pendingRequests[port].abort();
-              }
-              pendingRequests[port] = xhr;
-          }
-      });
-  } else {
-      ajax = $.ajax; 
-      $.ajax = function (settings) {
-          var mode = (&quot;mode&quot; in settings ? settings : $.ajaxSettings).mode,
-              port = (&quot;port&quot; in settings ? settings : $.ajaxSettings).port;
-          if (mode === &quot;abort&quot;) {
-              if (pendingRequests[port]) {
-                  pendingRequests[port].abort();// abort()用来终止ajax请求，还是会执行success回调，返回值为空  
-              }
-              pendingRequests[port] = ajax.apply(this, arguments);
-              return pendingRequests[port];
-          }
-          return ajax.apply(this, arguments);
-      };
-  }
-</code></pre><h4 id="注册校验器-1"><a href="#注册校验器-1" class="headerlink" title="注册校验器"></a>注册校验器</h4><p>在jquery-validate模块中，注册校验方法通过调用addMethod实现。与async-validadtor模块相比较，jquery-validate模块稍显得不够灵活，只能将自定义校验器注册为methods下属的方法，而不能直接使用外部函数。</p>
-<pre><code>$.validator = {
-  // ...
-
-  addMethod: function (name, method, message) {
-    $.validator.methods[name] = method;
-    $.validator.messages[name] = message !== undefined ? message : $.validator.messages[name];
-    if (method.length &lt; 3) {
-      $.validator.addClassRules(name, $.validator.normalizeRule(name));
-    }
-  },
-}
-</code></pre><h4 id="校验"><a href="#校验" class="headerlink" title="校验"></a>校验</h4><p>在jquery-validate模块中，实际的校验过程通过调用this.check方法执行，无论是整张表单校验，还是单个表单项校验。在check方法内部，也即遍历校验规则，调用methods下属的方法完成校验。</p>
-<pre><code>$.validator.prototype = {
-  // ... 
-
-  check: function (element) {
-    element = this.validationTargetFor(this.clean(element));// 获取当前验证元素  
-
-    var rules = $(element).rules(),// 获取元素的验证规则  
-      rulesCount = $.map(rules, function (n, i) {
-        return i;
-      }).length,
-      dependencyMismatch = false,
-      val = this.elementValue(element),
-      result, method, rule;
-
-    for (method in rules) {
-      rule = { method: method, parameters: rules[method] };
-      try {
-
-        result = $.validator.methods[method].call(this, val, element, rule.parameters);
-
-        // 依赖条件不成立，跳过验证  
-        if (result === &quot;dependency-mismatch&quot; &amp;&amp; rulesCount === 1) {
-          dependencyMismatch = true;
-          continue;
-        }
-        dependencyMismatch = false;
-
-        if (result === &quot;pending&quot;) {
-          this.toHide = this.toHide.not(this.errorsFor(element));
-          return;
-        }
-
-        if (!result) {
-          this.formatAndAdd(element, rule);// 获取错误文案，并向this.errorList塞值
-          return false;
-        }
-      } catch (e) {
-        if (this.settings.debug &amp;&amp; window.console) {
-          console.log(&quot;Exception occurred when checking element &quot; + element.id + &quot;, check the &apos;&quot; + rule.method + &quot;&apos; method.&quot;, e);
-        }
-        if (e instanceof TypeError) {
-          e.message += &quot;.  Exception occurred when checking element &quot; + element.id + &quot;, check the &apos;&quot; + rule.method + &quot;&apos; method.&quot;;
-        }
-
-        throw e;
-      }
-    }
-    if (dependencyMismatch) {
-      return;
-    }
-    if (this.objectLength(rules)) {
-      this.successList.push(element);
-    }
-    return true;
-  },
-
-}
-</code></pre><h4 id="错误文案-1"><a href="#错误文案-1" class="headerlink" title="错误文案"></a>错误文案</h4><p>在jquery-validate模块中，错误文案的实现与async-validator模块基本相同。因为jquery-validate模块没有灵活的自定义校验器概念，错误文案都通过配置项注入，可以用通用的format方法对其格式化。</p>
-<pre><code>$.validator = {
-  // ...
-
-  format: function (source, params) {
-    if (arguments.length === 1) {
-      return function () {
-        var args = $.makeArray(arguments);
-        args.unshift(source);
-        return $.validator.format.apply(this, args);
-      };
-    }
-    if (arguments.length &gt; 2 &amp;&amp; params.constructor !== Array) {
-      params = $.makeArray(arguments).slice(1);
-    }
-    if (params.constructor !== Array) {
-      params = [params];
-    }
-    $.each(params, function (i, n) {
-      source = source.replace(new RegExp(&quot;\\{&quot; + i + &quot;\\}&quot;, &quot;g&quot;), function () {
-        return n;
-      });
-    });
-    return source;
-  },
-
-  messages: {
-    required: &quot;This field is required.&quot;,
-    remote: &quot;Please fix this field.&quot;,
-    email: &quot;Please enter a valid email address.&quot;,
-    url: &quot;Please enter a valid URL.&quot;,
-    date: &quot;Please enter a valid date.&quot;,
-    dateISO: &quot;Please enter a valid date ( ISO ).&quot;,
-    number: &quot;Please enter a valid number.&quot;,
-    digits: &quot;Please enter only digits.&quot;,
-    creditcard: &quot;Please enter a valid credit card number.&quot;,
-    equalTo: &quot;Please enter the same value again.&quot;,
-    maxlength: $.validator.format(&quot;Please enter no more than {0} characters.&quot;),
-    minlength: $.validator.format(&quot;Please enter at least {0} characters.&quot;),
-    rangelength: $.validator.format(&quot;Please enter a value between {0} and {1} characters long.&quot;),
-    range: $.validator.format(&quot;Please enter a value between {0} and {1}.&quot;),
-    max: $.validator.format(&quot;Please enter a value less than or equal to {0}.&quot;),
-    min: $.validator.format(&quot;Please enter a value greater than or equal to {0}.&quot;)
-  },
-}
-
-$.validator.prototype = {
-  // ...
-
-  defaultMessage: function (element, method) {
-    return this.findDefined(// this.findDefined输出首个真值的参数
-      this.customMessage(element.name, method),// html设置的错误文案，字符串
-      this.customDataMessage(element, method),// js代码设置的错误文案，字符串或函数
-      // title is never undefined, so handle empty string as undefined  
-      !this.settings.ignoreTitle &amp;&amp; element.title || undefined,
-      $.validator.messages[method],
-      &quot;&lt;strong&gt;Warning: No message defined for &quot; + element.name + &quot;&lt;/strong&gt;&quot;
-    );
-  },
-
-  formatAndAdd: function (element, rule) {
-    var message = this.defaultMessage(element, rule.method),// 获取错误文案
-      theregex = /\$?\{(\d+)\}/g;
-    if (typeof message === &quot;function&quot;) {
-      message = message.call(this, rule.parameters, element);
-    } else if (theregex.test(message)) {
-      message = $.validator.format(message.replace(theregex, &quot;{$1}&quot;), rule.parameters);
-    }
-    this.errorList.push({
-      message: message,
-      element: element,
-      method: rule.method
-    });
-
-    this.errorMap[element.name] = message;
-    this.submitted[element.name] = message;
-  },
-
-}
-</code></pre><h3 id="jquery-validation"><a href="#jquery-validation" class="headerlink" title="jquery-validation"></a>jquery-validation</h3><p>jquery-validation模块的校验流程完全仿照jquery-validate，只是增加了额外的校验方法和语言包。笔者扼要说明一下部分校验方法的功能，代码不再赘述。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br></pre></td><td class="code"><pre><span class="line">$.validator.prototype = &#123;</span><br><span class="line">  // ...</span><br><span class="line"></span><br><span class="line">  previousValue: <span class="keyword">function</span> (element) &#123;</span><br><span class="line">    <span class="built_in">return</span> $.data(element, <span class="string">"previousValue"</span>) || $.data(element, <span class="string">"previousValue"</span>, &#123;</span><br><span class="line">      old: null,</span><br><span class="line">      valid: <span class="literal">true</span>,</span><br><span class="line">      message: this.defaultMessage(element, <span class="string">"remote"</span>)</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  startRequest: <span class="keyword">function</span> (element) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!this.pending[element.name]) &#123;</span><br><span class="line">      this.pendingRequest++;</span><br><span class="line">      this.pending[element.name] = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  stopRequest: <span class="keyword">function</span> (element, valid) &#123;</span><br><span class="line">    this.pendingRequest--;</span><br><span class="line">    // sometimes synchronization fails, make sure pendingRequest is never &lt; 0  </span><br><span class="line">    <span class="keyword">if</span> (this.pendingRequest &lt; 0) &#123;</span><br><span class="line">      this.pendingRequest = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    delete this.pending[element.name];</span><br><span class="line">    <span class="keyword">if</span> (valid &amp;&amp; this.pendingRequest === 0 &amp;&amp; this.formSubmitted &amp;&amp; this.form()) &#123;</span><br><span class="line">      $(this.currentForm).submit();</span><br><span class="line">      this.formSubmitted = <span class="literal">false</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!valid &amp;&amp; this.pendingRequest === 0 &amp;&amp; this.formSubmitted) &#123;</span><br><span class="line">      $(this.currentForm).triggerHandler(<span class="string">"invalid-form"</span>, [this]);</span><br><span class="line">      this.formSubmitted = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// http://jqueryvalidation.org/remote-method/</span><br><span class="line">$.validator.prototype.methods.remote = <span class="keyword">function</span>(value, element, param) &#123;</span><br><span class="line">  <span class="keyword">if</span> (this.optional(element)) &#123;</span><br><span class="line">    <span class="built_in">return</span> <span class="string">"dependency-mismatch"</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  var previous = this.previousValue(element),// 获取上一次的验证结果、值。提示文本  </span><br><span class="line">    validator, data;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!this.settings.messages[element.name]) &#123;</span><br><span class="line">    this.settings.messages[element.name] = &#123;&#125;;</span><br><span class="line">  &#125;</span><br><span class="line">  previous.originalMessage = this.settings.messages[element.name].remote;</span><br><span class="line">  this.settings.messages[element.name].remote = previous.message;</span><br><span class="line"></span><br><span class="line">  param = typeof param === <span class="string">"string"</span> &amp;&amp; &#123; url: param &#125; || param;</span><br><span class="line"></span><br><span class="line">  // 当前验证与上一次情形相同，返回前一次验证结果  </span><br><span class="line">  <span class="keyword">if</span> (previous.old === value) &#123;</span><br><span class="line">    <span class="built_in">return</span> previous.valid;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  previous.old = value;</span><br><span class="line">  validator = this;</span><br><span class="line">  this.startRequest(element);</span><br><span class="line">  data = &#123;&#125;;</span><br><span class="line">  data[element.name] = value;</span><br><span class="line">  $.ajax($.extend(<span class="literal">true</span>, &#123;</span><br><span class="line">    mode: <span class="string">"abort"</span>,</span><br><span class="line">    port: <span class="string">"validate"</span> + element.name,// port和元素name相关，发送ajax后pendingRequests[port]标记为有值，阻止同一个元素发送两次ajax  </span><br><span class="line">    dataType: <span class="string">"json"</span>,</span><br><span class="line">    data: data, </span><br><span class="line">    context: validator.currentForm,</span><br><span class="line">    success: <span class="keyword">function</span> (response) &#123;</span><br><span class="line">      var valid = response === <span class="literal">true</span> || response === <span class="string">"true"</span>,</span><br><span class="line">        errors, message, submitted;</span><br><span class="line"></span><br><span class="line">      validator.settings.messages[element.name].remote = previous.originalMessage;</span><br><span class="line">      <span class="keyword">if</span> (valid) &#123;</span><br><span class="line">        submitted = validator.formSubmitted;</span><br><span class="line">        validator.prepareElement(element);</span><br><span class="line">        validator.formSubmitted = submitted;</span><br><span class="line">        validator.successList.push(element);</span><br><span class="line">        delete validator.invalid[element.name];</span><br><span class="line">        validator.showErrors();</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        errors = &#123;&#125;;</span><br><span class="line">        message = response || validator.defaultMessage(element, <span class="string">"remote"</span>);</span><br><span class="line">        errors[element.name] = previous.message = $.isFunction(message) ? message(value) : message;</span><br><span class="line">        validator.invalid[element.name] = <span class="literal">true</span>;</span><br><span class="line">        validator.showErrors(errors);</span><br><span class="line">      &#125;</span><br><span class="line">      previous.valid = valid;</span><br><span class="line">      validator.stopRequest(element, valid);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, param));</span><br><span class="line">  <span class="built_in">return</span> <span class="string">"pending"</span>;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">var pendingRequests = &#123;&#125;,</span><br><span class="line">  ajax;</span><br><span class="line">// Use a prefilter <span class="keyword">if</span> available (1.5+)  </span><br><span class="line">// 为ajax方法添加abort、port标志，阻止同一验证元素在前一次ajax未完成时，再度发起ajax请求</span><br><span class="line"><span class="keyword">if</span> ($.ajaxPrefilter) &#123;</span><br><span class="line">  // ajaxPrefilter发送前的预处理，setting请求的所有参数，xhr经过jquery封装的XMLHttpRequest对象  </span><br><span class="line">  $.ajaxPrefilter(<span class="keyword">function</span> (settings, _, xhr) &#123;</span><br><span class="line">    var port = settings.port;</span><br><span class="line">    <span class="keyword">if</span> (settings.mode === <span class="string">"abort"</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (pendingRequests[port]) &#123;</span><br><span class="line">        pendingRequests[port].abort();</span><br><span class="line">      &#125;</span><br><span class="line">      pendingRequests[port] = xhr;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  ajax = $.ajax; </span><br><span class="line">  $.ajax = <span class="keyword">function</span> (settings) &#123;</span><br><span class="line">    var mode = (<span class="string">"mode"</span> <span class="keyword">in</span> settings ? settings : $.ajaxSettings).mode,</span><br><span class="line">      port = (<span class="string">"port"</span> <span class="keyword">in</span> settings ? settings : $.ajaxSettings).port;</span><br><span class="line">    <span class="keyword">if</span> (mode === <span class="string">"abort"</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (pendingRequests[port]) &#123;</span><br><span class="line">        pendingRequests[port].abort();// abort()用来终止ajax请求，还是会执行success回调，返回值为空  </span><br><span class="line">      &#125;</span><br><span class="line">      pendingRequests[port] = ajax.apply(this, arguments);</span><br><span class="line">      <span class="built_in">return</span> pendingRequests[port];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> ajax.apply(this, arguments);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="注册校验器-1"><a href="#注册校验器-1" class="headerlink" title="注册校验器"></a>注册校验器</h4><p>在jquery-validate模块中，注册校验方法通过调用addMethod实现。与async-validadtor模块相比较，jquery-validate模块稍显得不够灵活，只能将自定义校验器注册为methods下属的方法，而不能直接使用外部函数。</p>
+<p>$.validator = {<br>  // …</p>
+<p>  addMethod: function (name, method, message) {<br>    $.validator.methods[name] = method;<br>    $.validator.messages[name] = message !== undefined ? message : $.validator.messages[name];<br>    if (method.length &lt; 3) {<br>      $.validator.addClassRules(name, $.validator.normalizeRule(name));<br>    }<br>  },<br>}</p>
+<h4 id="校验"><a href="#校验" class="headerlink" title="校验"></a>校验</h4><p>在jquery-validate模块中，实际的校验过程通过调用this.check方法执行，无论是整张表单校验，还是单个表单项校验。在check方法内部，也即遍历校验规则，调用methods下属的方法完成校验。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">$.validator.prototype = &#123;</span><br><span class="line">  // ... </span><br><span class="line"></span><br><span class="line">  check: <span class="keyword">function</span> (element) &#123;</span><br><span class="line">    element = this.validationTargetFor(this.clean(element));// 获取当前验证元素  </span><br><span class="line"></span><br><span class="line">    var rules = $(element).rules(),// 获取元素的验证规则  </span><br><span class="line">      rulesCount = $.map(rules, <span class="keyword">function</span> (n, i) &#123;</span><br><span class="line">        <span class="built_in">return</span> i;</span><br><span class="line">      &#125;).length,</span><br><span class="line">      dependencyMismatch = <span class="literal">false</span>,</span><br><span class="line">      val = this.elementValue(element),</span><br><span class="line">      result, method, rule;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (method <span class="keyword">in</span> rules) &#123;</span><br><span class="line">      rule = &#123; method: method, parameters: rules[method] &#125;;</span><br><span class="line">      try &#123;</span><br><span class="line"></span><br><span class="line">        result = $.validator.methods[method].call(this, val, element, rule.parameters);</span><br><span class="line"></span><br><span class="line">        // 依赖条件不成立，跳过验证  </span><br><span class="line">        <span class="keyword">if</span> (result === <span class="string">"dependency-mismatch"</span> &amp;&amp; rulesCount === 1) &#123;</span><br><span class="line">          dependencyMismatch = <span class="literal">true</span>;</span><br><span class="line">          <span class="built_in">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        dependencyMismatch = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (result === <span class="string">"pending"</span>) &#123;</span><br><span class="line">          this.toHide = this.toHide.not(this.errorsFor(element));</span><br><span class="line">          <span class="built_in">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!result) &#123;</span><br><span class="line">          this.formatAndAdd(element, rule);// 获取错误文案，并向this.errorList塞值</span><br><span class="line">          <span class="built_in">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; catch (e) &#123;</span><br><span class="line">        <span class="keyword">if</span> (this.settings.debug &amp;&amp; window.console) &#123;</span><br><span class="line">          console.log(<span class="string">"Exception occurred when checking element "</span> + element.id + <span class="string">", check the '"</span> + rule.method + <span class="string">"' method."</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (e instanceof TypeError) &#123;</span><br><span class="line">          e.message += <span class="string">".  Exception occurred when checking element "</span> + element.id + <span class="string">", check the '"</span> + rule.method + <span class="string">"' method."</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        throw e;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (dependencyMismatch) &#123;</span><br><span class="line">      <span class="built_in">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (this.objectLength(rules)) &#123;</span><br><span class="line">      this.successList.push(element);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="错误文案-1"><a href="#错误文案-1" class="headerlink" title="错误文案"></a>错误文案</h4><p>在jquery-validate模块中，错误文案的实现与async-validator模块基本相同。因为jquery-validate模块没有灵活的自定义校验器概念，错误文案都通过配置项注入，可以用通用的format方法对其格式化。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">$.validator = &#123;</span><br><span class="line">  // ...</span><br><span class="line">  </span><br><span class="line">  format: <span class="keyword">function</span> (<span class="built_in">source</span>, params) &#123;</span><br><span class="line">    <span class="keyword">if</span> (arguments.length === 1) &#123;</span><br><span class="line">      <span class="built_in">return</span> <span class="function"><span class="title">function</span></span> () &#123;</span><br><span class="line">        var args = $.makeArray(arguments);</span><br><span class="line">        args.unshift(<span class="built_in">source</span>);</span><br><span class="line">        <span class="built_in">return</span> $.validator.format.apply(this, args);</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (arguments.length &gt; 2 &amp;&amp; params.constructor !== Array) &#123;</span><br><span class="line">      params = $.makeArray(arguments).slice(1);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (params.constructor !== Array) &#123;</span><br><span class="line">      params = [params];</span><br><span class="line">    &#125;</span><br><span class="line">    $.each(params, <span class="keyword">function</span> (i, n) &#123;</span><br><span class="line">      <span class="built_in">source</span> = source.replace(new RegExp(<span class="string">"\\&#123;"</span> + i + <span class="string">"\\&#125;"</span>, <span class="string">"g"</span>), <span class="function"><span class="title">function</span></span> () &#123;</span><br><span class="line">        <span class="built_in">return</span> n;</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="built_in">return</span> <span class="built_in">source</span>;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  messages: &#123;</span><br><span class="line">    required: <span class="string">"This field is required."</span>,</span><br><span class="line">    remote: <span class="string">"Please fix this field."</span>,</span><br><span class="line">    email: <span class="string">"Please enter a valid email address."</span>,</span><br><span class="line">    url: <span class="string">"Please enter a valid URL."</span>,</span><br><span class="line">    date: <span class="string">"Please enter a valid date."</span>,</span><br><span class="line">    dateISO: <span class="string">"Please enter a valid date ( ISO )."</span>,</span><br><span class="line">    number: <span class="string">"Please enter a valid number."</span>,</span><br><span class="line">    digits: <span class="string">"Please enter only digits."</span>,</span><br><span class="line">    creditcard: <span class="string">"Please enter a valid credit card number."</span>,</span><br><span class="line">    equalTo: <span class="string">"Please enter the same value again."</span>,</span><br><span class="line">    maxlength: $.validator.format(<span class="string">"Please enter no more than &#123;0&#125; characters."</span>),</span><br><span class="line">    minlength: $.validator.format(<span class="string">"Please enter at least &#123;0&#125; characters."</span>),</span><br><span class="line">    rangelength: $.validator.format(<span class="string">"Please enter a value between &#123;0&#125; and &#123;1&#125; characters long."</span>),</span><br><span class="line">    range: $.validator.format(<span class="string">"Please enter a value between &#123;0&#125; and &#123;1&#125;."</span>),</span><br><span class="line">    max: $.validator.format(<span class="string">"Please enter a value less than or equal to &#123;0&#125;."</span>),</span><br><span class="line">    min: $.validator.format(<span class="string">"Please enter a value greater than or equal to &#123;0&#125;."</span>)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$.validator.prototype = &#123;</span><br><span class="line">  // ...</span><br><span class="line"></span><br><span class="line">  defaultMessage: <span class="keyword">function</span> (element, method) &#123;</span><br><span class="line">    <span class="built_in">return</span> this.findDefined(// this.findDefined输出首个真值的参数</span><br><span class="line">      this.customMessage(element.name, method),// html设置的错误文案，字符串</span><br><span class="line">      this.customDataMessage(element, method),// js代码设置的错误文案，字符串或函数</span><br><span class="line">      // title is never undefined, so handle empty string as undefined  </span><br><span class="line">      !this.settings.ignoreTitle &amp;&amp; element.title || undefined,</span><br><span class="line">      $.validator.messages[method],</span><br><span class="line">      <span class="string">"&lt;strong&gt;Warning: No message defined for "</span> + element.name + <span class="string">"&lt;/strong&gt;"</span></span><br><span class="line">    );</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  formatAndAdd: <span class="keyword">function</span> (element, rule) &#123;</span><br><span class="line">    var message = this.defaultMessage(element, rule.method),// 获取错误文案</span><br><span class="line">      theregex = /\$?\&#123;(\d+)\&#125;/g;</span><br><span class="line">    <span class="keyword">if</span> (typeof message === <span class="string">"function"</span>) &#123;</span><br><span class="line">      message = message.call(this, rule.parameters, element);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (theregex.test(message)) &#123;</span><br><span class="line">      message = $.validator.format(message.replace(theregex, <span class="string">"&#123;<span class="variable">$1</span>&#125;"</span>), rule.parameters);</span><br><span class="line">    &#125;</span><br><span class="line">    this.errorList.push(&#123;</span><br><span class="line">      message: message,</span><br><span class="line">      element: element,</span><br><span class="line">      method: rule.method</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    this.errorMap[element.name] = message;</span><br><span class="line">    this.submitted[element.name] = message;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="jquery-validation"><a href="#jquery-validation" class="headerlink" title="jquery-validation"></a>jquery-validation</h3><p>jquery-validation模块的校验流程完全仿照jquery-validate，只是增加了额外的校验方法和语言包。笔者扼要说明一下部分校验方法的功能，代码不再赘述。</p>
 <p>require_from_group方法校验指定相关元素(name值查找)选中项的个数不小于指定值时，予以校验通过<br>skip_or_fill_minimum方法校验相关元素(name值查找)未赋值或选中项个数不小于指定值时，予以校验通过。<br>pattern方法正则匹配。<br>notEqualTo方法校验不等于指定值。<br>integer方法校验整数，可以时负整数。<br>maxWords、minWords、rangeWords方法校验字符数量，剔除html标签和标点符号后。<br>strippedminlength方法校验文本长度不能小于指定值。<br>nowhitespace方法校验非空字符串。<br>lettersonly方法校验字符串。<br>letterswithbasicpunc方法校验带基本标点符号的字符串，通过正则表达式  /^[a-z-.,()’”\s]+$/i 。<br>alphanumeric方法校验值是否为字符串、下划线、数值中的一种，通过正则表达式 /^\w+$/i 。<br>url2方法校验网址。<br>dateFA、dateITA、dateNL校验日期。<br>time、time12h校验时分，24小时制或12小时制。<br>accept方法校验上传文件的类型。<br>extension方法校验文件的扩展名。<br>ipv4方法校验IP v4地址。<br>ipv6方法校验IP v6地址。<br>currency方法校验货币金额，可带有币种标识。<br>mobileNL、mobileUK方法校验特定地区或国家的手机号。<br>phoneNL、phonesUK、phoneUK、phoneUS方法校验特定地区或国家的移动电话号码。<br>postalcodeBR、postalCodeCA、postalcodeNL、postcodeUK、zipcodeUS、ziprange方法校验特定地区或国家的邮政编码。<br>bankaccountNL方法校验是否银行账号。<br>giroaccountNL方法校验是否转账账号。<br>bankorgiroaccountNL方法校验是否银行账号或者转账账号。<br>iban方法校验国际银行账号。<br>bic方法校验是否商业识别码。<br>cifES方法校验是否西班牙纳税识别号。<br>cpfBR方法校验是否巴西纳税识别号。<br>creditcardtypes方法校验信用卡号是否为特定类型。<br>vinUS方法校验汽车编号。<br>stateUS方法校验美国的州或地区。</p>
 
           
@@ -1644,7 +928,7 @@ $.validator.prototype = {
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-count">3</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

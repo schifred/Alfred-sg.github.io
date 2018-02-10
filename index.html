@@ -270,6 +270,243 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/10/storybook使用指南/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/10/storybook使用指南/" itemprop="url">storybook使用指南</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-10T20:44:57+08:00">2018-02-10</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/10/storybook使用指南/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/02/10/storybook使用指南/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>storybook 在应用之外，为 UI 组件提供了独立的开发、调试环境。react-transition-group 类库的测试工作即通过 storybook 实现。</p>
+<p>storybook 支持调试 react, vue, angular, react-native 组件。<a href="https://storybook.js.org/" target="_blank" rel="noopener">storybook官网</a></p>
+<h2 id="操作指南"><a href="#操作指南" class="headerlink" title="操作指南"></a>操作指南</h2><ol>
+<li>全局安装 @storybook/cli</li>
+<li>项目目录安装依赖：react 项目为 @storybook/react，vue 项目为 @storybook/vue，angular 项目为 @storybook/angular。同时需要安装 babel-core。</li>
+<li><p>package.json 添加</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// -h 选项 指定以 127.0.0.1 作为主机</span><br><span class="line">// -p 选项 指定以 9001 作为端口号</span><br><span class="line">// -s 选项 指定 public 作为为静态文件目录</span><br><span class="line">// -c 选项 指定以 .storybook 作为配置目录</span><br><span class="line">// -o 选项 指定以 .out 作为打包文件目录</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"storybook"</span>: <span class="string">"start-storybook -h 127.0.0.1 -p 9001 -s ./public -c .storybook"</span>,</span><br><span class="line">    <span class="attr">"build:storybook"</span>: <span class="string">"build-storybook -s ./public -c .storybook -o .out"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建配置文件</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// .storybook/config.js</span></span><br><span class="line"><span class="keyword">import</span> &#123; configure &#125; <span class="keyword">from</span> <span class="string">'@storybook/react'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">loadStories</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">require</span>(<span class="string">'../stories/index.js'</span>);</span><br><span class="line">  <span class="comment">// You can require as many stories as you need.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">configure(loadStories, <span class="built_in">module</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编写 story。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// stories/index.js</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; storiesOf &#125; <span class="keyword">from</span> <span class="string">'@storybook/react'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; action &#125; <span class="keyword">from</span> <span class="string">'@storybook/addon-actions'</span>;</span><br><span class="line"><span class="keyword">import</span> Button <span class="keyword">from</span> <span class="string">'../components/Button'</span>;<span class="comment">// 来自于工程目录</span></span><br><span class="line"></span><br><span class="line">storiesOf(<span class="string">'Button'</span>, <span class="built_in">module</span>)</span><br><span class="line">  .add(<span class="string">'with text'</span>, () =&gt; (</span><br><span class="line">    &lt;Button onClick=&#123;action(<span class="string">'clicked'</span>)&#125;&gt;Hello Button&lt;<span class="regexp">/Button&gt;</span></span><br><span class="line"><span class="regexp">  ))</span></span><br><span class="line"><span class="regexp">  .add('with some emoji', () =&gt; (</span></span><br><span class="line"><span class="regexp">    &lt;Button onClick=&#123;action('clicked')&#125;&gt;😀 😎 👍 💯&lt;/</span>Button&gt;</span><br><span class="line">  ));</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>npm run storybook，将在 9001 端口启动服务，Button 按钮下有 with text, with some emoji 两个 story。</p>
+</li>
+<li>npm run build:storybook，打包输出静态文件。通过 storybook-deployer 工具可以将静态文件发布到 github 上，或者通过 build-storybook 命令将文件打包到 docs 目录中，作为 github pages 的根目录。</li>
+</ol>
+<h3 id="贴示"><a href="#贴示" class="headerlink" title="贴示"></a>贴示</h3><ol>
+<li><p>storybook 内部集成 webpack，通过 babel 编译 js，.babelrc 文件可替代 storybook 的默认配置；支持 css, json, 图片等静态文件的加载。<br>自定义 webpack 配置通过在 .storybook 目录中添加 webpack.config.js 实现，如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 除了 babel-loader 外，默认配置中的其余加载器全部停用</span></span><br><span class="line"><span class="comment">// 这种配置方式不能用于配置 babel-loader（第一个加载器）, entry, output</span></span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.scss$/</span>,</span><br><span class="line">        loaders: [<span class="string">"style-loader"</span>, <span class="string">"css-loader"</span>, <span class="string">"sass-loader"</span>],</span><br><span class="line">        include: path.resolve(__dirname, <span class="string">'../'</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或者</span></span><br><span class="line"><span class="comment">// 这种配置方式不能用于替换 babel-loader（第一个加载器）, entry, output，所有已存在的插件</span></span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function">(<span class="params">storybookBaseConfig, configType, defaultConfig</span>) =&gt;</span> &#123;</span><br><span class="line">  storybookBaseConfig.module.rules.push(&#123;</span><br><span class="line">    test: <span class="regexp">/\.scss$/</span>,</span><br><span class="line">    loaders: [<span class="string">"style-loader"</span>, <span class="string">"css-loader"</span>, <span class="string">"sass-loader"</span>],</span><br><span class="line">    include: path.resolve(__dirname, <span class="string">'../'</span>)</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> storybookBaseConfig;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>html，head 头部添加标签。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// .storybook/preview-head.html 配置文件将如下标签注入到渲染导入组件的 iframe 中，不影响 storybook 主界面</span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"https://use.typekit.net/xxxyyy.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"><span class="keyword">try</span>&#123; Typekit.load(); &#125; <span class="keyword">catch</span>(e)&#123; &#125;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line">// .storybook/preview-head.html 配置文件，将影响 storybook 主界面</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过访问 <a href="http://localhost:9009/iframe.html?selectedKind=Button&amp;selectedStory=with+text&amp;dataId=0" target="_blank" rel="noopener">http://localhost:9009/iframe.html?selectedKind=Button&amp;selectedStory=with+text&amp;dataId=0</a> 可以访问 Button 下的 with text 这个 story，浏览器显示将不带左边栏。</p>
+</li>
+</ol>
+<h2 id="辅助测试"><a href="#辅助测试" class="headerlink" title="辅助测试"></a>辅助测试</h2><h3 id="Structural-Testing"><a href="#Structural-Testing" class="headerlink" title="Structural Testing"></a>Structural Testing</h3><p>Structural Testing 结构测试的目的是判断页面元素是否异常，缺失或增加等。</p>
+<p>在 storybook 中，借助 <a href="https://facebook.github.io/jest/blog/2016/07/27/jest-14.html" target="_blank" rel="noopener">Jest’s snapshot testing</a> 实现结构测试。针对 react，Jest 将为虚拟 DOM 拍摄快照，将其转化为 json 数据，在下一次运行时比对两张快照是否有偏差。</p>
+<p>具体步骤为：</p>
+<ol>
+<li>安装 @storybook/addon-storyshots 插件。</li>
+<li><p>编写 storyshots.test.js 文件。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> initStoryshots <span class="keyword">from</span> <span class="string">'@storybook/addon-storyshots'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// getStorybook() 函数获取所有 story</span></span><br><span class="line">initStoryshots(&#123; <span class="comment">/* configuration options */</span> &#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行 storyshots.test.js 脚本，可用于测试组件逻辑是否崩盘。</p>
+</li>
+</ol>
+<p>参考文档：<a href="http://onetwo.ren/ReactStorybook%E7%9A%84%E5%90%84%E7%A7%8D%E6%95%85%E4%BA%8B/" target="_blank" rel="noopener">ReactStorybook 的各种故事</a></p>
+<h3 id="interaction-testing"><a href="#interaction-testing" class="headerlink" title="interaction testing"></a>interaction testing</h3><p>关于 interaction testing 交互测试，可以通过模拟用户输入，在 <a href="https://github.com/airbnb/enzyme" target="_blank" rel="noopener">Enzyme</a> 测试框架 Jest, Mocha 实现。</p>
+<p>在 storybook 中，交互测试可通过 <a href="https://github.com/mthuret/storybook-addon-specifications" target="_blank" rel="noopener">storybook-addon-specifications</a> 插件实现。</p>
+<p>具体步骤为：</p>
+<ol>
+<li>安装 storybook-addon-specifications 插件。</li>
+<li><p>编写 .storybook/addons.js 配置文件。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'storybook-addon-specifications/register'</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加测试文件。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; storiesOf &#125; <span class="keyword">from</span> <span class="string">'@kadira/storybook'</span></span><br><span class="line"><span class="keyword">import</span> &#123; specs, describe, it &#125; <span class="keyword">from</span> <span class="string">'storybook-addon-specifications'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123;mount&#125; <span class="keyword">from</span> <span class="string">"enzyme"</span>;</span><br><span class="line"><span class="keyword">import</span> expect <span class="keyword">from</span> <span class="string">"expect"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> stories = storiesOf(<span class="string">'Button'</span>, <span class="built_in">module</span>);</span><br><span class="line"></span><br><span class="line">stories.add(<span class="string">'Hello World'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> story =</span><br><span class="line">    &lt;button onClick=&#123;action(<span class="string">'Hello World'</span>)&#125;&gt;</span><br><span class="line">      Hello World</span><br><span class="line">    &lt;<span class="regexp">/button&gt;;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">  /</span><span class="regexp">/ describe 首参必须与 story 名字相同</span></span><br><span class="line"><span class="regexp">  specs(() =&gt; describe('Hello World', function () &#123;</span></span><br><span class="line"><span class="regexp">    it('Should have the Hello World label', function () &#123;</span></span><br><span class="line"><span class="regexp">      let output = mount(story);</span></span><br><span class="line"><span class="regexp">      expect(output.text()).toContain('Hello World');</span></span><br><span class="line"><span class="regexp">    &#125;);</span></span><br><span class="line"><span class="regexp">  &#125;));</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">  return story;</span></span><br><span class="line"><span class="regexp">&#125;);</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h2><h3 id="使用插件"><a href="#使用插件" class="headerlink" title="使用插件"></a>使用插件</h3><p>在 storybook 中，插件分为两类，装饰器 Decorator（通过封装 react 组件实现，如 storybook-router） 或 以面板形式注入的 Native Addon（如 addon-actions）。</p>
+<ol>
+<li><p>添加 .storybook/addons.js 配置文件用于向页面添加右下方插件面板。如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'@storybook/addon-actions/register'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'@storybook/addon-links/register'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'@storybook/addon-notes/register'</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编写 stroy</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; storiesOf &#125; <span class="keyword">from</span> <span class="string">'@storybook/react'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; action &#125; <span class="keyword">from</span> <span class="string">'@storybook/addon-actions'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; WithNotes &#125; <span class="keyword">from</span> <span class="string">'@storybook/addon-notes'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> Button <span class="keyword">from</span> <span class="string">'./Button'</span>;</span><br><span class="line"></span><br><span class="line">storiesOf(<span class="string">'Button'</span>, <span class="built_in">module</span>)</span><br><span class="line">  .add(<span class="string">'with some emoji'</span>, () =&gt; (</span><br><span class="line">    &lt;WithNotes notes=&#123;<span class="string">'Here we use some emoji as the Button text. Doesn&amp;apos;t it look nice?'</span>&#125;&gt;</span><br><span class="line">      &lt;Button onClick=&#123;action(<span class="string">'clicked'</span>)&#125;&gt;😀 😎 👍 💯&lt;<span class="regexp">/Button&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>WithNotes&gt;</span><br><span class="line">  ));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用装饰器 1</span></span><br><span class="line"><span class="keyword">import</span> &#123; storiesOf &#125; <span class="keyword">from</span> <span class="string">'@storybook/react'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; action &#125; <span class="keyword">from</span> <span class="string">'@storybook/addon-actions'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> Button <span class="keyword">from</span> <span class="string">'./button'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> styles = &#123;</span><br><span class="line">  textAlign: <span class="string">'center'</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> CenterDecorator = <span class="function">(<span class="params">storyFn</span>) =&gt;</span> (</span><br><span class="line">  &lt;div style=&#123;styles&#125;&gt;</span><br><span class="line">    &#123; storyFn() &#125;</span><br><span class="line">  &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">);</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">storiesOf('Button', module)</span></span><br><span class="line"><span class="regexp">  .addDecorator(CenterDecorator)</span></span><br><span class="line"><span class="regexp">  .add('with text', () =&gt; (</span></span><br><span class="line"><span class="regexp">    &lt;Button onClick=&#123;action('clicked')&#125;&gt;Hello Button&lt;/</span>Button&gt;</span><br><span class="line">  ))</span><br><span class="line">  .add(<span class="string">'with some emojies'</span>, () =&gt; (</span><br><span class="line">    &lt;Button onClick=&#123;action(<span class="string">'clicked'</span>)&#125;&gt;😀 😎 👍 💯&lt;<span class="regexp">/Button&gt;</span></span><br><span class="line"><span class="regexp">  ));</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">/</span><span class="regexp">/ 使用装饰器 2</span></span><br><span class="line"><span class="regexp">import &#123; storiesOf, addDecorator &#125; from '@storybook/</span>react<span class="string">';</span></span><br><span class="line"><span class="string">import &#123; action &#125; from '</span>@storybook/addon-actions<span class="string">';</span></span><br><span class="line"><span class="string">import &#123; linkTo &#125; from '</span>@storybook/addon-links<span class="string">';</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">import Button from '</span>./button<span class="string">';</span></span><br><span class="line"><span class="string">import Welcome from '</span>./welcome<span class="string">';</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">const styles = &#123;</span></span><br><span class="line"><span class="string">  textAlign: '</span>center<span class="string">',</span></span><br><span class="line"><span class="string">&#125;;</span></span><br><span class="line"><span class="string">const CenterDecorator = (storyFn) =&gt; (</span></span><br><span class="line"><span class="string">  &lt;div style=&#123;styles&#125;&gt;</span></span><br><span class="line"><span class="string">    &#123; storyFn() &#125;</span></span><br><span class="line"><span class="string">  &lt;/div&gt;</span></span><br><span class="line"><span class="string">);</span></span><br><span class="line"><span class="string">addDecorator(CenterDecorator);</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">storiesOf('</span>Welcome<span class="string">', module)</span></span><br><span class="line"><span class="string">  .add('</span>to Storybook<span class="string">', () =&gt; (</span></span><br><span class="line"><span class="string">    &lt;Welcome showApp=&#123;linkTo('</span>Button<span class="string">')&#125;/&gt;</span></span><br><span class="line"><span class="string">  ));</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">storiesOf('</span>Button<span class="string">', module)</span></span><br><span class="line"><span class="string">  .add('</span><span class="keyword">with</span> text<span class="string">', () =&gt; (</span></span><br><span class="line"><span class="string">    &lt;Button onClick=&#123;action('</span>clicked<span class="string">')&#125;&gt;Hello Button&lt;/Button&gt;</span></span><br><span class="line"><span class="string">  ))</span></span><br><span class="line"><span class="string">  .add('</span><span class="keyword">with</span> some emojies<span class="string">', () =&gt; (</span></span><br><span class="line"><span class="string">    &lt;Button onClick=&#123;action('</span>clicked<span class="string">')&#125;&gt;😀 😎 👍 💯&lt;/Button&gt;</span></span><br><span class="line"><span class="string">  ));</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="插件清单"><a href="#插件清单" class="headerlink" title="插件清单"></a>插件清单</h3><ol>
+<li><a href="https://github.com/storybooks/storybook/tree/master/addons/storyshots" target="_blank" rel="noopener">Storyshots</a>: 快照测试。</li>
+<li><a href="https://github.com/mthuret/storybook-addon-specifications" target="_blank" rel="noopener">Specs</a>: 交互测试。</li>
+<li><a href="https://github.com/storybooks/storybook/tree/master/addons/notes" target="_blank" rel="noopener">Notes</a>: 在 story 中添加备注。</li>
+<li><a href="https://github.com/storybooks/storybook/tree/master/addons/info" target="_blank" rel="noopener">Info</a>: 用于创建 css 框架手册。</li>
+<li><a href="https://github.com/tuchk4/storybook-readme" target="_blank" rel="noopener">Readme</a>: 将 markdown 导入为 story。</li>
+<li><a href="https://github.com/storybooks/storybook/tree/master/addons/actions" target="_blank" rel="noopener">actions</a>: 显示事件的 event 对象。</li>
+<li><a href="https://github.com/truffls/storybook-addon-intl" target="_blank" rel="noopener">Intl</a>: 添加 locales 面板，用于切换语言。</li>
+<li><a href="https://github.com/Sambego/storybook-state" target="_blank" rel="noopener">State</a>: 添加 state 面板，展示或更新 state，重绘视图。</li>
+<li><a href="https://github.com/evgenykochetkov/react-storybook-addon-props-combinations" target="_blank" rel="noopener">Props Combinations</a>: 配置可能有的props，一次性绘出多个组件作对比。</li>
+<li><a href="https://github.com/storybooks/storybook/tree/master/addons/knobs" target="_blank" rel="noopener">Knobs</a>: 页面上变更 props 重绘视图。</li>
+<li><a href="https://github.com/storybooks/storybook/tree/master/addons/links" target="_blank" rel="noopener">Links</a>: 通过 linkTo 函数或 LinkTo 组件链接多个 story，支持点击跳转。</li>
+<li><a href="https://github.com/gvaldambrini/storybook-router" target="_blank" rel="noopener">Story-router</a>: 装饰器，支持 storybook 使用 react-router 等路由组件。</li>
+<li><a href="https://github.com/storybook-eol/addon-backgrounds" target="_blank" rel="noopener">Backgrounds</a>: 切换背景图或背景颜色。</li>
+<li><a href="https://github.com/joscha/storybook-addon-i18n-tools" target="_blank" rel="noopener">i18n tools</a>: 切换文字对齐方式，左对齐或右对齐。</li>
+<li><a href="https://github.com/react-theming/storybook-addon-material-ui" target="_blank" rel="noopener">Material-UI</a>: 添加并切换自定义主题。</li>
+<li><a href="https://github.com/philcockfield/storybook-host" target="_blank" rel="noopener">Host</a>: 装饰器，在页面上以盒模式展示组件。</li>
+<li><a href="https://github.com/Checkfront/react-storybook-addon-chapters" target="_blank" rel="noopener">Chapters</a>: 在同一个 story 中以章节形式展示多个组件。</li>
+<li><a href="https://github.com/storybooks/storybook/tree/master/addons/options" target="_blank" rel="noopener">Options</a>: 调整 storybook 页面外观，切换为全屏等。</li>
+<li><a href="https://github.com/storybooks/storybook-addon-console" target="_blank" rel="noopener">Console</a>: 将浏览器控制台 console 信息输出到 storybook log 面板。</li>
+<li><a href="https://github.com/storybooks/addon-jsx" target="_blank" rel="noopener">JSX preview</a>: 展示及拷贝 JSX 代码。</li>
+<li><a href="https://github.com/buildit/storybook-addon-versions" target="_blank" rel="noopener">Versions</a>: 添加版本号，查看各版本的变化。</li>
+<li><a href="https://github.com/abhiaiyer91/apollo-storybook-decorator" target="_blank" rel="noopener">Apollo</a>: 添加 Apollo client，模拟 GraphQL 查询。</li>
+<li><a href="https://github.com/tsuyoshiwada/storybook-chrome-screenshot" target="_blank" rel="noopener">Screenshot</a>: 保存网页截图。</li>
+<li><a href="https://storybook.js.org/addons/addon-gallery/" target="_blank" rel="noopener">Styles</a>: storybook 预览界面添加自定义样式。</li>
+<li><a href="https://github.com/hharnisc/storybook-addon-figma" target="_blank" rel="noopener">Figma</a>: 添加 Figma 设计面板。</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/07/浅析react-transition-group源码/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -831,7 +1068,7 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.gz$/</span>,</span><br><span class="line">        enforce: <span class="string">'pre'</span>,</span><br><span class="line">        use: <span class="string">'gzip-loader'</span></span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="yaml-frontmatter-loader"><a href="#yaml-frontmatter-loader" class="headerlink" title="yaml-frontmatter-loader"></a>yaml-frontmatter-loader</h2><p>将 yaml 转化为 json。</p>
 <h2 id="react-proxy-loader"><a href="#react-proxy-loader" class="headerlink" title="react-proxy-loader"></a>react-proxy-loader</h2><p>通过 require.ensure 按需加载文件组件。组件实例 mixins 属性注入代理组件 require(‘react-proxy-loader!./a.js’).Mixin，在当前组件中调用loadComponent 即可获取 a.js 导出的组件，a.js 文件尚未加载完成，调用开发者配置的 renderUnavailable 方法进行渲染。或者，直接将 require(‘react-proxy-loader!./a.js’) 作为组件使用，a.js 文件尚未加载完成，render 方法返回 null。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Component = <span class="built_in">require</span>(<span class="string">"react-proxy-loader!./Component"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> ComponentProxyMixin = <span class="built_in">require</span>(<span class="string">"react-proxy-loader!./Component"</span>).Mixin;</span><br><span class="line"><span class="keyword">var</span> ComponentProxy = React.createClass(&#123;</span><br><span class="line">	mixins: [ComponentProxyMixin],</span><br><span class="line">	renderUnavailable: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> &lt;p&gt;Loading...&lt;/p&gt;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Component = <span class="built_in">require</span>(<span class="string">"react-proxy-loader!./Component"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> ComponentProxyMixin = <span class="built_in">require</span>(<span class="string">"react-proxy-loader!./Component"</span>).Mixin;</span><br><span class="line"><span class="keyword">var</span> ComponentProxy = React.createClass(&#123;</span><br><span class="line">	mixins: [ComponentProxyMixin],</span><br><span class="line">	renderUnavailable: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Loading...<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 <h2 id="script-loader"><a href="#script-loader" class="headerlink" title="script-loader"></a>script-loader</h2><p>在全局上下文中执行一次 js 脚本，加载时即执行。</p>
 <h2 id="source-map-loader"><a href="#source-map-loader" class="headerlink" title="source-map-loader"></a>source-map-loader</h2><p>从 js 入口文件中提取 source-map 文件(该文件的内容由 webpackConfig devtool 配置项限定)。可设置 include, exclude 选项。</p>
 <h2 id="cache-loader"><a href="#cache-loader" class="headerlink" title="cache-loader"></a>cache-loader</h2><p>在性能开销较大的 loader 前加载 cache-loader，可以将编译结果缓存到磁盘中，如 babel-loader 前。options 有 cacheDirectory 缓存目录，默认为 path.resolve(‘.cache-loader’)。</p>
@@ -1679,7 +1916,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1701,7 +1938,7 @@
                 
                 <div class="site-state-item site-state-tags">
                   <a href="/tags/index.html">
-                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

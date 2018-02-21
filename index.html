@@ -270,7 +270,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/14/Pro Git读书笔记/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/21/Pro Git读书笔记/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -289,7 +289,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/02/14/Pro Git读书笔记/" itemprop="url">Pro Git 笔记</a></h1>
+                <a class="post-title-link" href="/2018/02/21/Pro Git读书笔记/" itemprop="url">Pro Git 笔记</a></h1>
         
 
         <div class="post-meta">
@@ -301,7 +301,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-14T00:00:00+08:00">2018-02-14</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-21T00:00:00+08:00">2018-02-21</time>
             
 
             
@@ -337,9 +337,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/02/14/Pro Git读书笔记/#comments" itemprop="discussionUrl">
+                <a href="/2018/02/21/Pro Git读书笔记/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/02/14/Pro Git读书笔记/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/02/21/Pro Git读书笔记/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -533,10 +533,29 @@
 <li>prepare-commit-msg 钩子在启动提交信息编辑器之前，默认信息被创建之后运行。</li>
 <li>commit-msg 钩子在编辑器退出后运行。</li>
 <li>post-commit 钩子在整个提交过程完成后运行。</li>
+<li>applypatch-msg 钩子在应用补丁之前运行，git am 命令执行。</li>
+<li>pre-applypatch 钩子在应用补丁之后、产生提交之前运行，git am 命令执行。</li>
+<li>post-applypatch 钩子在提交产生之后运行，git am 命令执行。</li>
+<li>pre-rebase 钩子在变基之前运行。</li>
+<li>post-rewrite 钩子被那些会替换提交记录的命令调用，比如 git commit –amend 和 git rebase 命令。</li>
+<li>post-checkout 钩子在检出之后运行。</li>
+<li>post-merge 钩子在合并之后运行。</li>
+<li>pre-push 钩子在推送之前运行。</li>
+<li>re-auto-gc 钩子会在垃圾回收开始之前被调用。git 的一些日常操作在运行时，偶尔会调用 git gc –auto 进行垃圾回收。</li>
+</ol>
+<h4 id="服务器端钩子"><a href="#服务器端钩子" class="headerlink" title="服务器端钩子"></a>服务器端钩子</h4><ol>
+<li>pre-receive 钩子在推送过程运行，同时向多个分支推送的情形下也只触发一次。</li>
+<li>update 钩子在推送过程运行，同时向多个分支推送的情形下触发多次。</li>
+<li>post-receive 钩子在整个过程完结以后运行，可以用来更新其他系统服务或者通知用户。它的用途包括给某个邮件列表发信，通知持续集成（continous integration）的服务器，或者更新问题追踪系统（ticket-tracking system） —— 甚至可以通过分析提交信息来决定某个问题（ticket）是否应该被开启，修改或者关闭。</li>
 </ol>
 <h3 id="疑问-4"><a href="#疑问-4" class="headerlink" title="疑问"></a>疑问</h3><ol>
 <li>文件检出和暂存时设置过滤器，参考<a href="https://git-scm.com/book/zh/v2/自定义-Git-Git-属性" target="_blank" rel="noopener">git 属性</a>？</li>
+<li>使用钩子，参考<a href="https://git-scm.com/book/zh/v2/自定义-Git-使用强制策略的一个例子" target="_blank" rel="noopener">使用强制策略的一个例子</a></li>
 </ol>
+<h2 id="Git-Internals"><a href="#Git-Internals" class="headerlink" title="Git Internals"></a>Git Internals</h2><p>从根本上来讲 git 是一个内容寻址（content-addressable）文件系统，并在此之上提供了一个版本控制系统的用户界面。</p>
+<p>.git 目录包含：description 文件仅供 GitWeb 程序使用；config 文件包含项目特有的配置选项；info 目录包含一个全局性排除文件；hooks 目录包含客户端或服务端的钩子脚本；objects 目录存储所有数据内容；refs 目录存储指向数据（分支）的提交对象的指针；HEAD 文件指示目前被检出的分支；index 文件保存暂存区信息。</p>
+<h3 id="git-对象"><a href="#git-对象" class="headerlink" title="git 对象"></a>git 对象</h3><p>git 是一个内容寻址文件系统。这意味着，git 的核心部分是一个简单的键值对数据库（key-value data store）。 你可以向该数据库插入任意类型的内容，它会返回一个键值，通过该键值可以在任意时刻再次检索（retrieve）该内容。 通过底层命令 hash-object 可将任意数据保存于 .git 目录，并返回相应的键值。存储的数据在 git 内部被称为 blob object</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">'test content'</span> | git <span class="built_in">hash</span>-object -w --stdin <span class="comment"># 写入数据。-w 选项指示 hash-object 命令存储数据对象；若不指定此选项，则该命令仅返回对应的键值； --stdin 选项则指示该命令从标准输入读取内容；若不指定此选项，则须在命令尾部给出待存储文件的路径。返回40位校验和，以前两位作为目录名，后38位作为文件名，存储在 .git/objects 目录中</span></span><br><span class="line">git <span class="built_in">hash</span>-object -w test.txt <span class="comment"># 写入数据</span></span><br><span class="line">git cat-file -p &lt;checksum&gt; <span class="comment"># 读取数据</span></span><br><span class="line">find .git/objects -<span class="built_in">type</span> f <span class="comment"># 查看 .git/objects 目录下文件列表</span></span><br><span class="line">git cat-file -p &lt;checksum&gt; &gt; &lt;filepath&gt; <span class="comment"># 将 .git/objects 目录下存储的某条数据导出到 filepath 文件中</span></span><br><span class="line">git cat-file -t &lt;checksum&gt; <span class="comment"># 获取 git 存储数据的对象类型，如返回 blob</span></span><br></pre></td></tr></table></figure>
 <p>参考：<br><a href="https://git-scm.com/book/zh/v2" target="_blank" rel="noopener">https://git-scm.com/book/zh/v2</a></p>
 
           

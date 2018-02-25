@@ -270,7 +270,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/22/flow使用指南/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/25/typescript文档笔记/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -289,7 +289,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/02/22/flow使用指南/" itemprop="url">flow使用指南</a></h1>
+                <a class="post-title-link" href="/2018/02/25/typescript文档笔记/" itemprop="url">typescript文档笔记</a></h1>
         
 
         <div class="post-meta">
@@ -301,7 +301,196 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-22T18:54:35+08:00">2018-02-22</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-25T00:00:00+08:00">2018-02-25</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/读书笔记/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/25/typescript文档笔记/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/02/25/typescript文档笔记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="基础类型"><a href="#基础类型" class="headerlink" title="基础类型"></a>基础类型</h2><p>ts 基础类型包含 boolean, number, string, array, tuple 元祖, enum, any 任意类型, void 非任意类型(可赋值为 undefined 或 null，通常用于函数无返回值时), undefined, null, never 永不存在值的类型(通常用于函数报错或陷入死循环时)。</p>
+<p>其中，数值类型支持十进制、十六进制、八进制和二进制字面量。</p>
+<p>字符串类型支持 es6 模板字符串。</p>
+<p>数组类型 Array<t> 限定元素类型一致，使用 let list: number[] = [1, 2, 3]; 或 let list: Array<number> = [1, 2, 3]; 声明。ReadonlyArray<t> 只读数组类型，不能将其赋值给普通数组，但可以通过类型断言将其转化为普通数组，如 numberReadonlyArray as number[]。</t></number></t></p>
+<p>元祖类型预先声明元素类型，元素类型可以不一致。如 let x: [string, number]; x = [‘hello’, 10]; 同时，对于新增的元素，其类型必须在已声明类型中。上述示例中，x[6] = true; 将报错。</p>
+<p>枚举从 0 开始为元素编号，也可以手动编号，如 enum Color {Red = 1, Green, Blue}; 通过 Color.Red 或 Color[1] 可以获取枚举值。</p>
+<h3 id="类型断言"><a href="#类型断言" class="headerlink" title="类型断言"></a>类型断言</h3><p>类型断言使用 <type>value 或 value as Type；JSX 中只能使用 as，不能使用尖括号。TS 尝试做类型转换，而没有类型检查和结构。</type></p>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><p>let 为块级作用域，用于修正 var 为函数、模块级作用域的怪异问题。<br>const 块级作用域，常量。</p>
+<h3 id="块级作用域"><a href="#块级作用域" class="headerlink" title="块级作用域"></a>块级作用域</h3><p>var 变量的声明会在编译阶段上移到函数、模块头部，因此造成怪异一为在 if, for 语句中声明的 var 变量可以在条件或循环语句外访问；造成怪异二为在内外两层 for 语句条件体内声明的同一变量引用同一个变量；造成怪异三为 for 语句执行过程有延迟，其最终引用的是条件体执行完成的结果。</p>
+<p>推想 let 修正块级作用域的过程，就是在编译过程中用匿名函数包裹代码块(if, for, {} 平级)，var 变量在该匿名函数中声明，可以解决怪异一、二；使用闭包包裹延迟函数，可以在延迟函数等待期间保留原有的作用域，这可能会导致内存泄漏。</p>
+<h3 id="解构"><a href="#解构" class="headerlink" title="解构"></a>解构</h3><p>数组使用 [ item1, item2, …rests ] = arr; 语法解构，如 [first, second] = [second, first]; 即为变量交换数据。</p>
+<p>对象使用 { prop1, prop2, …rests } = obj; 语法解构。</p>
+<p>属性重命名采用 “:”，默认值采用 “=”，如 { prop1 = “default”, prop2: “key” }。</p>
+<p>解构适用于函数入参。</p>
+<h3 id="展开"><a href="#展开" class="headerlink" title="展开"></a>展开</h3><p>展开同样使用 “…”，如 val = { prop1: “value”, …obj }。</p>
+<h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2><h3 id="接口作为类型"><a href="#接口作为类型" class="headerlink" title="接口作为类型"></a>接口作为类型</h3><p>当使用 value: Interface 语法将接口用于类型检查时，value 必须满足 Interface 声明的结构化类型，即 value 作为对象时，其属性需满足 Interface 属性的类型规则，允许 value 包含接口未声明的额外属性；value 作为函数时，其入参、返回值须满足接口约定的类型规则，value 参数名可与 Interface 定义的名字不同。</p>
+<p>接口类型使用 “?” 后缀声明可选属性，当可选属性存在时，且 value 为对象字面量时，将不允许 value 包含接口未声明的额外属性；若 value 为变量，则允许。</p>
+<p>使用 “readonly” 修饰符声明只读属性。</p>
+<p>使用 [propName: Type1]: Type2 索引签名可用于接受特定类型的属性，Type1 用于约定索引的类型(索引包含对象的属性和数组项)，Type2 用于约定值类型。索引签名 Type1 可以是 “string”, “number” 中的一个，数字通过转化为字符串索引对象，因此数字索引的返回值必须是字符串索引的返回值的子类型。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">interface SquareConfig &#123;</span><br><span class="line">  color?: string;</span><br><span class="line">  width?: number;</span><br><span class="line">  [propName: string]: any;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface SearchFunc &#123;</span><br><span class="line">  (source: string, <span class="attr">subString</span>: string): boolean;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 关于索引类型</span></span><br><span class="line">interface NumberDictionary &#123;</span><br><span class="line">  [index: string]: number;</span><br><span class="line">  length: number;<span class="comment">// 可以，length是number类型</span></span><br><span class="line">  name: string<span class="comment">// 错误，`name`的类型与索引类型返回值的类型不匹配</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="接口用于实现"><a href="#接口用于实现" class="headerlink" title="接口用于实现"></a>接口用于实现</h3><p>接口描述了类的公共部分，但不包含私有部分。</p>
+<p>当类实现了接口时，只对其实例部分进行类型检查，而 constructor 方法属于类的静态部分。对 constructor 方法进行校验需要由工厂函数完成。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">interface ClockConstructor &#123;</span><br><span class="line">  <span class="keyword">new</span> (hour: number, <span class="attr">minute</span>: number): ClockInterface;</span><br><span class="line">&#125;</span><br><span class="line">interface ClockInterface &#123;</span><br><span class="line">  tick();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createClock</span>(<span class="params">ctor: ClockConstructor, hour: number, minute: number</span>): <span class="title">ClockInterface</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> ctor(hour, minute);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DigitalClock</span> <span class="title">implements</span> <span class="title">ClockInterface</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(h: number, m: number) &#123; &#125;</span><br><span class="line">  tick() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"beep beep"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> digital = createClock(DigitalClock, <span class="number">12</span>, <span class="number">17</span>);</span><br></pre></td></tr></table></figure>
+<p>接口可以继承接口，且一个接口可以继承多个接口。</p>
+<p>接口可以继承类。当接口继承类时，接口会继承类的private和protected成员，但不包含类的实现。继承类的接口只能被该类及其子类继承。</p>
+<h2 id="类"><a href="#类" class="headerlink" title="类"></a>类</h2><p>子类通过 super 关键字访问父类，如 super() 用于执行父类的构造函数。</p>
+<p>public 关键字用于声明公共属性，默认使用 public 修饰符；protected 关键字用于声明保护属性；private 关键字用于声明私有属性。实例含有相同的公共属性、私有属性，且这些公共属性、私有属性声明在同一个类中，两个实例就是兼容的，就可以互相赋值，否则会报错。</p>
+<p>constructor 构造函数也能被标注为 protected，意味着这个类不能在包含它的类外被实例化，但是能被继承。</p>
+<p>对构造函数的入参使用 private, protected, public 修饰符时，类初始化将构建同名私有属性、保护属性、公共属性。</p>
+<p>readonly 关键字用于声明只读属性，只读属性必须在声明时或构造函数里被初始化。</p>
+<p>get, set 关键字用于声明存取器属性，需要将编译器设置为输出ECMAScript 5或更高，只带有 get 不带有 set的存取器自动被推断为 readonly。</p>
+<p>static 关键字用于声明静态属性。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">  protected name: string;</span><br><span class="line">  protected <span class="keyword">constructor</span>(theName: string) &#123; <span class="keyword">this</span>.name = theName; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Employee 能够继承 Person</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Employee</span> <span class="keyword">extends</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">  private department: string;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(name: string, department: string) &#123;</span><br><span class="line">    <span class="keyword">super</span>(name);</span><br><span class="line">    <span class="keyword">this</span>.department = department;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  public getElevatorPitch() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">`Hello, my name is <span class="subst">$&#123;<span class="keyword">this</span>.name&#125;</span> and I work in <span class="subst">$&#123;<span class="keyword">this</span>.department&#125;</span>.`</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> howard = <span class="keyword">new</span> Employee(<span class="string">"Howard"</span>, <span class="string">"Sales"</span>);</span><br><span class="line"><span class="keyword">let</span> john = <span class="keyword">new</span> Person(<span class="string">"John"</span>); <span class="comment">// 错误: 'Person' 的构造函数是被保护的.</span></span><br></pre></td></tr></table></figure>
+<h3 id="抽象类"><a href="#抽象类" class="headerlink" title="抽象类"></a>抽象类</h3><p>abstract 关键字用于声明抽象类。在抽象类，abstract 关键字还可以用于声明抽象方法，抽象方法只定义方法签名但不包含方法体，即不包含实现。由子类提供具体方法。</p>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>定义函数时，可以声明参数和返回值的类型，如 (arg: Type1) =&gt; Type2 {} 或 function(arg: Type1): Type2 {}。</p>
+<p>函数重载通过定义多个函数类型来实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> suits = [<span class="string">"hearts"</span>, <span class="string">"spades"</span>, <span class="string">"clubs"</span>, <span class="string">"diamonds"</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">pickCard</span>(<span class="params">x: &#123;suit: string; card: number; &#125;[]</span>): <span class="title">number</span>;</span></span><br><span class="line"><span class="function"><span class="title">function</span> <span class="title">pickCard</span>(<span class="params">x: number</span>): </span>&#123;suit: string; card: number; &#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">pickCard</span>(<span class="params">x</span>): <span class="title">any</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> x == <span class="string">"object"</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> pickedCard = <span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * x.length);</span><br><span class="line">    <span class="keyword">return</span> pickedCard;</span><br><span class="line">  &#125;<span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> x == <span class="string">"number"</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> pickedSuit = <span class="built_in">Math</span>.floor(x / <span class="number">13</span>);</span><br><span class="line">    <span class="keyword">return</span> &#123; <span class="attr">suit</span>: suits[pickedSuit], <span class="attr">card</span>: x % <span class="number">13</span> &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> myDeck = [&#123; <span class="attr">suit</span>: <span class="string">"diamonds"</span>, <span class="attr">card</span>: <span class="number">2</span> &#125;, &#123; <span class="attr">suit</span>: <span class="string">"spades"</span>, <span class="attr">card</span>: <span class="number">10</span> &#125;, &#123; <span class="attr">suit</span>: <span class="string">"hearts"</span>, <span class="attr">card</span>: <span class="number">4</span> &#125;];</span><br><span class="line"><span class="keyword">let</span> pickedCard1 = myDeck[pickCard(myDeck)];</span><br><span class="line">alert(<span class="string">"card: "</span> + pickedCard1.card + <span class="string">" of "</span> + pickedCard1.suit);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> pickedCard2 = pickCard(<span class="number">15</span>);</span><br><span class="line">alert(<span class="string">"card: "</span> + pickedCard2.card + <span class="string">" of "</span> + pickedCard2.suit);</span><br></pre></td></tr></table></figure>
+<h3 id="this关键字"><a href="#this关键字" class="headerlink" title="this关键字"></a>this关键字</h3><p>非方法式调用会将 this 视为 window(在严格模式下，this 为 undefined)。fn(…args) 等同 fn.call(window [ES5-strict: undefined], …args)。obj.method(…args) 等同 obj.method.call(obj, …args)。</p>
+<p>方法若以闭包形式书写，其返回函数的 this 始终指向 undefined 或 window，而不是挂载的对象。箭头函数即用于将返回函数的 this 指向挂载对象。不同于函数在运行时才获知 this 的指向，箭头函数在编译时就知晓了 this 的指向。相关编译原理???</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">interface Card &#123;</span><br><span class="line">    suit: string;</span><br><span class="line">    card: number;</span><br><span class="line">&#125;</span><br><span class="line">interface Deck &#123;</span><br><span class="line">    suits: string[];</span><br><span class="line">    cards: number[];</span><br><span class="line">    createCardPicker(<span class="keyword">this</span>: Deck): <span class="function"><span class="params">()</span> =&gt;</span> Card;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> deck: Deck = &#123;</span><br><span class="line">    suits: [<span class="string">"hearts"</span>, <span class="string">"spades"</span>, <span class="string">"clubs"</span>, <span class="string">"diamonds"</span>],</span><br><span class="line">    cards: <span class="built_in">Array</span>(<span class="number">52</span>),</span><br><span class="line">    <span class="comment">// <span class="doctag">NOTE:</span> The function now explicitly specifies that its callee must be of type Deck</span></span><br><span class="line">    <span class="comment">// 使用 this 参数将 this 的类型从 any 变更成 Deck 类型</span></span><br><span class="line">    createCardPicker: <span class="function"><span class="keyword">function</span>(<span class="params">this: Deck</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> pickedCard = <span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * <span class="number">52</span>);</span><br><span class="line">            <span class="keyword">let</span> pickedSuit = <span class="built_in">Math</span>.floor(pickedCard / <span class="number">13</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="attr">suit</span>: <span class="keyword">this</span>.suits[pickedSuit], <span class="attr">card</span>: pickedCard % <span class="number">13</span>&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> cardPicker = deck.createCardPicker();</span><br><span class="line"><span class="keyword">let</span> pickedCard = cardPicker();</span><br><span class="line"></span><br><span class="line">alert(<span class="string">"card: "</span> + pickedCard.card + <span class="string">" of "</span> + pickedCard.suit);</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/24/flow使用指南/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/24/flow使用指南/" itemprop="url">flow使用指南</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-24T00:00:00+08:00">2018-02-24</time>
             
 
             
@@ -337,9 +526,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/02/22/flow使用指南/#comments" itemprop="discussionUrl">
+                <a href="/2018/02/24/flow使用指南/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/02/22/flow使用指南/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/02/24/flow使用指南/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -445,195 +634,6 @@
 </ul>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeParamStore</span>&lt;<span class="title">T</span>&gt;(<span class="params">storeClass: Class&lt;ParamStore&lt;T&gt;&gt;, data: T</span>): * </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> storeClass(data);</span><br><span class="line">&#125;</span><br><span class="line">(makeParamStore(ParamStore, <span class="number">1</span>): ParamStore&lt;number&gt;);</span><br><span class="line">(makeParamStore(ParamStore, <span class="number">1</span>): ParamStore&lt;boolean&gt;); <span class="comment">// failed because of the second parameter</span></span><br></pre></td></tr></table></figure>
 <h3 id="模块-Module-Types"><a href="#模块-Module-Types" class="headerlink" title="模块/Module Types"></a>模块/Module Types</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>&#123;&#125;;</span><br><span class="line"><span class="keyword">export</span> type MyObject = &#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"><span class="keyword">export</span> interface MyInterface &#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">import</span> type Foo, &#123;MyObject, MyInterface&#125; <span class="keyword">from</span> <span class="string">'./exports'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="keyword">typeof</span> &#123;MyClass&#125; <span class="keyword">from</span> <span class="string">'./exports'</span>;</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/21/typescript文档笔记/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/21/typescript文档笔记/" itemprop="url">typescript文档笔记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-21T21:35:10+08:00">2018-02-21</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/读书笔记/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/02/21/typescript文档笔记/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/02/21/typescript文档笔记/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="基础类型"><a href="#基础类型" class="headerlink" title="基础类型"></a>基础类型</h2><p>ts 基础类型包含 boolean, number, string, array, tuple 元祖, enum, any 任意类型, void 非任意类型(可赋值为 undefined 或 null，通常用于函数无返回值时), undefined, null, never 永不存在值的类型(通常用于函数报错或陷入死循环时)。</p>
-<p>其中，数值类型支持十进制、十六进制、八进制和二进制字面量。</p>
-<p>字符串类型支持 es6 模板字符串。</p>
-<p>数组类型 Array<t> 限定元素类型一致，使用 let list: number[] = [1, 2, 3]; 或 let list: Array<number> = [1, 2, 3]; 声明。ReadonlyArray<t> 只读数组类型，不能将其赋值给普通数组，但可以通过类型断言将其转化为普通数组，如 numberReadonlyArray as number[]。</t></number></t></p>
-<p>元祖类型预先声明元素类型，元素类型可以不一致。如 let x: [string, number]; x = [‘hello’, 10]; 同时，对于新增的元素，其类型必须在已声明类型中。上述示例中，x[6] = true; 将报错。</p>
-<p>枚举从 0 开始为元素编号，也可以手动编号，如 enum Color {Red = 1, Green, Blue}; 通过 Color.Red 或 Color[1] 可以获取枚举值。</p>
-<h3 id="类型断言"><a href="#类型断言" class="headerlink" title="类型断言"></a>类型断言</h3><p>类型断言使用 <type>value 或 value as Type；JSX 中只能使用 as，不能使用尖括号。TS 尝试做类型转换，而没有类型检查和结构。</type></p>
-<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><p>let 为块级作用域，用于修正 var 为函数、模块级作用域的怪异问题。<br>const 块级作用域，常量。</p>
-<h3 id="块级作用域"><a href="#块级作用域" class="headerlink" title="块级作用域"></a>块级作用域</h3><p>var 变量的声明会在编译阶段上移到函数、模块头部，因此造成怪异一为在 if, for 语句中声明的 var 变量可以在条件或循环语句外访问；造成怪异二为在内外两层 for 语句条件体内声明的同一变量引用同一个变量；造成怪异三为 for 语句执行过程有延迟，其最终引用的是条件体执行完成的结果。</p>
-<p>推想 let 修正块级作用域的过程，就是在编译过程中用匿名函数包裹代码块(if, for, {} 平级)，var 变量在该匿名函数中声明，可以解决怪异一、二；使用闭包包裹延迟函数，可以在延迟函数等待期间保留原有的作用域，这可能会导致内存泄漏。</p>
-<h3 id="解构"><a href="#解构" class="headerlink" title="解构"></a>解构</h3><p>数组使用 [ item1, item2, …rests ] = arr; 语法解构，如 [first, second] = [second, first]; 即为变量交换数据。</p>
-<p>对象使用 { prop1, prop2, …rests } = obj; 语法解构。</p>
-<p>属性重命名采用 “:”，默认值采用 “=”，如 { prop1 = “default”, prop2: “key” }。</p>
-<p>解构适用于函数入参。</p>
-<h3 id="展开"><a href="#展开" class="headerlink" title="展开"></a>展开</h3><p>展开同样使用 “…”，如 val = { prop1: “value”, …obj }。</p>
-<h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2><h3 id="接口作为类型"><a href="#接口作为类型" class="headerlink" title="接口作为类型"></a>接口作为类型</h3><p>当使用 value: Interface 语法将接口用于类型检查时，value 必须满足 Interface 声明的结构化类型，即 value 作为对象时，其属性需满足 Interface 属性的类型规则，允许 value 包含接口未声明的额外属性；value 作为函数时，其入参、返回值须满足接口约定的类型规则，value 参数名可与 Interface 定义的名字不同。</p>
-<p>接口类型使用 “?” 后缀声明可选属性，当可选属性存在时，且 value 为对象字面量时，将不允许 value 包含接口未声明的额外属性；若 value 为变量，则允许。</p>
-<p>使用 “readonly” 修饰符声明只读属性。</p>
-<p>使用 [propName: Type1]: Type2 索引签名可用于接受特定类型的属性，Type1 用于约定索引的类型(索引包含对象的属性和数组项)，Type2 用于约定值类型。索引签名 Type1 可以是 “string”, “number” 中的一个，数字通过转化为字符串索引对象，因此数字索引的返回值必须是字符串索引的返回值的子类型。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">interface SquareConfig &#123;</span><br><span class="line">  color?: string;</span><br><span class="line">  width?: number;</span><br><span class="line">  [propName: string]: any;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface SearchFunc &#123;</span><br><span class="line">  (source: string, <span class="attr">subString</span>: string): boolean;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 关于索引类型</span></span><br><span class="line">interface NumberDictionary &#123;</span><br><span class="line">  [index: string]: number;</span><br><span class="line">  length: number;<span class="comment">// 可以，length是number类型</span></span><br><span class="line">  name: string<span class="comment">// 错误，`name`的类型与索引类型返回值的类型不匹配</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="接口用于实现"><a href="#接口用于实现" class="headerlink" title="接口用于实现"></a>接口用于实现</h3><p>接口描述了类的公共部分，但不包含私有部分。</p>
-<p>当类实现了接口时，只对其实例部分进行类型检查，而 constructor 方法属于类的静态部分。对 constructor 方法进行校验需要由工厂函数完成。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">interface ClockConstructor &#123;</span><br><span class="line">  <span class="keyword">new</span> (hour: number, <span class="attr">minute</span>: number): ClockInterface;</span><br><span class="line">&#125;</span><br><span class="line">interface ClockInterface &#123;</span><br><span class="line">  tick();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createClock</span>(<span class="params">ctor: ClockConstructor, hour: number, minute: number</span>): <span class="title">ClockInterface</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> ctor(hour, minute);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DigitalClock</span> <span class="title">implements</span> <span class="title">ClockInterface</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(h: number, m: number) &#123; &#125;</span><br><span class="line">  tick() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"beep beep"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> digital = createClock(DigitalClock, <span class="number">12</span>, <span class="number">17</span>);</span><br></pre></td></tr></table></figure>
-<p>接口可以继承接口，且一个接口可以继承多个接口。</p>
-<p>接口可以继承类。当接口继承类时，接口会继承类的private和protected成员，但不包含类的实现。继承类的接口只能被该类及其子类继承。</p>
-<h2 id="类"><a href="#类" class="headerlink" title="类"></a>类</h2><p>子类通过 super 关键字访问父类，如 super() 用于执行父类的构造函数。</p>
-<p>public 关键字用于声明公共属性，默认使用 public 修饰符；protected 关键字用于声明保护属性；private 关键字用于声明私有属性。实例含有相同的公共属性、私有属性，且这些公共属性、私有属性声明在同一个类中，两个实例就是兼容的，就可以互相赋值，否则会报错。</p>
-<p>constructor 构造函数也能被标注为 protected，意味着这个类不能在包含它的类外被实例化，但是能被继承。</p>
-<p>对构造函数的入参使用 private, protected, public 修饰符时，类初始化将构建同名私有属性、保护属性、公共属性。</p>
-<p>readonly 关键字用于声明只读属性，只读属性必须在声明时或构造函数里被初始化。</p>
-<p>get, set 关键字用于声明存取器属性，需要将编译器设置为输出ECMAScript 5或更高，只带有 get 不带有 set的存取器自动被推断为 readonly。</p>
-<p>static 关键字用于声明静态属性。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">  protected name: string;</span><br><span class="line">  protected <span class="keyword">constructor</span>(theName: string) &#123; <span class="keyword">this</span>.name = theName; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Employee 能够继承 Person</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Employee</span> <span class="keyword">extends</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">  private department: string;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(name: string, department: string) &#123;</span><br><span class="line">    <span class="keyword">super</span>(name);</span><br><span class="line">    <span class="keyword">this</span>.department = department;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  public getElevatorPitch() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">`Hello, my name is <span class="subst">$&#123;<span class="keyword">this</span>.name&#125;</span> and I work in <span class="subst">$&#123;<span class="keyword">this</span>.department&#125;</span>.`</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> howard = <span class="keyword">new</span> Employee(<span class="string">"Howard"</span>, <span class="string">"Sales"</span>);</span><br><span class="line"><span class="keyword">let</span> john = <span class="keyword">new</span> Person(<span class="string">"John"</span>); <span class="comment">// 错误: 'Person' 的构造函数是被保护的.</span></span><br></pre></td></tr></table></figure>
-<h3 id="抽象类"><a href="#抽象类" class="headerlink" title="抽象类"></a>抽象类</h3><p>abstract 关键字用于声明抽象类。在抽象类，abstract 关键字还可以用于声明抽象方法，抽象方法只定义方法签名但不包含方法体，即不包含实现。由子类提供具体方法。</p>
-<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>定义函数时，可以声明参数和返回值的类型，如 (arg: Type1) =&gt; Type2 {} 或 function(arg: Type1): Type2 {}。</p>
-<p>函数重载通过定义多个函数类型来实现。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> suits = [<span class="string">"hearts"</span>, <span class="string">"spades"</span>, <span class="string">"clubs"</span>, <span class="string">"diamonds"</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">pickCard</span>(<span class="params">x: &#123;suit: string; card: number; &#125;[]</span>): <span class="title">number</span>;</span></span><br><span class="line"><span class="function"><span class="title">function</span> <span class="title">pickCard</span>(<span class="params">x: number</span>): </span>&#123;suit: string; card: number; &#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">pickCard</span>(<span class="params">x</span>): <span class="title">any</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> x == <span class="string">"object"</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> pickedCard = <span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * x.length);</span><br><span class="line">    <span class="keyword">return</span> pickedCard;</span><br><span class="line">  &#125;<span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> x == <span class="string">"number"</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> pickedSuit = <span class="built_in">Math</span>.floor(x / <span class="number">13</span>);</span><br><span class="line">    <span class="keyword">return</span> &#123; <span class="attr">suit</span>: suits[pickedSuit], <span class="attr">card</span>: x % <span class="number">13</span> &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> myDeck = [&#123; <span class="attr">suit</span>: <span class="string">"diamonds"</span>, <span class="attr">card</span>: <span class="number">2</span> &#125;, &#123; <span class="attr">suit</span>: <span class="string">"spades"</span>, <span class="attr">card</span>: <span class="number">10</span> &#125;, &#123; <span class="attr">suit</span>: <span class="string">"hearts"</span>, <span class="attr">card</span>: <span class="number">4</span> &#125;];</span><br><span class="line"><span class="keyword">let</span> pickedCard1 = myDeck[pickCard(myDeck)];</span><br><span class="line">alert(<span class="string">"card: "</span> + pickedCard1.card + <span class="string">" of "</span> + pickedCard1.suit);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> pickedCard2 = pickCard(<span class="number">15</span>);</span><br><span class="line">alert(<span class="string">"card: "</span> + pickedCard2.card + <span class="string">" of "</span> + pickedCard2.suit);</span><br></pre></td></tr></table></figure>
-<h3 id="this关键字"><a href="#this关键字" class="headerlink" title="this关键字"></a>this关键字</h3><p>非方法式调用会将 this 视为 window(在严格模式下，this 为 undefined)。fn(…args) 等同 fn.call(window [ES5-strict: undefined], …args)。obj.method(…args) 等同 obj.method.call(obj, …args)。</p>
-<p>方法若以闭包形式书写，其返回函数的 this 始终指向 undefined 或 window，而不是挂载的对象。箭头函数即用于将返回函数的 this 指向挂载对象。不同于函数在运行时才获知 this 的指向，箭头函数在编译时就知晓了 this 的指向。相关编译原理???</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">interface Card &#123;</span><br><span class="line">    suit: string;</span><br><span class="line">    card: number;</span><br><span class="line">&#125;</span><br><span class="line">interface Deck &#123;</span><br><span class="line">    suits: string[];</span><br><span class="line">    cards: number[];</span><br><span class="line">    createCardPicker(<span class="keyword">this</span>: Deck): <span class="function"><span class="params">()</span> =&gt;</span> Card;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> deck: Deck = &#123;</span><br><span class="line">    suits: [<span class="string">"hearts"</span>, <span class="string">"spades"</span>, <span class="string">"clubs"</span>, <span class="string">"diamonds"</span>],</span><br><span class="line">    cards: <span class="built_in">Array</span>(<span class="number">52</span>),</span><br><span class="line">    <span class="comment">// <span class="doctag">NOTE:</span> The function now explicitly specifies that its callee must be of type Deck</span></span><br><span class="line">    <span class="comment">// 使用 this 参数将 this 的类型从 any 变更成 Deck 类型</span></span><br><span class="line">    createCardPicker: <span class="function"><span class="keyword">function</span>(<span class="params">this: Deck</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> pickedCard = <span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * <span class="number">52</span>);</span><br><span class="line">            <span class="keyword">let</span> pickedSuit = <span class="built_in">Math</span>.floor(pickedCard / <span class="number">13</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="attr">suit</span>: <span class="keyword">this</span>.suits[pickedSuit], <span class="attr">card</span>: pickedCard % <span class="number">13</span>&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> cardPicker = deck.createCardPicker();</span><br><span class="line"><span class="keyword">let</span> pickedCard = cardPicker();</span><br><span class="line"></span><br><span class="line">alert(<span class="string">"card: "</span> + pickedCard.card + <span class="string">" of "</span> + pickedCard.suit);</span><br></pre></td></tr></table></figure>
 
           
         

@@ -270,6 +270,155 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/28/Vue/vue整体架构/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/28/Vue/vue整体架构/" itemprop="url">vue整体架构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-28T00:00:00+08:00">2018-02-28</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/js框架/" itemprop="url" rel="index"><span itemprop="name">js框架</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/28/Vue/vue整体架构/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/02/28/Vue/vue整体架构/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line">|--- vue</span><br><span class="line">  |--- compiler <span class="comment"># 将 html 脚本编译为字符串函数体，作为 Vue 实例的 render 方法???</span></span><br><span class="line">    |--- codegen <span class="comment"># 将 ast 转化成字符串拼接的函数内容体</span></span><br><span class="line">      |--- events.js <span class="comment"># 提供 genHandlers(events, isNative, warn) 将 el.events = &#123; name: ['handler1', 'handler2'] &#125; 事件转化为字符串 `on:&#123;$&#123;name&#125;:handler1,handler2&#125;` 形式。html 中绑定事件接受三种形式，纯函数形式，函数名或方法名，或函数体，由 vue 注入 $event 事件对象</span></span><br><span class="line">      └--- index.js <span class="comment"># 提供 generate(ast, options) 函数，将抽象语法树转化成字符串拼接的函数 render = `with(this)&#123;return $&#123;code&#125;&#125;`，返回值为 &#123; render, staticRenderFns &#125; 对象。options 通过 CodegenState 类注入全局指令及 options.modules['transformCode'|'genData']</span></span><br><span class="line">    |--- directives <span class="comment"># 注入为 CodegenState 实例的 directives 属性，在 html 中为节点注入指令属性时，在 codegen/index.js 脚本执行 genDirectives 函数阶段，通过指令属性名获取相应的全局指令脚本 directive，并执行 directives(el, dir, warn)，其中 dir 为指令名</span></span><br><span class="line">      |--- bind.js </span><br><span class="line">      |--- index.js </span><br><span class="line">      |--- model.js </span><br><span class="line">      └--- on.js </span><br><span class="line">    |--- parser <span class="comment"># 将 html 字符串转化成 ast 抽象语法树</span></span><br><span class="line">      |--- entity-decoder.js </span><br><span class="line">      |--- html-parser.js <span class="comment"># 提供 parseHtml(html, options) 函数，解析 html，通过 options['start'|    'end'|'comment'|'chars'] 提取节点标签(含属性)、注释和节点内外字符集</span></span><br><span class="line">      |--- index.js <span class="comment"># 提供 parse(template, options) 函数，内部调用 parseHtml 函数，将 html 字符串转化成抽象语法树，树节点 el 注入 parent, children, events, props, attrs, if, for, key, ref 等属性</span></span><br><span class="line">      |--- filter-parser.js <span class="comment"># 提供 parseFilters(exp) 函数，将 exp = `$&#123;expression&#125;|$&#123;filter&#125;|...` 转换成特定字符串 `_f("$&#123;filter&#125;")($&#123;exp&#125;)`</span></span><br><span class="line">      └--- text-parser.js <span class="comment"># 提供 parseText(text, delimiters?) 函数，区分对待普通字符串和由分隔符包裹的字符串(应用过滤器，以 token = `_s($&#123;exp&#125;)` 形式返回)，最终生成 tokens 数组</span></span><br><span class="line">    |--- optimizer.js <span class="comment"># 提供 optimize(root, options) 函数，为视图中不会改变的静态节点注入 static = true 属性，为只包含文本的静态节点注入 staticRoot = true 属性及 staticInFor 属性</span></span><br><span class="line">    |--- create-compiler.js <span class="comment"># 提供 createCompilerCreator(baseCompile) 函数，返回 createCompiler(template, options) 函数，用于创建 &#123; compile, compileToFunctions &#125;。compile 方法，即由通过调用 baseCompile 函数，先执行 parse 函数，后执行 generate 函数，返回 &#123; render, staticRenderFns, errors,tips &#125; 对象。compileToFunctions 方法即 createCompileToFunctionFn(compile) 返回值</span></span><br><span class="line">    |--- to-function.js <span class="comment"># 提供 createCompileToFunctionFn(compile) 函数，返回 compileToFunctions(template, options?, vm?) 函数。compileToFunctions 函数同样返回 &#123; render, staticRenderFns &#125; 对象，其中 render 方法用于将 compile().render 字符串构建为函数并执行</span></span><br><span class="line">    |--- index.js <span class="comment"># 通过为 createCompilerCreator 函数注入 baseCompile 回调，返回 &#123; compile, compileToFunctions &#125; 对象，见 create-compiler.js 文件注释</span></span><br><span class="line">    |--- error-detector.js</span><br><span class="line">    └--- helpers.js <span class="comment"># 工具函数</span></span><br><span class="line">  |--- core</span><br><span class="line">    |--- components </span><br><span class="line">      |--- index.js </span><br><span class="line">      └--- keep-alive.js </span><br><span class="line">    |--- global-api </span><br><span class="line">      |--- assets.js </span><br><span class="line">      |--- extend.js </span><br><span class="line">      |--- index.js </span><br><span class="line">      |--- mixin.js </span><br><span class="line">      └--- use.js </span><br><span class="line">    |--- instance </span><br><span class="line">      |--- render-helpers</span><br><span class="line">        |--- <span class="built_in">bind</span>-object-listeners.js</span><br><span class="line">        |--- <span class="built_in">bind</span>-object-props.js</span><br><span class="line">        |--- check-keycodes.js</span><br><span class="line">        |--- index.js</span><br><span class="line">        |--- render-list.js</span><br><span class="line">        |--- render-slot.js</span><br><span class="line">        |--- render-static.js</span><br><span class="line">        |--- resolve-filter.js</span><br><span class="line">        └--- resolve-slots.js</span><br><span class="line">      |--- events.js </span><br><span class="line">      |--- index.js </span><br><span class="line">      |--- init.js </span><br><span class="line">      |--- inject.js </span><br><span class="line">      |--- lifecycle.js </span><br><span class="line">      |--- proxy.js </span><br><span class="line">      |--- render.js </span><br><span class="line">      └--- state.js </span><br><span class="line">    |--- observer </span><br><span class="line">      |--- array.js </span><br><span class="line">      |--- dep.js </span><br><span class="line">      |--- index.js </span><br><span class="line">      |--- scheduler.js</span><br><span class="line">      └--- watcher.js </span><br><span class="line">    |--- util </span><br><span class="line">      |--- debug.js </span><br><span class="line">      |--- env.js </span><br><span class="line">      |--- error.js </span><br><span class="line">      |--- index.js</span><br><span class="line">      |--- lang.js </span><br><span class="line">      |--- options.js </span><br><span class="line">      |--- perf.js</span><br><span class="line">      └--- props.js </span><br><span class="line">    |--- vdom </span><br><span class="line">      |--- helpers</span><br><span class="line">        |--- extract-props.js </span><br><span class="line">        |--- get-first-component-child.js </span><br><span class="line">        |--- index.js</span><br><span class="line">        |--- is-async-placeholder.js </span><br><span class="line">        |--- merge-hook.js </span><br><span class="line">        |--- normalize-children.js</span><br><span class="line">        |--- resolve-async-component.js </span><br><span class="line">        └--- update-listeners.js</span><br><span class="line">      |--- modules</span><br><span class="line">        |--- directives.js</span><br><span class="line">        |--- index.js </span><br><span class="line">        └--- ref.js</span><br><span class="line">      |--- create-component.js </span><br><span class="line">      |--- create-element.js</span><br><span class="line">      |--- create-functional-component.js </span><br><span class="line">      |--- patch.js </span><br><span class="line">      └--- vnode.js </span><br><span class="line">    |--- config.js </span><br><span class="line">    └--- index.js</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/28/Java/泛型程序设计/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2334,208 +2483,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/06/webpack插件指南/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/06/webpack插件指南/" itemprop="url">webpack插件指南</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-06T23:38:53+08:00">2018-02-06</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/webpack/" itemprop="url" rel="index"><span itemprop="name">webpack</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/02/06/webpack插件指南/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/02/06/webpack插件指南/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="HotModuleReplacementPlugin"><a href="#HotModuleReplacementPlugin" class="headerlink" title="HotModuleReplacementPlugin"></a>HotModuleReplacementPlugin</h2><p>内置为 webpack.HotModuleReplacementPlugin，热替换插件。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> webpack.HotModuleReplacementPlugin(&#123;</span><br><span class="line">  multiStep: boolean,<span class="comment">// 设置为 true 时，插件会分成两步构建文件。首先编译热加载 chunks，之后再编译剩余的通常的资源</span></span><br><span class="line">  fullBuildTimeout: number,<span class="comment">// 当 multiStep 启用时，表示两步构建之间的延时</span></span><br><span class="line">  requestTimeout: number<span class="comment">// 下载 manifest 的延时</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="DllPlugin-DLLReferencePlugin"><a href="#DllPlugin-DLLReferencePlugin" class="headerlink" title="DllPlugin, DLLReferencePlugin"></a>DllPlugin, DLLReferencePlugin</h2><p>内置为 webpack.DllPlugin, webpack.DllReferencePlugin，用于提升编译速度。</p>
-<p>DllPlugin 插件会生成一个 manifest.json 文件，该文件包含了从 require 和 import 的 request 到模块 id 的映射，用于让 DLLReferencePlugin 映射到相关的依赖上去。通过引用 manifest.json 文件来把依赖的名称映射到模块的 id 上，之后再在需要的时候通过内置的 <strong>webpack_require</strong> 函数来 require 他们。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack.vendor.config.js</span></span><br><span class="line"><span class="keyword">new</span> webpack.DllPlugin(&#123;</span><br><span class="line">  context: __dirname,<span class="comment">// manifest 文件中请求的上下文(context)(默认值为 webpack 的上下文(context))</span></span><br><span class="line">  name: <span class="string">"[name]_[hash]"</span>,<span class="comment">// 暴露出的 DLL 的函数名</span></span><br><span class="line">  path: path.join(__dirname, <span class="string">"manifest.json"</span>),<span class="comment">// manifest.json 文件的绝对路径</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// webpack.app.config.js</span></span><br><span class="line"><span class="keyword">new</span> webpack.DllReferencePlugin(&#123;</span><br><span class="line">  context: __dirname,<span class="comment">// 绝对路径， manifest.json (或者是内容属性)中请求的上下文</span></span><br><span class="line">  manifest: <span class="built_in">require</span>(<span class="string">"./manifest.json"</span>),<span class="comment">// 包含 content 和 name 的对象</span></span><br><span class="line">  content: <span class="built_in">require</span>(<span class="string">"./manifest.json"</span>).content,<span class="comment">// 请求到模块 id 的映射 (默认值为 manifest.content)</span></span><br><span class="line">  name: manifest.name,<span class="comment">// dll 脚本的名称 (默认值为 manifest.name)</span></span><br><span class="line">  scope: <span class="literal">undefined</span>,<span class="comment">// 开启作用域模块，如 scope = "xyz"， dll 中的名为 abc 的文件可通过 require("xyz/abc") 加载。默认为映射模式，即通过 require("abc") 加载。且 dll 文件不会被打包到 bundle 中</span></span><br><span class="line">  sourceType: <span class="string">"commonsjs2"</span><span class="comment">// dll 如何向外提供全局函数</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="DefinePlugin"><a href="#DefinePlugin" class="headerlink" title="DefinePlugin"></a>DefinePlugin</h2><p>内置为 webpack.DefinePlugin，定义全局变量。使用场景如，由变量区分开发环境或生产环境，开发环境打印日志，生产环境不打印。变量的值将被转换为字符串，且以文本替换的形式传入代码中，所以需要包裹单双引号或使用 JSON.stringify，如 ‘“production”‘, JSON.stringify(‘production’)。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> webpack.DefinePlugin(&#123;</span><br><span class="line">  PRODUCTION: <span class="built_in">JSON</span>.stringify(<span class="literal">true</span>),<span class="comment">// 以文本形式传入 true</span></span><br><span class="line">  VERSION: <span class="built_in">JSON</span>.stringify(<span class="string">"5fa3b9"</span>),</span><br><span class="line">  BROWSER_SUPPORTS_HTML5: <span class="literal">true</span>,</span><br><span class="line">  TWO: <span class="string">"1+1"</span>,</span><br><span class="line">  <span class="string">"typeof window"</span>: <span class="built_in">JSON</span>.stringify(<span class="string">"object"</span>),<span class="comment">// 替换 typeof window 文本</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 功能标记</span></span><br><span class="line">  <span class="string">'NICE_FEATURE'</span>: <span class="built_in">JSON</span>.stringify(<span class="literal">true</span>),</span><br><span class="line">  <span class="string">'EXPERIMENTAL_FEATURE'</span>: <span class="built_in">JSON</span>.stringify(<span class="literal">false</span>),</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 服务 Url</span></span><br><span class="line">  <span class="string">'SERVICE_URL'</span>: <span class="built_in">JSON</span>.stringify(<span class="string">"http://dev.example.com"</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="EnvironmentPlugin"><a href="#EnvironmentPlugin" class="headerlink" title="EnvironmentPlugin"></a>EnvironmentPlugin</h2><p>内置为 webpack.EnvironmentPlugin，使用 DefinePlugin 快捷设置 process.env 环境变量。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">等同于 new webpack.DefinePlugin(&#123;</span></span><br><span class="line"><span class="comment">  'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),</span></span><br><span class="line"><span class="comment">  'process.env.DEBUG': JSON.stringify(process.env.DEBUG)</span></span><br><span class="line"><span class="comment">&#125;)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">new</span> webpack.EnvironmentPlugin([<span class="string">'NODE_ENV'</span>, <span class="string">'DEBUG'</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用默认值</span></span><br><span class="line"><span class="keyword">new</span> webpack.EnvironmentPlugin(&#123;</span><br><span class="line">  NODE_ENV: <span class="string">'development'</span>, <span class="comment">// 除非有定义 process.env.NODE_ENV，否则就使用 'development'</span></span><br><span class="line">  DEBUG: <span class="literal">false</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="ProvidePlugin"><a href="#ProvidePlugin" class="headerlink" title="ProvidePlugin"></a>ProvidePlugin</h2><p>内置为 webpack.ProvidePlugin，当某变量没有赋值时，自动 import 或 require 相应的模块，并导出其中的方法。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 自动加载 jquery</span></span><br><span class="line"><span class="keyword">new</span> webpack.ProvidePlugin(&#123;</span><br><span class="line">  $: <span class="string">'jquery'</span>,</span><br><span class="line">  jQuery: <span class="string">'jquery'</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注入 lodash.map 方法</span></span><br><span class="line"><span class="keyword">new</span> webpack.ProvidePlugin(&#123;</span><br><span class="line">  _map: [<span class="string">'lodash'</span>, <span class="string">'map'</span>]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="CommonsChunkPlugin"><a href="#CommonsChunkPlugin" class="headerlink" title="CommonsChunkPlugin"></a>CommonsChunkPlugin</h2><p>内置为 webpack.optimize.CommonsChunkPlugin，提取公共代码，结合 entry 属性使用。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">"webpack"</span>);</span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  entry: &#123;</span><br><span class="line">    vendor: [<span class="string">"jquery"</span>, <span class="string">"other-lib"</span>],</span><br><span class="line">    app: <span class="string">"./entry"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  plugins: [</span><br><span class="line">    <span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">      name: string|string[],<span class="comment">// 字符串或数组，若设为已经存在的打包文件 chunk 名称，将把该 chunk 提取到公共文件中。如果该选项被忽略，同时 `options.async` 或者 `options.children` 被设置，所有的 chunk 都会被使用，否则 `options.filename` 会用于作为 chunk 名</span></span><br><span class="line">      filename: string,<span class="comment">// 公共文件名模板，使用和 output.filename 相同的占位符。不设置，将保留原 chunk 的名称</span></span><br><span class="line">      minChunks: number|<span class="literal">Infinity</span>|<span class="function">(<span class="params"><span class="built_in">module</span>, count</span>) =&gt;</span> boolean,<span class="comment">// 生成公共文件前，需要传入的 chunk 数量。设为 Infinity，会马上生成 公共chunk，但里面没有模块。默认是 chunk 的数量</span></span><br><span class="line">      chunks: string[],<span class="comment">// 选择 chunk 的来源。如果被忽略，所有的入口 chunk 都会被选择</span></span><br><span class="line">      children: boolean,<span class="comment">// 如果设置为 true，入口 chunk 的依赖都会被并入公共文件中，以避免 chunk 的依赖包含重复代码</span></span><br><span class="line">      <span class="keyword">async</span>: boolean|string,<span class="comment">// 如果设置为 true，与上面相同，入口 chunk 的依赖被并入公共文件中，且使用异步加载</span></span><br><span class="line">      minSize: number<span class="comment">// 在 公共chunk 被创建立之前，所有公共模块的最少大小</span></span><br><span class="line">    &#125;)</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 入口 chunk 依赖路径中包含 "somelib" 字样的脚本，这些脚本将被视为一个 chunk，chunk 的 keyname 是 "my-single-lib-chunk"，最终打包到 "my-single-lib-chunk.js" 中</span></span><br><span class="line"><span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">  name: <span class="string">"vendor"</span>,</span><br><span class="line">  minChunks: ffunction(<span class="built_in">module</span>, count) &#123; </span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">module</span>.resource &amp;&amp; (<span class="regexp">/somelib/</span>).test(<span class="built_in">module</span>.resource) &amp;&amp; count === <span class="number">3</span>; </span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 避免提取 css, scss 文件，且公共文件只能在 node_modules 下</span></span><br><span class="line"><span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">  name: <span class="string">"vendor"</span>,</span><br><span class="line">  minChunks: <span class="function"><span class="keyword">function</span> (<span class="params">module</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">module</span>.resource &amp;&amp; (<span class="regexp">/^.*\.(css|scss)$/</span>).test(<span class="built_in">module</span>.resource)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">module</span>.context &amp;&amp; <span class="built_in">module</span>.context.indexOf(<span class="string">"node_modules"</span>) !== <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将 webpack 注入页面的脚本提取到公共文件，文件名 "manifest" 不能和入口 chunk 重名</span></span><br><span class="line"><span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">  name: <span class="string">"manifest"</span>,</span><br><span class="line">  minChunks: <span class="literal">Infinity</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或</span></span><br><span class="line">[</span><br><span class="line">  <span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">    name: <span class="string">"vendor"</span>,</span><br><span class="line">    minChunks: <span class="function"><span class="keyword">function</span>(<span class="params">module</span>)</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">module</span>.context &amp;&amp; <span class="built_in">module</span>.context.indexOf(<span class="string">"node_modules"</span>) !== <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;),</span><br><span class="line">  <span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">    name: <span class="string">"manifest"</span>,</span><br><span class="line">    minChunks: <span class="literal">Infinity</span></span><br><span class="line">  &#125;),</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-<h2 id="SourceMapDevToolPlugin"><a href="#SourceMapDevToolPlugin" class="headerlink" title="SourceMapDevToolPlugin"></a>SourceMapDevToolPlugin</h2><p>内置为 webpack.SourceMapDevToolPlugin，对 webpackConfig.devtool 添加的 SourceMap 予以更细粒度的控制。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> webpack.SourceMapDevToolPlugin(&#123;</span><br><span class="line">  test,<span class="comment">// 指定资源，test 默认是 .js 和 .css 文件</span></span><br><span class="line">  include,</span><br><span class="line">  exclude,</span><br><span class="line">  filename: <span class="string">'[name].js.map'</span>,<span class="comment">// SourceMap 的输出文件名。如果没有提供值，则 source map 是内联的</span></span><br><span class="line">  append,<span class="comment">// 追加到原始资源。通常以 #sourceMappingURL 注释。[url] 替换为 source map 文件的 URL。false 禁止追加</span></span><br><span class="line">  moduleFilenameTemplate,<span class="comment">// SourceMap 的输出文件名模板</span></span><br><span class="line">  fallbackModuleFilenameTemplate,<span class="comment">// SourceMap 的输出文件名后备方案</span></span><br><span class="line">  <span class="built_in">module</span>: <span class="literal">true</span>,<span class="comment">// 为 false 时， loader 不再生成 source map，并且转换过的代码被用作源码</span></span><br><span class="line">  columns: <span class="literal">true</span>,<span class="comment">//  为 false 时，source map 中的列映射(column mapping)被忽略，并且使用更快速的 source map 实现</span></span><br><span class="line">  lineToLine: &#123;<span class="comment">// 匹配的模块使用简单快速的行到行 source map</span></span><br><span class="line">    test,</span><br><span class="line">    include,</span><br><span class="line">    exclude</span><br><span class="line">  &#125; </span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="MinChunkSizePlugin"><a href="#MinChunkSizePlugin" class="headerlink" title="MinChunkSizePlugin"></a>MinChunkSizePlugin</h2><p>内置为 webpack.optimize.MinChunkSizePlugin，通过合并小于 minChunkSize 大小的 chunk，将 chunk 体积保持在指定大小限制以上。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> webpack.optimize.MinChunkSizePlugin(&#123;</span><br><span class="line">  minChunkSize: <span class="number">10000</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="BannerPlugin"><a href="#BannerPlugin" class="headerlink" title="BannerPlugin"></a>BannerPlugin</h2><p>内置为 webpack.BannerPlugin，为每个 chunk 文件头部添加 banner。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> webpack.BannerPlugin(banner)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或</span></span><br><span class="line"><span class="keyword">new</span> webpack.BannerPlugin(&#123;</span><br><span class="line">  banner: <span class="string">"hash:[hash], chunkhash:[chunkhash], name:[name], filebase:[filebase], query:[query], file:[file]"</span>,</span><br><span class="line">  raw: <span class="literal">false</span>,<span class="comment">// 如果值为 true，将直出，不作为注释</span></span><br><span class="line">  entryOnly: <span class="literal">false</span>,<span class="comment">// 如果值为 true，将只在入口 chunks 文件中添加</span></span><br><span class="line">  test: <span class="literal">null</span>,</span><br><span class="line">  include: <span class="literal">null</span>,</span><br><span class="line">  exclude: <span class="literal">null</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="IgnorePlugin"><a href="#IgnorePlugin" class="headerlink" title="IgnorePlugin"></a>IgnorePlugin</h2><p>内置为 webpack.IgnorePlugin，打包时避过指定资源。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> webpack.IgnorePlugin(</span><br><span class="line">  requestRegExp,<span class="comment">// 测试资源请求路径的正则表达式</span></span><br><span class="line">  [contextRegExp]<span class="comment">// (可选) 测试资源上下文(目录)的正则表达式</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例，moment 类库中 locale 资源将不予打包</span></span><br><span class="line"><span class="keyword">new</span> webpack.IgnorePlugin(<span class="regexp">/^\.\/locale$/</span>, /moment$/)</span><br></pre></td></tr></table></figure>
-<h2 id="NormalModuleReplacementPlugin"><a href="#NormalModuleReplacementPlugin" class="headerlink" title="NormalModuleReplacementPlugin"></a>NormalModuleReplacementPlugin</h2><p>内置为 webpack.NormalModuleReplacementPlugin，替换指定资源，适用场景为生产环境下的某配置文件比开发环境的配置文件有更高优先级。高级用法是指定环境变量，通过环境变量指定待加载的资源。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 生产环境修改 webpack.config.js，加载 './config.production.js' 文件；开发环境不使用 NormalModuleReplacementPlugin 插件，加载 'some/path/config.development.js' 文件</span></span><br><span class="line"><span class="keyword">new</span> webpack.NormalModuleReplacementPlugin(</span><br><span class="line">  /some\/path\/config\.development\.js/,</span><br><span class="line">  <span class="string">'./config.production.js'</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 高级用法，通过环境变量加载文件，开发环境默认加载带 VERSION_A 字样文件；生产环境设 env.APP_TARGET = 'VERSION_B'，加载 VERSION_B 文件</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">env</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> appTarget = env.APP_TARGET || <span class="string">'VERSION_A'</span>;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    plugins: [</span><br><span class="line">      <span class="keyword">new</span> webpack.NormalModuleReplacementPlugin(<span class="regexp">/(.*)-APP_TARGET(\.*)/</span>, <span class="function"><span class="keyword">function</span>(<span class="params">resource</span>) </span>&#123;</span><br><span class="line">        resource.request = resource.request.replace(<span class="regexp">/-APP_TARGET/</span>, <span class="string">`-<span class="subst">$&#123;appTarget&#125;</span>`</span>);</span><br><span class="line">      &#125;)</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="ContextReplacementPlugin"><a href="#ContextReplacementPlugin" class="headerlink" title="ContextReplacementPlugin"></a>ContextReplacementPlugin</h2><p>内置为 webpack.ContextReplacementPlugin，替换 webpack 文件查找规则。在 webpack 中，当 require(‘./locale/‘ + name + ‘.json’)，webpack 将查找目录 (‘./locale/‘) 下符合正则表达式 (/^.*.json$/)的文件，由于 name 在编译时(compile time)还是未知的，webpack 会将每个文件都作为模块引入到 bundle 中。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> webpack.ContextReplacementPlugin，替换(</span><br><span class="line">  resourceRegExp: <span class="built_in">RegExp</span>,<span class="comment">// 如果资源（或目录）符合 resourceRegExp 正则表达式，插件会替换默认资源为 newContentResource</span></span><br><span class="line">  newContentResource?: string,<span class="comment">// 如果 newContentResource 为相对路径，会相对于前一匹配资源路径去解析</span></span><br><span class="line">  newContentRecursive?: boolean,<span class="comment">// 是否使用递归查找</span></span><br><span class="line">  newContentRegExp?: <span class="built_in">RegExp</span>,<span class="comment">// 用于筛选新上下文里的资源</span></span><br><span class="line">  newContentCallback?: <span class="function"><span class="params">data</span> =&gt;</span> <span class="keyword">void</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例</span></span><br><span class="line"><span class="keyword">new</span> webpack.ContextReplacementPlugin(<span class="regexp">/moment[\/\\]locale$/</span>, /de|fr|hu/)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> webpack.ContextReplacementPlugin，替换(</span><br><span class="line">  resourceRegExp: <span class="built_in">RegExp</span>,</span><br><span class="line">  newContentCallback?: <span class="function"><span class="params">data</span> =&gt;</span> <span class="keyword">void</span><span class="comment">// 首参为为上下文模块工厂(ContextModuleFactory)的 data 对象，需要覆写该对象的 request 属性</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例</span></span><br><span class="line"><span class="keyword">new</span> webpack.ContextReplacementPlugin(<span class="regexp">/^\.\/locale$/</span>, (context) =&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="regexp">/\/moment\//</span>.test(context.context)) &#123; <span class="keyword">return</span>; &#125;</span><br><span class="line">  <span class="built_in">Object</span>.assign(context, &#123;</span><br><span class="line">    regExp: <span class="regexp">/^\.\/\w+/</span>,</span><br><span class="line">    request: <span class="string">'../../locale'</span>, <span class="comment">// 相对路径</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或</span></span><br><span class="line"><span class="keyword">new</span> webpack.ContextReplacementPlugin(</span><br><span class="line">  resourceRegExp: <span class="built_in">RegExp</span>,</span><br><span class="line">  newContentResource: string,</span><br><span class="line">  newContentCreateContextMap: object <span class="comment">// 将运行时请求(runtime-request)映射到编译时请求(compile-time request)</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例</span></span><br><span class="line"><span class="keyword">new</span> ContextReplacementPlugin(<span class="regexp">/selector/</span>, <span class="string">'./folder'</span>, &#123;</span><br><span class="line">  <span class="string">'./request'</span>: <span class="string">'./request'</span>,</span><br><span class="line">  <span class="string">'./other-request'</span>: <span class="string">'./new-request'</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="HtmlWebpackPlugin"><a href="#HtmlWebpackPlugin" class="headerlink" title="HtmlWebpackPlugin"></a>HtmlWebpackPlugin</h2><p>html-webpack-plugin 插件，创建 html 文件，自动加载打包资源。</p>
-<p>注入 html 模板的变量包含，htmlWebpackPlugin = { files, options }, webpack, webpackConfig。</p>
-<p>支持的事件包含，html-webpack-plugin-before-html-generation, html-webpack-plugin-before-html-processing, html-webpack-plugin-alter-asset-tags, html-webpack-plugin-after-html-processing, html-webpack-plugin-after-emit, 同步事件 tml-webpack-plugin-alter-chunks。在自定义插件中使用。</p>
-<p>参考文档：<a href="https://github.com/jantimon/html-webpack-plugin" target="_blank" rel="noopener">https://github.com/jantimon/html-webpack-plugin</a></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> HtmlWebpackPlugin(&#123;</span><br><span class="line">  title: <span class="string">''</span>,<span class="comment">// 注入 html 的 title</span></span><br><span class="line">  filename: <span class="string">'index.html'</span>,<span class="comment">// 影响加载资源的位置</span></span><br><span class="line">  template: <span class="string">''</span>,<span class="comment">// html, ejs, jade 模板的路径</span></span><br><span class="line">  inject: <span class="literal">true</span> | <span class="string">'head'</span> | <span class="string">'body'</span> | <span class="literal">false</span>,<span class="comment">// 静态资源注入位置，默认在 body 底层</span></span><br><span class="line">  favicon: <span class="string">''</span>,<span class="comment">// 图标路径</span></span><br><span class="line">  minify: &#123;&#125;,<span class="comment">// 传递给 html-minifier 的选项，用于优化输出</span></span><br><span class="line">  hash: <span class="literal">true</span> | <span class="literal">false</span>,<span class="comment">// 设为真时，js, css 资源名将加上 hash 值，用于刷新缓存</span></span><br><span class="line">  cache: <span class="literal">true</span>,<span class="comment">// 设为真时，只有文件变更时，才重新请求</span></span><br><span class="line">  showErrors: <span class="literal">true</span>,<span class="comment">// 显示错误</span></span><br><span class="line">  chunks: [],<span class="comment">// 添加 chunk，如用于单元测试的脚本</span></span><br><span class="line">  chunksSortMode: <span class="string">'auto'</span>,<span class="comment">// chunk 排序方式，可选值 'none' | 'auto' | 'dependency' |'manual' | &#123;function&#125; </span></span><br><span class="line">  excludeChunks: [],<span class="comment">// 避免引用某些 chunk</span></span><br><span class="line">  xhtml: <span class="literal">false</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="UglifyjsWebpackPlugin"><a href="#UglifyjsWebpackPlugin" class="headerlink" title="UglifyjsWebpackPlugin"></a>UglifyjsWebpackPlugin</h2><p>uglifyjs-webpack-plugin 插件，压缩 js 脚本。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> UglifyJSPlugin(&#123;</span><br><span class="line">  test,<span class="comment">// 定位资源</span></span><br><span class="line">  include,</span><br><span class="line">  exclude,</span><br><span class="line">  parallel: <span class="literal">false</span>,<span class="comment">// 使用多进程并行运行和文件缓存来提高构建速度，如 &#123; cache: true, workers: 2 &#125;，parallel.workers 为 cpu 核数</span></span><br><span class="line">  sourceMap: <span class="literal">false</span>,<span class="comment">// 生成 source map，会减慢编译的速度。cheap-source-map 选项不适用于此插件</span></span><br><span class="line">  uglifyOptions: &#123;<span class="comment">// 压缩选项，供 uglifyJs 使用</span></span><br><span class="line">    ie8: <span class="literal">false</span>,<span class="comment">// 支持 ie8</span></span><br><span class="line">    ecma: <span class="number">8</span>,<span class="comment">// es 语法版本号，可选项 5, 6, 7, 8，影响 parse, compress, output 选项</span></span><br><span class="line">    parse: &#123;&#125;,<span class="comment">// parse 选项</span></span><br><span class="line">    mangle: &#123;&#125;,<span class="comment">// 名称矫正??? </span></span><br><span class="line">    output: &#123;<span class="comment">// 默认最佳压缩</span></span><br><span class="line">      comments: <span class="literal">false</span>,</span><br><span class="line">      beautify: <span class="literal">false</span></span><br><span class="line">    &#125;,</span><br><span class="line">    compress: &#123;&#125;,<span class="comment">// parse 选项</span></span><br><span class="line">    warnings: <span class="literal">false</span></span><br><span class="line">  &#125;,</span><br><span class="line">  extractComments: <span class="literal">true</span>,<span class="comment">// 函数，提取注释</span></span><br><span class="line">  warningsFilter: <span class="literal">undefined</span><span class="comment">// 过滤警告，如 source =&gt; Boolean</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="ExtractTextWebpackPlugin"><a href="#ExtractTextWebpackPlugin" class="headerlink" title="ExtractTextWebpackPlugin"></a>ExtractTextWebpackPlugin</h2><p>extract-text-webpack-plugin 插件，提取 css 文件。</p>
-<p>ExtractTextPlugin.extract 在已经存在的 loader 中，创建一个提取 css 的 loader。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> ExtractTextWebpackPlugin(filename | &#123; </span><br><span class="line">  id: string,<span class="comment">// 此插件实例的唯一 ident（仅限高级用途，默认情况下自动生成）</span></span><br><span class="line">  filename: string,<span class="comment">// 生成文件的文件名，占位符包含 [name], [id], [contenthash]。ExtractTextPlugin 对 每个入口 chunk 都生成一个对应的文件</span></span><br><span class="line">  allChunks: <span class="literal">false</span>,<span class="comment">// 默认情况下，从入口 chunk 提取 css。当使用 CommonsChunkPlugin，且使用 ExtractTextPlugin.extract 在公共 chunk 中有提取 css 时，allChunks 须置为真</span></span><br><span class="line">  disable: <span class="literal">false</span>,<span class="comment">// 禁用插件</span></span><br><span class="line">  ignoreOrder: <span class="literal">false</span>,<span class="comment">// 禁用检查</span></span><br><span class="line">  threshold: <span class="number">0</span>,<span class="comment">// 大于该值的文件将被压缩</span></span><br><span class="line">  minRatio: <span class="number">0.8</span>,<span class="comment">// 压缩比大于该值的将被压缩</span></span><br><span class="line">  deleteOriginalAssets: <span class="literal">false</span><span class="comment">// 是否删除原始资源</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// ExtractTextPlugin.extract</span></span><br><span class="line">ExtractTextPlugin.extract(&#123;</span><br><span class="line">  loader: <span class="string">'[name]-loader'</span>,</span><br><span class="line">  options: &#123;</span><br><span class="line">    use: [<span class="string">'css-loader'</span>, <span class="string">'sass-loader'</span>],<span class="comment">// 提取 css 文件，使用这些 loader 获得 css 模块</span></span><br><span class="line">    fallback: <span class="string">'style-loader'</span>,<span class="comment">// css 模块已取得，尚未提取前应用</span></span><br><span class="line">    publicPath: <span class="comment">// 重写此 loader 的 publicPath 配置</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或者</span></span><br><span class="line"><span class="keyword">const</span> ExtractTextPlugin = <span class="built_in">require</span>(<span class="string">'extract-text-webpack-plugin'</span>);</span><br><span class="line"><span class="keyword">const</span> extractCSS = <span class="keyword">new</span> ExtractTextPlugin(<span class="string">'stylesheets/[name]-one.css'</span>);</span><br><span class="line"><span class="keyword">const</span> extractLESS = <span class="keyword">new</span> ExtractTextPlugin(<span class="string">'stylesheets/[name]-two.css'</span>);</span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.css$/</span>,</span><br><span class="line">        use: extractCSS.extract([ <span class="string">'css-loader'</span>, <span class="string">'postcss-loader'</span> ])</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.less$/i</span>,</span><br><span class="line">        use: extractLESS.extract([ <span class="string">'css-loader'</span>, <span class="string">'less-loader'</span> ])</span><br><span class="line">      &#125;,</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  plugins: [</span><br><span class="line">    extractCSS,</span><br><span class="line">    extractLESS</span><br><span class="line">  ]</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="NpmInstallWebpackPlugin"><a href="#NpmInstallWebpackPlugin" class="headerlink" title="NpmInstallWebpackPlugin"></a>NpmInstallWebpackPlugin</h2><p>npm-install-webpack-plugin 插件，加载缺失的依赖。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> NpmInstallPlugin(&#123;</span><br><span class="line">  dev: <span class="literal">false</span>,<span class="comment">// 使用 --save 或者 --save-dev</span></span><br><span class="line">  peerDependencies: <span class="literal">true</span>,<span class="comment">// 安装缺少的 peerDependencies</span></span><br><span class="line">  quiet: <span class="literal">false</span>,<span class="comment">// 减少控制台日志记录的数量</span></span><br><span class="line">  npm: <span class="string">'tnpm'</span><span class="comment">// 包加载方式，默认 'npm'</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="I18nWebpackPlugin"><a href="#I18nWebpackPlugin" class="headerlink" title="I18nWebpackPlugin"></a>I18nWebpackPlugin</h2><p>i18n-webpack-plugin 插件，国际化???</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> I18nWebpackPlugin(&#123;</span><br><span class="line">  functionName: <span class="string">'__'</span>,<span class="comment">// 函数名</span></span><br><span class="line">  failOnMissing: <span class="literal">false</span>,<span class="comment">// 找不到映射文件时给予警告</span></span><br><span class="line">  hideMessage: <span class="literal">false</span><span class="comment">// 隐藏警告/错误信息</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="BabiliWebpackPlugin"><a href="#BabiliWebpackPlugin" class="headerlink" title="BabiliWebpackPlugin"></a>BabiliWebpackPlugin</h2><p>babili-webpack-plugin 插件，使用 babel-minify 根据浏览器是否支持 es5 最新特性，优化压缩代码。也可以在 babel-loader 配置中使用 babel-preset-minify 。比起 babel-loader 配置，babili-webpack-plugin 插件能优化全文件，包含不通过 babel-loader 加载的文件，即 node_modules 下的文件，以及由 webpack 生成的文件。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> BabiliPlugin(</span><br><span class="line">  babiliOptions = &#123; </span><br><span class="line">    plugins:[], </span><br><span class="line">    presets:[] </span><br><span class="line">  &#125;, </span><br><span class="line">  overrides = &#123;</span><br><span class="line">    test: <span class="regexp">/\.js($|\?)/i</span>,<span class="comment">// 待包含的文件</span></span><br><span class="line">    comments: <span class="regexp">/@preserve|@licen(s|c)e/</span>,<span class="comment">// 置为 false，将移除注释</span></span><br><span class="line">    sourceMap: webpackConfig.devtool,</span><br><span class="line">    parserOpts: &#123;&#125;,</span><br><span class="line">    babel: <span class="built_in">require</span>(<span class="string">"babel-core"</span>),<span class="comment">// 用于替代 babel-core</span></span><br><span class="line">    babili: <span class="built_in">require</span>(<span class="string">'babel-preset-minify'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-<h2 id="CompressionWebpackPlugin"><a href="#CompressionWebpackPlugin" class="headerlink" title="CompressionWebpackPlugin"></a>CompressionWebpackPlugin</h2><p>compression-webpack-plugin 插件，压缩静态资源。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> CompressionWebpackPlugin(&#123; </span><br><span class="line">  test: <span class="string">'.'</span>, </span><br><span class="line">  include: <span class="literal">undefined</span>,</span><br><span class="line">  exclude: <span class="literal">undefined</span>,</span><br><span class="line">  cache: <span class="literal">false</span>,<span class="comment">// 开启文件缓存</span></span><br><span class="line">  asset: [path].gz[query],<span class="comment">// 目标资源名称。[file] 会被替换成原始资源，[path] 会被替换成原始资源的路径，[query] 会被替换成查询字符串</span></span><br><span class="line">  filename: <span class="literal">false</span>,<span class="comment">// 函数，如 (asset) =&gt; asset</span></span><br><span class="line">  algorithm: <span class="string">'gzip'</span>,<span class="comment">// 压缩算法或算法名，如 (buffer, cb) =&gt; cb(buffer)</span></span><br><span class="line">  threshold: <span class="number">0</span>,<span class="comment">// 大于该值的文件将被压缩</span></span><br><span class="line">  minRatio: <span class="number">0.8</span>,<span class="comment">// 压缩比大于该值的将被压缩</span></span><br><span class="line">  deleteOriginalAssets: <span class="literal">false</span><span class="comment">// 是否删除原始资源</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="ZopfliWebpackPlugin"><a href="#ZopfliWebpackPlugin" class="headerlink" title="ZopfliWebpackPlugin"></a>ZopfliWebpackPlugin</h2><p>zopfli-webpack-plugin 插件，压缩资源。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> ZopfliWebpackPlugin(&#123; </span><br><span class="line">  asset: [path].gz[query],<span class="comment">// 目标资源名称。[file] 会被替换成原始资源，[path] 会被替换成原始资源的路径，[query] 会被替换成查询字符串</span></span><br><span class="line">  filename: <span class="literal">false</span>,<span class="comment">// 函数，如 (asset) =&gt; asset</span></span><br><span class="line">  algorithm: <span class="string">'gzip'</span>,<span class="comment">// 压缩算法或算法名，如 (buffer, cb) =&gt; cb(buffer)</span></span><br><span class="line">  threshold: <span class="number">0</span>,<span class="comment">// 大于该值的文件将被压缩</span></span><br><span class="line">  minRatio: <span class="number">0.8</span>,<span class="comment">// 压缩比大于该值的将被压缩</span></span><br><span class="line">  deleteOriginalAssets: <span class="literal">false</span><span class="comment">// 是否删除原始资源</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="ComponentWebpackPlugin"><a href="#ComponentWebpackPlugin" class="headerlink" title="ComponentWebpackPlugin"></a>ComponentWebpackPlugin</h2><p>不详。。。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2587,7 +2534,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2598,7 +2545,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-count">9</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2609,7 +2556,7 @@
                 
                 <div class="site-state-item site-state-tags">
                   <a href="/tags/index.html">
-                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

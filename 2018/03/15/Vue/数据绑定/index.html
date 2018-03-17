@@ -111,7 +111,7 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="序言数据侦测，也称为数据绑定，即是监测数据的更新状况，当数据更新时，触发后续动作的执行。以伪语法的形式，可以用 表达式 1 概括说明。 表达式 11234when(data changed)&amp;#123;  do compute  do reaction&amp;#125; 基于 表达式 1 ，有如下概念（基于 mobx 文档 整理）： 概念 112345Observable: 监测数据，可以是状态，更新其">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-03-15T14:54:17.000Z">
+<meta property="og:updated_time" content="2018-03-15T15:02:42.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Vue 源码分析 - 数据侦测">
 <meta name="twitter:description" content="序言数据侦测，也称为数据绑定，即是监测数据的更新状况，当数据更新时，触发后续动作的执行。以伪语法的形式，可以用 表达式 1 概括说明。 表达式 11234when(data changed)&amp;#123;  do compute  do reaction&amp;#125; 基于 表达式 1 ，有如下概念（基于 mobx 文档 整理）： 概念 112345Observable: 监测数据，可以是状态，更新其">
@@ -469,6 +469,10 @@
 <p><em>代码段 15</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">flushSchedulerQueue</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">  resetSchedulerState()</span><br><span class="line"></span><br><span class="line">  callActivatedHooks(activatedQueue)</span><br><span class="line">  callUpdatedHooks(updatedQueue)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// devtool hook</span></span><br><span class="line">  <span class="keyword">if</span> (devtools &amp;&amp; config.devtools) &#123;</span><br><span class="line">    devtools.emit(<span class="string">'flush'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">callUpdatedHooks</span> (<span class="params">queue</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> i = queue.length</span><br><span class="line">  <span class="keyword">while</span> (i--) &#123;</span><br><span class="line">    <span class="keyword">const</span> watcher = queue[i]</span><br><span class="line">    <span class="keyword">const</span> vm = watcher.vm</span><br><span class="line">    <span class="keyword">if</span> (vm._watcher === watcher &amp;&amp; vm._isMounted) &#123;</span><br><span class="line">      callHook(vm, <span class="string">'updated'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// createComponent 函数执行时调用，添加 keep-alive 组件</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">queueActivatedComponent</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  vm._inactive = <span class="literal">false</span></span><br><span class="line">  activatedChildren.push(vm)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">callActivatedHooks</span> (<span class="params">queue</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; queue.length; i++) &#123;</span><br><span class="line">    queue[i]._inactive = <span class="literal">true</span></span><br><span class="line">    activateChildComponent(queue[i], <span class="literal">true</span> <span class="comment">/* true */</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>以上即为 Vue 内部对数据监测功能的使用。</p>
 <h2 id="延伸"><a href="#延伸" class="headerlink" title="延伸"></a>延伸</h2><p>本节将根据 mobx 的 api 接口设计响应式 model。</p>
+<p>class Model {<br>  @observable data = {<br>    firstname: ‘steven’,<br>    secondname: ‘spielberg’<br>  };</p>
+<p>  @action changeData(){<br>    this.data = {<br>      firstname: ‘steven’,<br>      secondname: ‘jobs’<br>    }<br>  }</p>
+<p>  @computed get fullname(){<br>    return <code>${this.firstname}.${this.secondname}</code>;<br>  }</p>
+<p>  @reaction log(){<br>    console.log(‘name changed’);<br>  }<br>};</p>
 
       
     </div>
@@ -510,6 +514,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/17/es6/修饰器/" rel="prev" title="修饰器">
+                修饰器 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -597,7 +605,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-count">17</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -608,7 +616,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-count">11</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -619,7 +627,7 @@
                 
                 <div class="site-state-item site-state-tags">
                   <a href="/tags/index.html">
-                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

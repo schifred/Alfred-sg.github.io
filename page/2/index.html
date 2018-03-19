@@ -270,6 +270,235 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/11/Enzyme使用指南/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/11/Enzyme使用指南/" itemprop="url">Enzyme使用指南</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-11T00:00:00+08:00">2018-02-11</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/11/Enzyme使用指南/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/02/11/Enzyme使用指南/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Enzyme 是一款 react 组件测试工具。</p>
+<p>Enzyme 基于 <a href="https://github.com/cheeriojs/cheerio" target="_blank" rel="noopener">cheerio</a> 实现虚拟 dom 的查找和遍历；而 cheerio 号称为服务器端的 jquery 实现。</p>
+<p>Enzyme 本身不实现测试和断言库，你可以选择使用 Mocha/chai, Jasmine, Jest 等测试或断言库。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><ol>
+<li>安装 npm i –save-dev enzyme。</li>
+<li>针对项目中使用的 react 版本，安装 enzyme-adapter-react-16, enzyme-adapter-react-15（15.5.0 版本起）, enzyme-adapter-react-15.4（15.0.0 ~ 15.4.x）, enzyme-adapter-react-14, enzyme-adapter-react-13 适配器。</li>
+<li><p>配置 enzyme 以使用适配器。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Enzyme <span class="keyword">from</span> <span class="string">'enzyme'</span>;</span><br><span class="line"><span class="keyword">import</span> Adapter <span class="keyword">from</span> <span class="string">'enzyme-adapter-react-16'</span>;</span><br><span class="line"></span><br><span class="line">Enzyme.configure(&#123; <span class="attr">adapter</span>: <span class="keyword">new</span> Adapter() &#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编写测试用例。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; expect &#125; <span class="keyword">from</span> <span class="string">'chai'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; shallow &#125; <span class="keyword">from</span> <span class="string">'enzyme'</span>;</span><br><span class="line"><span class="keyword">import</span> sinon <span class="keyword">from</span> <span class="string">'sinon'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> MyComponent <span class="keyword">from</span> <span class="string">'./MyComponent'</span>;</span><br><span class="line"><span class="keyword">import</span> Foo <span class="keyword">from</span> <span class="string">'./Foo'</span>;</span><br><span class="line"></span><br><span class="line">describe(<span class="string">'&lt;MyComponent /&gt;'</span>, () =&gt; &#123;</span><br><span class="line">  it(<span class="string">'renders three &lt;Foo /&gt; components'</span>, () =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> wrapper = shallow(&lt;MyComponent /&gt;);</span><br><span class="line">    expect(wrapper.find(Foo)).to.have.length(3);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  it('renders an `.icon-star`', () =&gt; &#123;</span><br><span class="line">    const wrapper = shallow(&lt;MyComponent /&gt;);</span><br><span class="line">    expect(wrapper.find('.icon-star')).to.have.length(1);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  it('renders children when passed in', () =&gt; &#123;</span><br><span class="line">    const wrapper = shallow((</span><br><span class="line">      &lt;MyComponent&gt;</span><br><span class="line">        &lt;div className="unique" /&gt;</span><br><span class="line">      &lt;/MyComponent&gt;</span><br><span class="line">    ));</span><br><span class="line">    expect(wrapper.contains(&lt;div className="unique" /&gt;)).to.equal(true);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  it('simulates click events', () =&gt; &#123;</span><br><span class="line">    const onButtonClick = sinon.spy();</span><br><span class="line">    const wrapper = shallow(&lt;Foo onButtonClick=&#123;onButtonClick&#125; /&gt;);</span><br><span class="line">    wrapper.find('button').simulate('click');</span><br><span class="line">    expect(onButtonClick).to.have.property('callCount', 1);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="api-手册"><a href="#api-手册" class="headerlink" title="api 手册"></a>api 手册</h2><h3 id="渲染模式"><a href="#渲染模式" class="headerlink" title="渲染模式"></a>渲染模式</h3><ol>
+<li>浅渲染：shallow(node[, options]) =&gt; ShallowWrapper。参数 node 为 ReactElement，options.context 传入组件的context，options.disableLifecycleMethods 生命周期方法是否有效。</li>
+<li>完整渲染：mount(node[, options]) =&gt; ReactWrapper。options.context 传入组件的context，options.attachTo 生命周期方法是否有效。需要完整的 dom api，所以需要安装 <a href="https://github.com/jsdom/jsdom" target="_blank" rel="noopener">jsdom</a> 库。</li>
+<li>静态渲染：render(node[, options]) =&gt; CheerioWrapper，渲染为 html，通过 cheerio 解析 html。</li>
+</ol>
+<h3 id="wrapper-api"><a href="#wrapper-api" class="headerlink" title="wrapper api"></a>wrapper api</h3><ol>
+<li>.find(selector) =&gt; Wrapper</li>
+<li>.findWhere(predicate) =&gt; Wrapper</li>
+<li>.filter(selector) =&gt; Wrapper</li>
+<li>.filterWhere(predicate) =&gt; Wrapper</li>
+<li>.hostNodes() =&gt; Wrapper，事先存在于文档中 host 节点</li>
+<li>.contains(nodeOrNodes) =&gt; Boolean</li>
+<li>.containsMatchingElement(node) =&gt; Boolean</li>
+<li>.containsAllMatchingElements(nodes) =&gt; Boolean</li>
+<li>.containsAnyMatchingElements(nodes) =&gt; Boolean</li>
+<li>.equals(node) =&gt; Boolean</li>
+<li>.matchesElement(node) =&gt; Boolean</li>
+<li>.hasClass(className) =&gt; Boolean</li>
+<li>.is(selector) =&gt; Boolean</li>
+<li>.exists() =&gt; Boolean</li>
+<li>.isEmpty() =&gt; Boolean</li>
+<li>.isEmptyRender() =&gt; Boolean</li>
+<li>.not(selector) =&gt; Wrapper</li>
+<li>.children() =&gt; Wrapper</li>
+<li>.childAt(index) =&gt; Wrapper</li>
+<li>.parents() =&gt; Wrapper</li>
+<li>.parent() =&gt; Wrapper</li>
+<li>.closest(selector) =&gt; Wrapper</li>
+<li>.shallow([options]) =&gt; Wrapper，ShallowWrapper 独有</li>
+<li>.render() =&gt; CheerioWrapper</li>
+<li>.unmount() =&gt; Wrapper。ReactWrapper 独有 .mount() =&gt; Wrapper 方法</li>
+<li>.text() =&gt; String</li>
+<li>.html() =&gt; String</li>
+<li>.get(index) =&gt; ReactElement</li>
+<li>.getElement() =&gt; ReactElement。ReactWrapper 中为 .getNode() =&gt; ReactElement 方法</li>
+<li>.getElements() =&gt; Array<reactelement>。ReactWrapper 中为 .getNodes() =&gt; Array<reactelement> 方法。ReactWrapper 独有 .getDOMNode() =&gt; DOMComponent 方法。</reactelement></reactelement></li>
+<li>.at(index) =&gt; Wrapper</li>
+<li>.first() =&gt; Wrapper</li>
+<li>.last() =&gt; Wrapper</li>
+<li>.state([key]) =&gt; Any</li>
+<li>.context([key]) =&gt; Any</li>
+<li>.props() =&gt; Object</li>
+<li>.prop(key) =&gt; Any</li>
+<li>.key() =&gt; String</li>
+<li>.simulate(event[, data]) =&gt; Wrapper，模拟点击事件等</li>
+<li>.setState(nextState) =&gt; Wrapper</li>
+<li>.setProps(nextProps) =&gt; Wrapper</li>
+<li>.setContext(context) =&gt; Wrapper</li>
+<li>.instance() =&gt; ReactComponent</li>
+<li>.update() =&gt; Wrapper，调用 forceUpdate 方法强制更新组件实例。调用实例方法后，需要调用 .update 强制刷新 props。</li>
+<li>.debug() =&gt; String，.children 返回已渲染的节点，.children().debug() 返回渲染实际配置格式</li>
+<li>.type() =&gt; String|Function|null</li>
+<li>.name() =&gt; String</li>
+<li>.forEach(fn) =&gt; Wrapper</li>
+<li>.map(fn) =&gt; Array</li>
+<li>.reduce(fn[, initialValue]) =&gt; Any</li>
+<li>.reduceRight(fn[, initialValue]) =&gt; Any</li>
+<li>.slice([begin[, end]]) =&gt; Wrapper</li>
+<li>.tap(intercepter) =&gt; Self</li>
+<li>.some(selector) =&gt; Boolean</li>
+<li>.someWhere(predicate) =&gt; Boolean</li>
+<li>.every(selector) =&gt; Boolean</li>
+<li>.everyWhere(predicate) =&gt; Boolean</li>
+<li>.dive([options]) =&gt; Wrapper，ShallowWrapper 独有</li>
+<li>.ref(refName) =&gt; Wrapper，ReactWrapper 独有</li>
+<li>.detach() =&gt; void，ReactWrapper 独有</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/10/storybook使用指南/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -678,7 +907,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/06/webpack插件指南/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/06/webpack/webpack插件指南/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -697,7 +926,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/02/06/webpack插件指南/" itemprop="url">webpack插件指南</a></h1>
+                <a class="post-title-link" href="/2018/02/06/webpack/webpack插件指南/" itemprop="url">webpack插件指南</a></h1>
         
 
         <div class="post-meta">
@@ -752,9 +981,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/02/06/webpack插件指南/#comments" itemprop="discussionUrl">
+                <a href="/2018/02/06/webpack/webpack插件指南/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/02/06/webpack插件指南/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/02/06/webpack/webpack插件指南/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -880,7 +1109,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/04/webpack加载器指南/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/04/webpack/webpack加载器指南/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -899,7 +1128,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/02/04/webpack加载器指南/" itemprop="url">webpack加载器指南</a></h1>
+                <a class="post-title-link" href="/2018/02/04/webpack/webpack加载器指南/" itemprop="url">webpack加载器指南</a></h1>
         
 
         <div class="post-meta">
@@ -954,9 +1183,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/02/04/webpack加载器指南/#comments" itemprop="discussionUrl">
+                <a href="/2018/02/04/webpack/webpack加载器指南/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/02/04/webpack加载器指南/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/02/04/webpack/webpack加载器指南/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1920,7 +2149,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-count">18</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1931,7 +2160,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-count">13</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>

@@ -409,14 +409,20 @@
 <li>transition: 事务，设定状态切换的方法名，并制定该方法状态切换的规则，从 [from] 状态转变为 [to] 状态。当切换前的 [from] 状态不同时，可使用同一个事务定制多种状态切换规则。由 transitions = [{ name, from, to }] 选项注入。</li>
 <li>state: 状态。通过 transitions 选项转换得来。特别的，transition.to 状态可以用函数形式设定，在状态转换过程中注入 states 状态集中。</li>
 <li>lifecycle events: 生命周期事件，即执行钩子，分为两类，以 onBefore, onAfter 为前缀的事务执行前后的生命周期钩子，以 onEnter, onLeave 为前缀的状态变更前后的生命周期钩子。特殊的，onBeforeTransition, onLeaveState, onTransition, onEnterState, onAfterTransition 为全局声明周期钩子。事件名由 transitions 选项注入，绑定函数由 methods = { eventName: () =&gt; {} } 选项注入，或者通过调用 fsm.observer({ eventName: () =&gt; {} }) 方法注入。</li>
+<li>observer: 观察者，即绑定函数。可以通过 methods 选项添加，或者通过 StateMachine 实例的 observe 方法添加，以数组形式存储对象 { event: ({ transition, from, to, fsm, event }) =&gt; {} }。当事件发生时，再取出串行执行，通过 promise 实现了异步执行机制。</li>
 </ul>
-<p>在 javascript-state-machine 模块的构造中，有如下设计：</p>
+<p>在 javascript-state-machine 模块的构造中，整体架构：</p>
 <ul>
 <li>config 模块提供 Config 类，用于管理 states, transitions, lifecycle, data, methods, plugins 等实例属性。其中 state 以 this.states 数组形式存储，transitions 以 this.transitions 数组形式存储方法名，this.map = { [from]:{ [name]: transition } } 存储转换规则（其中，transition 为 transitions 选项中的数组项，from 为 transition.from，name 为 transition.name）,this.lifecycle = { onBefore: { transition, …customTransitionName }, onAfter, on, onEnter: { state, …customStateName }, onLeave } 形式存储事件名（其中，this.lifecycle.onBefore.transition 等为全局事件名 ）。Config 还提供 transitionFor(state, transition) 用于查找切换后的状态。</li>
-<li>jsm 模式提供 JSM 类，用于组织状态切换及触发钩子函数的逻辑。通过 this.config 访问 Config 实例，this.context 访问 StateMachine 实例，其 init 方法将 config.data 注入为 StateMachine 实例的属性；在 JSM 实例化过程中，又将注入到 StateMachine 实例方法的config.methods 绑定函数注入为 jsm.observers 属性中，通过 observersForEvent(event) 方法取出绑定函数，再交由 observeEvents 方法统筹一次状态变更过程中执行依序执行的事件、并执行绑定函数（以取出的 observer = { eventName: () =&gt; {} } 作为上下文，特别的，首个 observer 的就是 StateMachine 实例，首参为 { transition, from, to, fsm, event }），最终提供 fire 方法由 StateMachine 实例发起调用。事件触发、执行绑定函数过程，绑定函数中的异步逻辑通过返回 promise 处理；状态变更期间，jsm.pending 属性置为真，直到状态变更完毕或报错。</li>
-<li>app 模块提供 StateMachine 类，暴露用户接口。StateMachine 类实例化过程中会将 config 实例的 methods, data 属性转变为其实例属性，同时添加以 transition.name 标识的实例方法，因此三者的命名不能冲突。以 config, jsm, app 三个模块实现 StateMachine 类的好处是尽量少地暴露出交互接口。</li>
+<li>jsm 模式提供 JSM 类，用于组织状态切换及触发钩子函数的逻辑。通过 this.config 访问 Config 实例，this.context 访问 StateMachine 实例，其 init 方法将 config.data 注入为 StateMachine 实例的属性；在 JSM 实例化过程中，又将注入到 StateMachine 实例方法的config.methods 绑定函数注入为 jsm.observers 属性中，通过 observersForEvent(event) 方法取出绑定函数，再交由 observeEvents 方法统筹一次状态变更过程中执行依序执行的事件、并执行绑定函数（以取出的 observer = { eventName: ({ transition, from, to, fsm, event }) =&gt; {} } 作为上下文，特别的，首个 observer 的就是 StateMachine 实例），最终提供 fire 方法由 StateMachine 实例发起调用。事件触发、执行绑定函数过程，绑定函数中的异步逻辑通过返回 promise 处理；状态变更期间，jsm.pending 属性置为真，直到状态变更完毕或报错。</li>
+<li>app 模块提供 StateMachine 类，暴露用户接口。StateMachine 类实例化过程中会将 config 实例的 methods, data 属性转变为其实例属性，同时添加以 transition.name 标识的实例方法，因此三者的命名不能冲突。以 config, jsm, app 三个模块实现 StateMachine 类的好处是尽量少地暴露出交互接口。可通过 StateMachine 实例访问当前的状态 stateMachine.state，公共方法 is(state), can(transition), cannot(transition), observe({ event: () =&gt; {} }), transitions(), allTransitions(), allStates(), onInvalidTransition(transition, from, to), onPendingTransition(transition, from, to)，以及通过选线注入的实例属性或方法如 data, transitions, methods 选项。</li>
 </ul>
-<p>插件机制。</p>
+<p>需要留意的特性包含：</p>
+<ul>
+<li>data 选项依赖注入。当 data 选项包含方法时，其参数依赖注入的机制通过工厂函数 StateMachine.factory 实现，创建并返回 StateMachine 的另一种构造函数，该构造函数只将参数注入为 data 方法的参数；选项由 StateMachine.factory 注入。其目的是让多个 StateMachine 实例握有不同的 data 数据，但在不同状态中定制 data 数据需要借助于常规的状态模式。</li>
+<li>to 状态转换的条件性。javascript-state-machine 模块没有设置 condition 条件（在匹配 condition 条件下，才从 from 状态转换到 to 状态），而是可以用函数形式设置 to，以使切换后的状态可以在转换阶段获得。</li>
+<li>插件机制。如同 Vue, mocha 的插件机制，javascript-state-machine 模块的插件在 StateMachine 实例化过程中就会执行 plugin 函数或 plugin.configure 方法。</li>
+</ul>
 
           
         

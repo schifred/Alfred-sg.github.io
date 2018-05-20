@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="analyst,jquery," />
+
+
+<meta name="description" content="基础知识在阅读 jquery/effects 模块源码之前，有必要先了解一下制作前端动效的一些基本知识，其内容包含动效实现的基本原理、缓动函数等。对于以上内容，笔者将在这一小节一一加以介绍。 基本原理动效实现的基本原理如同逐帧制作动画，相隔时间较短的两帧动画可以促使人类视觉误以为那是连续的一个过程。术语刷新率 fps 指每秒更新多少帧画面。通常，每秒刷新 24 张画面最适宜于人类视觉，也就是单张画">
+<meta name="keywords" content="analyst,jquery">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jquery 动效分析">
+<meta property="og:url" content="http://yoursite.com/2018/05/20/jquery/动效分析/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="基础知识在阅读 jquery/effects 模块源码之前，有必要先了解一下制作前端动效的一些基本知识，其内容包含动效实现的基本原理、缓动函数等。对于以上内容，笔者将在这一小节一一加以介绍。 基本原理动效实现的基本原理如同逐帧制作动画，相隔时间较短的两帧动画可以促使人类视觉误以为那是连续的一个过程。术语刷新率 fps 指每秒更新多少帧画面。通常，每秒刷新 24 张画面最适宜于人类视觉，也就是单张画">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2018/05/20/jquery/动效分析/easing.png">
+<meta property="og:updated_time" content="2018-05-20T12:25:07.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="jquery 动效分析">
+<meta name="twitter:description" content="基础知识在阅读 jquery/effects 模块源码之前，有必要先了解一下制作前端动效的一些基本知识，其内容包含动效实现的基本原理、缓动函数等。对于以上内容，笔者将在这一小节一一加以介绍。 基本原理动效实现的基本原理如同逐帧制作动画，相隔时间较短的两帧动画可以促使人类视觉误以为那是连续的一个过程。术语刷新率 fps 指每秒更新多少帧画面。通常，每秒刷新 24 张画面最适宜于人类视觉，也就是单张画">
+<meta name="twitter:image" content="http://yoursite.com/2018/05/20/jquery/动效分析/easing.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/20/jquery/动效分析/"/>
+
+
+  <title>jquery 动效分析 | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/20/jquery/动效分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">jquery 动效分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-20T00:00:00+08:00">2018-05-20</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/jquery/" itemprop="url" rel="index"><span itemprop="name">jquery</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/20/jquery/动效分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/05/20/jquery/动效分析/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><p>在阅读 jquery/effects 模块源码之前，有必要先了解一下制作前端动效的一些基本知识，其内容包含动效实现的基本原理、缓动函数等。对于以上内容，笔者将在这一小节一一加以介绍。</p>
+<h3 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h3><p>动效实现的基本原理如同逐帧制作动画，相隔时间较短的两帧动画可以促使人类视觉误以为那是连续的一个过程。术语刷新率 fps 指每秒更新多少帧画面。通常，每秒刷新 24 张画面最适宜于人类视觉，也就是单张画面的滞留时间为 25 毫秒。因此，制作小球动效等价于在时间轴上计算小球当前的运动位置这一数学命题，即算术表达式 x = fn(t)。</p>
+<h2 id="缓动函数"><a href="#缓动函数" class="headerlink" title="缓动函数"></a>缓动函数</h2><p>常规的缓动函数表达式为 x = fn(t, b, c, d)，其中 x 为当前样式，t 为动画执行事件，b 为起始样式，c 为最终样式，d 为动画总时长。在已知 b, c, d 三个参数的情形下，缓动函数可以表述为 x = fn(t)，其斜率为速度，二次导数为加速度。</p>
+<p>常见的缓动函数可以查看 <a href="https://esings.net/zh-cn" target="_blank" rel="noopener">缓动函数速查表</a>。缓动函数名中，后缀 In 表示加速，Out 表示减速，InOut 标识先加速、后减速；后缀 Sine 表示由三角函数实现，Quad 表示由二次方函数实现，Cubic 为三次方，Quart 为四次方，Quint 为五次方，Circ 为开平方根，Expo 为开立方根，Elastic 为结合三角函数和开立方根的初级弹簧效果，Back 为使用常数 1.70158 计算的回退效果，Bounce 为高级弹簧效果。linear 为线性函数。</p>
+<img src="/2018/05/20/jquery/动效分析/easing.png">
+<p>jquery.esing 类库列出了多种缓动函数集合，参数 p 为动画已执行时间占动画总时长的百分比，返回值当前移动距离占总移动距离的百分比。代码如下（包含 jquery 中提供的 linear, swing 函数）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> c1 = <span class="number">1.70158</span>;</span><br><span class="line"><span class="keyword">const</span> c2 = c1 * <span class="number">1.525</span>;</span><br><span class="line"><span class="keyword">const</span> c3 = c1 + <span class="number">1</span>;</span><br><span class="line"><span class="keyword">const</span> c4 = ( <span class="number">2</span> * <span class="built_in">Math</span>.PI ) / <span class="number">3</span>;</span><br><span class="line"><span class="keyword">const</span> c5 = ( <span class="number">2</span> * <span class="built_in">Math</span>.PI ) / <span class="number">4.5</span>;</span><br><span class="line"></span><br><span class="line">$.esing = &#123;</span><br><span class="line">  linear(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">  &#125;,</span><br><span class="line">  swing(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.5</span> - <span class="built_in">Math</span>.Math.cos( p * <span class="built_in">Math</span>.PI ) / <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInQuad(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p * p;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOutQuad(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> - ( <span class="number">1</span> - p ) * ( <span class="number">1</span> - p );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOutQuad(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p &lt; <span class="number">0.5</span> ? </span><br><span class="line">      <span class="number">2</span> * p * p : </span><br><span class="line">      <span class="number">1</span> - <span class="built_in">Math</span>.pow( <span class="number">-2</span> * p + <span class="number">2</span>, <span class="number">2</span> ) / <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInCubic(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p * p * p;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOutCubic(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> - <span class="built_in">Math</span>.pow( <span class="number">1</span> - p, <span class="number">3</span> );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOutCubic(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p &lt; <span class="number">0.5</span> ? </span><br><span class="line">      <span class="number">4</span> * p * p * p : </span><br><span class="line">      <span class="number">1</span> - <span class="built_in">Math</span>.pow( <span class="number">-2</span> * p + <span class="number">2</span>, <span class="number">3</span> ) / <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInQuart(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p * p * p * p;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOutQuart(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> - <span class="built_in">Math</span>.pow( <span class="number">1</span> - p, <span class="number">4</span> );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOutQuart(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p &lt; <span class="number">0.5</span> ?</span><br><span class="line">      <span class="number">8</span> * p * p * p * p :</span><br><span class="line">      <span class="number">1</span> - <span class="built_in">Math</span>.pow( <span class="number">-2</span> * p + <span class="number">2</span>, <span class="number">4</span> ) / <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInQuint(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p * p * p * p * p;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOutQuint(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> - <span class="built_in">Math</span>.pow( <span class="number">1</span> - p, <span class="number">5</span> );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOutQuint(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p &lt; <span class="number">0.5</span> ?</span><br><span class="line">      <span class="number">16</span> * p * p * p * p * p :</span><br><span class="line">      <span class="number">1</span> - <span class="built_in">Math</span>.pow( <span class="number">-2</span> * p + <span class="number">2</span>, <span class="number">5</span> ) / <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInSine(p) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> - <span class="built_in">Math</span>.cos( p * <span class="built_in">Math</span>.PI/<span class="number">2</span> );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOutSine(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Math</span>.sin( p * <span class="built_in">Math</span>.PI/<span class="number">2</span> );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOutSine(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> -( <span class="built_in">Math</span>.cos( <span class="built_in">Math</span>.PI * p ) - <span class="number">1</span> ) / <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInEppo(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p === <span class="number">0</span> ? <span class="number">0</span> : <span class="built_in">Math</span>.pow( <span class="number">2</span>, <span class="number">10</span> * p - <span class="number">10</span> );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOutEppo(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p === <span class="number">1</span> ? <span class="number">1</span> : <span class="number">1</span> - <span class="built_in">Math</span>.pow( <span class="number">2</span>, <span class="number">-10</span> * p );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOutEppo(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p === <span class="number">0</span> ? <span class="number">0</span> : p === <span class="number">1</span> ? <span class="number">1</span> : p &lt; <span class="number">0.5</span> ?</span><br><span class="line">      <span class="built_in">Math</span>.pow( <span class="number">2</span>, <span class="number">20</span> * p - <span class="number">10</span> ) / <span class="number">2</span> :</span><br><span class="line">      ( <span class="number">2</span> - <span class="built_in">Math</span>.pow( <span class="number">2</span>, <span class="number">-20</span> * p + <span class="number">10</span> ) ) / <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInCirc(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> - <span class="built_in">Math</span>.sqrt( <span class="number">1</span> - <span class="built_in">Math</span>.pow( p, <span class="number">2</span> ) );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOutCirc(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Math</span>.sqrt( <span class="number">1</span> - <span class="built_in">Math</span>.pow( p - <span class="number">1</span>, <span class="number">2</span> ) );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOutCirc(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p &lt; <span class="number">0.5</span> ?</span><br><span class="line">      ( <span class="number">1</span> - <span class="built_in">Math</span>.sqrt( <span class="number">1</span> - <span class="built_in">Math</span>.pow( <span class="number">2</span> * p, <span class="number">2</span> ) ) ) / <span class="number">2</span> :</span><br><span class="line">      ( <span class="built_in">Math</span>.sqrt( <span class="number">1</span> - <span class="built_in">Math</span>.pow( <span class="number">-2</span> * p + <span class="number">2</span>, <span class="number">2</span> ) ) + <span class="number">1</span> ) / <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInElastic(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p === <span class="number">0</span> ? <span class="number">0</span> : p === <span class="number">1</span> ? <span class="number">1</span> :</span><br><span class="line">      -<span class="built_in">Math</span>.pow( <span class="number">2</span>, <span class="number">10</span> * p - <span class="number">10</span> ) * <span class="built_in">Math</span>.sin( ( p * <span class="number">10</span> - <span class="number">10.75</span> ) * c4 );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOutElastic(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p === <span class="number">0</span> ? <span class="number">0</span> : p === <span class="number">1</span> ? <span class="number">1</span> :</span><br><span class="line">      <span class="built_in">Math</span>.pow( <span class="number">2</span>, <span class="number">-10</span> * p ) * <span class="built_in">Math</span>.sin( ( p * <span class="number">10</span> - <span class="number">0.75</span> ) * c4 ) + <span class="number">1</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOutElastic(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p === <span class="number">0</span> ? <span class="number">0</span> : p === <span class="number">1</span> ? <span class="number">1</span> : p &lt; <span class="number">0.5</span> ?</span><br><span class="line">      -( <span class="built_in">Math</span>.pow( <span class="number">2</span>, <span class="number">20</span> * p - <span class="number">10</span> ) * <span class="built_in">Math</span>.sin( ( <span class="number">20</span> * p - <span class="number">11.125</span> ) * c5 )) / <span class="number">2</span> :</span><br><span class="line">      <span class="built_in">Math</span>.pow( <span class="number">2</span>, <span class="number">-20</span> * p + <span class="number">10</span> ) * <span class="built_in">Math</span>.sin( ( <span class="number">20</span> * p - <span class="number">11.125</span> ) * c5 ) / <span class="number">2</span> + <span class="number">1</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInBack(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> c3 * p * p * p - c1 * p * p;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOutBack(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> + c3 * <span class="built_in">Math</span>.pow( p - <span class="number">1</span>, <span class="number">3</span> ) + c1 * <span class="built_in">Math</span>.pow( p - <span class="number">1</span>, <span class="number">2</span> );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOutBack(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p &lt; <span class="number">0.5</span> ?</span><br><span class="line">      ( <span class="built_in">Math</span>.pow( <span class="number">2</span> * p, <span class="number">2</span> ) * ( ( c2 + <span class="number">1</span> ) * <span class="number">2</span> * p - c2 ) ) / <span class="number">2</span> :</span><br><span class="line">      ( <span class="built_in">Math</span>.pow( <span class="number">2</span> * p - <span class="number">2</span>, <span class="number">2</span> ) *( ( c2 + <span class="number">1</span> ) * ( p * <span class="number">2</span> - <span class="number">2</span> ) + c2 ) + <span class="number">2</span> ) / <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInBounce(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> - bounceOut( <span class="number">1</span> - p );</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOutBounce(p) &#123;</span><br><span class="line">    <span class="keyword">var</span> n1 = <span class="number">7.5625</span>,</span><br><span class="line">      d1 = <span class="number">2.75</span>;</span><br><span class="line">    <span class="keyword">if</span> ( p &lt; <span class="number">1</span> / d1 ) &#123;</span><br><span class="line">      <span class="keyword">return</span> n1 * p * p;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ( p &lt; <span class="number">2</span> / d1 ) &#123;</span><br><span class="line">      <span class="keyword">return</span> n1 * (p -= (<span class="number">1.5</span> / d1)) * p + <span class="number">0.75</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ( p &lt; <span class="number">2.5</span> / d1 ) &#123;</span><br><span class="line">      <span class="keyword">return</span> n1 * (p -= (<span class="number">2.25</span> / d1)) * p + <span class="number">0.9375</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> n1 * (p-=(<span class="number">2.625</span>/d1))*p + <span class="number">0.984375</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOutBounce(p)&#123;</span><br><span class="line">    <span class="keyword">return</span> p &lt; <span class="number">0.5</span> ?</span><br><span class="line">      ( <span class="number">1</span> - bounceOut( <span class="number">1</span> - <span class="number">2</span> * p ) ) / <span class="number">2</span> :</span><br><span class="line">      ( <span class="number">1</span> + bounceOut( <span class="number">2</span> * p - <span class="number">1</span> ) ) / <span class="number">2</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>关于各式缓动函数的由来、及其与贝塞尔曲线的关系，笔者暂时没能力加以分析。</p>
+<h3 id="requestAnimationFrame"><a href="#requestAnimationFrame" class="headerlink" title="requestAnimationFrame"></a>requestAnimationFrame</h3><p>有了缓动函数，我们就需要通过定时器运作动画脚本，在 25 毫秒内刷新元素的显示样式。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+            <a href="/tags/jquery/" rel="tag"># jquery</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/19/设计模式/策略模式/" rel="next" title="策略模式">
+                <i class="fa fa-chevron-left"></i> 策略模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="Alfred" />
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础知识"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本原理"><span class="nav-number">1.1.</span> <span class="nav-text">基本原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缓动函数"><span class="nav-number">2.</span> <span class="nav-text">缓动函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#requestAnimationFrame"><span class="nav-number">2.1.</span> <span class="nav-text">requestAnimationFrame</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2018/05/20/jquery/动效分析/';
+        this.page.identifier = '2018/05/20/jquery/动效分析/';
+        this.page.title = 'jquery 动效分析';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script>
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

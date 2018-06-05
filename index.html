@@ -395,7 +395,11 @@
 <h3 id="queue-队列"><a href="#queue-队列" class="headerlink" title="queue 队列"></a>queue 队列</h3><p>$.queue(queueName, [queue || callback]) 方法通过 dataPriv 数据缓存创建、添加或获取以 <code>${queueName}queue</code> 为主键的函数队列。</p>
 <p>$.dequeue(queueName) 方法从 <code>${queueName}queue</code> 函数队列中取出顶端的函数并执行；所有队列函数取出执行后，调用 <code>${queueName}queueHooks</code> 名注册的钩子函数集合中的 empty 方法清空 <code>${queueName}queue</code> 函数队列及 <code>${queueName}queueHooks</code> 钩子函数集合。</p>
 <p>$.clearQueue(queueName) 方法用于清空 <code>${queueName}queue</code> 函数队列。</p>
-<h2 id="动效模块设计"><a href="#动效模块设计" class="headerlink" title="动效模块设计"></a>动效模块设计</h2><h2 id="动效模块实现"><a href="#动效模块实现" class="headerlink" title="动效模块实现"></a>动效模块实现</h2><h2 id="动效模块应用"><a href="#动效模块应用" class="headerlink" title="动效模块应用"></a>动效模块应用</h2>
+<h2 id="动效模块设计"><a href="#动效模块设计" class="headerlink" title="动效模块设计"></a>动效模块设计</h2><p>jQuery 对动效模块的设计中，首先映入眼帘的是 Animation 函数，其基本骨架是以 deferred 模块组织异步逻辑。其中，tick 内含定时任务函数用于计算动画已执行时长百分比，并触发挂载在 promise 对象上的 progress, done, fail 回调函数的执行；animation 内部变量既包含基本的动画属性和方法，又兼有 promise 对象的属性和方法，随后通过该 animation 对象挂载 progress, done, fail 回调。</p>
+<p>在 Animation 函数中，propFilter 函数用于转换 Animation 函数参数中的样式配置项及缓动配置项；Animation.prefilters 数组为动画执行前的一组预处理函数，既能影响应用于动画上的一些属性，又能通过 animation 的 progress, done, fail, always 方法影响异步回调。默认的 defaultPrefilter 函数用于清空 queue 队列，以及对显示隐藏动画作特殊处理。</p>
+<p>tick 定时任务通过 jQuery.fx.timer 函数执行，其实现是添加到 jQuery.timers 动画队列中，由 schedule 调度函数通过 window.requestAnimationFrame 方法或 window.setTimeout 函数在一定时间内取出执行。所以，jQuery 中所有动画可理解为均借助于单个定时器实现。在 schedule 函数调度实现的基础上，jQuery 中所有动画可以通过 jQuery.fx.stop 函数终止动画的运作。</p>
+<p>以上描述均不涉及 jQuery 动画中的样式变更凭何实现，那么 jQuery 动画中的样式变更到底是怎么实现的呢？原来在定时任务 tick 执行过程中，jQuery 会取出 animation.tweens 数组并执行数组项的 run 方法。</p>
+<h2 id="动效模块实现"><a href="#动效模块实现" class="headerlink" title="动效模块实现"></a>动效模块实现</h2><h2 id="动效模块应用"><a href="#动效模块应用" class="headerlink" title="动效模块应用"></a>动效模块应用</h2>
           
         
       

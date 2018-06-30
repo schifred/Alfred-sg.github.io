@@ -113,7 +113,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2018/06/13/jquery/动效分析/easing.png">
 <meta property="og:image" content="http://yoursite.com/2018/06/13/jquery/动效分析/effects.png">
-<meta property="og:updated_time" content="2018-06-12T23:14:16.000Z">
+<meta property="og:updated_time" content="2018-06-12T23:47:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="jquery 动效分析">
 <meta name="twitter:description" content="动效基础在阅读 jquery/effects 模块源码之前，有必要先了解一下制作前端动效的一些基本知识，其内容包含动效实现的基本原理、缓动函数等。对于以上内容，笔者将在这一小节一一加以介绍。 基本原理动效实现的基本原理如同逐帧制作动画，相隔时间较短的两帧动画可以促使人类视觉误以为那是连续的一个过程。术语刷新率 fps 指每秒更新多少帧画面。通常，每秒刷新 24 张画面最适宜于人类视觉，也就是单张画">
@@ -478,7 +478,10 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Generate parameters to create a standard animation</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">genFx</span>(<span class="params"> type, includeWidth </span>) </span>&#123;</span><br><span class="line">	<span class="keyword">var</span> which,</span><br><span class="line">		i = <span class="number">0</span>,</span><br><span class="line">		attrs = &#123; <span class="attr">height</span>: type &#125;;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// If we include width, step value is 1 to do all cssExpand values,</span></span><br><span class="line">	<span class="comment">// otherwise step value is 2 to skip over Left and Right</span></span><br><span class="line">	includeWidth = includeWidth ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> ( ; i &lt; <span class="number">4</span>; i += <span class="number">2</span> - includeWidth ) &#123;</span><br><span class="line">		which = cssExpand[ i ];</span><br><span class="line">		attrs[ <span class="string">"margin"</span> + which ] = attrs[ <span class="string">"padding"</span> + which ] = type;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> ( includeWidth ) &#123;</span><br><span class="line">		attrs.opacity = attrs.width = type;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> attrs;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">jQuery.each( [ <span class="string">"toggle"</span>, <span class="string">"show"</span>, <span class="string">"hide"</span> ], <span class="function"><span class="keyword">function</span>(<span class="params"> i, name </span>) </span>&#123;</span><br><span class="line">	<span class="keyword">var</span> cssFn = jQuery.fn[ name ];</span><br><span class="line">	jQuery.fn[ name ] = <span class="function"><span class="keyword">function</span>(<span class="params"> speed, easing, callback </span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> speed == <span class="literal">null</span> || <span class="keyword">typeof</span> speed === <span class="string">"boolean"</span> ?</span><br><span class="line">			cssFn.apply( <span class="keyword">this</span>, <span class="built_in">arguments</span> ) :</span><br><span class="line">			<span class="keyword">this</span>.animate( genFx( name, <span class="literal">true</span> ), speed, easing, callback );</span><br><span class="line">	&#125;;</span><br><span class="line">&#125; );</span><br><span class="line"></span><br><span class="line">jQuery.each( &#123;</span><br><span class="line">	slideDown: genFx( <span class="string">"show"</span> ),</span><br><span class="line">	slideUp: genFx( <span class="string">"hide"</span> ),</span><br><span class="line">	slideToggle: genFx( <span class="string">"toggle"</span> ),</span><br><span class="line">	fadeIn: &#123; <span class="attr">opacity</span>: <span class="string">"show"</span> &#125;,</span><br><span class="line">	fadeOut: &#123; <span class="attr">opacity</span>: <span class="string">"hide"</span> &#125;,</span><br><span class="line">	fadeToggle: &#123; <span class="attr">opacity</span>: <span class="string">"toggle"</span> &#125;</span><br><span class="line">&#125;, <span class="function"><span class="keyword">function</span>(<span class="params"> name, props </span>) </span>&#123;</span><br><span class="line">	jQuery.fn[ name ] = <span class="function"><span class="keyword">function</span>(<span class="params"> speed, easing, callback </span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">this</span>.animate( props, speed, easing, callback );</span><br><span class="line">	&#125;;</span><br><span class="line">&#125; );</span><br></pre></td></tr></table></figure>
 <h2 id="感悟"><a href="#感悟" class="headerlink" title="感悟"></a>感悟</h2><p>这几天，我总想用一种形象化的比喻来描述自己管窥中的程序设计。有想过把它比作为流水线上的零部件加工，可使这样的形容不足以说明程序设计的复杂度。在源码阅读过程中，我发现，程序设计里对模块的使用并不像产业工人那样只是做简单的拼装。模块间的耦合度会因为设计的不合理、开发者能力的局限、问题的复杂度，而显出一定的复杂度。譬如，在 jQuery 中，queue 模块会内嵌许多针对动效的处理逻辑，基于类的形式构建程序处理的多样性会比在函数体内设置标识、或者通过传参判断，条理会更清晰明朗；在 webpack 中，module 的编译流程会散落在多个模块中，各个模块间的关联性并不是那么容易理清。程序设计并不像对汽车零部件的加工，走完这道工序，就是那一道工序。它更像从史记中理出某个历史事件，比如汉武帝听从大行王恢的建议在马邑对匈奴设伏，事件的枝节会散落在各个人物传记中；各方人物的心理也小挖掘；针对史料，又需要摸索作者的曲笔、晦言；当把事件置入历史长河、国内外局势中，则需要作一番更深远的考量。换回到工业层面，也许可以把程序设计思想为，模块就好比一台可以加工多种产品的设备，模块间的铰链就好比产品在多个设备中周转，程序设计像是创建一个工厂、一套工程，而不止于一个产品。</p>
 <h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><ol>
-<li>参考 Java 中多线程 Thread 的设计，使用类的形式构建 Animation 模块。</li>
+<li><p>参考 Java 中多线程 Thread 的设计，使用类的形式构建 Animation 模块。</p>
+</li>
+<li><p>是否能构建一个独立的流程控制器，用于在制作模块时，控制其执行流程，并对外提供钩子。</p>
+</li>
 </ol>
 
       
@@ -521,6 +524,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/24/设计模式/职责链模式/" rel="prev" title="职责链模式">
+                职责链模式 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -608,7 +615,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-count">23</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -619,7 +626,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>

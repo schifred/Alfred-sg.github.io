@@ -419,6 +419,7 @@
 <li>对于对象，则分为两种情况，当 options.proxy 为否值，只生成 ObservableObjectAdminstrition，再通过装饰器插入计算属性或可观察属性；当 options.proxy 为真值，创建 Proxy 代理实例，同样的，该代理实例的方法体中将调用 ObservableObjectAdminstrition 实例的响应式操作，再通过装饰器插入计算属性或可观察属性。</li>
 <li>以上3点之外，mobx 通过 enhancer 决定对深层数据结构的处理操作，如 observable.deep 装饰器使用 deepEnhancer 增强器，将数据的深层结构统统转换为 observable 实例（默认操作）；observable.shallow 装饰器使用 shallowEnhancer 增强器，只将数据的首层转换为 observable 实例；observable.ref 装饰器使用 referenceEnhancer 增强器，不会将数据转换为 observable 实例（除非新值就是个 observable 实例）；observable.struct 装饰器使用 refStructEnhancer 增强器，同样不会将数据转换为 observable 实例，与 referenceEnhancer 区别是，当数据未作变更时，refStructEnhancer 将以引用对象形式返回原始数据，而不是值相同的新数据。</li>
 </ol>
+<p>值得说明的是，mobx 处理对象时会批量添加计算属性或可观察属性，所以实现中使用 startBatch, endBatch 开启事务，使观察者的处理逻辑只执行一次。</p>
 
           
         

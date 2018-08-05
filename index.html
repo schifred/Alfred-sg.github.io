@@ -420,6 +420,13 @@
 <li>以上3点之外，mobx 通过 enhancer 决定对深层数据结构的处理操作，如 observable.deep 装饰器使用 deepEnhancer 增强器，将数据的深层结构统统转换为 observable 实例（默认操作）；observable.shallow 装饰器使用 shallowEnhancer 增强器，只将数据的首层转换为 observable 实例；observable.ref 装饰器使用 referenceEnhancer 增强器，不会将数据转换为 observable 实例（除非新值就是个 observable 实例）；observable.struct 装饰器使用 refStructEnhancer 增强器，同样不会将数据转换为 observable 实例，与 referenceEnhancer 区别是，当数据未作变更时，refStructEnhancer 将以引用对象形式返回原始数据，而不是值相同的新数据。</li>
 </ol>
 <p>值得说明的是，mobx 处理对象时会批量添加计算属性或可观察属性，所以实现中使用 startBatch, endBatch 开启事务，使观察者的处理逻辑只执行一次。</p>
+<h3 id="core"><a href="#core" class="headerlink" title="core"></a>core</h3><p>从方法论的角度出发，处理问题有两种手法，从一般到具体，或者从具体到一般。在写作这篇文章时，我选择了后者，其一是因为我在写作这篇文章的过程中才逐渐摸清 mobx 的设计和实现，其二是因为我自身尚不具备足够的积淀，好站在更高的抽象维度进行一般化思维。因此，observable 一节中对各种数据结构的处理无疑都是具体的，本节将介入 mobx 的核心机制，即提取各种数据结构的一般性响应式动作。在上一节中，这一动作表现为 ObservableValue, ObservableMap, ObservableArrayAdminstrition, ObservableObjectAdminstrition 类所持有的 reportObserved, reportChanged 方法。</p>
+<p>本节首先介绍 mobx 设计的几种抽象概念，以及为这些抽象概念设计的接口及类：</p>
+<ol>
+<li>observable: 可观察对象，这在上一节中也反复提及。</li>
+<li>derivation: 衍生。</li>
+<li>action: 动作。</li>
+</ol>
 
           
         

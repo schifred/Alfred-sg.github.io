@@ -421,15 +421,19 @@
 <p>值得说明的是，mobx 处理对象时会批量添加计算属性或可观察属性，所以实现中使用 startBatch, endBatch 开启事务，使观察者的处理逻辑只执行一次。</p>
 <h2 id="核心机制"><a href="#核心机制" class="headerlink" title="核心机制"></a>核心机制</h2><p>处理问题有两种方式，从一般到具体，或者从具体到一般。在写作这篇文章时，我选择了后者，一是因为我在写作这篇文章的过程中才逐渐摸清 mobx 的设计和实现，二是因为我自身尚不具备足够的积淀，能站在更高的抽象维度对问题的一般面加以思索。observable 一节中对各种数据结构的处理无疑都是具体的，本节将介入抽象 observable，即对上一节中的公有特征 reportObserved, reportChanged 方法加以萃取。</p>
 <p>除此而外，本节还将涉及 mobx 的核心运作机制，从执行 action 促使 observable 数据变更，到 observable 数据变更引起 derivation 执行的一整个过程。</p>
-<p>首先，我们先来看一下 mobx 设计的几种抽象概念：</p>
+<h3 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h3><p>首先，我们先来看一下 mobx 设计的几种抽象概念：</p>
 <ol>
 <li>observable: 响应式数据，最主要的特征是将数据变更信息上报给全局监听器。mobx 使用 IObservable 接口，Atom 类加以抽象。</li>
 <li>derivation: 衍生，响应式数据变更后执行的副作用函数，包含计算属性、反应。mobx 使用 IDerivation 接口，ComputedValue 类、Reaction 类加以抽象。</li>
 <li>action: 动作，由其促使响应式数据发生变更。上一节已指出，使用 observableValue 实例的 set 方法，就能促使响应式数据发生变更，action 的意义在于，使用 startBatch, endBatch 事务发生执行动作，能整合一组响应式数据变更，在这一组响应式数据变更完成后，再执行 derivation 衍生。</li>
 </ol>
 <p><em>图 7，observable, derivation 类图</em><br><img src="/2018/07/15/react/react相关/mobx源码分析/core.png"></p>
-<h3 id="observable"><a href="#observable" class="headerlink" title="observable"></a>observable</h3><p>对于 observable，所需要考虑的是，当响应式数据没有相应的观察者时，数据变更就不会引起衍生的执行，因此，mobx 设计了 IObservable 接口，用以维护 observable 和 derivation 的关系。在 IObservable 接口设计上，observers 属性为绑定的观察者队列；lastAcessedBy 属性为最后消费 observable 的观察者；isBeingObserved 属性标识当前 observable 已被观察；diffValue 属性用于标记 observable 是否需要重新绑定观察者，观察者可能会重复观察同一份数据；lowestObserverState 属性为状态标识，作为脏值标识，标记数据是否被更新，需要执行相应的衍生；isPendingUnobservation 属性标识当前 observable 即将被移除；onBecameUnobservered, onBecameObservered 方法分别在 observable 不被监听或者被监听时加以调用。其中，lastAcessedBy, isBeingObserved 属性用于使 onBecameObservered 钩子不被反复调用；isPendingUnobservation 属性用于使 onBecameUnobservered 钩子不被反复执行。与配置项相当，属性的意义在于逻辑实现的需要。因此，属性的价值可以翻看代码中的逻辑实现，这在后文将予以说明。</p>
-<p>Atom 类实现 IObservable 接口，额外添加了 reportObserved, reportChanged 方法。顾名思义，当 observable 被观察时，需要显示调用 reportObserved 方法；当 observable 数据变更时，需要显示调用 reportChanged 方法。</p>
+<h4 id="observable"><a href="#observable" class="headerlink" title="observable"></a>observable</h4><p>对于 observable，所需考虑的是，响应式数据变更会引起指定的观察者执行其处理逻辑；当响应式数据没有指定观察者时，数据变更就不会引起衍生的执行。为此，在 mobx 抽象的 IObservable 接口中，observers 属性为 observable 绑定的观察者队列；lowestObserverState 属性为状态标识，用于标记数据是否被更新，需要执行相应的衍生；diffValue 属性用于实时更新 observable, observer 的依赖关系。</p>
+<p>此外，在 IObservable 接口中，mobx 还提供了 onBecameUnobservered, onBecameObservered 钩子，分别在 observable 不被监听或被监听时得到调用；lastAcessedBy（最后消费 observable 的观察者 id）, isBeingObserved 属性用于使 onBecameObservered 钩子不被反复调用；isPendingUnobservation 属性用于使 onBecameUnobservered 钩子不被反复执行。与配置项相当，属性需要通过翻阅源码中的逻辑实现，才能确切感知到该属性存在的价值。介于部分属性与核心流程无关，在这里将只作简要讨论或不作讨论。</p>
+<p>Atom 类除了实现 IObservable 接口以外，额外新增了 reportObserved, reportChanged 方法。顾名思义，当 observable 被观察时，需要显示调用 reportObserved 方法；当 observable 数据变更时，需要显示调用 reportChanged 方法。</p>
+<h4 id="derivation"><a href="#derivation" class="headerlink" title="derivation"></a>derivation</h4><p>derivation 可以理解为实际消费 observable 的观察者，因此，本文中的 observer 指代的也就是 derivation。在 mobx 实现中，observable, derivation 相互持有彼此的引用。IDerivation 接口的 observing 属性本次衍生在哪些可观察数据变更时执行；dependenciesState 属性为状态标识，用于标记本次衍生观察的数据是否已经改变，是否运行期处理逻辑；onBecomeStale 方法就是当观察数据变更时，运行的处理逻辑；newObserving 属性用于变更 observable, derivation 的依赖关系（在于观察者可改变观察的数据）；unboundDepsCount 属性用于统计本次衍生所观察的数据量，同 observable.diffValue 一样，目的都在于实时更新 observable, derivation 的依赖关系。</p>
+<p>除了上述属性和方法，IDerivation 接口还提供了 runId 属性，由它构成 observable.lastAcessedBy 的值；isTracing 属性的作用暂不作谈论。</p>
+<p>IDerivation 接口有两种实现，其一是作为反应的 Raction 类，其二时作为计算属性的 ComputeValue 类。</p>
 
           
         

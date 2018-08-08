@@ -118,7 +118,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/07/15/react/react相关/mobx源码分析/observable-object-admin.png">
 <meta property="og:image" content="http://yoursite.com/2018/07/15/react/react相关/mobx源码分析/observable-interface.png">
 <meta property="og:image" content="http://yoursite.com/2018/07/15/react/react相关/mobx源码分析/core.png">
-<meta property="og:updated_time" content="2018-08-08T14:46:43.610Z">
+<meta property="og:updated_time" content="2018-08-08T15:32:36.485Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mobx源码分析">
 <meta name="twitter:description" content="思想实验在开篇之初，我们先作一番思想实验。借助于形象化思维，通过类比的方式，那样会更容易理解 mobx 的实现。 视线折回到明代，水患侵扰了淳安县境，治理地方水务的官员把这情况上报给知县海瑞，海瑞又上报总督胡宗宪，而胡宗宪呢，他派出快马，向京师呈报奏章，吁请内阁早日筹备赈灾的粮食。与此同时，东厂番子早已把眼线布满全国，不等内阁向嘉靖奏报，嘉靖早已知晓了千里之外的动向。当我们把这环节牵涉到的各级官员">
@@ -438,7 +438,7 @@
 <p>Atom 类除了实现 IObservable 接口以外，额外新增了 reportObserved, reportChanged 方法。顾名思义，当 observable 被观察时，需要显示调用 reportObserved 方法；当 observable 数据变更时，需要显示调用 reportChanged 方法。</p>
 <h4 id="derivation"><a href="#derivation" class="headerlink" title="derivation"></a>derivation</h4><p>derivation 可以理解为实际消费 observable 的观察者，因此，本文中的 observer 指代的也就是 derivation。在 mobx 实现中，observable, derivation 相互持有彼此的引用。IDerivation 接口的 observing 属性本次衍生在哪些可观察数据变更时执行；dependenciesState 属性为状态标识，用于标记本次衍生观察的数据是否已经改变，是否运行期处理逻辑；onBecomeStale 方法就是当观察数据变更时，运行的处理逻辑；newObserving 属性用于变更 observable, derivation 的依赖关系（在于观察者可改变观察的数据）；unboundDepsCount 属性用于统计本次衍生所观察的数据量，同 observable.diffValue 一样，目的都在于实时更新 observable, derivation 的依赖关系。</p>
 <p>除了上述属性和方法，IDerivation 接口还提供了 runId 属性，由它构成 observable.lastAcessedBy 的值；isTracing 属性的作用暂不作谈论。</p>
-<p>IDerivation 接口有两种实现，其一是作为反应的 Raction 类，其二时作为计算属性的 ComputeValue 类。</p>
+<p>IDerivation 接口有两种实现，其一是作为反应的 Reaction 类，其二时作为计算属性的 ComputeValue 类。这两个类都实现了具体的 onBecomeStale 方法。Reaction.onBecomeStale 方法的表现是在所有响应式数据变更完成后，再对相关的衍生执行批处理操作。</p>
 
       
     </div>

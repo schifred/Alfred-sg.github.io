@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="analyst,react," />
+
+
+<meta name="description" content="前言处理问题有两种方式，从一般到具体，或者从具体到一般。在写作这两篇文章时，我选择了后者，一是因为我在写作这篇文章的过程中才逐渐摸清 mobx 的设计和实现，二是因为我自身尚不具备足够的积淀，能站在更高的抽象维度对问题的一般面加以思索。observable 一节中对各种数据结构的处理无疑都是具体的，本节将介入抽象 observable，即对上一节中的公有特征 reportObserved, rep">
+<meta name="keywords" content="analyst,react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mobx源码分析（二） 运作机制">
+<meta property="og:url" content="http://yoursite.com/2018/08/11/react/react相关/mobx源码分析2/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="前言处理问题有两种方式，从一般到具体，或者从具体到一般。在写作这两篇文章时，我选择了后者，一是因为我在写作这篇文章的过程中才逐渐摸清 mobx 的设计和实现，二是因为我自身尚不具备足够的积淀，能站在更高的抽象维度对问题的一般面加以思索。observable 一节中对各种数据结构的处理无疑都是具体的，本节将介入抽象 observable，即对上一节中的公有特征 reportObserved, rep">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2018/08/11/react/react相关/mobx源码分析2/core.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/11/react/react相关/mobx源码分析2/reportChanged.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/11/react/react相关/mobx源码分析2/runReaction.png">
+<meta property="og:updated_time" content="2018-08-12T15:04:17.364Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mobx源码分析（二） 运作机制">
+<meta name="twitter:description" content="前言处理问题有两种方式，从一般到具体，或者从具体到一般。在写作这两篇文章时，我选择了后者，一是因为我在写作这篇文章的过程中才逐渐摸清 mobx 的设计和实现，二是因为我自身尚不具备足够的积淀，能站在更高的抽象维度对问题的一般面加以思索。observable 一节中对各种数据结构的处理无疑都是具体的，本节将介入抽象 observable，即对上一节中的公有特征 reportObserved, rep">
+<meta name="twitter:image" content="http://yoursite.com/2018/08/11/react/react相关/mobx源码分析2/core.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/08/11/react/react相关/mobx源码分析2/"/>
+
+
+  <title>mobx源码分析（二） 运作机制 | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/11/react/react相关/mobx源码分析2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">mobx源码分析（二） 运作机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-11T00:00:00+08:00">2018-08-11</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/状态管理/" itemprop="url" rel="index"><span itemprop="name">状态管理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/08/11/react/react相关/mobx源码分析2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/08/11/react/react相关/mobx源码分析2/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>处理问题有两种方式，从一般到具体，或者从具体到一般。在写作这两篇文章时，我选择了后者，一是因为我在写作这篇文章的过程中才逐渐摸清 mobx 的设计和实现，二是因为我自身尚不具备足够的积淀，能站在更高的抽象维度对问题的一般面加以思索。observable 一节中对各种数据结构的处理无疑都是具体的，本节将介入抽象 observable，即对上一节中的公有特征 reportObserved, reportChanged 方法加以萃取。</p>
+<p>除此而外，本篇还将涉及 mobx 的核心运作机制，从执行 action 促使 observable 数据变更，到 observable 数据变更引起 derivation 执行的一整个过程。</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>首先，我们先来看一下 mobx 设计的几种抽象概念：</p>
+<ol>
+<li>observable: 响应式数据，最主要的特征是将数据变更信息上报给全局监听器。mobx 使用 IObservable 接口，Atom 类加以抽象。</li>
+<li>derivation: 衍生，响应式数据变更后执行的副作用函数，包含计算属性、反应。mobx 使用 IDerivation 接口，ComputedValue 类、Reaction 类加以抽象。</li>
+<li>action: 动作，由其促使响应式数据发生变更。上一节已指出，使用 observableValue 实例的 set 方法，就能促使响应式数据发生变更，action 的意义在于，使用 startBatch, endBatch 事务发生执行动作，能整合一组响应式数据变更，在这一组响应式数据变更完成后，再执行 derivation 衍生。</li>
+</ol>
+<p><em>图 1，observable, derivation 类图</em><br><img src="/2018/08/11/react/react相关/mobx源码分析2/core.png"></p>
+<h3 id="observable"><a href="#observable" class="headerlink" title="observable"></a>observable</h3><p>对于 observable，所需考虑的是，响应式数据变更会引起指定的观察者执行其处理逻辑；当响应式数据没有指定观察者时，数据变更就不会引起衍生的执行。为此，在 mobx 抽象的 IObservable 接口中，observers 属性为 observable 绑定的观察者队列；lowestObserverState 属性为状态标识，用于标记数据是否被更新，需要执行相应的衍生；diffValue 属性用于实时更新 observable, observer 的依赖关系。</p>
+<p>此外，在 IObservable 接口中，mobx 还提供了 onBecameUnobservered, onBecameObservered 钩子，分别在 observable 不被监听或被监听时得到调用；lastAcessedBy（最后消费 observable 的观察者 id）, isBeingObserved 属性用于使 onBecameObservered 钩子不被反复调用；isPendingUnobservation 属性用于使 onBecameUnobservered 钩子不被反复执行。与配置项相当，属性需要通过翻阅源码中的逻辑实现，才能确切感知到该属性存在的价值。介于部分属性与核心流程无关，在这里将只作简要讨论或不作讨论。</p>
+<p>Atom 类除了实现 IObservable 接口以外，额外新增了 reportObserved, reportChanged 方法。顾名思义，当 observable 被观察时，需要显示调用 reportObserved 方法；当 observable 数据变更时，需要显示调用 reportChanged 方法。</p>
+<h3 id="derivation"><a href="#derivation" class="headerlink" title="derivation"></a>derivation</h3><p>derivation 可以理解为实际消费 observable 的观察者，因此，本文中的 observer 指代的也就是 derivation。在 mobx 实现中，observable, derivation 相互持有彼此的引用。IDerivation 接口的 observing 属性本次衍生在哪些响应式数据变更时执行；dependenciesState 属性为状态标识，用于标记本次衍生观察的数据是否已经改变，是否运行期处理逻辑；onBecomeStale 方法就是当观察数据变更时，运行的处理逻辑；newObserving 属性用于变更 observable, derivation 的依赖关系（在于观察者可改变观察的数据）；unboundDepsCount 属性用于统计本次衍生所观察的数据量，同 observable.diffValue 一样，目的都在于实时更新 observable, derivation 的依赖关系。</p>
+<p>除了上述属性和方法，IDerivation 接口还提供了 runId 属性，由它构成 observable.lastAcessedBy 的值；isTracing 属性标记日志级别，以便在 onBecomeStale 方法执行前打印日志。</p>
+<p>IDerivation 接口有两种实现，其一是作为反应的 Reaction 类，其二是作为计算属性的 ComputedValue 类。这两个类都实现了具体的 onBecomeStale 方法。reaction.onBecomeStale 方法的表现是在所有响应式数据变更完成后，再对相关的衍生执行批处理操作，当然，在同一个批处理周期内，不会再对由 reaction 引起的衍生加以处理，这些衍生需要等待下一个批处理周期。ComputedValue 的特别之处是，它既是衍生，观察着数据变更；又是响应式数据，被其他衍生所观察。因此，computedValue.onBecomeStale 方法的处理逻辑是在其他衍生执行 onBecomeStale 过程中，重新获取计算属性的值。</p>
+<h2 id="运作机制"><a href="#运作机制" class="headerlink" title="运作机制"></a>运作机制</h2><h3 id="reportChanged"><a href="#reportChanged" class="headerlink" title="reportChanged"></a>reportChanged</h3><p><em>图 2，reportChanged 执行流程</em><br><img src="/2018/08/11/react/react相关/mobx源码分析2/reportChanged.png"></p>
+<p>结合上图，当响应式数据发生变更时，mobx 的处理机制为：</p>
+<ol>
+<li>通过 observable.reportChanged 方法将响应式数据变更的信息上报到全局监听器。</li>
+<li>observable.reportChanged 执行过程中，使用 startBatch, endBatch 函数将 propagateChange(observable) 包裹到事务处理流程中。mobx 中的事务通过 globalState.inBatch 计数器标识：在 startBatch 函数执行过程中，globalState.inBatch 加 1；在 endBatch 函数执行过程中，globalState.inBatch 减 1；当 globalState.inBatch 为 0 时，表示单个事务处理结束。因为事务的意义在于将并行的响应式数据变更视为一组，在一组变更完成之后，在执行相应的衍生。</li>
+<li>在同一个事务处理流程中，首先通过 propagateChange(observable) 间接将 derivation 加入到 globalState.pendingReactions 队列中。该过程中通过调用 derivation.onBecameStale 方法实现。对于 reaction 反应，在事务执行期间，直接将 reaction 添加到 globalState.pendingReactions 队列；对于 computedValue 计算属性，间接将观察 computedValue 变更的 reaction 添加到 globalState.pendingReactions 队列。</li>
+<li>在 endBatch 函数执行期间，通过调用 runReactions 方法遍历 globalState.pendingReactions 队列，执行 reaction.runReaction 方法。每个 reaction.runReaction 方法内部的执行逻辑中，包含 observer 依赖和状态更新，以及执行用户实际注册的监听函数。reaction.runReaction 方法的处理细节将在后文加以分析。</li>
+<li>在事务处理的尾端，又将遍历 globalState.pendingUnobservations 数组，调用 observable.onBecomeUnobserved 方法。对于计算属性，额外调用 computedValue.suspend() 方法。这样的目的在于当前没有观察者监听这些 observable 或 computedValue 的变更，无需将数据变更上报到全局环境。</li>
+</ol>
+<p><em>代码段 1，reportChanged 处理流程</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Atom</span> <span class="title">implements</span> <span class="title">IAtom</span> </span>&#123;</span><br><span class="line">  public reportChanged() &#123;</span><br><span class="line">    startBatch()</span><br><span class="line">    propagateChanged(<span class="keyword">this</span>)</span><br><span class="line">    endBatch()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">startBatch</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  globalState.inBatch++</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">endBatch</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (--globalState.inBatch === <span class="number">0</span>) &#123;</span><br><span class="line">    runReactions()</span><br><span class="line">    <span class="keyword">const</span> list = globalState.pendingUnobservations</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; list.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> observable = list[i]</span><br><span class="line">      observable.isPendingUnobservation = <span class="literal">false</span></span><br><span class="line">      <span class="keyword">if</span> (observable.observers.size === <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (observable.isBeingObserved) &#123;</span><br><span class="line">          observable.isBeingObserved = <span class="literal">false</span></span><br><span class="line">          observable.onBecomeUnobserved()</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (observable <span class="keyword">instanceof</span> ComputedValue) &#123;</span><br><span class="line">          observable.suspend()</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    globalState.pendingUnobservations = []</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">propagateChanged</span>(<span class="params">observable: IObservable</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (observable.lowestObserverState === IDerivationState.STALE) <span class="keyword">return</span></span><br><span class="line">  observable.lowestObserverState = IDerivationState.STALE</span><br><span class="line"></span><br><span class="line">  observable.observers.forEach(<span class="function"><span class="params">d</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (d.dependenciesState === IDerivationState.UP_TO_DATE) &#123;</span><br><span class="line">      d.onBecomeStale()</span><br><span class="line">    &#125;</span><br><span class="line">    d.dependenciesState = IDerivationState.STALE</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">propagateMaybeChanged</span>(<span class="params">observable: IObservable</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (observable.lowestObserverState !== IDerivationState.UP_TO_DATE) <span class="keyword">return</span></span><br><span class="line">  observable.lowestObserverState = IDerivationState.POSSIBLY_STALE</span><br><span class="line"></span><br><span class="line">  observable.observers.forEach(<span class="function"><span class="params">d</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (d.dependenciesState === IDerivationState.UP_TO_DATE) &#123;</span><br><span class="line">      d.dependenciesState = IDerivationState.POSSIBLY_STALE</span><br><span class="line">      d.onBecomeStale()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ComputedValue</span>&lt;<span class="title">T</span>&gt; <span class="title">implements</span> <span class="title">IObservable</span>, <span class="title">IComputedValue</span>&lt;<span class="title">T</span>&gt;, <span class="title">IDerivation</span> </span>&#123;</span><br><span class="line">  onBecomeStale() &#123;</span><br><span class="line">    propagateMaybeChanged(<span class="keyword">this</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Reaction</span> <span class="title">implements</span> <span class="title">IDerivation</span>, <span class="title">IReactionPublic</span> </span>&#123;</span><br><span class="line">  onBecomeStale() &#123;</span><br><span class="line">    <span class="keyword">this</span>.schedule()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  schedule() &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>._isScheduled) &#123;</span><br><span class="line">      <span class="keyword">this</span>._isScheduled = <span class="literal">true</span></span><br><span class="line">      globalState.pendingReactions.push(<span class="keyword">this</span>)</span><br><span class="line">      runReactions()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> reactionScheduler: <span class="function">(<span class="params">fn: (</span>) =&gt;</span> <span class="keyword">void</span>) =&gt; <span class="keyword">void</span> = <span class="function"><span class="params">f</span> =&gt;</span> f()</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">runReactions</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (globalState.inBatch &gt; <span class="number">0</span> || globalState.isRunningReactions) <span class="keyword">return</span></span><br><span class="line">  reactionScheduler(runReactionsHelper)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">runReactionsHelper</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  globalState.isRunningReactions = <span class="literal">true</span></span><br><span class="line">  <span class="keyword">const</span> allReactions = globalState.pendingReactions</span><br><span class="line">  <span class="keyword">let</span> iterations = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (allReactions.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> remainingReactions = allReactions.splice(<span class="number">0</span>)</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>, l = remainingReactions.length; i &lt; l; i++)</span><br><span class="line">      remainingReactions[i].runReaction()</span><br><span class="line">  &#125;</span><br><span class="line">  globalState.isRunningReactions = <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>以上代码不但没有看见计算属性重新取值的实现，而且高度依赖于 observable 和 observer 的依赖关系和各自的状态标识，因此，我们会持有以下两个问题：</p>
+<ol>
+<li>reaction.runReaction 方法到底是怎样实现的？reaction 和 computedValue 又怎样相互影响？</li>
+<li>mobx 怎样更新及维护 observable 和 observer 的依赖关系和状态标识？</li>
+</ol>
+<h4 id="runReaction"><a href="#runReaction" class="headerlink" title="runReaction"></a>runReaction</h4><p><em>图 3，reaction.runReaction 执行流程</em><br><img src="/2018/08/11/react/react相关/mobx源码分析2/runReaction.png"></p>
+<p>结合上图，reaction.runReaction 针对以下两种情况作出处理：</p>
+<ol>
+<li>当响应式数据引起的反应内部没有计算属性时，重新执行反应的处理逻辑。</li>
+<li>当响应式数据引起的反应内部有计算属性时，且计算属性观察的数据改变时，通过 computedValue 方法重新获取计算属性的值，事务（在 reaction.runReaction 方法执行过程中，使用 startBatch 函数开启）的意义在于等待计算属性的重新计算。其他情况下使用原有的值。</li>
+</ol>
+<p>需要留神的是，在 reaction.runReaction 方法中使用 startBatch 开启事务时，globalState.isRunningReactions 标识仍旧为真值，也就不会造成 globalState.pendingReactions 中未作处理的 reaction 被反复执行。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Reaction</span> <span class="title">implements</span> <span class="title">IDerivation</span>, <span class="title">IReactionPublic</span> </span>&#123;</span><br><span class="line">  runReaction() &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.isDisposed) &#123;</span><br><span class="line">      startBatch()</span><br><span class="line">      <span class="keyword">this</span>._isScheduled = <span class="literal">false</span></span><br><span class="line">      <span class="keyword">if</span> (shouldCompute(<span class="keyword">this</span>)) &#123;</span><br><span class="line">        <span class="comment">// 用户实际注册的监听函数经包装后将以 reaction.onInvalidate 形式呈现</span></span><br><span class="line">        <span class="keyword">this</span>.onInvalidate()</span><br><span class="line">      &#125;</span><br><span class="line">      endBatch()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">shouldCompute</span>(<span class="params">derivation: IDerivation</span>): <span class="title">boolean</span> </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span> (derivation.dependenciesState) &#123;</span><br><span class="line">    <span class="keyword">case</span> IDerivationState.UP_TO_DATE:</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    <span class="keyword">case</span> IDerivationState.NOT_TRACKING:</span><br><span class="line">    <span class="keyword">case</span> IDerivationState.STALE:</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    <span class="keyword">case</span> IDerivationState.POSSIBLY_STALE: &#123;</span><br><span class="line">      <span class="keyword">const</span> prevUntracked = untrackedStart()</span><br><span class="line">      <span class="keyword">const</span> obs = derivation.observing,</span><br><span class="line">        l = obs.length</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; l; i++) &#123;</span><br><span class="line">        <span class="keyword">const</span> obj = obs[i]</span><br><span class="line">        <span class="keyword">if</span> (isComputedValue(obj)) &#123;</span><br><span class="line">          obj.get()</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> ((derivation.dependenciesState <span class="keyword">as</span> any) === IDerivationState.STALE) &#123;</span><br><span class="line">            untrackedEnd(prevUntracked)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      changeDependenciesStateTo0(derivation)</span><br><span class="line">      untrackedEnd(prevUntracked)</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ComputedValue</span>&lt;<span class="title">T</span>&gt; <span class="title">implements</span> <span class="title">IObservable</span>, <span class="title">IComputedValue</span>&lt;<span class="title">T</span>&gt;, <span class="title">IDerivation</span> </span>&#123;</span><br><span class="line">  public get(): T &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// reaction.runReaction 处理逻辑中，将进入第二个条件分支</span></span><br><span class="line">    <span class="keyword">if</span> (globalState.inBatch === <span class="number">0</span> &amp;&amp; <span class="keyword">this</span>.observers.size === <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      reportObserved(<span class="keyword">this</span>)</span><br><span class="line">      <span class="keyword">if</span> (shouldCompute(<span class="keyword">this</span>)) <span class="keyword">if</span> (<span class="keyword">this</span>.trackAndCompute()) propagateChangeConfirmed(<span class="keyword">this</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> result = <span class="keyword">this</span>.value!</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  computeValue(track: boolean) &#123;</span><br><span class="line">    globalState.computationDepth++</span><br><span class="line">    <span class="keyword">let</span> res: T | CaughtException</span><br><span class="line">    <span class="keyword">if</span> (track) &#123;</span><br><span class="line">      res = trackDerivedFunction(<span class="keyword">this</span>, <span class="keyword">this</span>.derivation, <span class="keyword">this</span>.scope)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      res = <span class="keyword">this</span>.derivation.call(<span class="keyword">this</span>.scope)</span><br><span class="line">    &#125;</span><br><span class="line">    globalState.computationDepth--</span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  private trackAndCompute(): boolean &#123;</span><br><span class="line">    <span class="keyword">const</span> oldValue = <span class="keyword">this</span>.value</span><br><span class="line">    <span class="keyword">const</span> wasSuspended = <span class="keyword">this</span>.dependenciesState === IDerivationState.NOT_TRACKING</span><br><span class="line">    <span class="keyword">const</span> newValue = <span class="keyword">this</span>.computeValue(<span class="literal">true</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> changed = wasSuspended || !<span class="keyword">this</span>.equals(oldValue, newValue)</span><br><span class="line">    <span class="keyword">if</span> (changed) <span class="keyword">this</span>.value = newValue</span><br><span class="line">    <span class="keyword">return</span> changed</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">propagateChangeConfirmed</span>(<span class="params">observable: IObservable</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (observable.lowestObserverState === IDerivationState.STALE) <span class="keyword">return</span></span><br><span class="line">  observable.lowestObserverState = IDerivationState.STALE</span><br><span class="line"></span><br><span class="line">  observable.observers.forEach(<span class="function"><span class="params">d</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (d.dependenciesState === IDerivationState.POSSIBLY_STALE)</span><br><span class="line">      d.dependenciesState = IDerivationState.STALE</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (</span><br><span class="line">      d.dependenciesState === IDerivationState.UP_TO_DATE</span><br><span class="line">    )</span><br><span class="line">      observable.lowestObserverState = IDerivationState.UP_TO_DATE</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码中，对于 computedValue.get 方法体内首个条件语句和 trackDerivedFunction 函数的处理逻辑，我将在下一小节予以分析。</p>
+<h4 id="依赖更新"><a href="#依赖更新" class="headerlink" title="依赖更新"></a>依赖更新</h4><p>我们先来看一下 mobx 为 observable, observer 提供的状态值：</p>
+<ol>
+<li>IDerivationState.NOT_TRACKING：值为 -1，作为 derivation 的初始状态。当衍生不再订阅响应式数据时，derivation.dependenciesState 值也将被置为 NOT_TRACKING。</li>
+<li>IDerivationState.UP_TO_DATE：值为 0，当响应式数据变更且衍生有执行时，derivation.dependenciesState 状态将被置为 UP_TO_DATE。</li>
+<li>IDerivationState.POSSIBLY_STALE：值为 1，计算属性变更时，订阅计算属性的衍生状态将置为 POSSIBLY_STALE。若在 shouldCompute 函数执行环节，当确认计算属性的值未作变更时，derivation.dependenciesState 状态将被重置为 UP_TO_DATE；若作变更，状态将置为 STALE。</li>
+<li>IDerivationState.STALE：值为 2，当衍生订阅的响应式数据或计算属性变更时，derivation.dependenciesState 状态将被置为 STALE，意味着衍生的逻辑需要重新启动。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/03/react/react相关/mobx源码分析1/" rel="next" title="mobx源码分析（一） 响应式数据">
+                <i class="fa fa-chevron-left"></i> mobx源码分析（一） 响应式数据
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="Alfred" />
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">2.</span> <span class="nav-text">概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#observable"><span class="nav-number">2.1.</span> <span class="nav-text">observable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#derivation"><span class="nav-number">2.2.</span> <span class="nav-text">derivation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运作机制"><span class="nav-number">3.</span> <span class="nav-text">运作机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#reportChanged"><span class="nav-number">3.1.</span> <span class="nav-text">reportChanged</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#runReaction"><span class="nav-number">3.1.1.</span> <span class="nav-text">runReaction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#依赖更新"><span class="nav-number">3.1.2.</span> <span class="nav-text">依赖更新</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2018/08/11/react/react相关/mobx源码分析2/';
+        this.page.identifier = '2018/08/11/react/react相关/mobx源码分析2/';
+        this.page.title = 'mobx源码分析（二） 运作机制';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script>
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

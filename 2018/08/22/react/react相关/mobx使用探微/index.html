@@ -111,10 +111,12 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="前言写作这篇文章的起因是我有感于实际项目中所遇到的问题。因此，这篇文章只算是摸索的产物，远未臻于完美。在这里，我谨期望阅读这篇文章的同学能够见仁见智，各洒江海。 我所遇到的问题，总结如下：  项目采用分层设计，pages 为视图层，stores 为模型层，services 为服务层。从某种意义上讲，代码是按功能单元进行划分的，而不是业务单元。需要分别从 pages, stores, service">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-08-23T15:47:44.555Z">
+<meta property="og:image" content="http://yoursite.com/2018/08/22/react/react相关/mobx使用探微/database.png">
+<meta property="og:updated_time" content="2018-08-26T10:11:31.077Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mobx使用探微">
 <meta name="twitter:description" content="前言写作这篇文章的起因是我有感于实际项目中所遇到的问题。因此，这篇文章只算是摸索的产物，远未臻于完美。在这里，我谨期望阅读这篇文章的同学能够见仁见智，各洒江海。 我所遇到的问题，总结如下：  项目采用分层设计，pages 为视图层，stores 为模型层，services 为服务层。从某种意义上讲，代码是按功能单元进行划分的，而不是业务单元。需要分别从 pages, stores, service">
+<meta name="twitter:image" content="http://yoursite.com/2018/08/22/react/react相关/mobx使用探微/database.png">
 
 
 
@@ -372,9 +374,30 @@
 <li>项目采用分层设计，pages 为视图层，stores 为模型层，services 为服务层。从某种意义上讲，代码是按功能单元进行划分的，而不是业务单元。需要分别从 pages, stores, services 层取出相应的模块，才能构成一个完整的业务单元。分层设计的优点在于代码组织的清晰性，但是降低了可移植性。当需要向第三方应用输出某个业务单元时，就不得不另起炉灶，需要重新为特定的视图组件串联 stores。</li>
 <li>无论 stores 层，还是 services 层，代码设计大都以视图为出发点，比如 services 层多次对同一个后台接口实现了调用，比如 stores 混杂着特定页面的视图状态，不利于复用。通过这一点，所能感知的症结是，stores 层中的模块称不上是对数据模型的精要抽象。除此以外，这个病症所体现的另一个特征是，stores 层中的模块常常仅作为视图组件和 ajax 接口的桥接层，即简单地将接口数据灌入到视图中、或者将视图数据提交到远端。这样做的好处是 store 极为轻量，但是，其一，远没有挖掘 mobx 用于组织数据模型的价值（近于使用 redux 处理纯数据），其二，store 没法涵盖数据特征，数据在视图层消费时才能展现其意义。事实上，数据处理中的 value - text 转换也常常会落在视图层。这样，在另一张需要消费同一份数据的视图页面中，就仍需要重做一份数据转换处理。</li>
 </ol>
-<p>以上种种，促使我在业余时间着意摸索 mobx 的使用。很显然的，需求是技术提升的动力。离开项目环境，仅凭有限的知识和经验储备，我没办法复现实际项目的业务复杂度。相形之下，我所思忖的案例是极为简易的。因此，在这篇文章中，我所提炼的种种观点仍旧是可商榷、可修正的。俗语，“剑招是死的，人是活的”。我再次期望阅读本文的同学能够心领神会，有所发现；若能不吝赐教，那就再好不过。</p>
-<p>备注：示例代码通过自制的 plutarch 脚手架实现，托管仓库地址为 。</p>
-<h2 id="services"><a href="#services" class="headerlink" title="services"></a>services</h2>
+<p>以上种种，促使我在业余时间着意摸索 mobx 的使用。很显然的，需求是技术提升的动力。离开项目环境，仅凭有限的知识和经验储备，我没办法复现实际项目的业务复杂度。相形之下，我所思忖的案例是较为简单的。因此，由这篇文章引出的种种观点无疑都是可商榷的。不过，有什么是一成不变的呢？譬如武侠小说中提到的，“剑招是死的，人是活的”。我再次期望阅读这篇文章的同学对本文所引出的命题有所意会、有所领悟，而对形式上的糟粕持宽容的态度；若是能以丰富的开发经验对我有所指教，那就再好不过了。</p>
+<p>备注：示例代码通过自制的 <a href="https://github.com/Alfred-sg/plutarch" target="_blank" rel="noopener">plutarch 脚手架</a> 实现，托管仓库地址为 。</p>
+<h2 id="案例前情"><a href="#案例前情" class="headerlink" title="案例前情"></a>案例前情</h2><p>案例将提取商城系统中的产品配置环节，绘制的页面仅包含产品列表页、产品编辑页和产品详情页。介于案例旨在于探讨 mobx 的使用，势必会使业务屈从于所要考量的功能点，一反业务引导开发的常态。我个人的一些看法，在开发已集大成的前提下，由开发引导业务也未尝不是一种选项；系统设计的舵手譬如指挥官，所需的是纵览全局的能力，不扭于认知、经验和职司。假使一位富于远见的开发对多个商城系统的设计和实现已经了然于胸，他又怎不能称为建站工作的主导者呢？只不过这一点对大多数人来说，都过于理想化，很能达成。毕竟职业、天赋和精力的限制，会让我们的成长道路都有所局限。当然，这是题外话。言归正传，本案例涵盖的考察要点包括：</p>
+<ol>
+<li>适用于多个页面的 Product 商品模型。</li>
+<li>互为关联的 Product, Attribute 商品属性模型。</li>
+</ol>
+<p>以上两点，都是以数据模型为导向的，而不是着眼于页面绘制。从职责来看，前端的工作内容是绘制页面，页面逻辑在部分人眼里只是个子内容。但从整体来看，数据才是内容，视图只是表现。mobx 所提供的强大能力不止于像 redux 那样单纯处理数据流，而在于它通过代理提供了数据建模的可能。如果说 redux 是面向过程编程，那么 mobx 就是面向对象编程。附着的那层响应式操作不改变原有类的特征，使我们能更大程度地使用这个类。这是在响应式之外，使用 mobx 编程时尤其需要有所发现的点。下文将作深入探讨。</p>
+<p>当前端的开发工作以数据模型为导向时，就更能契合后端的表结构设计、模型层实现，抽象程度也更高，自然能加深对业务的理解。另外，数据处理也不至于散落在视图层。</p>
+<p>对于考察要点中的第二项，所需说明的是案例持有的业务特征。当我们访问淘宝，会发现手机从属于“家电 / 数码 / 手机”这一大类，“手机”这一小类；对于“手机”这一小类，还有诸如”机身内存ROM”，“手机类型”，“网络类型”，“附加功能”，“摄像头类型”，“分辨率”等特有属性。可以料想的是，这些特有属性和“手机”这个小类呈联动关系，即 Attribute 有单独的表设计（特征量和特征值双表）。特别说明这一点，既是为了剖析案例所有的业务特征，也是为了表明案例更大程度上植根于猜想，我并没有参与商城开发的十足经验，错谬也在所难免，期望读者海涵。</p>
+<p>简易的表结构设计如下（参考淘宝开放平台的商品接口设计）：</p>
+<p><em>图 1，简要表结构</em><br><img src="/2018/08/22/react/react相关/mobx使用探微/database.png"></p>
+<p>如上图所示，Product 产品表包含 cid 字段指向 Category 分类表，attrs 字段用于聚合 Attribute 属性特征量表和 Attr_Value 属性特征值表。贴图的表结构虽然难免会有差池，但不妨碍本文用于探讨 mobx 的使用。为了简化案列的复杂度，本文也约定 Category, Attribute, Attr_Value 表中的数据不需要另行制作配置页面注入数据。</p>
+<p>基于以上，相应接口如下，相关代码参考托管仓库中的 plutarch.mock.js 文件：</p>
+<ol>
+<li>get api/category 接口用于获取产品类目，传参 level 用于区分检索大类还是小类。</li>
+<li>get api/attributes 接口用于获取与类目相关的属性，传参 cid 用于锁定产品类目。</li>
+<li>post api/product 接口用于保存或更新产品。</li>
+<li>get api/product 接口用于获取产品。</li>
+<li>get api/products 接口用于获取产品列表。</li>
+<li>delete api/product 用于删除产品。</li>
+</ol>
+<h2 id="案列实现"><a href="#案列实现" class="headerlink" title="案列实现"></a>案列实现</h2><h3 id="services-层"><a href="#services-层" class="headerlink" title="services 层"></a>services 层</h3><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://open.taobao.com/doc.htm?docId=73&amp;docType=1" target="_blank" rel="noopener">淘宝开放平台 - 文档中心</a><br><a href="https://blog.csdn.net/crazzy0727/article/details/59576713" target="_blank" rel="noopener">淘宝商品数据库设计</a></p>
+
       
     </div>
     
@@ -576,7 +599,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#services"><span class="nav-number">2.</span> <span class="nav-text">services</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#案例前情"><span class="nav-number">2.</span> <span class="nav-text">案例前情</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#案列实现"><span class="nav-number">3.</span> <span class="nav-text">案列实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#services-层"><span class="nav-number">3.1.</span> <span class="nav-text">services 层</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>

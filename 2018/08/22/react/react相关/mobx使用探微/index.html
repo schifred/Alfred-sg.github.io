@@ -113,7 +113,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2018/08/22/react/react相关/mobx使用探微/database.png">
 <meta property="og:image" content="http://yoursite.com/2018/08/22/react/react相关/mobx使用探微/architecture.png">
-<meta property="og:updated_time" content="2018-09-09T14:31:48.875Z">
+<meta property="og:updated_time" content="2018-09-10T12:42:58.810Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mobx使用探微">
 <meta name="twitter:description" content="前言写作这篇文章的起因是我有感于实际项目中所遇到的问题。因此，这篇文章只算是摸索的产物，远未臻于完美。在这里，我谨期望阅读这篇文章的同学能够见仁见智，各洒江海。 我所遇到的问题，总结如下：  项目采用分层设计，pages 为视图层，stores 为模型层，services 为服务层。从某种意义上讲，代码是按功能单元进行划分的，而不是业务单元。需要分别从 pages, stores, service">
@@ -403,7 +403,7 @@
 <li>requset 模块：基于 aioxs 类库处理 ajax 请求，使用拦截器诊断错误的响应，并使用 antd/message 组件在页面中显示错误内容（该组件能同时展现多个请求错误）。</li>
 <li>services 层：使用 class 语法构造，便于继承，同时也继承了 Cache 类，用于缓存比较稳定的接口数据。同时，utils 工具包提供了 mixinStaticProperty 装饰器，用于将 services 层输出类的原型方法注入为 model 类的静态方法，参见 stores/models/Product 类的实现。services 层也可以用于拆分接口，如 services/category 将 getCategory 接口拆分为 getCategoryByCid, getCategoryByLevel 两个接口。这样便于更细微的控制，当然，拆分接口的稳定性另当别论。</li>
 <li>stores/models 基本数据模型：数据模型分为两类，一类需要深入数据库或后台模型的数据特征，如 Product 类拥有诸多的可观察属性，便于以方法的形式操作这些属性值的变更，而列表也是由这些类自底而上构成的；另一类则采用数目不多的属性批量更新的机制实现，不需要微操数据的变更，所包含的方法通常也只跟远程请求相关，如 Category, Attribute 类。</li>
-<li>stores 层其余衍生数据模型：基于 models 实现，与页面实际交互的模型，如由 Product 类衍生出 ProductInEdit, ProductInDetail, ProductList 三个类，即分别应用于编辑页、详情页和列表页。编辑页和详情页所使用的模型均可拓展 Product 类实现，案列出于职责分离的考虑，将其细分为多个子类。当然，也可以像案列中 Category 类的实现那样，在该类中聚合多种智能，比如全量拉取产品分类数据，以及只拉取针对某个产品的分类数据。同时，为了更好地实现数据处理，Category, Attribute 类均输出实例作为 Product 的实例属性，这样能聚合该产品的分类、属性数据处理操作。</li>
+<li>stores 层其余衍生数据模型：基于 models 实现，与页面实际交互的模型，如由 Product 类衍生出 ProductInEdit, ProductInDetail, ProductList 三个类，即分别应用于编辑页、详情页和列表页。编辑页和详情页所使用的模型均可拓展 Product 类实现，案列出于职责分离的考虑，将其细分为多个子类。当然，也可以像案列中 Category 类的实现那样，在该类中聚合多种只能，比如全量拉取产品分类数据，以及只拉取针对某个产品的分类数据。同时，为了更好地实现数据处理，Category, Attribute 类均输出实例作为 Product 的实例属性，这样能聚合该产品的分类、属性数据处理操作。</li>
 <li>pages 层：当 stores 层通过数据模型承担数据处理操作时，pages 理论上只承担了展示职能。介于 mobx 实现代理数组的特殊性，改变数组项的内部属性只能通过观察该数组项完成，列表操作又需要调用代理数组的方法，才能启动重绘。因此，使用 mobx 注入可观察数据时，首先，组件的颗粒度需要得到细化处理，其次，在删除某个数组项如某个产品时，不禁需要调用 product.delete 方法，也需要调用调用 products.splice 方法，使列表得到重绘。</li>
 <li>locales 层：提供国际化文案，使用命名空间拆分成 action, model,text 三大类。action 包含操作类文案，model 包含数据模型相关文案，text 包含标题、消息和普通文本。国际化文案可直接注入视图层，或者经由 model 作转化处理后注入视图层，后者作为 model 的静态属性注入视图层。</li>
 </ol>
@@ -474,6 +474,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/11/工程化/前端构建工具dawn/" rel="prev" title="前端构建工具dawn">
+                前端构建工具dawn <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -561,7 +565,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-count">29</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

@@ -289,7 +289,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/09/11/工程化/前端构建工具dawn/" itemprop="url">前端构建工具dawn</a></h1>
+                <a class="post-title-link" href="/2018/09/11/工程化/前端构建工具dawn/" itemprop="url">前端构建工具 dawn 不完全整理</a></h1>
         
 
         <div class="post-meta">
@@ -406,7 +406,13 @@
 <li>load(opts): 加载中间件，并执行外层函数。</li>
 <li>exec(middlewares, initailArgs): 构建任务流，可用于在中间件中构建子任务流。</li>
 </ul>
-<h2 id="常用中间件"><a href="#常用中间件" class="headerlink" title="常用中间件"></a>常用中间件</h2><h3 id="dn-middleware-webpack"><a href="#dn-middleware-webpack" class="headerlink" title="dn-middleware-webpack"></a>dn-middleware-webpack</h3><p>概述：基于 webpack3 实现的中间件，打包模块。</p>
+<h2 id="常用中间件"><a href="#常用中间件" class="headerlink" title="常用中间件"></a>常用中间件</h2><h3 id="dn-middleware-webpack"><a href="#dn-middleware-webpack" class="headerlink" title="dn-middleware-webpack"></a>dn-middleware-webpack</h3><p>概述：基于 webpack3 实现的中间件，打包模块。本地开发模式也将打包模块，而不是读取 webpack 缓存数据。</p>
+<p>奥妙：</p>
+<ol>
+<li>同 dn-middleware-watch 中间件，dn-middleware-webpack 在回调中执行后续中间件的处理逻辑。</li>
+<li>通过 vmodule-webpack-plugin 插件将 config.yml 类配置文件注入为可以 import 引入的虚拟模块。</li>
+<li>ctx 中添加 webpack 属性，即 webpack 类库。</li>
+</ol>
 <p>选项：</p>
 <table>
 <thead>
@@ -424,7 +430,7 @@
 </tr>
 <tr>
 <td>configFile</td>
-<td>webpack 配置文件路径</td>
+<td>webpack 配置文件路径，配置文件导出函数有效</td>
 <td>‘./webpack.config.js’</td>
 </tr>
 <tr>
@@ -489,7 +495,7 @@
 </tr>
 <tr>
 <td>watch</td>
-<td>是否使用 webpack 监听文件变更</td>
+<td>是否使用 webpack 监听文件变更，执行 compiler.watch 或 compiler.run 的差别</td>
 <td>undefined</td>
 </tr>
 <tr>
@@ -636,7 +642,115 @@
 </tr>
 </tbody>
 </table>
-<h3 id="dn-middleware-server"><a href="#dn-middleware-server" class="headerlink" title="dn-middleware-server"></a>dn-middleware-server</h3>
+<p>事件：</p>
+<ul>
+<li>‘webpack.opts’，可用于修改 opts 配置项，参数 opts。</li>
+<li>‘webpack.config’，可用于修改注入 webpack 的 config 配置，参数 config, webpack, opts。</li>
+<li>‘webpack.compiler’，操纵 webpack 的编译器，参数 compiler。</li>
+<li>‘webpack.stats’，可用于监控编译状态，参数 stats。</li>
+</ul>
+<h3 id="dn-middleware-server"><a href="#dn-middleware-server" class="headerlink" title="dn-middleware-server"></a>dn-middleware-server</h3><p>概述：基于 <a href="https://github.com/nokitjs/nokit" target="_blank" rel="noopener">nokit</a>，启动本地服务。首次执行时将在项目空间创建 server.yml 配置文件。</p>
+<p>奥妙：</p>
+<ol>
+<li>在 nokit 服务器中设置拦截器，通过 <a href="https://github.com/nodejitsu/node-http-proxy" target="_blank" rel="noopener">httpProxy</a> 转发请求。</li>
+<li>ctx 中添加 server 属性，即 nokit.Server 实例；以及 httpServer 属性，即 server.httpServer。</li>
+</ol>
+<p>选项：</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>意义</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>host</td>
+<td>主机，影响自动访问的页面地址</td>
+<td>‘<a href="http://localhost" target="_blank" rel="noopener">http://localhost</a>‘</td>
+</tr>
+<tr>
+<td>config</td>
+<td>配置文件路径，作为 nokit 服务器的配置文件路径，默认读取 server.yml</td>
+<td>‘server’</td>
+</tr>
+<tr>
+<td>public</td>
+<td>浏览器端访问资源文件的路径</td>
+<td>‘./build’</td>
+</tr>
+<tr>
+<td>port</td>
+<td>端口，默认使用 ctx.oneport 检测空闲的端口</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>autoOpen</td>
+<td>是否自动访问网页，false 时为否</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p>server.yml 中 proxy 支持配置选项：</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>意义</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rules</td>
+<td>转发路径匹配规则，如 ^/api(.*): ‘<a href="https://www.aliyun.com/" target="_blank" rel="noopener">https://www.aliyun.com/</a>‘</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>options</td>
+<td>作为 Proxy Server 的选项</td>
+<td>{ xfwd: true, changeOrigin: true }</td>
+</tr>
+<tr>
+<td>headers</td>
+<td>设置代理请求的 header 头，如 Referer: ‘<a href="https://www.aliyun.com/" target="_blank" rel="noopener">https://www.aliyun.com/</a>‘ 可携带 cookie</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p>事件：</p>
+<ul>
+<li>‘server.init’，服务未启动时事件，参数 server 实例。</li>
+<li>‘server.start’，服务启动成功时事件，参数 server 实例。</li>
+</ul>
+<h3 id="dn-middleware-browser-sync"><a href="#dn-middleware-browser-sync" class="headerlink" title="dn-middleware-browser-sync"></a>dn-middleware-browser-sync</h3><p>概述：基于 ‘browser-sync’, ‘connect-browser-sync’ 监听打包文件变更，以 express 插件的形式实现热更新。与本地服务强关联，必须在 dn-middleware-server 启动。</p>
+<p>选项：</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>意义</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>files</td>
+<td>监听的文件</td>
+<td>[‘./build/<em>*/</em>.*’]</td>
+</tr>
+<tr>
+<td>port</td>
+<td>‘browser-sync’ 服务启动端口</td>
+<td>5001</td>
+</tr>
+</tbody>
+</table>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li>dn-middleware-clean，清理文件或目录，可用 opts.target 加以配置，默认清理 ‘./build/<em>*/</em>.*’。</li>
+</ul>
+
           
         
       

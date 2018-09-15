@@ -111,7 +111,7 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="实现原理dawn 是一个采用中间件技术实现的轻量的任务流协调器，它和 gulp, grunt 有异曲同工之妙。dawn 本身并不处理任务，转而交由中间件承担这一职能，如同 gulp, grunt 插件。在实现上，dawn 是 webpack 出台后的产物，就不需要像 gulp, grunt 那样关注任务流的始点 —— 文件位置，而更容易聚焦于任务的分解，将编译、压缩作业交给 dn-middlewa">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-09-14T15:23:03.338Z">
+<meta property="og:updated_time" content="2018-09-15T03:14:17.311Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="前端构建工具 dawn 不完全解密">
 <meta name="twitter:description" content="实现原理dawn 是一个采用中间件技术实现的轻量的任务流协调器，它和 gulp, grunt 有异曲同工之妙。dawn 本身并不处理任务，转而交由中间件承担这一职能，如同 gulp, grunt 插件。在实现上，dawn 是 webpack 出台后的产物，就不需要像 gulp, grunt 那样关注任务流的始点 —— 文件位置，而更容易聚焦于任务的分解，将编译、压缩作业交给 dn-middlewa">
@@ -721,31 +721,19 @@
 <li>‘server.init’，服务未启动时事件，参数 server 实例。</li>
 <li>‘server.start’，服务启动成功时事件，参数 server 实例。</li>
 </ul>
-<h3 id="dn-middleware-browser-sync"><a href="#dn-middleware-browser-sync" class="headerlink" title="dn-middleware-browser-sync"></a>dn-middleware-browser-sync</h3><p>概述：基于 ‘browser-sync’, ‘connect-browser-sync’ 监听打包文件变更，以 express 插件的形式实现热更新。与本地服务强关联，必须在 dn-middleware-server 启动。</p>
+<h3 id="dn-middleware-dll"><a href="#dn-middleware-dll" class="headerlink" title="dn-middleware-dll"></a>dn-middleware-dll</h3><p>概述：独立构建项目依赖，节省打包时间。</p>
+<p>奥妙：</p>
+<ol>
+<li>借助 ctx.exec 方法执行 webpack 中间件，打包项目的依赖，默认存放在工程目录 .cache 文件夹内。子文件夹名基于项目所使用的依赖通过 md5 生成散列，以便在依赖更新时重新打包。再借助 ctx.exec 方法执行 copy 中间件，将打包文件拷贝到 build/js 文件夹内。</li>
+<li>通过 ‘webpack.config’ 事件，在 webpackConfig 插件中注入 webpack.DllReferencePlugin 插件。</li>
+</ol>
 <p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>files</td>
-<td>监听的文件</td>
-<td>[‘./build/<em>*/</em>.*’]</td>
-</tr>
-<tr>
-<td>port</td>
-<td>‘browser-sync’ 服务启动端口</td>
-<td>5001</td>
-</tr>
-</tbody>
-</table>
-<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
-<li>dn-middleware-clean，清理文件或目录，可用 opts.target 加以配置，默认清理 ‘./build/<em>*/</em>.*’。</li>
+<ul>
+<li><h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3></li>
+<li><p>dn-middleware-clean，清理文件或目录，可用 opts.target 加以配置，默认清理 ‘./build/<em>*/</em>.*’。</p>
+</li>
+<li>dn-middleware-copy，复制文件。选项 from 查询源文件的文件夹路径，默认 ‘./from’; to 目标文件夹路径; log 是否打印日志; dot 源文件匹配规则是否支持 ‘.’ 起始; direction 影响映射 key 键指代源文件还是目标文件; files 源文件和目标文件映射，目标文件路径支持占位符 {index} 替换（index 自右而左），或使用源文件路径（映射中，目标文件以 ‘/‘ 结尾）。</li>
+<li>dn-middleware-browser-sync 基于 ‘browser-sync’ 监听打包文件变更，借助 ‘connect-browser-sync’ express中间件实现热更新。选项 files 配置监听的文件，默认 [‘./build/<em>*/</em>.*’]；port 为 ‘browser-sync’ 服务启动端口，默认 5001。</li>
 </ul>
 
       
@@ -949,7 +937,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">1.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用中间件"><span class="nav-number">2.</span> <span class="nav-text">常用中间件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-webpack"><span class="nav-number">2.1.</span> <span class="nav-text">dn-middleware-webpack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-server"><span class="nav-number">2.2.</span> <span class="nav-text">dn-middleware-server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-browser-sync"><span class="nav-number">2.3.</span> <span class="nav-text">dn-middleware-browser-sync</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">2.4.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">1.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用中间件"><span class="nav-number">2.</span> <span class="nav-text">常用中间件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-webpack"><span class="nav-number">2.1.</span> <span class="nav-text">dn-middleware-webpack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-server"><span class="nav-number">2.2.</span> <span class="nav-text">dn-middleware-server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-dll"><span class="nav-number">2.3.</span> <span class="nav-text">dn-middleware-dll</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">2.4.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></div>
             
 
           </div>

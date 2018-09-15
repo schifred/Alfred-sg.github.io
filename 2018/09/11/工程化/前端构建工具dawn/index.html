@@ -111,7 +111,7 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="实现原理dawn 是一个采用中间件技术实现的轻量的任务流协调器，它和 gulp, grunt 有异曲同工之妙。dawn 本身并不处理任务，转而交由中间件承担这一职能，如同 gulp, grunt 插件。在实现上，dawn 是 webpack 出台后的产物，就不需要像 gulp, grunt 那样关注任务流的始点 —— 文件位置，而更容易聚焦于任务的分解，将编译、压缩作业交给 dn-middlewa">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-09-15T03:14:17.311Z">
+<meta property="og:updated_time" content="2018-09-15T16:07:56.990Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="前端构建工具 dawn 不完全解密">
 <meta name="twitter:description" content="实现原理dawn 是一个采用中间件技术实现的轻量的任务流协调器，它和 gulp, grunt 有异曲同工之妙。dawn 本身并不处理任务，转而交由中间件承担这一职能，如同 gulp, grunt 插件。在实现上，dawn 是 webpack 出台后的产物，就不需要像 gulp, grunt 那样关注任务流的始点 —— 文件位置，而更容易聚焦于任务的分解，将编译、压缩作业交给 dn-middlewa">
@@ -728,10 +728,74 @@
 <li>通过 ‘webpack.config’ 事件，在 webpackConfig 插件中注入 webpack.DllReferencePlugin 插件。</li>
 </ol>
 <p>选项：</p>
-<ul>
-<li><h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3></li>
-<li><p>dn-middleware-clean，清理文件或目录，可用 opts.target 加以配置，默认清理 ‘./build/<em>*/</em>.*’。</p>
-</li>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>意义</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>output</td>
+<td>打包文件输出位置</td>
+<td>‘build/js’</td>
+</tr>
+<tr>
+<td>libName</td>
+<td>打包文件名</td>
+<td>‘lib’</td>
+</tr>
+<tr>
+<td>compress</td>
+<td>是否压缩打包文件，默认压缩，false 时不压缩</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>vendors</td>
+<td>待打包模块列表，默认为 package.json 中依赖</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dn-middleware-faked"><a href="#dn-middleware-faked" class="headerlink" title="dn-middleware-faked"></a>dn-middleware-faked</h3><p>概述：基于 <a href="https://github.com/Houfeng/faked" target="_blank" rel="noopener">faked</a> 提供数据模拟服务。</p>
+<p>奥妙：</p>
+<ol>
+<li>基于 faked 创建 gui server 服务器，配置的模拟数据将输出到 faked 文件夹中 index.js, gui.data.json。</li>
+<li>模拟数据文件最终将作为 webpack 入口文件，以此实现远程请求的拦截。</li>
+<li>执行逻辑被封装为 ctx.faked.apply 方法，在 dn-middleware-webpack 中执行，两个中间件耦合度较高。</li>
+<li>模拟数据在 gui 界面变更时，需要借助 dn-middleware-watch 实现热更新，或者重启动。</li>
+</ol>
+<p>选项：</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>意义</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dir</td>
+<td>打包文件输出位置</td>
+<td>‘build/js’</td>
+</tr>
+<tr>
+<td>port</td>
+<td>gui server 服务启动的端口号，默认使用 this.utils.oneport 检出</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>gui</td>
+<td>禁用 gui server 服务</td>
+<td>‘build/js’</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dn-middleware-git-sync"><a href="#dn-middleware-git-sync" class="headerlink" title="dn-middleware-git-sync"></a>dn-middleware-git-sync</h3><h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li>dn-middleware-clean，清理文件或目录，可用 opts.target 加以配置，默认清理 ‘./build/<em>*/</em>.*’。</li>
 <li>dn-middleware-copy，复制文件。选项 from 查询源文件的文件夹路径，默认 ‘./from’; to 目标文件夹路径; log 是否打印日志; dot 源文件匹配规则是否支持 ‘.’ 起始; direction 影响映射 key 键指代源文件还是目标文件; files 源文件和目标文件映射，目标文件路径支持占位符 {index} 替换（index 自右而左），或使用源文件路径（映射中，目标文件以 ‘/‘ 结尾）。</li>
 <li>dn-middleware-browser-sync 基于 ‘browser-sync’ 监听打包文件变更，借助 ‘connect-browser-sync’ express中间件实现热更新。选项 files 配置监听的文件，默认 [‘./build/<em>*/</em>.*’]；port 为 ‘browser-sync’ 服务启动端口，默认 5001。</li>
 </ul>
@@ -937,7 +1001,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">1.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用中间件"><span class="nav-number">2.</span> <span class="nav-text">常用中间件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-webpack"><span class="nav-number">2.1.</span> <span class="nav-text">dn-middleware-webpack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-server"><span class="nav-number">2.2.</span> <span class="nav-text">dn-middleware-server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-dll"><span class="nav-number">2.3.</span> <span class="nav-text">dn-middleware-dll</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">2.4.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">1.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用中间件"><span class="nav-number">2.</span> <span class="nav-text">常用中间件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-webpack"><span class="nav-number">2.1.</span> <span class="nav-text">dn-middleware-webpack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-server"><span class="nav-number">2.2.</span> <span class="nav-text">dn-middleware-server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-dll"><span class="nav-number">2.3.</span> <span class="nav-text">dn-middleware-dll</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-faked"><span class="nav-number">2.4.</span> <span class="nav-text">dn-middleware-faked</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dn-middleware-git-sync"><span class="nav-number">2.5.</span> <span class="nav-text">dn-middleware-git-sync</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">2.6.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></div>
             
 
           </div>

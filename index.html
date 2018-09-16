@@ -369,7 +369,7 @@
       
         
           
-            <h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>dawn 是一个采用中间件技术实现的轻量的任务流协调器，它和 gulp, grunt 有异曲同工之妙。dawn 本身并不处理任务，转而交由中间件承担这一职能，如同 gulp, grunt 插件。在实现上，dawn 是 webpack 出台后的产物，就不需要像 gulp, grunt 那样关注任务流的始点 —— 文件位置，而更容易聚焦于任务的分解，将编译、压缩作业交给 dn-middleware-webpack 中间件。若说 gulp 中的任务流是鱼跃似的，一个跟着另一个，那么，dawn 通过 ctx 上下文使得两个任务之间可以借助事或实例属性进行通信。dawn 的中间件实现机制如同 koa，其一使用 next 引用下一个中间件串联任务流，其二以继承事件模型的 ctx 实例作为上下文。其核心代码如下：</p>
+            <h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>dawn 是一个采用中间件技术实现的轻量的任务流协调器，它和 gulp, grunt 有异曲同工之妙。dawn 本身并不处理任务，转而交由中间件承担这一职能，如同 gulp, grunt 插件。在实现上，dawn 是 webpack 出台后的产物，就不需要像 gulp, grunt 那样关注任务流的始点 —— 文件位置，而更容易聚焦于任务的分解，将编译、压缩作业交给 dn-middleware-webpack 中间件。若说 gulp 中的任务流是鱼跃似的，一个跟着另一个，那么，dawn 通过 ctx 上下文使得两个任务之间可以借助事件或实例属性进行通信。dawn 的中间件实现机制如同 koa，其一使用 next 引用下一个中间件串联任务流，其二以继承事件模型的 ctx 实例作为上下文。其核心代码如下：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Context</span> <span class="keyword">extends</span> <span class="title">EventEmitter</span> </span>&#123;</span><br><span class="line">  <span class="keyword">async</span> _execQueue(middlewares, args, onFail) &#123;</span><br><span class="line">    <span class="keyword">const</span> middleware = middlewares.shift();</span><br><span class="line">    <span class="keyword">if</span> (!middleware) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this.load 安装中间件，并执行中间件的外层函数，获得实际的任务逻辑 handler</span></span><br><span class="line">    <span class="keyword">const</span> handler = <span class="keyword">await</span> <span class="keyword">this</span>.load(middleware);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> next = <span class="function">(<span class="params">args</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// 若返回真值，在 watch 状态下，也只执行一次</span></span><br><span class="line">      <span class="keyword">if</span> (next.__result) <span class="keyword">return</span> next.__result;</span><br><span class="line"></span><br><span class="line">      next.__result = <span class="keyword">this</span>._execQueue(middlewares, args, onFail)</span><br><span class="line">        .catch(<span class="function"><span class="params">err</span> =&gt;</span> onFail(err));</span><br><span class="line">      <span class="keyword">return</span> next.__result;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">return</span> handler.call(<span class="keyword">this</span>, next, <span class="keyword">this</span>, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>因为 dawn 是一个任务流协调器，使得它就像一架航母，其能力仰赖于战斗机群 —— 由丰富的中间件、模板构成的生态系统。第一，这样使得 dawn 更着眼于为开发团队提供服务（两者呈互为因果的关系）。dawn 内建了复合远程配置的功能。不少公司会有私有的 npm 仓库，开发的 dn 中间件、模板先期都会在这些私有仓库中发展成形。借助于 dn config registry <a href="http://your_server_url" target="_blank" rel="noopener">http://your_server_url</a> 命令，dawn 安装中间件时会从这些私有仓库中拉取中间件或模板。对于配置文件，借助于 dn config server <a href="http://your_server_url" target="_blank" rel="noopener">http://your_server_url</a> 命令，dawn 也会从私有服务器中拉取远程配置，并与本地配置合并。如此，既能保有模板的闭源特征，又能实现配置文件的复用。扯开一个话题，使用 .yml 文件配置选项、将配置文件存于远端，这和我稍有耳闻的 spring boot 项目有些相仿。</p>
 <p>第二，为了开发中间件的方便，ctx 必然需要提供大而全的功能。以下简要地展示 ctx 提供的 api 列表：</p>
@@ -504,11 +504,6 @@
 <td>{ aggregateTimeout: 600, ignored: /node_modules/ }</td>
 </tr>
 <tr>
-<td>inject</td>
-<td>watch 配置</td>
-<td>{ aggregateTimeout: 600, ignored: /node_modules/ }</td>
-</tr>
-<tr>
 <td>babel</td>
 <td>babel-loader 选项相关，参见下文</td>
 <td></td>
@@ -637,7 +632,7 @@
 </tr>
 <tr>
 <td>strict</td>
-<td>影响 ‘babel-plugin-transform-remove-strict-mode’ 插件的使用，true 时不使用 ‘babel-plugin-add-module-exports’</td>
+<td>影响 ‘babel-plugin-transform-remove-strict-mode’ 插件的使用，true 时不使用</td>
 <td>undefined</td>
 </tr>
 </tbody>

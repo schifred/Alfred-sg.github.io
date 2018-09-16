@@ -409,7 +409,7 @@
 <h2 id="常用中间件"><a href="#常用中间件" class="headerlink" title="常用中间件"></a>常用中间件</h2><h3 id="dn-middleware-webpack"><a href="#dn-middleware-webpack" class="headerlink" title="dn-middleware-webpack"></a>dn-middleware-webpack</h3><p>概述：基于 webpack3 实现的中间件，打包模块。本地开发模式也将打包模块，而不是读取 webpack 缓存数据。</p>
 <p>奥妙：</p>
 <ol>
-<li>同 dn-middleware-watch 中间件，dn-middleware-webpack 在回调中执行后续中间件的处理逻辑。</li>
+<li>dn-middleware-webpack 在回调中执行后续中间件的处理逻辑。</li>
 <li>通过 vmodule-webpack-plugin 插件将 config.yml 类配置文件注入为可以 import 引入的虚拟模块。</li>
 <li>ctx 中添加 webpack 属性，即 webpack 类库。</li>
 </ol>
@@ -765,10 +765,9 @@
 <h3 id="dn-middleware-faked"><a href="#dn-middleware-faked" class="headerlink" title="dn-middleware-faked"></a>dn-middleware-faked</h3><p>概述：基于 <a href="https://github.com/Houfeng/faked" target="_blank" rel="noopener">faked</a> 提供数据模拟服务。</p>
 <p>奥妙：</p>
 <ol>
-<li>基于 faked 创建 gui server 服务器，配置的模拟数据将输出到 faked 文件夹中 index.js, gui.data.json。</li>
-<li>模拟数据文件最终将作为 webpack 入口文件，以此实现远程请求的拦截。</li>
+<li>基于 faked 创建 gui server 服务器，配置的模拟数据将输出到工程目录 mock 文件夹中 index.js, gui.data.json。</li>
+<li>模拟数据文件最终将作为 webpack 入口文件，以此实现远程请求的拦截，并实现热更新。</li>
 <li>执行逻辑被封装为 ctx.faked.apply 方法，在 dn-middleware-webpack 中执行，两个中间件耦合度较高。</li>
-<li>模拟数据在 gui 界面变更时，需要借助 dn-middleware-watch 实现热更新，或者重启动。</li>
 </ol>
 <p>选项：</p>
 <table>
@@ -783,7 +782,7 @@
 <tr>
 <td>dir</td>
 <td>打包文件输出位置</td>
-<td>‘build/js’</td>
+<td>‘mock’</td>
 </tr>
 <tr>
 <td>port</td>
@@ -797,10 +796,50 @@
 </tr>
 </tbody>
 </table>
-<h3 id="dn-middleware-git-sync"><a href="#dn-middleware-git-sync" class="headerlink" title="dn-middleware-git-sync"></a>dn-middleware-git-sync</h3><h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<h3 id="dn-middleware-i18n"><a href="#dn-middleware-i18n" class="headerlink" title="dn-middleware-i18n"></a>dn-middleware-i18n</h3><p>概述：将工程目录中 locales 语言包加载为 $locales 模块，通过 $i18n 获取指定模块，实现国际化。</p>
+<p>奥妙：</p>
+<ol>
+<li>使用 confman.webpackPlugin 方法将工程目录中的语言包输出为 $locales 虚拟模块。</li>
+<li>使用 vmodule-webpack-plugin 类库输出 $i18n 虚拟模块，以获取指定文案。</li>
+</ol>
+<p>选项：</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>意义</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dir</td>
+<td>语言包所在位置</td>
+<td>‘./locales’</td>
+</tr>
+<tr>
+<td>extract</td>
+<td>指定将语言包输出为单独的 js 资源的文件夹路径，默认不输出单独的脚本</td>
+<td>null</td>
+</tr>
+</tbody>
+</table>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
 <li>dn-middleware-clean，清理文件或目录，可用 opts.target 加以配置，默认清理 ‘./build/<em>*/</em>.*’。</li>
 <li>dn-middleware-copy，复制文件。选项 from 查询源文件的文件夹路径，默认 ‘./from’; to 目标文件夹路径; log 是否打印日志; dot 源文件匹配规则是否支持 ‘.’ 起始; direction 影响映射 key 键指代源文件还是目标文件; files 源文件和目标文件映射，目标文件路径支持占位符 {index} 替换（index 自右而左），或使用源文件路径（映射中，目标文件以 ‘/‘ 结尾）。</li>
 <li>dn-middleware-browser-sync 基于 ‘browser-sync’ 监听打包文件变更，借助 ‘connect-browser-sync’ express中间件实现热更新。选项 files 配置监听的文件，默认 [‘./build/<em>*/</em>.*’]；port 为 ‘browser-sync’ 服务启动端口，默认 5001。</li>
+<li>dn-middleware-git-sync，git 操作，包含 commit, push 动作（push 又区分日常和预发环境）。</li>
+<li>dn-middleware-jcs，在 babel-loader 中添加 ‘jsx-control-statements’ 插件，以使 jsx 可使用结构控制语句，同时 lint 阶段也会作代码检查，参考 <a href="https://zhuanlan.zhihu.com/p/28519304" target="_blank" rel="noopener">通过 JSX Control Statements 编写 JSX</a>。</li>
+<li>dn-middleware-lint，使用 eslint 命令作语法检查。</li>
+<li>dn-middleware-tslint，对 typescript 进行语法检查。</li>
+<li>dn-middleware-typedoc，使用 typedoc 为 typescript 项目生成文档。</li>
+<li>dn-middleware-typescript，在 webpackConfig 中添加 awesome-typescript-loader，支持编译 tsx 模块。选项 declaration 是否分离 ts, js 文件，默认分离，false 时不分离。</li>
+<li>dn-middleware-pkginfo，更新项目 package.json 中的 name, version, description 信息。</li>
+<li>dn-middleware-prepush，在 .git/hooks/pre-push 添加 shell 命令，推送前执行 dn build 命令。</li>
+<li>dn-middleware-sensitive-path，在 webpackConfig 中添加 ‘case-sensitive-paths-webpack-plugin’ 插件，使 mac, windows 引入模块时严格区分模块的大小写。</li>
+<li>dn-middleware-shell，调用 ctx.utils.exec 执行 shell 命令。选项 script 命令内容；wscript 为 windows 系统下命令内容；async 是否异步执行，默认同步。</li>
+<li>dn-middleware-watch，基于 ‘chokidar’ 监听执行文件变更。选项 match 匹配的文件，默认为 ‘./src/<em>*/</em>.*’；event 监听的事件类型；script 事件发生后执行的脚本；onChange 事件发生后执行的动作。</li>
+<li>dn-middleware-unit，基于 ‘mocha’ 对 ./test/unit 文件夹中内容作单元测试。</li>
 </ul>
 
           

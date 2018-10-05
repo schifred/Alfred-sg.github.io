@@ -270,6 +270,182 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/19/设计模式/策略模式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/19/设计模式/策略模式/" itemprop="url">策略模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-19T00:00:00+08:00">2018-05-19</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/19/设计模式/策略模式/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/05/19/设计模式/策略模式/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>状态模式(Strategy pattern，也称为算法簇模式)的主要实现逻辑为，构建多个策略类用于封装不同的算法，并将这些算法的其中一个以引用形式注入给上下文对象，以使上下文对象可以将其行为委托给策略类处理。相较于<a href="http://xzfyu.com/2018/03/24/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/" target="_blank" rel="noopener">状态模式</a>内部封装了状态切换，上下文对象的行为多数委托给状态对象加以处理，策略模式委托给策略类的处理通常只是单个行为，即算法，并且，设置策略（即替换算法）的过程由外部调用者完成。</p>
+<p>《设计模式:可复用面向对象软件的基础》一书将状态模式描述为：</p>
+<blockquote class="blockquote-center"><p>Define a family of algorithms, encapsulate each one, and make them interchangeable. Strategy lets the algorithm vary independently fromclients that use it.. </p>
+</blockquote>
+<h2 id="经典实现"><a href="#经典实现" class="headerlink" title="经典实现"></a>经典实现</h2><p>策略模式包含下列组件：</p>
+<ul>
+<li>Context: 以引用对象形式持有某个 ConcreteStrategy，对外暴露的交互接口通过将行为委托给 ConcreteStrategy 实现。</li>
+<li>Strategy: 策略类，定义算法的抽象接口。</li>
+<li>ConcreteStrategy: 具体策略子类，实现 Strategy 抽象类中定义的算法。</li>
+</ul>
+<p>以下代码使用策略模式实现了排序算法，通过 ArrayList 实例的 setSortStragery 方法即可切换排序算法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br></pre></td><td class="code"><pre><span class="line">abstract <span class="class"><span class="keyword">class</span> <span class="title">SortPolicy</span></span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(context)&#123;</span><br><span class="line">    <span class="keyword">this</span>.context = context;<span class="comment">// 通过引用属性访问 Context 实例，可访问实例属性，以处理状态切换操作；可改为传参实现</span></span><br><span class="line">  &#125;</span><br><span class="line">  sort()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 冒泡排序，比较相邻元素，将最小值左移</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BubbleSort</span> <span class="keyword">extends</span> <span class="title">SortPolicy</span> </span>&#123;</span><br><span class="line">  sort()&#123;</span><br><span class="line">    <span class="keyword">const</span> arr = <span class="keyword">this</span>.context.target;</span><br><span class="line">    <span class="keyword">const</span> len = arr.length;</span><br><span class="line">    <span class="keyword">for</span> ( <span class="keyword">let</span> i = <span class="number">0</span>; i &lt; len; i++ )&#123;</span><br><span class="line">      <span class="keyword">for</span> ( <span class="keyword">let</span> j = <span class="number">0</span>; j &lt; len - <span class="number">1</span> - i; j++ )&#123;</span><br><span class="line">        <span class="keyword">if</span> ( arr[j] &gt; arr[j+<span class="number">1</span>] ) </span><br><span class="line">          <span class="keyword">this</span>.context.swap(j, j + <span class="number">1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 选择排序，选取最小值，排在左侧</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SelectionSort</span> <span class="keyword">extends</span> <span class="title">SortPolicy</span> </span>&#123;</span><br><span class="line">  sort()&#123;</span><br><span class="line">    <span class="keyword">const</span> arr = <span class="keyword">this</span>.context.target;</span><br><span class="line">    <span class="keyword">const</span> len = arr.length;</span><br><span class="line">    <span class="keyword">let</span> minIndex;<span class="comment">// 最小值序号</span></span><br><span class="line">    <span class="keyword">for</span> ( <span class="keyword">let</span> i = <span class="number">0</span>; i &lt; len - <span class="number">1</span>; i++ )&#123;</span><br><span class="line">      minIndex = i;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">for</span> ( <span class="keyword">let</span> j = i; j &lt; len; j++ )&#123;</span><br><span class="line">        <span class="keyword">if</span> ( arr[minIndex] &gt; arr[j] ) </span><br><span class="line">          minIndex = j;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> ( i !== minIndex )</span><br><span class="line">        <span class="keyword">this</span>.context.swap(i, minIndex);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 插入排序，将后一位比较项顺序插入到之前已排序的数组中</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">InsertionSort</span> <span class="keyword">extends</span> <span class="title">SortPolicy</span> </span>&#123;</span><br><span class="line">  sort()&#123;</span><br><span class="line">    <span class="keyword">const</span> arr = <span class="keyword">this</span>.context.target;</span><br><span class="line">    <span class="keyword">const</span> len = arr.length;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> ( <span class="keyword">let</span> i = <span class="number">1</span>; i &lt; length; i++ )&#123;</span><br><span class="line">      <span class="keyword">let</span> j = i;</span><br><span class="line">      <span class="keyword">let</span> temp = arr[i];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">while</span> ( j &gt; <span class="number">0</span> &amp;&amp; arr[j - <span class="number">1</span>] &gt; temp )&#123;</span><br><span class="line">        arr[j] = arr[j - <span class="number">1</span>];</span><br><span class="line">        j--;</span><br><span class="line">      &#125;;</span><br><span class="line"></span><br><span class="line">      arr[j] = temp;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 归并排序，将数组项拆分后分别排序，再合并排序</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MergeSort</span> <span class="keyword">extends</span> <span class="title">SortPolicy</span> </span>&#123;</span><br><span class="line">  sort()&#123;</span><br><span class="line">    <span class="keyword">const</span> arr = <span class="keyword">this</span>.context.target;</span><br><span class="line">    <span class="keyword">this</span>.mergeSortRec(arr);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 分治</span></span><br><span class="line">  mergeSortRec(arr)&#123;</span><br><span class="line">    <span class="keyword">const</span> len = arr.length;</span><br><span class="line">    <span class="keyword">if</span> ( len === <span class="number">1</span> ) <span class="keyword">return</span> arr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> mid = <span class="built_in">Math</span>.floor(len / <span class="number">2</span>);</span><br><span class="line">    <span class="keyword">let</span> left = arr.slice(<span class="number">0</span>, mid);</span><br><span class="line">    <span class="keyword">let</span> right = arr.slice(mid, len);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.merge(<span class="keyword">this</span>.mergeSortRec(left), <span class="keyword">this</span>.mergeSortRec(right));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 合并两个已排序数组</span></span><br><span class="line">  merge(left, right)&#123;</span><br><span class="line">    <span class="keyword">const</span> leftLen = left.length;</span><br><span class="line">    <span class="keyword">const</span> rightLen = right.length;</span><br><span class="line">    <span class="keyword">let</span> leftIndex = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> rightIndex = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> result = [];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> ( leftIndex &lt; leftLen &amp;&amp; rightIndex &lt; rightLen )&#123;</span><br><span class="line">      <span class="keyword">if</span> ( left[leftIndex] &lt; right[rightIndex] )</span><br><span class="line">        result.push(left[leftIndex++]);</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        result.push(right[rightIndex++]);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> ( leftIndex &lt; leftLen )&#123;</span><br><span class="line">      result.push(left[leftIndex++]);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> ( rightIndex &lt; rightLen )&#123;</span><br><span class="line">      result.push(right[rightIndex++]);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 快速排序，选取中间项，将左右两边元素按和中间相的比较结果对调，递归该过程，实现数组排序</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">QuickSort</span> <span class="keyword">extends</span> <span class="title">SortPolicy</span> </span>&#123;</span><br><span class="line">  sort()&#123;</span><br><span class="line">    <span class="keyword">const</span> arr = <span class="keyword">this</span>.context.target;</span><br><span class="line">    <span class="keyword">const</span> len = arr.length;</span><br><span class="line">    <span class="keyword">this</span>.quick(arr, <span class="number">0</span>, len);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 递归，实现分治</span></span><br><span class="line">  quick(arr, left, right)&#123;</span><br><span class="line">    <span class="keyword">const</span> len = arr.length;</span><br><span class="line">    <span class="keyword">let</span> index;</span><br><span class="line">    <span class="keyword">if</span> ( len &gt; <span class="number">1</span> )&#123;</span><br><span class="line">      index = <span class="keyword">this</span>.partition(arr, left, right);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> ( left &lt; index <span class="number">-1</span> )</span><br><span class="line">        <span class="keyword">this</span>.quick(arr, left, index - <span class="number">1</span>);</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> ( index &lt; right )</span><br><span class="line">        <span class="keyword">this</span>.quick(arr, index, right);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">    </span><br><span class="line">  <span class="comment">// 按中间项对调元素，大值放在右边，小值放在左边</span></span><br><span class="line">  partition(arr, left, right)&#123;</span><br><span class="line">    <span class="keyword">let</span> pivot = arr[<span class="built_in">Math</span>.floor((right + left) / <span class="number">2</span>)];</span><br><span class="line">    <span class="keyword">let</span> i = left;</span><br><span class="line">    <span class="keyword">let</span> j = right;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> ( i &lt;= j )&#123;</span><br><span class="line">      <span class="keyword">while</span> ( arr[i] &lt; pivot )&#123;</span><br><span class="line">        i++;</span><br><span class="line">      &#125;;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">while</span> ( arr[j] &gt; pivot )&#123;</span><br><span class="line">        j--;</span><br><span class="line">      &#125;;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> ( i &lt;= j )&#123;</span><br><span class="line">        <span class="keyword">this</span>.context.swap(arr, i, j);</span><br><span class="line">        i++;</span><br><span class="line">        j--;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> i;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 堆排序</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HeapSort</span> <span class="keyword">extends</span> <span class="title">SortPolicy</span> </span>&#123;</span><br><span class="line">  sort()&#123;</span><br><span class="line">    <span class="keyword">const</span> arr = <span class="keyword">this</span>.context.target;</span><br><span class="line">    <span class="keyword">let</span> heapSize = arr.length;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.buildHeap(arr);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> ( heapSize &gt; <span class="number">1</span> )&#123;</span><br><span class="line">      heapSize--;</span><br><span class="line">      <span class="keyword">this</span>.context.swap(arr, <span class="number">0</span>, heapSize);</span><br><span class="line">      <span class="keyword">this</span>.heapify(arr, heapSize, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  buildHeap(arr)&#123;</span><br><span class="line">    <span class="keyword">const</span> heapSize = arr.length;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> ( <span class="keyword">let</span> i = <span class="built_in">Math</span>.floor(heapSize / <span class="number">2</span>); i &gt;= <span class="number">0</span>; i-- )&#123;</span><br><span class="line">      <span class="keyword">this</span>.heapify(arr, heapSize, i);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  heapify(arr, heapSize, i)&#123;</span><br><span class="line">    <span class="keyword">let</span> left = <span class="number">2</span> * i + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">let</span> right = <span class="number">2</span> * i + <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">let</span> largest = i;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( left &lt; heapSize &amp;&amp; arr[left] &gt; arr[largest] )</span><br><span class="line">      largest = left;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( right &lt; heapSize &amp;&amp; arr[right] &gt; arr[largest] )</span><br><span class="line">      largest = right;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( largest !== i )&#123;</span><br><span class="line">      <span class="keyword">this</span>.context.swap(arr, i, largest);</span><br><span class="line">      <span class="keyword">this</span>.heapify(arr, heapSize, largest);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArrayList</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.target = [];</span><br><span class="line">    <span class="keyword">this</span>.sortStragery = <span class="keyword">new</span> BubbleSort(<span class="keyword">this</span>);<span class="comment">// 排序策略</span></span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  insert(item)&#123;</span><br><span class="line">    <span class="keyword">this</span>.target.push(item);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 元素互换</span></span><br><span class="line">  swap(i, j)&#123;</span><br><span class="line">    <span class="keyword">let</span> arr = <span class="keyword">this</span>.target;</span><br><span class="line">    <span class="keyword">let</span> temp = arr[i];</span><br><span class="line">    arr[i] = arr[j];</span><br><span class="line">    arr[j] = temp;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setSortStragery(Stragery)&#123;</span><br><span class="line">    <span class="keyword">this</span>.sortStragery = <span class="keyword">new</span> Stragery(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  sort()&#123;</span><br><span class="line">    <span class="keyword">this</span>.sortStragery.sort();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  toString()&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.target.join();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>策略模式需要注意的点：</p>
+<ol>
+<li>调用者需要对策略模式提供的算法足够了解。</li>
+<li>Context 类既可以通过调用时向 ConcreteStrategy 具体策略子类注入参数实现，也可以将自身作为引用存储在 ConcreteStrategy 具体策略子类中。同时 ConcreteStrategy 具体策略子类可以从 Strategy 抽象接口继承属性，其自身也可以实现为有状态值的。</li>
+<li>Context 类可设置多个，以针对不同的需求，如不同的设备。</li>
+</ol>
+<h2 id="js-中的策略模式"><a href="#js-中的策略模式" class="headerlink" title="js 中的策略模式"></a>js 中的策略模式</h2><p>同<a href="http://xzfyu.com/2018/03/24/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/" target="_blank" rel="noopener">状态模式</a>，js 可以使用对象字面量声明多个策略子类，通过访问对象属性的方式调用算法。</p>
+<h3 id="动效算法切换"><a href="#动效算法切换" class="headerlink" title="动效算法切换"></a>动效算法切换</h3><p>本节以前端动效为例，试图说明策略模式在该领域中的应用。读者若想对前端动效有更深入的理解，可参见笔者的另一篇文章，<a href="http://xzfyu.com/2018/05/20/jquery/%E5%8A%A8%E6%95%88%E5%88%86%E6%9E%90/" target="_blank" rel="noopener">jquery 动效分析</a>。</p>
+<p>动效实现的基本数学思想是通过动画执行时长 duration、起始位置 beginning val、结束位置(即要变化的总量) change 计算动画已执行时间 timestamp 的所处位置 pos，即函数 pos = fn(t, b, c, d)。在动效中，位置这个概念会被起始样式和结束样式所替换。策略模式的用武之地即在于设定不同的缓动函数，以计算当前样式值。</p>
+<p>在表达式 pos = fn(t, b, c, d) 中，参数 t 动画已执行时间, b 起始样式 由程序计算获得，参数 c 结束样式, d 动画总时长 由调用方提供。为扼要说明起见，示例代码将不提供计算样式和设置样式值的 getStyles, setStyles 方法。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Easings = &#123;</span><br><span class="line">  linear(t, b, c, d)&#123;</span><br><span class="line">    <span class="keyword">return</span> c * t / d + b;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeIn(t, b, c, d)&#123;</span><br><span class="line">    <span class="keyword">return</span> c * (t / d) * t + b;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeOut(t, b, c, d)&#123;</span><br><span class="line">    <span class="keyword">return</span> -c * (t / d) * (t - <span class="number">2</span>) + b;</span><br><span class="line">  &#125;,</span><br><span class="line">  easeInOut(t, b, c, d)&#123;</span><br><span class="line">    <span class="keyword">if</span> ( <span class="number">2</span>t / d &lt; <span class="number">1</span> ) <span class="keyword">return</span> c / <span class="number">2</span> * t * t + b;</span><br><span class="line">    <span class="keyword">return</span> - c / <span class="number">2</span> * ((--t) * (t - <span class="number">2</span>) - <span class="number">1</span>) + b;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Animation</span> </span>&#123;</span><br><span class="line">  node = <span class="literal">null</span>;</span><br><span class="line">  startTime = <span class="number">0</span>;</span><br><span class="line">  startStyles = <span class="literal">null</span>;</span><br><span class="line">  endStyles = <span class="literal">null</span>;</span><br><span class="line">  duration = <span class="literal">null</span>;</span><br><span class="line">  easing = <span class="literal">null</span>;</span><br><span class="line">  running = <span class="literal">false</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">constructor</span>(node, styles, duration, easing)&#123;</span><br><span class="line">    <span class="keyword">this</span>.node = node;</span><br><span class="line">    <span class="keyword">this</span>.startTime = +<span class="keyword">new</span> <span class="built_in">Date</span>;</span><br><span class="line">    <span class="keyword">this</span>.startStyles = getStyles(node);</span><br><span class="line">    <span class="keyword">this</span>.endStyles = styles;</span><br><span class="line">    <span class="keyword">this</span>.duration = duration;</span><br><span class="line">    <span class="keyword">this</span>.easing = Easings[easing];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.run();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  run()&#123;</span><br><span class="line">    <span class="keyword">const</span> that = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">this</span>.running = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">let</span> timer = setInterval(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      that.tween();</span><br><span class="line">      <span class="keyword">if</span> ( !running ) clearInterval(timer);</span><br><span class="line">    &#125;, <span class="number">10</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  tween()&#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; node, startTime, startStyles, endStyles, duration, easing &#125; = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">const</span> currentTime = +<span class="keyword">new</span> <span class="built_in">Date</span>;</span><br><span class="line">    <span class="keyword">const</span> t = currentTime - startTime;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( t &gt;= <span class="keyword">this</span>.duration )&#123;</span><br><span class="line">      setStyles(node, endStyles);</span><br><span class="line">      <span class="keyword">this</span>.running = <span class="literal">false</span>;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> currentStyles = &#123;&#125;;</span><br><span class="line">    <span class="built_in">Object</span>.keys(endStyles).map(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> startStyle = startStyles[key];</span><br><span class="line">      <span class="keyword">let</span> endStyle = endStyles[key];</span><br><span class="line"></span><br><span class="line">      currentStyles[key] = easing(t, startStyle, endStyle, duration);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    setStyles(<span class="keyword">this</span>.node, currentStyles);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>上述代码中，由调用方提供缓动函数算法名，animation 实例将根据将通过指定的缓动函数计算节点的当前样式，并作相应更新。关于前端动效（包含缓动函数，动画队列等）的细微说明，笔者将在后续的文章加以展开。</p>
+<h3 id="校验算法切换"><a href="#校验算法切换" class="headerlink" title="校验算法切换"></a>校验算法切换</h3><p>策略模式也可以应用于数据校验中，即通过对某个字段设定校验规则，通过该规则从校验函数集合中选取函数，并对相应的数据做出校验。若需深入理解数据校验过程，可参看笔者的另一篇文章 <a href="http://xzfyu.com/2018/01/24/%E6%B5%85%E6%9E%90async-validator%E6%BA%90%E7%A0%81/" target="_blank" rel="noopener">浅析async-validator源码</a>。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> stratrgies = &#123;</span><br><span class="line">  notEmpty(value, rule)&#123;</span><br><span class="line">    <span class="keyword">if</span> ( value === <span class="string">''</span> ) <span class="keyword">return</span> rule.msg;</span><br><span class="line">  &#125;,</span><br><span class="line">  minLength(value, rule)&#123;</span><br><span class="line">    <span class="keyword">if</span> ( value.length &lt; rule.length ) <span class="keyword">return</span> rule.msg;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Validator</span> </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.rules = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(rules)&#123;</span><br><span class="line">    <span class="keyword">this</span>.rules = rules;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  validate(data)&#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; rules &#125; = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">let</span> errors = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">Object</span>.keys(data).map(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> rule = rules[key];</span><br><span class="line">      <span class="keyword">const</span> value = data[key];</span><br><span class="line">      <span class="keyword">const</span> validateMethod = stratrgies[rule.type];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> msg = validateMethod(value, rule);</span><br><span class="line">      <span class="keyword">if</span> ( msg )&#123;</span><br><span class="line">        <span class="keyword">if</span> ( !errors ) errors = &#123;&#125;;</span><br><span class="line">        errors[key] = msg;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> errors;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>[设计模式:可复用面向对象软件的基础]<br>[Javascript 设计模式和开发实践 - 曾探]</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/24/设计模式/状态模式/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -627,7 +803,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/17/es6/修饰器/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/17/es6/Decorator/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -646,7 +822,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/03/17/es6/修饰器/" itemprop="url">修饰器</a></h1>
+                <a class="post-title-link" href="/2018/03/17/es6/Decorator/" itemprop="url">修饰器</a></h1>
         
 
         <div class="post-meta">
@@ -694,9 +870,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/03/17/es6/修饰器/#comments" itemprop="discussionUrl">
+                <a href="/2018/03/17/es6/Decorator/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/03/17/es6/修饰器/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/03/17/es6/Decorator/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -2238,218 +2414,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/13/mocha使用指南/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/13/mocha使用指南/" itemprop="url">mocha使用指南</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-13T18:50:11+08:00">2018-02-13</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/02/13/mocha使用指南/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/02/13/mocha使用指南/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>mocha 是一款可运行在 node 环境或浏览器上的测试框架。</p>
-<p>mocha 本身没有实现断言库，可使用 chai, should.js, expect.js, better-assert, unexpected 等断言库或 node 内置的 assert 模块。断言库错误输出需有 actual, expected 属性。</p>
-<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><h3 id="BDD"><a href="#BDD" class="headerlink" title="BDD"></a>BDD</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// BDD 风格，describe/context, it/specify, before, after, beforeEach, afterEach</span></span><br><span class="line"><span class="keyword">var</span> assert = <span class="built_in">require</span>(<span class="string">'assert'</span>);</span><br><span class="line">describe(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;<span class="comment">// 测试套件</span></span><br><span class="line">  describe(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    it(<span class="string">'should return -1 when the value is not present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;<span class="comment">// 测试单元</span></span><br><span class="line">      assert.equal([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>].indexOf(<span class="number">4</span>), <span class="number">-1</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="TDD"><a href="#TDD" class="headerlink" title="TDD"></a>TDD</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TDD 风格，suite, test, suiteSetup, suiteTeardown, setup, teardown</span></span><br><span class="line">suite(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  setup(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  suite(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    test(<span class="string">'should return -1 when not present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      assert.equal(<span class="number">-1</span>, [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>].indexOf(<span class="number">4</span>));</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="EXPORTS"><a href="#EXPORTS" class="headerlink" title="EXPORTS"></a>EXPORTS</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// EXPORTS 风格，before, after, beforeEach, afterEach</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  before: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="string">'Array'</span>: &#123;<span class="comment">// 对象作为测试套件</span></span><br><span class="line">    <span class="string">'#indexOf()'</span>: &#123;</span><br><span class="line">      <span class="string">'should return -1 when not present'</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;<span class="comment">// 函数为测试单元</span></span><br><span class="line">        [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>].indexOf(<span class="number">4</span>).should.equal(<span class="number">-1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="QUNIT"><a href="#QUNIT" class="headerlink" title="QUNIT"></a>QUNIT</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// QUNIT 风格，suite, test, before, after, beforeEach, afterEach</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ok</span>(<span class="params">expr, msg</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!expr) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(msg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">suite(<span class="string">'Array'</span>);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'#length'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> arr = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>];</span><br><span class="line">  ok(arr.length == <span class="number">3</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> arr = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>];</span><br><span class="line">  ok(arr.indexOf(<span class="number">1</span>) == <span class="number">0</span>);</span><br><span class="line">  ok(arr.indexOf(<span class="number">2</span>) == <span class="number">1</span>);</span><br><span class="line">  ok(arr.indexOf(<span class="number">3</span>) == <span class="number">2</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">suite(<span class="string">'String'</span>);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'#length'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  ok(<span class="string">'foo'</span>.length == <span class="number">3</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="REQUIRE"><a href="#REQUIRE" class="headerlink" title="REQUIRE"></a>REQUIRE</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// REQUIRE 风格，使用 require 注入</span></span><br><span class="line"><span class="keyword">var</span> testCase = <span class="built_in">require</span>(<span class="string">'mocha'</span>).describe;</span><br><span class="line"><span class="keyword">var</span> pre = <span class="built_in">require</span>(<span class="string">'mocha'</span>).before;</span><br><span class="line"><span class="keyword">var</span> assertions = <span class="built_in">require</span>(<span class="string">'mocha'</span>).it;</span><br><span class="line"><span class="keyword">var</span> assert = <span class="built_in">require</span>(<span class="string">'chai'</span>).assert;</span><br><span class="line"></span><br><span class="line">testCase(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  pre(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  testCase(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    assertions(<span class="string">'should return -1 when not present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      assert.equal([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>].indexOf(<span class="number">4</span>), <span class="number">-1</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>mocha 后跟测试文件名（可使用通配符），或将测试脚本放在 test 目录里，执行 mocha 命令测试 test 目录下的测试脚本（默认只执行第一层）。浏览器端使用 mocha.setup 方法配置 mocha。</p>
-<p>选项（可以将命令行参数放在 mocha.opts 文件里，也可以 mocha.opts 文件里指定测试目录）：</p>
-<ul>
-<li>-u, –ui <name> 测试脚本编码风格，可选值 bdd|tdd|qunit|exports。</name></li>
-<li>–recursive 使用 mocha 测试 test 目录下所有文件。</li>
-<li>-g, –grep <pattern> 只测试匹配正则的 it 。</pattern></li>
-<li>-f, –fgrep <string> 只测试包含字符串的 it。</string></li>
-<li>-i, –invert 反转 grep, fgrep 选项。</li>
-<li>–bail, -b 有一个测试脚本未通过时，就停止测试。</li>
-<li>-d, –debug 启动 debug 模式。</li>
-<li>–debug-brk enable node’s debugger breaking on the first line???</li>
-<li>-gc, –expose-gc expose gc extension???</li>
-<li>–harmony<_classes,_generators,...> all node –harmony* flags are available???</_classes,_generators,...></li>
-<li>–es_staging 启用所有 staged 特征???</li>
-<li>-S, –sort 排序测试文件。</li>
-<li>–compilers <ext>:<module>,… 指定测编译器，如 mocha –compilers js:babel-core/register。若需使用 Map、Set 等，须在测试脚本前 import ‘babel-polyfill’。</module></ext></li>
-<li>-r, –require <name> 加载特定的模块，如 ‘babel-polyfill’。</name></li>
-<li>–file <file> 测试时加载指定文件。</file></li>
-<li>–globals <names> 以 ‘,’ 分割形式注入全局变量。</names></li>
-<li>-A, –async-only 测试脚本只能使用异步编程，回调或 promise 形式。</li>
-<li>-w, –watch 监视文件变动，自动运行测试脚本。</li>
-<li>-t, –timeout <ms> 指定测试时的超时时间，默认为 2000 ms。</ms></li>
-<li>-s, –slow <ms> 高亮显示超过指定时间的测试报告，默认为 75 ms。</ms></li>
-<li>–check-leaks 检测全局变量泄漏。</li>
-<li>–growl, -G 将报告显示在桌面。</li>
-<li>-R, –reporter <name> 指定报告打印形式，默认是 spec 格式，可选值 tap, dot, nyan, mochawesome 网页报告（须先安装 npm install –dev mochawesome）。</name></li>
-<li>-O, –reporter-options <k=v,k2=v2,...>，打印选项。</k=v,k2=v2,...></li>
-<li>–reporters 显示所有报告格式。</li>
-<li>-c, –colors 显示颜色。</li>
-<li>-C, –no-colors 不显示颜色。</li>
-<li>–full-trace 显示完整的堆栈信息。</li>
-<li>生成规格文件，如 mocha –recursive -R markdown &gt; spec.md 或 mocha –recursive -R doc &gt; spec.html。<br>…</li>
-</ul>
-<h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><h3 id="钩子函数"><a href="#钩子函数" class="headerlink" title="钩子函数"></a>钩子函数</h3><ul>
-<li>before，在测试用例之前执行</li>
-<li>after，在测试用例之后执行</li>
-<li>beforeEach，在每个单元测试前执行</li>
-<li>afterEach，在每个单元测试后执行</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 钩子允许在 describe 外围，回调将在测试脚本之前或之后执行</span></span><br><span class="line">beforeEach(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'before every test in every file'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">describe(<span class="string">'hooks'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 钩子函数以匿名函数使用，允许携带描述；命名函数不能</span></span><br><span class="line">  before(<span class="string">'some description'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// runs before all tests in this block</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 钩子支持同步或异步编程</span></span><br><span class="line">  beforeEach(<span class="function"><span class="keyword">function</span>(<span class="params">done</span>) </span>&#123;</span><br><span class="line">    db.clear(<span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) <span class="keyword">return</span> done(err);</span><br><span class="line">      db.save([tobi, loki, jane], done);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// test cases</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="异步测试"><a href="#异步测试" class="headerlink" title="异步测试"></a>异步测试</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 回调函数形式</span></span><br><span class="line">describe(<span class="string">'User'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  describe(<span class="string">'#save()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    it(<span class="string">'should save without error'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">done</span>) </span>&#123;<span class="comment">// done 只能执行一次，两次及以上会报错</span></span><br><span class="line">      <span class="keyword">var</span> user = <span class="keyword">new</span> User(<span class="string">'Luna'</span>);</span><br><span class="line">      user.save(done);<span class="comment">// done 能自动识别并处理 err 错误</span></span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// promise 形式</span></span><br><span class="line">describe(<span class="string">'#find()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  it(<span class="string">'respond with matching records'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// db.find(&#123; type: 'User' &#125;) 返回 promise</span></span><br><span class="line">    <span class="keyword">return</span> db.find(&#123; <span class="attr">type</span>: <span class="string">'User'</span> &#125;).should.eventually.have.length(<span class="number">3</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// async 函数形式</span></span><br><span class="line">describe(<span class="string">'#find()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  it(<span class="string">'responds with matching records'</span>, <span class="keyword">async</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> users = <span class="keyword">await</span> db.find(&#123; <span class="attr">type</span>: <span class="string">'User'</span> &#125;);</span><br><span class="line">    users.should.have.length(<span class="number">3</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="延迟执行"><a href="#延迟执行" class="headerlink" title="延迟执行"></a>延迟执行</h3><p>命令行选项 –delay 用于延迟，相应测试脚本使用 setTimeout 包裹。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// do some setup</span></span><br><span class="line"></span><br><span class="line">  describe(<span class="string">'my suite'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  run();</span><br><span class="line">&#125;, <span class="number">5000</span>);</span><br></pre></td></tr></table></figure>
-<h3 id="搁置测试"><a href="#搁置测试" class="headerlink" title="搁置测试"></a>搁置测试</h3><p>使测试处于 pending 状态，仍然会打印报告。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">describe(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  describe(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// pending test below</span></span><br><span class="line">    it(<span class="string">'should return -1 when the value is not present'</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="限制测试"><a href="#限制测试" class="headerlink" title="限制测试"></a>限制测试</h3><ul>
-<li>describe, it 调用 only 方法将只运行指定测试脚本，添加的钩子仍会执行。</li>
-<li>describe, it 调用 skip 方法将避免某些脚本的执行。skip 也可以在 mocha 运行过程中调用，或在钩子中调用，两者均使用 this.skip()。</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// only 方法限制只执行某些测试脚本</span></span><br><span class="line">describe(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  describe.only(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    it.only(<span class="string">'should return -1 unless present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// this test will be run</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should return the index when present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// this test will not be run</span></span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// skip 方法跳过执行指定测试脚本</span></span><br><span class="line">describe(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  describe(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    it.skip(<span class="string">'should return -1 unless present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// this test will not be run</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should return the index when present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// this test will be run</span></span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// mocha 运行时 skip</span></span><br><span class="line">it(<span class="string">'should only test in the correct environment'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="comment">/* check test environment */</span>) &#123;</span><br><span class="line">    <span class="comment">// make assertions</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.skip();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 钩子 skip</span></span><br><span class="line">before(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="comment">/* check test environment */</span>) &#123;</span><br><span class="line">    <span class="comment">// setup code</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.skip();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="实例方法"><a href="#实例方法" class="headerlink" title="实例方法"></a>实例方法</h3><ul>
-<li>retries(num)，指定重复执行测试脚本 num 次，不推荐在单元测试中使用。</li>
-<li>slow(time)，高亮显示超过指定时间的测试报告，默认为 75 ms。</li>
-<li>timeout(time)，设定超时时间，可在 describe, it 或钩子 中调用。</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// retries</span></span><br><span class="line">describe(<span class="string">'retries'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// Retry all tests in this suite up to 4 times</span></span><br><span class="line">  <span class="keyword">this</span>.retries(<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">  beforeEach(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    browser.get(<span class="string">'http://www.yahoo.com'</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  it(<span class="string">'should succeed on the 3rd try'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// Specify this test to only retry up to 2 times</span></span><br><span class="line">    <span class="keyword">this</span>.retries(<span class="number">2</span>);</span><br><span class="line">    expect($(<span class="string">'.foo'</span>).isDisplayed()).to.eventually.be.true;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// slow</span></span><br><span class="line">describe(<span class="string">'something slow'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.slow(<span class="number">10000</span>);</span><br><span class="line"></span><br><span class="line">  it(<span class="string">'should take long enough for me to go make a sandwich'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// timeout</span></span><br><span class="line">describe(<span class="string">'a suite of tests'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.timeout(<span class="number">500</span>);</span><br><span class="line"></span><br><span class="line">  it(<span class="string">'should take less than 500ms'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">done</span>)</span>&#123;</span><br><span class="line">    setTimeout(done, <span class="number">300</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  it(<span class="string">'should take less than 500ms as well'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">done</span>)</span>&#123;</span><br><span class="line">    setTimeout(done, <span class="number">250</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2501,7 +2465,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-count">30</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

@@ -103,18 +103,18 @@
   <meta name="keywords" content="analyst,react," />
 
 
-<meta name="description" content="前言本文将汇总 Form 组件（react 框架）的实现，间断更新。 antd-form 组件ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：  createFieldsStore，存储表单项的元数据、表单数据、校验信息、校验状态等。 fieldsMeta 属性，存储表单项的元数据，主要包含注入表单项组件的 props，特">
+<meta name="description" content="前言本文将汇总 Form 组件（react 框架）的实现，间断更新。 antd-form 组件ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：  createFieldsStore，存储表单项的元数据、表单数据、校验信息、校验状态等。  fields 属性，存储表单项的值、校验信息、校验状态、脏值标识等，可在初始化时设置，">
 <meta name="keywords" content="analyst,react">
 <meta property="og:type" content="article">
 <meta property="og:title" content="form表单实现方案汇总">
 <meta property="og:url" content="http://yoursite.com/2018/10/24/react/react相关/form表单实现方案汇总/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="前言本文将汇总 Form 组件（react 框架）的实现，间断更新。 antd-form 组件ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：  createFieldsStore，存储表单项的元数据、表单数据、校验信息、校验状态等。 fieldsMeta 属性，存储表单项的元数据，主要包含注入表单项组件的 props，特">
+<meta property="og:description" content="前言本文将汇总 Form 组件（react 框架）的实现，间断更新。 antd-form 组件ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：  createFieldsStore，存储表单项的元数据、表单数据、校验信息、校验状态等。  fields 属性，存储表单项的值、校验信息、校验状态、脏值标识等，可在初始化时设置，">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-10-24T14:27:04.645Z">
+<meta property="og:updated_time" content="2018-10-30T14:20:57.151Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="form表单实现方案汇总">
-<meta name="twitter:description" content="前言本文将汇总 Form 组件（react 框架）的实现，间断更新。 antd-form 组件ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：  createFieldsStore，存储表单项的元数据、表单数据、校验信息、校验状态等。 fieldsMeta 属性，存储表单项的元数据，主要包含注入表单项组件的 props，特">
+<meta name="twitter:description" content="前言本文将汇总 Form 组件（react 框架）的实现，间断更新。 antd-form 组件ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：  createFieldsStore，存储表单项的元数据、表单数据、校验信息、校验状态等。  fields 属性，存储表单项的值、校验信息、校验状态、脏值标识等，可在初始化时设置，">
 
 
 
@@ -369,19 +369,57 @@
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文将汇总 Form 组件（react 框架）的实现，间断更新。</p>
 <h2 id="antd-form-组件"><a href="#antd-form-组件" class="headerlink" title="antd-form 组件"></a>antd-form 组件</h2><p>ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：</p>
 <ol>
-<li>createFieldsStore，存储表单项的元数据、表单数据、校验信息、校验状态等。<ul>
-<li>fieldsMeta 属性，存储表单项的元数据，主要包含注入表单项组件的 props，特殊如 meta.validate 为校验规则和触发事件，meta.initialValue 初始值。由 setFieldMeta, getFieldMeta 提供交互接口。</li>
-<li>fields 属性，存储表单项的值、校验信息、校验状态、脏值标识等，由 updateFields, setFields, getField 等提供交互接口。getFieldMember(name, member) 方法基于 getField，用于辅助获取 fields[name] 成员，如 isFieldValidating, isFieldTouched 等。</li>
-<li>clearField(name) 方法用于清除 fieldsMeta, fields 中的数据。</li>
-<li>备注：fieldsMeta, fields 属性均未严格定义其所存储的数据格式。</li>
-<li>备注：通过 meta.hidden 属性区分是否 validField。getFieldsValue 获取表单数据时将剔除隐藏的表单项，getNestedAllFields 方法执行过程又将获取所有的表单项。</li>
-<li>备注：表单项字段名支持嵌套结构，通过 ‘.’ 或 ‘[‘, ‘]’ 实现对象属性、数组项的赋值。isValidNestedFieldName 方法用于校验表单项的字段名不允许是另一个表单项字段名的成员。getValidFieldsFullName(maybePartialName) 所有以 maybePartialName 起始或完全等值的字段名。</li>
-<li>备注：getNestedField(name, getter) 方法基于 getValidFieldsFullName 实现，遍历匹配的全量字段名，用于辅助获取成员的校验信息或赋值数据，如 getFieldValue, getFieldError。</li>
-<li>备注：getNestedFields(names, getter) 方法基于 getValidFieldsName 实现，与 getNestedField 不同的是，参数 names 只能是全名。同样用于辅助获取成员的校验信息或赋值数据，如 getFieldsValue, getFieldsError。</li>
-<li>备注：getAllFieldsName，getAllValues 将通过 fieldsMeta 获取所有表单项的字段名或赋值数据，包含隐藏项。</li>
+<li><p>createFieldsStore，存储表单项的元数据、表单数据、校验信息、校验状态等。</p>
+<ul>
+<li>fields 属性，存储表单项的值、校验信息、校验状态、脏值标识等，可在初始化时设置，由 updateFields, setFields, getField 等提供交互接口。<ul>
+<li>初始化 constructor(fields) 和 updateFields(fields) 方法执行阶段，只接受 Field 实例，为全量更新。</li>
+<li>setFields(fields) 可混入新的字段，并更新字段的值。</li>
+<li>resetFields(ns) 方法只输出空值，本身不改变 fields 中存储的数据。</li>
+<li>getField(name) 获取 fields 中存储的数据并字段名。</li>
+<li>getFieldMember(name, member) 方法基于 getField，用于辅助获取 fields[name] 成员，如 isFieldValidating, isFieldTouched 等。</li>
 </ul>
 </li>
-<li>createBaseForm，提供 Form 组件，采集并校验内部表单项的数据。</li>
+<li>fieldsMeta 属性，存储表单项的元数据，主要包含注入表单项组件的 props，特殊如 meta.hidden 区分隐藏项，meta.validate 为校验规则和触发事件，meta.initialValue 初始值，meta.normalize(value, prevValue, values) 转换字段的值。由 setFieldMeta(name, meta), getFieldMeta(name) 提供交互接口。<ul>
+<li>setFieldsInitialValue(initialValues) 方法在 fieldsMeta 中混入初始值，且校验 fieldsMeta 数据在初始值之前创建。</li>
+</ul>
+</li>
+<li>clearField(name) 方法用于清除 fieldsMeta, fields 中的数据。</li>
+<li>备注：fieldsMeta, fields 属性均未严格定义其所存储的数据格式。</li>
+<li>备注：表单数据获取。<ul>
+<li>getFieldValuePropValue(fieldMeta) 根据 fieldMeta 以键值对输出字段的值，可由 fieldMeta.valuePropName 提供键或经 fieldMeta.getValueProps 转换。</li>
+<li>getValueFromFields(name, fields) 从 fields 中获取字段的值 value，或者获取 fieldsMeta[name] 中的初始值。</li>
+<li>getFieldValue(name) 基于 getNestedField, getValueFromFields，获取匹配字段的值。</li>
+<li>getFieldsValue(names) 基于 getNestedFields, getFieldValue 获取表单数据，不包含隐藏项。</li>
+<li>getAllValues 根据 fieldsMeta 获取表单的全量数据，包含隐藏项。键值对形式，值就是字段的赋值数据。</li>
+<li>getNotCollectedFields 剔除隐藏项后，获取 fields 尚未收集的字段数据。键值对形式，值为 {name, value, dirty} 对象。</li>
+<li>getNestedAllFields 剔除隐藏项后，获取 fields 中未作收集或收集的字段数据。键值对形式，值为 {name, value, dirty, validating?, errors?, touched?} 对象。</li>
+</ul>
+</li>
+<li>备注：表单字段名获取。字段名支持嵌套结构，通过 ‘.’ 或 ‘[‘, ‘]’ 实现对象属性、数组项的赋值。<ul>
+<li>getValidFieldsName 剔除隐藏项的字段名列表。</li>
+<li>getAllFieldsName 全量字段名列表。</li>
+<li>getValidFieldsFullName(maybePartialName) 获取所有以 maybePartialName 起始或完全等值的字段名，并剔除隐藏项。</li>
+<li>isValidNestedFieldName 校验表单项的字段名不允许是另一个表单项字段名的成员。</li>
+</ul>
+</li>
+<li>备注：错误文案等。<ul>
+<li>getFieldError(name) 基于 getNestedField, getFieldMember，获取校验文案。</li>
+<li>getFieldsError(names) 基于 getNestedFields, getFieldError，获取校验文案。</li>
+<li>isFieldValidating(name) 基于 getFieldMember，获取校验状态。</li>
+<li>getFieldsError(names) 基于 getValidFieldsName, isFieldValidating，获取校验状态。</li>
+<li>isFieldTouched(name) 基于 getFieldMember，获取 touched 状态。</li>
+<li>isFieldsTouched(names) 基于 getValidFieldsName, isFieldTouched，获取 touched 状态。</li>
+</ul>
+</li>
+<li>备注：辅助方法。<ul>
+<li>getNestedFields(names, getter) 遍历剔除隐藏项后的字段名列表，使用 getter 作进一步操作，返回键值对。</li>
+<li>getNestedField(name, getter) 支持参数 name 值是嵌套字段名的头，遍历匹配的字段名列表，使用 getter 作进一步操作，返回键值对或数组。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>createBaseForm，提供 Form 组件，采集并校验内部表单项的数据。</p>
+</li>
 </ol>
 
       

@@ -100,21 +100,21 @@
 
 
   
-  <meta name="keywords" content="analyst,react," />
+  <meta name="keywords" content="analyst,react,antd," />
 
 
-<meta name="description" content="前言本文将汇总 Form 组件（react 框架）的实现，间断更新。 antd-form 组件ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：  createFieldsStore，创建 FiledsStore 实例，存储表单项的元数据、表单数据、校验信息、校验状态等。  fields 属性，存储表单项的值、校验信息、校验">
-<meta name="keywords" content="analyst,react">
+<meta name="description" content="ant design 中的 Form 组件基于 rc-form 实现。本文第一部分将介绍 rc-form 库；第二部分再介绍 ant design 中的 Form 组件。 rc-form常规收集表单数据并作校验，只需以 store 实时记录表单数据，校验后重绘表单。 在 rc-form 中，FieldsStore 用于存储表单数据及校验文案，并调用表单组件实例的 forceUpdate 方法强制重">
+<meta name="keywords" content="analyst,react,antd">
 <meta property="og:type" content="article">
-<meta property="og:title" content="form表单实现方案汇总">
+<meta property="og:title" content="antd-Form 组件">
 <meta property="og:url" content="http://yoursite.com/2018/10/24/react/react相关/form表单实现方案汇总/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="前言本文将汇总 Form 组件（react 框架）的实现，间断更新。 antd-form 组件ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：  createFieldsStore，创建 FiledsStore 实例，存储表单项的元数据、表单数据、校验信息、校验状态等。  fields 属性，存储表单项的值、校验信息、校验">
+<meta property="og:description" content="ant design 中的 Form 组件基于 rc-form 实现。本文第一部分将介绍 rc-form 库；第二部分再介绍 ant design 中的 Form 组件。 rc-form常规收集表单数据并作校验，只需以 store 实时记录表单数据，校验后重绘表单。 在 rc-form 中，FieldsStore 用于存储表单数据及校验文案，并调用表单组件实例的 forceUpdate 方法强制重">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-10-31T15:23:06.949Z">
+<meta property="og:updated_time" content="2018-11-03T16:35:06.994Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="form表单实现方案汇总">
-<meta name="twitter:description" content="前言本文将汇总 Form 组件（react 框架）的实现，间断更新。 antd-form 组件ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：  createFieldsStore，创建 FiledsStore 实例，存储表单项的元数据、表单数据、校验信息、校验状态等。  fields 属性，存储表单项的值、校验信息、校验">
+<meta name="twitter:title" content="antd-Form 组件">
+<meta name="twitter:description" content="ant design 中的 Form 组件基于 rc-form 实现。本文第一部分将介绍 rc-form 库；第二部分再介绍 ant design 中的 Form 组件。 rc-form常规收集表单数据并作校验，只需以 store 实时记录表单数据，校验后重绘表单。 在 rc-form 中，FieldsStore 用于存储表单数据及校验文案，并调用表单组件实例的 forceUpdate 方法强制重">
 
 
 
@@ -124,7 +124,7 @@
   <link rel="canonical" href="http://yoursite.com/2018/10/24/react/react相关/form表单实现方案汇总/"/>
 
 
-  <title>form表单实现方案汇总 | 修子范语</title>
+  <title>antd-Form 组件 | 修子范语</title>
   
 
 
@@ -288,7 +288,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">form表单实现方案汇总</h1>
+          <h1 class="post-title" itemprop="name headline">antd-Form 组件</h1>
         
 
         <div class="post-meta">
@@ -321,7 +321,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/类库/" itemprop="url" rel="index"><span itemprop="name">类库</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/组件库/" itemprop="url" rel="index"><span itemprop="name">组件库</span></a></span>
 
                 
                 
@@ -366,48 +366,67 @@
       
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文将汇总 Form 组件（react 框架）的实现，间断更新。</p>
-<h2 id="antd-form-组件"><a href="#antd-form-组件" class="headerlink" title="antd-form 组件"></a>antd-form 组件</h2><p>ant design 中的 Form 组件基于 rc-form 实现。首先，我将介绍 rc-form 的实现，其处理流程为：</p>
+        <p>ant design 中的 Form 组件基于 rc-form 实现。本文第一部分将介绍 rc-form 库；第二部分再介绍 ant design 中的 Form 组件。</p>
+<h2 id="rc-form"><a href="#rc-form" class="headerlink" title="rc-form"></a>rc-form</h2><p>常规收集表单数据并作校验，只需以 store 实时记录表单数据，校验后重绘表单。</p>
+<p>在 rc-form 中，FieldsStore 用于存储表单数据及校验文案，并调用表单组件实例的 forceUpdate 方法强制重绘。FieldsStore 实例存储的实时数据包含字段的值 value、校验结果 errors、校验状态 validating、脏值标识 dirty（字段的值已作变更，但未作校验）、事件发生时字段值已作收集标识 touched（当触发事件为 onChange 时，touched 标识意味着数据已作变更。当然，字段的值也可以重新变作初始值，这时 touched 标识仍为真）。rc-form 使用 FieldsStore 实例的 fields[name] = { value, errors, validating, dirty, touched } 收集这些根据用户行为变动的值。</p>
+<p>除了实时更新的数据以外，驱动校验需要校验规则、触发事件；字段的初始值（当字段的值还没存入 fields 中时，以初始值替代）；从 event 对象获取字段的值，也跟 dom 节点的类型相关，如 input, radio, checkbox 类型；注入到字段组件的值需要特定的转换处理；在某些场合下，存入 store 的表单数据需要经过特殊转换（antd 提供的案例是全选按钮）。rc-form 使用 FieldsStore 实例的 fieldsMeta[name] = { validate, initialValue, getValueFromEvent, valuePropName, getValueProps, normalize } 存储这些元数据。</p>
+<p>FieldsStore 的意义仅止于缓存字段的元数据及值数据等，但并未关联到表单及字段组件。对于用户自定义表单组件，需要提供获取、更新及校验表单数据的方法，其次需要把校验文案注入到字段组件的外层容器中以便渲染。对于字段组件，校验规则等与字段组件强关联的配置项适合在引用字段组件时注入；同时，在字段组件的值变更的时候，需要收集该字段的值及完成校验，因此需要将特定的绑定函数注入到字段组件中。在 rc-form 中，BaseForm 用于实现这部分功能。</p>
+<p>想要为用户自定义组件注入工具函数，可以使用 HOC 高阶组件将工具函数配置为自定义子组件的 props 形式实现。rc-form 中的 BaseForm 就是这样的高阶组件。BaseForm 以 props.form = { getFieldsValue, getFieldValue, getFieldInstance, setFieldsValue, setFields, setFieldsInitialValue, getFieldsError, getFieldError, isFieldValidating, isFieldsValidating, isFieldsTouched, isFieldTouched, validateFields, resetFields, getFieldProps, getFieldDecorator } 的形式为用户自定义表单组件注入操纵表单的工具函数集。特别的，getFieldProps 方法用于转换传入字段组件的 props 数据（包含特定的绑定函数），并收集字段组件的元数据。getFieldProps 用于装饰字段组件的 props，getFieldDecorator 直接装饰字段组件，以封装传入字段组件的 props.onChange 等方法。</p>
+<p>以时序图的方式表达 rc-form 的工作流程为：</p>
+<p>rc-form 的类图结构为：</p>
+<h3 id="FieldsStore"><a href="#FieldsStore" class="headerlink" title="FieldsStore"></a>FieldsStore</h3><p>FieldsStore 实例除用来存储表单的元数据及值数据等之外，还支持以 ‘.’, ‘[|]’ 分割定义字段名，便于在表单中编辑和收集嵌套结构的数据。rc-form 中嵌套字段名的实现，借助了 lodash 库提供的 set, get 方法，以及内部封装的一些工具函数，具体可以参见源码，这里不作详解。</p>
+<p>实例属性和方法：</p>
 <ol>
-<li><p>createFieldsStore，创建 FiledsStore 实例，存储表单项的元数据、表单数据、校验信息、校验状态等。</p>
+<li><p>fields = { [name]: { value, errors, validating, dirty, touched } } 属性，存储表单项的值、校验信息、校验状态、脏值标识等，可在初始化时设置，由 updateFields, setFields, getField 等提供交互接口。</p>
 <ul>
-<li>fields 属性，存储表单项的值、校验信息、校验状态、脏值标识等，可在初始化时设置，由 updateFields, setFields, getField 等提供交互接口。<ul>
 <li>初始化 constructor(fields) 和 updateFields(fields) 方法执行阶段，只接受 Field 实例，为全量更新。</li>
-<li>setFields(fields) 可混入新的字段，并更新字段的值。</li>
-<li>resetFields(ns) 方法只输出空值，本身不改变 fields 中存储的数据。</li>
+<li>setFields(fields) 可混入新的字段，并更新字段的值，为部分更新。</li>
+<li>resetFields(ns) 方法只输出空值，本身并不改变 fields 存储的数据。</li>
 <li>getField(name) 获取 fields 中存储的数据并字段名。</li>
-<li>getFieldMember(name, member) 方法基于 getField，用于辅助获取 fields[name] 成员，如 isFieldValidating, isFieldTouched 等。</li>
+<li>getFieldMember(name, member) 方法基于 getField，用于辅助获取 fields[name] 的成员属性，如 isFieldValidating, isFieldTouched 方法。</li>
 </ul>
 </li>
-<li>fieldsMeta 属性，存储表单项的元数据，主要包含注入表单项组件的 props，特殊如 meta.validate = [{ rules, trigger? }] 校验规则，meta.hidden 区分隐藏项，meta.validate 为校验规则和触发事件，meta.initialValue 初始值，meta.normalize(value, prevValue, values) 转换字段的值。由 setFieldMeta(name, meta), getFieldMeta(name) 提供交互接口。<ul>
+<li><p>fieldsMeta = { [name] = { validate, hidden, getValueFromEvent, initialValue, valuePropName, getValueProps, normalize } } 属性，存储表单项的元数据，由 setFieldMeta(name, meta), getFieldMeta(name) 提供交互接口。</p>
+<ul>
 <li>setFieldsInitialValue(initialValues) 方法在 fieldsMeta 中混入初始值，且校验 fieldsMeta 数据在初始值之前创建。</li>
 </ul>
 </li>
-<li>clearField(name) 方法用于清除 fieldsMeta, fields 中的数据。</li>
-<li>备注：fieldsMeta, fields 属性均未严格定义其所存储的数据格式。</li>
-<li>备注：表单数据赋值。<ul>
-<li>setFields(fields)，见上文。</li>
-<li>setFieldsInitialValue(initialValues)，见上文。</li>
+<li><p>clearField(name) 方法用于清除 fieldsMeta, fields 中的数据。</p>
+</li>
+<li><p>辅助方法。</p>
+<ul>
+<li>getNestedFields(names, getter) 遍历剔除隐藏项后的字段名列表，使用 getter 作进一步处理，返回键值对。</li>
+<li>getNestedField(name, getter) 遍历匹配的字段名列表，使用 getter 作进一步处理，返回键值对或数组。参数 name 可以是嵌套字段名的起始部分，即嵌套字段名中 ‘.’ 或 ‘[‘ 前的内容。</li>
+<li>flattenRegisteredFields(fields) 将深度嵌套的数据结构转化以嵌套字段名为键的单层结构，同时，可校验传参字段是否已渲染。</li>
+<li>isValidNestedFieldName 校验表单项的字段名不能使另一个字段名的成员。</li>
 </ul>
 </li>
-<li>备注：表单数据获取。<ul>
-<li>getFieldValuePropValue(fieldMeta) 根据 fieldMeta 以键值对输出字段的值（包含初始值），可由 fieldMeta.valuePropName 提供键或经 fieldMeta.getValueProps 转换。</li>
-<li>getValueFromFields(name, fields) 从 fields 中获取字段的值 value，或者获取 fieldsMeta[name] 中的初始值。</li>
+<li><p>表单字段名获取。</p>
+<ul>
+<li>getValidFieldsName 剔除隐藏项后的字段名列表。</li>
+<li>getAllFieldsName 全量字段名列表。</li>
+<li>getValidFieldsFullName(maybePartialName) 获取所有以 maybePartialName 起始或完全等值的字段名，不包含隐藏项。</li>
+</ul>
+</li>
+<li><p>表单数据赋值。</p>
+<ul>
+<li>setFieldsInitialValue(initialValues)，见上文。</li>
+<li>setFields(fields)，见上文。</li>
+</ul>
+</li>
+<li><p>表单数据获取。</p>
+<ul>
+<li>getFieldValuePropValue(fieldMeta) 根据 fieldMeta 以键值对输出字段的值（包含初始值），数据可由 fieldMeta.valuePropName 提供键或经 fieldMeta.getValueProps 转换，在 BaseForm 的 getFieldProps, getFieldDecorator 中使用。</li>
+<li>getValueFromFields(name, fields) 从 fields 中获取字段的值 value（包含初始值）。</li>
 <li>getFieldValue(name) 基于 getNestedField, getValueFromFields，获取匹配字段的值。</li>
 <li>getFieldsValue(names) 基于 getNestedFields, getFieldValue 获取表单数据，不包含隐藏项。</li>
-<li>getAllValues 根据 fieldsMeta 获取表单的全量数据，包含隐藏项。键值对形式，值就是字段的赋值数据。</li>
-<li>getNotCollectedFields 剔除隐藏项后，获取 fields 尚未收集的字段数据。键值对形式，值为 {name, value, dirty} 对象。</li>
-<li>getNestedAllFields 剔除隐藏项后，获取 fields 中未作收集或收集的字段数据。键值对形式，值为 {name, value, dirty, validating?, errors?, touched?} 对象。</li>
+<li>getAllValues 根据 fieldsMeta 获取表单的全量数据，包含隐藏项。</li>
+<li>getNotCollectedFields 剔除隐藏项后，获取 fields 尚未收集的字段数据。键值对形式，数据结构同 fields。</li>
+<li>getNestedAllFields 剔除隐藏项后，获取 fields 中的字段数据。键值对形式，数据结构同 fields。</li>
 </ul>
 </li>
-<li>备注：表单字段名获取。字段名支持嵌套结构，通过 ‘.’ 或 ‘[‘, ‘]’ 实现对象属性、数组项的赋值。<ul>
-<li>getValidFieldsName 剔除隐藏项的字段名列表。</li>
-<li>getAllFieldsName 全量字段名列表。</li>
-<li>getValidFieldsFullName(maybePartialName) 获取所有以 maybePartialName 起始或完全等值的字段名，并剔除隐藏项。</li>
-<li>isValidNestedFieldName 校验表单项的字段名不允许是另一个表单项字段名的成员。</li>
-</ul>
-</li>
-<li>备注：错误文案等。<ul>
+<li><p>错误信息获取。</p>
+<ul>
 <li>getFieldError(name) 基于 getNestedField, getFieldMember，获取校验文案。</li>
 <li>getFieldsError(names) 基于 getNestedFields, getFieldError，获取校验文案。</li>
 <li>isFieldValidating(name) 基于 getFieldMember，获取校验状态。</li>
@@ -416,35 +435,59 @@
 <li>isFieldsTouched(names) 基于 getValidFieldsName, isFieldTouched，获取 touched 状态。</li>
 </ul>
 </li>
-<li>备注：辅助方法。<ul>
-<li>getNestedFields(names, getter) 遍历剔除隐藏项后的字段名列表，使用 getter 作进一步操作，返回键值对。</li>
-<li>getNestedField(name, getter) 支持参数 name 值是嵌套字段名的头，遍历匹配的字段名列表，使用 getter 作进一步操作，返回键值对或数组。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>createBaseForm，为用户自定义 Form 组件提供 HOC 容器，注入采集、校验表单项数据的方法。</p>
-<ul>
-<li>getInitialState 获取组件初始 state 阶段，创建 FieldsStore 实例，instances 缓存字段组件，cachedBind 缓存绑定函数，clearedFieldMetaCache 缓存待移除的字段数据，renderFields 缓存已渲染的字段组件，domFields 缓存字段组件的 dom 节点，并注入 getFieldsValue, getFieldValue, setFieldsInitialValue, getFieldsError, getFieldError, isFieldValidating, isFieldsValidating, isFieldsTouched, isFieldTouched 方法。</li>
-<li>getFieldProps(name, usersFieldOption) 装饰字段组件的 props，并为 FieldsStore 实例收集元数据，如指定 ref 函数 this.saveRef，收集字段组件的实例；校验规则转换及获取；绑定函数封装为 onCollectValidate, onCollect 方法；元数据 fieldMeta 及表单数据 field 混入 props。该方法在字段组件实例化过程中执行，首先清理 clearedFieldMetaCache 缓存，最后记录 renderFields，并输出 props。</li>
-<li>getFieldDecorator(name, fieldOption) 装饰字段组件，以获取字段组件实例的 ref 引用及 props，存储为 fieldMeta.ref, fieldMeta.originalProps，目的是在 BaseForm 内置的 saveRef 执行过程中调用字段组件的 ref 函数，以及在绑定函数执行过程中调用 props 方法；写入初始值。<ul>
-<li>与 getFieldProps 的差别，在于 getFieldDecorator 支持在字段组件中设置绑定函数，支持写入初始值。</li>
-</ul>
-</li>
-<li>saveRef(name, _, component) 组件挂载、卸载、重绘阶段都会调用，根据参数 component 判断组件的渲染情况。要点是，重绘阶段会执行两次 ref 函数（移除在前，更新在后），getFieldProps 却只执行一次，这样就有可能会造成在移除过程中，缓存的 field, fieldMeta 数据丢失（同样在 ref 函数中清理缓存）。若 component 为空值，clearedFieldMetaCache[name] = { field, meta } 收集字段的元数据和表单数据，清除 FieldsStore 实例中的相关数据，清理 instances[name], cachedBind[name] 缓存；若 component 为组件实例，domFields[name] 缓存标记为真值，记录 instances[name] 字段组件实例，尝试使用 clearedFieldMetaCache 恢复 FieldsStore 实例中的相关数据。</li>
-<li>备注：辅助方法。<ul>
-<li>getCacheBind(name, action, fn) 以 cachedBind[name][action] = { fn, oriFn } 形式缓存 onCollect, onCollectValidate, saveRef 方法等，便于以 name 值进行查找。</li>
-</ul>
-</li>
-</ul>
-</li>
 </ol>
-<p>核心逻辑点：</p>
+<h3 id="BaseForm"><a href="#BaseForm" class="headerlink" title="BaseForm"></a>BaseForm</h3><p>BaseForm 除了如上文指出的收集和校验表单数据以外，因在字段组件更新时，其实例化过程结束后，会调用两次 ref 引用函数，会导致通过 ref 引用设置的缓存数据丢失，BaseForm 提供 clearedFieldMetaCache 属性缓存待移除的字段数据（包含字段的元数据和实时更新数据，如值、校验文案等），便于在第二次执行 ref 引用的时候恢复 FieldsStore 实例中缓存的数据 field, fieldMeta。</p>
 <ol>
-<li>支持嵌套字段名。</li>
-<li>ref 引用。</li>
+<li><p>createBaseForm(option, mixins)，创建并返回装饰函数。如上文所说，装饰函数能为用户自定义表单组件提供 HOC 容器。参数 option 为 HOC 组件提供 validateMessages, onFieldsChange, onValuesChange, mapProps, mapPropsToFields, fieldNameProp, fieldMetaProp, fieldDataProp, formPropName, name 配置项，参数 mixins 为混入 HOC 组件的实例方法。</p>
+</li>
+<li><p>表单及字段组件生命周期相关。</p>
+<ul>
+<li>instances 属性缓存字段组件，cachedBind 属性缓存绑定函数，clearedFieldMetaCache 属性缓存待移除的字段数据，renderFields 属性缓存 getFieldProps 方法已执行标识，domFields 属性缓存字段组件的 dom 节点。</li>
+<li>getInitialState 获取组件初始 state 阶段，调用 option.mapPropsToFields 以获得初始 fields（备注：在 componentWillReceiveProps 声明周期中，也将调用 option.mapPropsToFields 获取 fields，并使用 FieldsStore 实例的 updateFields 全量更新缓存数据），并创建 FieldsStore 实例；创建 instances, cachedBind, clearedFieldMetaCache, renderFields, domFields 缓存，并为 HOC 容器注入 getFieldsValue, getFieldValue, setFieldsInitialValue, getFieldsError, getFieldError, isFieldValidating, isFieldsValidating, isFieldsTouched, isFieldTouched 方法。</li>
+<li>saveRef(name, _, component) 组件挂载、卸载、重绘阶段都会调用，根据参数 component 判断组件的渲染状态。要点是，重绘阶段会执行两次 ref 函数（移除在前，更新在后），getFieldProps 却只执行一次，这样就有可能会造成在移除过程中，缓存的 field, fieldMeta 数据丢失（同样在 ref 函数中清理缓存）。若 component 为空值，clearedFieldMetaCache[name] = { field, meta } 收集字段的元数据和表单数据，清除 FieldsStore 实例中的相关数据，清理 instances[name], cachedBind[name] 缓存；若 component 为组件实例，domFields[name] 缓存标记为真值，记录 instances[name] 字段组件实例，尝试使用 clearedFieldMetaCache 恢复 FieldsStore 实例中的相关数据。</li>
+<li>recoverClearedField(name) 通过 clearedFieldMetaCache 缓存恢复 FieldsStore 实例存储的 fields, fieldsMeta 数据，完成后清除 clearedFieldMetaCache 缓存。</li>
+<li>cleanUpUselessFields 根据 renderFields, domFields 缓存判断字段组件是否未作渲染，如未作渲染，调用 clearField 清理 fields, fieldsMeta 数据。在 HOC 容器的 componentDidMount, componentDidUpdate 生命周期执行。</li>
+<li>clearField(name) 清除 FieldsStore 实例存储的 fields, fieldsMeta 数据，并删除 instances[name], cachedBind[name] 缓存。</li>
+</ul>
+</li>
+<li><p>字段组件 props 处理及绑定函数。</p>
+<ul>
+<li>getFieldProps(name, usersFieldOption) 为 FieldsStore 实例收集元数据，如转换校验规则；并装饰字段组件的 props，如指定 ref 函数为 saveRef 实例方法、为字段组件实例绑定 onCollectValidate, onCollect 方法、元数据 fieldMeta 及表单数据 field。备注：getFieldProps 在字段组件实例化过程中执行，首先将清理 clearedFieldMetaCache 缓存，最后记录 renderFields 缓存，最终输出 props。</li>
+<li>getFieldDecorator(name, fieldOption) 装饰字段组件，以获取字段组件实例的 ref 引用及 props，存储为 fieldMeta.ref, fieldMeta.originalProps，目的是在 BaseForm 内置的 saveRef 执行过程中调用字段组件的 ref 函数，以及以实例方法 onCollect, onCollectValidate 形式封装事件绑定方法；并写入初始值。</li>
+<li>onCollect(name_, action, …args) 基于 onCollectCommon 方法，在事件触发时，实时更新 FieldsStore 实例存储的字段 field 数据。</li>
+<li>onCollectValidate(name_, action, …args) 基于 onCollectCommon, validateFieldsInternal 方法，在事件触发时，实时校验字段。</li>
+</ul>
+</li>
+<li><p>表单数据赋值和校验。</p>
+<ul>
+<li>setFields(maybeNestedFields, callback) 以参数 maybeNestedFields 部分更新 FieldsStore 实例中的 fileds 属性，并执行 option.onFieldsChange 方法，再调用 forceUpdate 重绘表单并执行回调。</li>
+<li>setFieldsValue(changedValues, callback) 基于 setFields 方法，更新表单数据，并执行 option.onValuesChange 方法。若 changedValues 中相关的字段组件未作渲染，予以警告提示。</li>
+<li>resetFields(ns) 基于 setFields 方法，重置表单数据，并清除相关 clearedFieldMetaCache 缓存。</li>
+<li>validateFields(ns, opt, cb) 基于 validateFieldsInternal，校验表单数据。</li>
+</ul>
+</li>
+<li><p>辅助方法。</p>
+<ul>
+<li>getCacheBind(name, action, fn) 以 cachedBind[name][action] = { fn, oriFn } 形式缓存 onCollect, onCollectValidate, saveRef 方法，便于以 name 值进行查找。</li>
+<li>onCollectCommon(name, action, args) 在 action 事件触发时，调用自定义绑定函数 fieldMeta[action] 或 fieldMeta.originalProps[action]，通过 fieldMeta.getValueFromEvent 收集字段的值，并执行 option.onValuesChange 绑定函数，返回 { name, field, fieldMeta }。</li>
+<li>getRules(fieldMeta, action) 获取匹配的校验规则。</li>
+<li>validateFieldsInternal(fields, { fieldNames, action, options }, callback) 校验指定字段。可复用之前的校验结果，收集待校验的字段并予以校验，转化校验文案并执行 callback 回调。若异步校验期间字段的值发生改变，将得到校验已过期文案。在校验起始阶段，调用 setFields 记录校验中状态；校验结束阶段，调用 setFields 记录校验结果。</li>
+<li>getFieldInstance(name)，获取字段组件实例。</li>
+</ul>
+</li>
 </ol>
-
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ol>
+<li><p>createForm(options) 基于 createBaseForm，为 HOC 组件注入默认的 getForm 方法，将 form 通过 props 注入到用户自定义表单组件中，以提供操纵表单的函数。</p>
+</li>
+<li><p>createDOMForm(option) 基于 createBaseForm，在传递给用户自定义表单组件的 props.form 混入 validateFieldsAndScroll 方法，校验失败时滚动到首个错误字段处。该方法引用了 react-dom，只适用于浏览器平台，不适用于手机端。</p>
+<ul>
+<li>validateFieldsAndScroll(ns, opt, cb) 基于 dom-scroll-into-view 库实现，首先通过 getBoundingClientRect 获得校验失败字段的 top 值，其次通过 getComputedStyle 或 style 属性获得字段节点首个滚动的父元素，最后调用 dom-scroll-into-view 库提供的 api 滚动页面。</li>
+</ul>
+</li>
+<li><p>FormScope 以组件形式提供接口。option 配置项通过 props 传入，在 render 阶段调用 createDOMForm，并将 form 传入函数组件 children 中。</p>
+</li>
+</ol>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><h2 id="antd-Form-组件"><a href="#antd-Form-组件" class="headerlink" title="antd-Form 组件"></a>antd-Form 组件</h2>
       
     </div>
     
@@ -464,6 +507,8 @@
             <a href="/tags/analyst/" rel="tag"># analyst</a>
           
             <a href="/tags/react/" rel="tag"># react</a>
+          
+            <a href="/tags/antd/" rel="tag"># antd</a>
           
         </div>
       
@@ -583,7 +628,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-count">17</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -594,7 +639,7 @@
                 
                 <div class="site-state-item site-state-tags">
                   <a href="/tags/index.html">
-                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-count">17</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -646,7 +691,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#antd-form-组件"><span class="nav-number">2.</span> <span class="nav-text">antd-form 组件</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#rc-form"><span class="nav-number">1.</span> <span class="nav-text">rc-form</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FieldsStore"><span class="nav-number">1.1.</span> <span class="nav-text">FieldsStore</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BaseForm"><span class="nav-number">1.2.</span> <span class="nav-text">BaseForm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">1.3.</span> <span class="nav-text">其他</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试"><span class="nav-number">1.4.</span> <span class="nav-text">测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#antd-Form-组件"><span class="nav-number">2.</span> <span class="nav-text">antd-Form 组件</span></a></li></ol></div>
             
 
           </div>
@@ -808,7 +853,7 @@
       var disqus_config = function () {
         this.page.url = 'http://yoursite.com/2018/10/24/react/react相关/form表单实现方案汇总/';
         this.page.identifier = '2018/10/24/react/react相关/form表单实现方案汇总/';
-        this.page.title = 'form表单实现方案汇总';
+        this.page.title = 'antd-Form 组件';
       };
       function loadComments () {
         var d = document, s = d.createElement('script');

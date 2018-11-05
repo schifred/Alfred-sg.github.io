@@ -270,7 +270,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/24/ant design/antd-Form 组件/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/05/设计模式/代理模式/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -289,7 +289,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/10/24/ant design/antd-Form 组件/" itemprop="url">antd-Form 组件</a></h1>
+                <a class="post-title-link" href="/2018/11/05/设计模式/代理模式/" itemprop="url">代理模式</a></h1>
         
 
         <div class="post-meta">
@@ -301,7 +301,189 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-24T00:00:00+08:00">2018-10-24</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-05T00:00:00+08:00">2018-11-05</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/05/设计模式/代理模式/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/05/设计模式/代理模式/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>代理模式(proxy pattern) 的主要处理逻辑为，构建代理对象以桥接对实际对象的访问。因此，可以在访问过程中构建附加的间接性操作如请求处理、权限校验、内务处理(housekeeping task)等，也可以为多种实际对象提供统一的接口。</p>
+<p>《设计模式:可复用面向对象软件的基础》中的说法是：</p>
+<blockquote class="blockquote-center"><p>Provide a surrogate or placeholder for another object to control access to it.</p>
+</blockquote>
+<p>使用代理模式的场景：</p>
+<ol>
+<li>远程代理(remote proxy): 为一个远程服务对象提供本地表现，通过本地方法调用远程服务。</li>
+<li>虚代理(virtual proxy): 在代理中延迟创建一个开销很大的对象。如在图片代理对象的实现过程中，draw 方法执行前才创建实际所需的图片对象。</li>
+<li>保护代理(protection proxy): 访问对象前执行权限校验。</li>
+<li>智能指引(smart reference): 访问实际的对象时执行附加操作，如对引用计数，当没被引用时，释放内存；首次引用时，将持久对象装入内存等。</li>
+</ol>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><img src="/2018/11/05/设计模式/代理模式/proxy.png">
+<ul>
+<li>Proxy: 以引用形式持有实体，接口与 Subject 相同，以便于使用代理对象替代实体，并控制对实体的访问。必要时，可以在代理对象中创建或删除实体。<ul>
+<li>remote proxy 负责对请求及其参数进行编码，并向远程服务器发送请求。</li>
+<li>virtual proxy 负责缓存实体的附加信息，以便延迟创建实体。</li>
+<li>protection proxy 负责校验请求是否有特定的访问权限。</li>
+</ul>
+</li>
+<li>Subject 定义 RealSubject, Proxy 的公共接口，因此在需要使用 RealSubject 的场景中都可以使用 Proxy 代替。</li>
+<li>RealSubject 定义 Proxy 所代表的实体。</li>
+</ul>
+<h2 id="js中的代理模式"><a href="#js中的代理模式" class="headerlink" title="js中的代理模式"></a>js中的代理模式</h2><h3 id="图片缓存"><a href="#图片缓存" class="headerlink" title="图片缓存"></a>图片缓存</h3><p>图片缓存的目的是在远程图片加载的时延过程中，预先以本地图片或占位符代替；在远程图片加载完成之后，再使用 img 节点展示实际的图片。</p>
+<p>备注：RealSubject 和 Proxy 使用相同的接口这种情况，在 js 中，可以在自调用匿名函数实现，实例属性可使用闭包缓存。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实际加载图片</span></span><br><span class="line"><span class="keyword">const</span> loadImage = (<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> imgNode = <span class="built_in">document</span>.createElement(<span class="string">'img'</span>);</span><br><span class="line">  <span class="built_in">document</span>.body.appendChild(imgNode);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">src</span>)</span>&#123;</span><br><span class="line">    imgNode.src = src;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> handler = &#123;</span><br><span class="line">  apply: <span class="function"><span class="keyword">function</span>(<span class="params">target, thisBinding, args</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> src = args[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">let</span> img = <span class="keyword">new</span> Image;</span><br><span class="line">    img.src = src;</span><br><span class="line">    img.onLoad = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      target(src);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    target(<span class="string">'local_image.gif'</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 代理加载图片</span></span><br><span class="line"><span class="keyword">const</span> loadImageProxy = <span class="keyword">new</span> <span class="built_in">Proxy</span>(loadImage, handler);</span><br><span class="line"></span><br><span class="line">loadImageProxy(<span class="string">'remote_image.png'</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="惰性加载"><a href="#惰性加载" class="headerlink" title="惰性加载"></a>惰性加载</h3><p>跟代理图片类似，加载 js 脚本也会有一定的时延，这就会造成使用某个类库前，js 脚本还未加载完成，所使用的方法也是 undefined。这时，可使用虚拟代理模拟类库，缓存执行方法，等到 js 脚本加载完成之后，再使用缓存执行实际的方法。</p>
+<p>曾探在《Javascript 设计模式与开发实践》一书中，以 minConsole 类库为例，按下 F2 键加载所需的 js 脚本，在此之前，使用代理。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> miniConsole = (<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> cache = [];</span><br><span class="line">  <span class="keyword">let</span> handler = <span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ( e.keyCode === <span class="number">113</span> )&#123;</span><br><span class="line">      <span class="keyword">let</span> script = <span class="built_in">document</span>.createElement(<span class="string">'script'</span>);</span><br><span class="line">      script.onLoad = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="comment">// 加载完成后，执行缓存的待执行函数</span></span><br><span class="line">        cache.forEach(<span class="function"><span class="params">fn</span> =&gt;</span> fn());</span><br><span class="line">      &#125;</span><br><span class="line">      script.src = <span class="string">'miniConsole.js'</span>;</span><br><span class="line">      <span class="built_in">document</span>.getElementByTagName(<span class="string">'head'</span>)[<span class="number">0</span>].appendChild(imgNode);</span><br><span class="line">      <span class="built_in">document</span>.body.removeEventListener(<span class="string">'keydown'</span>, handler);<span class="comment">// 单次加载</span></span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">document</span>.body.addEventListener(<span class="string">'keydown'</span>, handler, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 代理对象，缓存待执行函数</span></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    log(...args)&#123;</span><br><span class="line">      cache.push(miniConsole.bind(miniConsole, ...args));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<h3 id="合并http请求"><a href="#合并http请求" class="headerlink" title="合并http请求"></a>合并http请求</h3><p>搜索组件每次改变值时都会调用远程接口，使用代理模式可延迟调用远程接口，以使交互请求不至频繁。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">doSearch</span>(<span class="params">content</span>)</span>&#123;</span><br><span class="line">  get(content);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> cache;</span><br><span class="line"><span class="keyword">let</span> timer = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> handler = &#123;</span><br><span class="line">  apply: <span class="function"><span class="keyword">function</span>(<span class="params">target, thisBinding, args</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> content = args[<span class="number">0</span>];</span><br><span class="line">    cache = content;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( timer ) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    timer = setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      doSearch(cache);</span><br><span class="line">      cache = <span class="literal">null</span>;</span><br><span class="line">      timer = <span class="literal">null</span>;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> doSearchProxy = <span class="keyword">new</span> <span class="built_in">Proxy</span>(doSearch, handler);</span><br></pre></td></tr></table></figure>
+<h3 id="缓存代理"><a href="#缓存代理" class="headerlink" title="缓存代理"></a>缓存代理</h3><p>前端缓存代理包含：对于计算复杂的过程，在入参相同的情况下，可使用缓存的计算结果代替实际的执行计算；对于频繁的 ajax 调用，也可以使用缓存，避免远程调用。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> cache;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">complexCompute</span>(<span class="params">...args</span>)</span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> handler = &#123;</span><br><span class="line">  apply: <span class="function"><span class="keyword">function</span>(<span class="params">target, thisBinding, args</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> cacheKey = args.join(<span class="string">','</span>);</span><br><span class="line">    <span class="keyword">if</span> ( cache[cacheKey] ) <span class="keyword">return</span> cache[cacheKey];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">const</span> result = complexCompute(...args);</span><br><span class="line">    cache[cacheKey] = result;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> complexComputeProxy = <span class="keyword">new</span> <span class="built_in">Proxy</span>(complexCompute, handler);</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>[设计模式:可复用面向对象软件的基础]<br>[Javascript 设计模式和开发实践 - 曾探]</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/04/ant design/antd-Form 组件/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/04/ant design/antd-Form 组件/" itemprop="url">antd-Form 组件</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-04T00:00:00+08:00">2018-11-04</time>
             
 
             
@@ -337,9 +519,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/10/24/ant design/antd-Form 组件/#comments" itemprop="discussionUrl">
+                <a href="/2018/11/04/ant design/antd-Form 组件/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/10/24/ant design/antd-Form 组件/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/11/04/ant design/antd-Form 组件/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -375,8 +557,8 @@
 <p>除了实时更新的数据以外，驱动校验需要校验规则、触发事件；字段的初始值（当字段的值还没存入 fields 中时，以初始值替代）；从 event 对象获取字段的值，也跟 dom 节点的类型相关，如 input, radio, checkbox 类型；注入到字段组件的值需要特定的转换处理；在某些场合下，存入 store 的表单数据需要经过特殊转换（antd 提供的案例是全选按钮）。rc-form 使用 FieldsStore 实例的 fieldsMeta[name] = { validate, initialValue, getValueFromEvent, valuePropName, getValueProps, normalize } 存储这些元数据。</p>
 <p>FieldsStore 的意义仅止于缓存字段的元数据及值数据等，但并未关联到表单及字段组件。对于用户自定义表单组件，需要提供获取、更新及校验表单数据的方法，其次需要把校验文案注入到字段组件的外层容器中以便渲染。对于字段组件，校验规则等与字段组件强关联的配置项适合在引用字段组件时注入；同时，在字段组件的值变更的时候，需要收集该字段的值及完成校验，因此需要将特定的绑定函数注入到字段组件中。在 rc-form 中，BaseForm 用于实现这部分功能。</p>
 <p>想要为用户自定义组件注入工具函数，可以使用 HOC 高阶组件将工具函数配置为自定义子组件的 props 形式实现。rc-form 中的 BaseForm 就是这样的高阶组件。BaseForm 以 props.form = { getFieldsValue, getFieldValue, getFieldInstance, setFieldsValue, setFields, setFieldsInitialValue, getFieldsError, getFieldError, isFieldValidating, isFieldsValidating, isFieldsTouched, isFieldTouched, validateFields, resetFields, getFieldProps, getFieldDecorator } 的形式为用户自定义表单组件注入操纵表单的工具函数集。特别的，getFieldProps 方法用于转换传入字段组件的 props 数据（包含特定的绑定函数），并收集字段组件的元数据。getFieldProps 用于装饰字段组件的 props，getFieldDecorator 直接装饰字段组件，以封装传入字段组件的 props.onChange 等方法。</p>
-<p>以时序图的方式表达 rc-form 的工作流程为：<br><img src="/2018/10/24/ant%20design/antd-Form%20组件/rc-form时序图.png"></p>
-<p>rc-form 的类图结构为：<br><img src="/2018/10/24/ant%20design/antd-Form%20组件/rc-form类图.png"></p>
+<p>以时序图的方式表达 rc-form 的工作流程为：<br><img src="/2018/11/04/ant%20design/antd-Form%20组件/rc-form时序图.png"></p>
+<p>rc-form 的类图结构为：<br><img src="/2018/11/04/ant%20design/antd-Form%20组件/rc-form类图.png"></p>
 <h3 id="FieldsStore"><a href="#FieldsStore" class="headerlink" title="FieldsStore"></a>FieldsStore</h3><p>FieldsStore 实例除用来存储表单的元数据及值数据等之外，还支持以 ‘.’, ‘[|]’ 分割定义字段名，便于在表单中编辑和收集嵌套结构的数据。rc-form 中嵌套字段名的实现，借助了 lodash 库提供的 set, get 方法，以及内部封装的一些工具函数，具体可以参见源码，这里不作详解。</p>
 <p>实例属性和方法：</p>
 <ol>
@@ -901,177 +1083,6 @@
 <li>Array.prototype.concat(…args): 使用 Array.prototype.slice 方法将 args 数组项中的代理实例数组拆解为普通数组，随后使用 Array.prototype.concat 原始方法拼接数组。</li>
 </ul>
 
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/03/设计模式/代理模式/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/03/设计模式/代理模式/" itemprop="url">代理模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-03T00:00:00+08:00">2018-10-03</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/10/03/设计模式/代理模式/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/10/03/设计模式/代理模式/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>代理模式(proxy pattern) 的主要处理逻辑为，构建代理对象以桥接对实际对象的访问。因此，可以在访问过程中构建附加的间接性操作如请求处理、权限校验、内务处理(housekeeping task)等，也可以为多种实际对象提供统一的接口。</p>
-<p>《设计模式:可复用面向对象软件的基础》中的说法是：</p>
-<blockquote class="blockquote-center"><p>Provide a surrogate or placeholder for another object to control access to it.</p>
-</blockquote>
-<p>使用代理模式的场景：</p>
-<ol>
-<li>远程代理(remote proxy): 为一个远程服务对象提供本地表现，通过本地方法调用远程服务。</li>
-<li>虚代理(virtual proxy): 在代理中延迟创建一个开销很大的对象。如在图片代理对象的实现过程中，draw 方法执行前才创建实际所需的图片对象。</li>
-<li>保护代理(protection proxy): 访问对象前执行权限校验。</li>
-<li>智能指引(smart reference): 访问实际的对象时执行附加操作，如对引用计数，当没被引用时，释放内存；首次引用时，将持久对象装入内存等。</li>
-</ol>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><img src="/2018/10/03/设计模式/代理模式/proxy.png">
-<ul>
-<li>Proxy: 以引用形式持有实体，接口与 Subject 相同，以便于使用代理对象替代实体，并控制对实体的访问。必要时，可以在代理对象中创建或删除实体。<ul>
-<li>remote proxy 负责对请求及其参数进行编码，并向远程服务器发送请求。</li>
-<li>virtual proxy 负责缓存实体的附加信息，以便延迟创建实体。</li>
-<li>protection proxy 负责校验请求是否有特定的访问权限。</li>
-</ul>
-</li>
-<li>Subject 定义 RealSubject, Proxy 的公共接口，因此在需要使用 RealSubject 的场景中都可以使用 Proxy 代替。</li>
-<li>RealSubject 定义 Proxy 所代表的实体。</li>
-</ul>
-<h2 id="harmony-reflect"><a href="#harmony-reflect" class="headerlink" title="harmony-reflect"></a>harmony-reflect</h2>
           
         
       

@@ -270,6 +270,159 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/07/工程化/node-http-proxy源码解读/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/07/工程化/node-http-proxy源码解读/" itemprop="url">node-http-proxy源码解读</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-07T00:00:00+08:00">2018-11-07</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/07/工程化/node-http-proxy源码解读/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/07/工程化/node-http-proxy源码解读/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>node-http-proxy 模块用于转发 http 请求，其实现的大致原理为使用 http 或 https 模块搭建 node 代理服务器，将客户端发送的请求数据转发到目标服务器，再将响应输送到客户端。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>同 koa 的中间件机制相仿，node-http-proxy 模块内部组装任务队列，在请求转发的过程中，将任务队列中的处理函数逐个执行。处理函数的意义通常是封装消息头，当然，最后一个处理函数用于转发请求、输出响应。</p>
+<p>同常见的 ajax 模块，node-http-proxy 模块接受全局配置的 options，同时，在某个具体的请求中，又接受特定的配置项 opts。而客户端发送的请求可能是 ajax 请求，也可能是 websocket 请求，node-http-proxy 模块必须实现对这两类请求的不同处理。</p>
+<p>上述三点，实际的代码体现在 createRightProxy 函数中：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 参数 type 用于区分请求类型，'web' 为普通 ajax 请求，'ws' 为 websocket 请求</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createRightProxy</span>(<span class="params">type</span>) </span>&#123;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 参数 options 为全局配置项</span></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">options</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">req, res <span class="regexp">/*, [head], [opts] */</span></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// passes 任务队列</span></span><br><span class="line">      <span class="keyword">var</span> passes = (type === <span class="string">'ws'</span>) ? <span class="keyword">this</span>.wsPasses : <span class="keyword">this</span>.webPasses,</span><br><span class="line">          args = [].slice.call(<span class="built_in">arguments</span>),</span><br><span class="line">          cntr = args.length - <span class="number">1</span>,</span><br><span class="line">          head, cbl;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 解析回调函数</span></span><br><span class="line">      <span class="keyword">if</span>(<span class="keyword">typeof</span> args[cntr] === <span class="string">'function'</span>) &#123;</span><br><span class="line">        cbl = args[cntr];</span><br><span class="line">        cntr--;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 混入该请求中特定的配置项 opts</span></span><br><span class="line">      <span class="keyword">var</span> requestOptions = options;</span><br><span class="line">      <span class="keyword">if</span>(</span><br><span class="line">        !(args[cntr] <span class="keyword">instanceof</span> Buffer) &amp;&amp;</span><br><span class="line">        args[cntr] !== res</span><br><span class="line">      ) &#123;</span><br><span class="line">        requestOptions = extend(&#123;&#125;, options);</span><br><span class="line">        extend(requestOptions, args[cntr]);</span><br><span class="line">        cntr--;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// head</span></span><br><span class="line">      <span class="keyword">if</span>(args[cntr] <span class="keyword">instanceof</span> Buffer) &#123;</span><br><span class="line">        head = args[cntr];</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 请求的目标地址</span></span><br><span class="line">      [<span class="string">'target'</span>, <span class="string">'forward'</span>].forEach(<span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">typeof</span> requestOptions[e] === <span class="string">'string'</span>)</span><br><span class="line">          requestOptions[e] = parse_url(requestOptions[e]);</span><br><span class="line">      &#125;);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!requestOptions.target &amp;&amp; !requestOptions.forward) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.emit(<span class="string">'error'</span>, <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Must provide a proper URL as target'</span>));</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 挨个执行任务队列，处理消息头，转发请求</span></span><br><span class="line">      <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i &lt; passes.length; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(passes[i](req, res, requestOptions, head, <span class="keyword">this</span>, cbl)) &#123;</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/06/设计模式/代理模式/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2552,200 +2705,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/02/react/react相关/redux源码分析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/02/react/react相关/redux源码分析/" itemprop="url">redux源码分析</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-02T00:00:00+08:00">2018-07-02</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/状态管理/" itemprop="url" rel="index"><span itemprop="name">状态管理</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/07/02/react/react相关/redux源码分析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/07/02/react/react相关/redux源码分析/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>为使页面组件和业务逻辑解耦，前端相继涌现出 MVC（Model-View-Controller）、MVP（Model-View-Presenter）、 MVVM（Model-View-ViewModel） 模式。在双向数据流的实现中，同一个 View 可能会触发多个 Model 的更新，并间接引起另一个 View 的刷新，使得状态变更的线索及影响变得错综复杂。redux 延续了 flux 架构，倡导单向数据流模式、不能通过访问器属性修改数据，这样就便于追踪状态变化的线索。</p>
-<p><em>图 1，redux 数据流图</em><br><img src="/2018/07/02/react/react相关/redux源码分析/redux-data-stream.png"></p>
-<p>在 redux 的设计中，state 为全局缓存的状态（存储于 Store 中），action 为状态变更的标识，派发特定的 action 将引起指定的 state 变更。不得不指出，首先，在视图组件的实现上，多个 View 可能会复用相同的 state，因此，在一个 View 中派发的 action 可能会影响另一个 View 的状态，这样的话，状态管理上仍会有错综的线索，并不具备清晰性。其次，redux 以状态变更的动作为着眼点，通过 redux 组织业务逻辑，不如包含数据及其变更动作的 Model 直观。</p>
-<h2 id="源起"><a href="#源起" class="headerlink" title="源起"></a>源起</h2><p>redux 最初需要聚焦于实现 state = fn(state, action) 函数，用于刷新缓存的状态值。在这个函数中，state 可能包含多个状态属性；action 的职责有两种，其一使用 type 属性标识状态值作何变更，其二携带的附属信息将作为引导状态值变更的数据源。对于多种状态值变更，可采用分治的思想将其简化，即 childState = fn(childState, action)。</p>
-<p><em>代码段 1，状态变更的雏形</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> state = &#123;</span><br><span class="line">  todoList: [&#123;</span><br><span class="line">    text: <span class="string">'Eat food'</span>,</span><br><span class="line">    completed: <span class="literal">true</span></span><br><span class="line">  &#125;, &#123;</span><br><span class="line">    text: <span class="string">'Exercise'</span>,</span><br><span class="line">    completed: <span class="literal">false</span></span><br><span class="line">  &#125;],</span><br><span class="line">  visibilityFilter: <span class="string">'SHOW_COMPLETED'</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">visibilityFilter</span>(<span class="params">state = <span class="string">'SHOW_ALL'</span>, action</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (action.type === <span class="string">'SET_VISIBILITY_FILTER'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> action.filter;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> state;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">todos</span>(<span class="params">state = [], action</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span> (action.type) &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="string">'ADD_TODO'</span>:</span><br><span class="line">    <span class="keyword">return</span> state.concat([&#123; <span class="attr">text</span>: action.text, <span class="attr">completed</span>: <span class="literal">false</span> &#125;]);</span><br><span class="line">  <span class="keyword">case</span> <span class="string">'TOGGLE_TODO'</span>:</span><br><span class="line">    <span class="keyword">return</span> state.map(<span class="function">(<span class="params">todo, index</span>) =&gt;</span></span><br><span class="line">      action.index === index ?</span><br><span class="line">        &#123; <span class="attr">text</span>: todo.text, <span class="attr">completed</span>: !todo.completed &#125; :</span><br><span class="line">        todo</span><br><span class="line">   )</span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    <span class="keyword">return</span> state;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">todoApp</span>(<span class="params">state = &#123;&#125;, action</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    todos: todos(state.todos, action),</span><br><span class="line">    visibilityFilter: visibilityFilter(state.visibilityFilter, action)</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Add_Todo_Action = &#123; <span class="attr">type</span>: <span class="string">'ADD_TODO'</span>, <span class="attr">text</span>: <span class="string">'Go to swimming pool'</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> Toggle_Todo_Action = &#123; <span class="attr">type</span>: <span class="string">'TOGGLE_TODO'</span>, <span class="attr">index</span>: <span class="number">1</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> Set_Visibility_Filter_Action = &#123; <span class="attr">type</span>: <span class="string">'SET_VISIBILITY_FILTER'</span>, <span class="attr">filter</span>: <span class="string">'SHOW_ALL'</span> &#125;;</span><br><span class="line"></span><br><span class="line">todoApp(state, Add_Todo_Action);</span><br></pre></td></tr></table></figure></p>
-<p>通过这份来自<a href="http://www.redux.org.cn/docs/introduction/CoreConcepts.html" target="_blank" rel="noopener">官网的代码示例</a>，我们既能瞧见源码作者最初聚焦的视点，又能看见 redux 的一大原则 —— 使用纯函数实现状态更新。</p>
-<p>在 redux 中，函数 state = fn(state, action) 被称为 reducer。与 Array.prototype.reduce(arrReducer, result) 方法相同的是，在数组的原型方法中，result 的终值通过递归调用 arrReducer 获得；redux 中的 state 更新也是通过逐个调用 reducer 函数实现。如果我们把采用策略模式分而治之的示例代码转变为采用职责链模式实现，即 childState = fn(childState, action) 替换为 state = fn(state, action) 函数，传入 reducer 中的为全量 state 数据，多个 reducer 构成链式结构，当前一个执行完成后，再执行下一个，这样就更接近于 Array.prototype.reduce 方法的执行机制，我们也就更能看出更新状态的函数为什么会被叫做 reducer 了。</p>
-<p><em>图 2，reducer 工作的两种可能性</em><br><img src="/2018/07/02/react/react相关/redux源码分析/reducer.png"></p>
-<p>在 redux 源码中，串联多个 state 实际采用的是策略模式。与示例代码不同的是，state 状态会以业务模块的组织划分成多个状态管理模块，同一个状态管理模块内部又包含多个状态值。对于前者，redux 提供了 combineReducers 方法，用于复合多个 reducer 函数。对于后者，需要使用者手动复合。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><h3 id="store"><a href="#store" class="headerlink" title="store"></a>store</h3><p>上一节提到了状态转换的机制，这是在 action 被派发以后所执行的动作。这一节我们将串联整个链路，包含 action 怎样被派发，状态值如何作缓存，以及更新等。</p>
-<p>针对根据 action 触发 reducer 执行这一命题，我们自然地会想到使用发布-订阅模式加以处理，将 action.type 视为订阅的主题，action 中其余属性作为提供给订阅者的额外信息。然而 redux 的宗旨是使状态变化的线索变得清晰，易于追踪和调试，发布-订阅模式和这一宗旨相悖。因为在发布-订阅模式中，同一主题可以有多个订阅者，也就意味着同一个 action 可以触发多个 reducer，线索就会变得错综。在 redux 的设计中，一个 action 只能触发某个特定的reducer 执行。这样，我们就解释了为什么在 redux 源码中，针对独立状态集的多个子 reducer 可以被复合成一个单一的全局总 reducer（简单的，可以通过 switch 语句实现），用于负责处理全局状态的变更。当 action 被派发时，只需调用缓存的全局总 reducer，就可以实现全局状态的更新。</p>
-<p>如果我们把总 reducer 称为 finalReducer，全局状态称为 globalState，派发 action 的过程其实只在于唤起 finalReducer 的执行。在 redux 源码中，无论 finalReducer，还是 globalState，都在 store 中维护。</p>
-<p><em>图 3，store 的执行机制</em><br><img src="/2018/07/02/react/react相关/redux源码分析/store.png"></p>
-<p>为了实现上述机制，store 将 finalReducer, globalState 实现为缓存数据，并提供 getState, dispatch, replaceReducer 方法。其中，store.getState 用于获取全局缓存的状态值，store.dispatch 用于派发 action，store.replaceReducer 用于替换 finalReducer。在 redux 源码中，store 表现为 createStore 模块，其提供 createStore(reducer, initialState) 函数，用于设置 finalReducer, globalState 的初始值。</p>
-<p>从源码中抽出这部分内容，即为如下代码（剔除参数校验）：</p>
-<p><em>代码段 2，store 基本功能</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createStore</span>(<span class="params">reducer, preloadedState</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> currentReducer = reducer</span><br><span class="line">  <span class="keyword">let</span> currentState = preloadedState</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">getState</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> currentState</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">dispatch</span>(<span class="params">action</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> action.type === <span class="string">'undefined'</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(</span><br><span class="line">        <span class="string">'Actions may not have an undefined "type" property. '</span> +</span><br><span class="line">          <span class="string">'Have you misspelled a constant?'</span></span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    currentState = currentReducer(currentState, action)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> action</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">replaceReducer</span>(<span class="params">nextReducer</span>) </span>&#123;</span><br><span class="line">    currentReducer = nextReducer</span><br><span class="line">    dispatch(&#123; <span class="attr">type</span>: ActionTypes.REPLACE &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  dispatch(&#123; <span class="attr">type</span>: ActionTypes.INIT &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    dispatch,</span><br><span class="line">    getState,</span><br><span class="line">    replaceReducer</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>从上述代码中，redux 在创建 store 的过程，会派发 action = { type: ActionTypes.INIT }，意味着可以在应用初始化过程中更新 state；而 store.replaceReducer 方法的存在通常是为了支持编码时的热加载功能，同时又会派发 action = { type: ActionTypes.REPLACE }。从设计的角度考量源码，这是无需多加关注的细节。</p>
-<h3 id="middleware"><a href="#middleware" class="headerlink" title="middleware"></a>middleware</h3><p>从 <em>图 3</em> 中，我们也能看出，action 经由 dispatch 函数直接交给 finalReducer 函数，middleware 中间件的意义是在 action 传入 dispatch 函数前，对 action 进行转换等特殊处理，功能类似 sevelet 中对请求进行转换、过滤等操作的 filter，或者 koa 中间件。redux 中间件的实现上也采用泛职责链模式，前一个中间件处理完成，交由下一个中间件进行处理。</p>
-<p><em>图 4，中间件转换 action 流程</em><br><img src="/2018/07/02/react/react相关/redux源码分析/middleware.png"></p>
-<p>redux 只能从 dispatch 函数的参数中截取到 action，因此在固有程序插入中间件的机制是通过封装 dispatch 函数来完成的，即函数 newDispatch = middleware(dispatch)。这样，在newDispatch 函数体内，我们就能获得使用者传入的 action。</p>
-<p>在多个中间件的串联上，redux 借助 Array.prototype.reduce 方法实现。redux 又将 getState, dispatch 作为参数传入 middleware 中，作为工具函数。</p>
-<p>使用 redux 时，编写中间件采用 ({ getState, dispatch }) =&gt; dispatch =&gt; action =&gt; {  } 形式。再次申明，参数 { getState, dispatch } 为 redux 中间件机制中传入的辅助函数，参数 dispatch 为本次 action 派发过程中唤起执行的 store.dispatch 方法，其意义就是通过封装该函数获取它的参数 action，参数 action 就是本次实际被派发的 action，中间件实际需要处理的转换对象。</p>
-<p><em>图 5，单个中间件的处理流程</em><br><img src="/2018/07/02/react/react相关/redux源码分析/middleware-flow.png"></p>
-<p><em>代码段 3，中间件机制</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">compose</span>(<span class="params">...funcs</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (funcs.length === <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">arg</span> =&gt;</span> arg</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (funcs.length === <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> funcs[<span class="number">0</span>]</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> funcs.reduce(<span class="function">(<span class="params">a, b</span>) =&gt;</span> (...args) =&gt; a(b(...args)))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">applyMiddleware(...middlewares) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">createStore</span> =&gt;</span> (...args) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> store = createStore(...args)</span><br><span class="line">    <span class="keyword">let</span> dispatch = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(</span><br><span class="line">        <span class="string">`Dispatching while constructing your middleware is not allowed. `</span> +</span><br><span class="line">          <span class="string">`Other middleware would not be applied to this dispatch.`</span></span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> chain = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> middlewareAPI = &#123;</span><br><span class="line">      getState: store.getState,</span><br><span class="line">      dispatch: <span class="function">(<span class="params">...args</span>) =&gt;</span> dispatch(...args)</span><br><span class="line">    &#125;</span><br><span class="line">    chain = middlewares.map(<span class="function"><span class="params">middleware</span> =&gt;</span> middleware(middlewareAPI))</span><br><span class="line">    dispatch = compose(...chain)(store.dispatch)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      ...store,</span><br><span class="line">      dispatch</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>通过上述代码，我们也能看出，redux 植入中间件机制是通过 applyMiddleware 函数封装 createStore 完成的。在重新构建的 createStore 函数体内，其实现也如上文指出的，就是逐个调用中间件函数，对 store.dispatch 方法进行封装。值得借鉴的是，通过包装函数增强原函数的功能，可以使新功能点无缝地插入到原代码逻辑中。</p>
-<p>回过头再看 createStore 模块，我们发现，redux 在 createStore 函数的实现上还有第三个参数 enhancer，其主要目的就是为 applyMiddleware 函数提供一个便捷的接口，enhancer 参数的意义也就在于包装 createStore 函数。</p>
-<p><em>代码段 3，createStore 函数功能增强</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createStore</span>(<span class="params">reducer, preloadedState, enhancer</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> enhancer !== <span class="string">'undefined'</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> enhancer !== <span class="string">'function'</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Expected the enhancer to be a function.'</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> enhancer(createStore)(reducer, preloadedState)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="listener"><a href="#listener" class="headerlink" title="listener"></a>listener</h3><p>以上内容无不与状态更新环节相关联，并没有涉及 store 与视图层 view 怎样完成交互。针对这一命题，redux 采用了发布-订阅模式。实际表现为，当 store 派发一个 action 时（可视为发出一个消息），都会促使监视器 listener 与观察者 observer （可视为消息的接受者）运作其处理逻辑。</p>
-<p>在具体实现过程中，监视器 listener 通过 store.subscribe 方法添加到 listeners 缓存队列中；当 action 被派发时，其将被取出执行。对于观察者 observer，首先通过 store.observable 方法获得接口层面的可观察对象，其次调用该可观察对象的 subscribe 方法，将 observer.next 转化为 listener，并添加到 listeners 缓存队列中。这样，当 action 被派发时，无论监视器 listener，还是观察者 observer 的 next 方法都将得到执行。不同的是，listener 为无参执行，observer.next 将以即时的 globalState 作为参数。</p>
-<p><em>图 6，listener, observer 执行流程</em><br><img src="/2018/07/02/react/react相关/redux源码分析/listener.png"></p>
-<p><em>代码段 4，listener, observer 实现</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createStore</span>(<span class="params">reducer, preloadedState, enhancer</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">ensureCanMutateNextListeners</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (nextListeners === currentListeners) &#123;</span><br><span class="line">      nextListeners = currentListeners.slice()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">subscribe</span>(<span class="params">listener</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> isSubscribed = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    ensureCanMutateNextListeners()</span><br><span class="line">    nextListeners.push(listener)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">unsubscribe</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (!isSubscribed) &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (isDispatching) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(</span><br><span class="line">          <span class="string">'You may not unsubscribe from a store listener while the reducer is executing. '</span> +</span><br><span class="line">            <span class="string">'See http://redux.js.org/docs/api/Store.html#subscribe for more details.'</span></span><br><span class="line">        )</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      isSubscribed = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">      ensureCanMutateNextListeners()</span><br><span class="line">      <span class="keyword">const</span> index = nextListeners.indexOf(listener)</span><br><span class="line">      nextListeners.splice(index, <span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">observable</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> outerSubscribe = subscribe</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      subscribe(observer) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">typeof</span> observer !== <span class="string">'object'</span>) &#123;</span><br><span class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">'Expected the observer to be an object.'</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">observeState</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">          <span class="keyword">if</span> (observer.next) &#123;</span><br><span class="line">            observer.next(getState())</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        observeState()</span><br><span class="line">        <span class="keyword">const</span> unsubscribe = outerSubscribe(observeState)</span><br><span class="line">        <span class="keyword">return</span> &#123; unsubscribe &#125;</span><br><span class="line">      &#125;,</span><br><span class="line"></span><br><span class="line">      [$$observable]() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">dispatch</span>(<span class="params">action</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      isDispatching = <span class="literal">true</span></span><br><span class="line">      currentState = currentReducer(currentState, action)</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      isDispatching = <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> listeners = (currentListeners = nextListeners)</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; listeners.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> listener = listeners[i]</span><br><span class="line">      listener()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> action</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    subscribe,</span><br><span class="line">    [$$observable]: observable</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>关于 listener 的用法，我将在下一节，以特例 <a href="">react-redux</a> 源码分析中穿插说明。</p>
-<h3 id="utils"><a href="#utils" class="headerlink" title="utils"></a>utils</h3><p>redux 提供了三个工具函数，分别是 <em>代码段 3</em> 给出的 compose 函数，以及 bindActionCreators, combineReducers 函数。</p>
-<p>compose 函数的功能和实现，可参见上文。</p>
-<p>bindActionCreators 函数的意义在于支持动态配置 action。其实现原理是通过 actionCreator 函数生成 action，再调用 store.dispatch 方法加以派发。</p>
-<p><em>代码段 5，bindActionCreators</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bindActionCreator</span>(<span class="params">actionCreator, dispatch</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> dispatch(actionCreator.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>))</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bindActionCreators</span>(<span class="params">actionCreators, dispatch</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> actionCreators === <span class="string">'function'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> bindActionCreator(actionCreators, dispatch)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> actionCreators !== <span class="string">'object'</span> || actionCreators === <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(</span><br><span class="line">      <span class="string">`bindActionCreators expected an object or a function, instead received <span class="subst">$&#123;</span></span></span><br><span class="line"><span class="string"><span class="subst">        actionCreators === <span class="literal">null</span> ? <span class="string">'null'</span> : <span class="keyword">typeof</span> actionCreators</span></span></span><br><span class="line"><span class="string"><span class="subst">      &#125;</span>. `</span> +</span><br><span class="line">        <span class="string">`Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?`</span></span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> keys = <span class="built_in">Object</span>.keys(actionCreators)</span><br><span class="line">  <span class="keyword">const</span> boundActionCreators = &#123;&#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; keys.length; i++) &#123;</span><br><span class="line">    <span class="keyword">const</span> key = keys[i]</span><br><span class="line">    <span class="keyword">const</span> actionCreator = actionCreators[key]</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> actionCreator === <span class="string">'function'</span>) &#123;</span><br><span class="line">      boundActionCreators[key] = bindActionCreator(actionCreator, dispatch)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> boundActionCreators</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>combineReducers 函数的意义在于复合 reducer。其实现过程中校验了初始状态，状态的 key 值是否有与之匹配的 reducer。</p>
-<p><em>代码段 6，combineReducers</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">combineReducers</span>(<span class="params">reducers</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> reducerKeys = <span class="built_in">Object</span>.keys(reducers)</span><br><span class="line">  <span class="keyword">const</span> finalReducers = &#123;&#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; reducerKeys.length; i++) &#123;</span><br><span class="line">    <span class="keyword">const</span> key = reducerKeys[i]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> reducers[key] === <span class="string">'undefined'</span>) &#123;</span><br><span class="line">        warning(<span class="string">`No reducer provided for key "<span class="subst">$&#123;key&#125;</span>"`</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> reducers[key] === <span class="string">'function'</span>) &#123;</span><br><span class="line">      finalReducers[key] = reducers[key]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> finalReducerKeys = <span class="built_in">Object</span>.keys(finalReducers)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> unexpectedKeyCache</span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">    unexpectedKeyCache = &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> shapeAssertionError</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// assertReducerShape 校验 reducer 返回初始状态非 undefined，且有兜底 state</span></span><br><span class="line">    assertReducerShape(finalReducers)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    shapeAssertionError = e</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">combination</span>(<span class="params">state = &#123;&#125;, action</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (shapeAssertionError) &#123;</span><br><span class="line">      <span class="keyword">throw</span> shapeAssertionError</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">      <span class="comment">// getUnexpectedStateShapeWarningMessage 函数校验 state 初始值和 reducer 各键的匹配程度</span></span><br><span class="line">      <span class="comment">// state 初始值可通过 ActionTypes.INIT 设定或参数注入</span></span><br><span class="line">      <span class="keyword">const</span> warningMessage = getUnexpectedStateShapeWarningMessage(</span><br><span class="line">        state,</span><br><span class="line">        finalReducers,</span><br><span class="line">        action,</span><br><span class="line">        unexpectedKeyCache</span><br><span class="line">      )</span><br><span class="line">      <span class="keyword">if</span> (warningMessage) &#123;</span><br><span class="line">        warning(warningMessage)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> hasChanged = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">const</span> nextState = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; finalReducerKeys.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> key = finalReducerKeys[i]</span><br><span class="line">      <span class="keyword">const</span> reducer = finalReducers[key]</span><br><span class="line">      <span class="keyword">const</span> previousStateForKey = state[key]</span><br><span class="line">      <span class="keyword">const</span> nextStateForKey = reducer(previousStateForKey, action)</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> nextStateForKey === <span class="string">'undefined'</span>) &#123;</span><br><span class="line">        <span class="comment">// reducer 返回值为 undefined 时，由 getUndefinedStateErrorMessage 函数拼接错误文案</span></span><br><span class="line">        <span class="keyword">const</span> errorMessage = getUndefinedStateErrorMessage(key, action)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(errorMessage)</span><br><span class="line">      &#125;</span><br><span class="line">      nextState[key] = nextStateForKey</span><br><span class="line">      hasChanged = hasChanged || nextStateForKey !== previousStateForKey</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> hasChanged ? nextState : state</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>为简化 redux 使用过程中的编码量，可参考 dva 设计 redux-model 模块，通过 namespace 复合 constants, actions, reducers 文件。</p>
-<p>异步请求的 loading 状态可制作 redux-loading-middleware 中间件模块作统一处理。</p>
-<p>以上两点，以及状态数据的设计（在状态管理模块确定之后，如何高效、稳妥地组织状态数据通常是编写业务代码的重心），介于篇幅和能力的限制，我将不再作阐述。</p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>对我这样半道出家的人来说，阅读源码比如专研一本好书。先从薄处入手，藉由丰富的关联性思想到每个可挖掘的点，视野渐渐变得开阔，纸张上的字句也会渐渐变得厚实。再从厚处着眼，借着内在已储备的知识量，更容易拨开阻碍视线的枝蔓，洞见维系着本质的主干，作者构思的线条也会变得越来越简明。像每一段求索经历，这是一个从薄到厚、再从厚到薄的过程，就中的滋味不乏刑侦、推理的乐趣。但是，阅读源码譬如靠经验增进技艺，对知识的汲取往往流于碎片化。对那些才能稍嫌拙劣、又想一探究竟的人来说，以阅读源码的方式攀升到系统化认知的高度，这当中所需的演绎过程将置那些流行、已成熟的技术体系于不顾，势必会耗费莫大的心力，譬如绕一段未必能达到终点的远路。我认为，科班生有一种高屋建瓴的视角，较之半道出家的人，他们具备更为全面的认知，更容易跳过沿途遭遇的细节，理出解决命题的主要线索。当然，假如有个人以一种谈不上正确的方式探寻 api 或数学公式背后的奥秘，他的动机是值得鼓励的。只是等他回落在简单的哲学中，那就需要一段或长或短的时间了。</p>
-<p>吴军博士在《数学之美》中引用了牛顿的一句话，”（人们发觉）真理在形式上从来都是简单的，而不是复杂和含混的。“在阅读这本书的过程中，我既能感受到作者行文简明扼要的美感，又能从作者的描述中体会到简单哲学的分量。因为简单，可以助人在错综的表象中洞悉本质，可以摆脱心理上的弊病，免于将学识敷在脸面上。我想，演绎得越多，仰赖于记忆的成分也越少，深藏在海平面下的设计矿产也越加丰富（在其上方形成的概念可以理解为变动不居的表象）。秉持着对简单哲学的信奉，我开始写作这篇分析 redux 源码的文章，虽然对简单哲学的应用以现有的编程功底仍旧有力所不逮的感觉。</p>
-<p>总之，这篇文章是逐渐摸索的产物，其中难免错谬与勉强，却是我试图在编程行业中登堂入室的中转站。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>[深入 React 技术栈 - 陈屹]<br><a href="http://www.redux.org.cn/" target="_blank" rel="noopener">Redux 中文文档</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2797,7 +2756,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">32</span>
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2819,7 +2778,7 @@
                 
                 <div class="site-state-item site-state-tags">
                   <a href="/tags/index.html">
-                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-count">18</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

@@ -111,7 +111,7 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="概述http-proxy-middleware 库借助于 node-http-proxy，用于将 node 服务器接收到的请求转发到目标服务器，实现代理服务器的功能。 实现原理可以推想，使用 node-http-proxy 创建代理服务器 proxyServer 后，通过全局注册的转发规则获取到客户端请求 req 需要发送到的目标地址，再通过调用 proxyServer.web, proxySer">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-11-10T17:09:12.072Z">
+<meta property="og:updated_time" content="2018-11-10T17:11:15.743Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="http-proxy-middleware 源码解读">
 <meta name="twitter:description" content="概述http-proxy-middleware 库借助于 node-http-proxy，用于将 node 服务器接收到的请求转发到目标服务器，实现代理服务器的功能。 实现原理可以推想，使用 node-http-proxy 创建代理服务器 proxyServer 后，通过全局注册的转发规则获取到客户端请求 req 需要发送到的目标地址，再通过调用 proxyServer.web, proxySer">
@@ -366,7 +366,7 @@
       
 
       
-        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>http-proxy-middleware 库借助于 node-http-proxy，用于将 node 服务器接收到的请求转发到目标服务器，实现代理服务器的功能。</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>http-proxy-middleware 库借助于 <a href="http://xzfyu.com/2018/11/09/%E5%B7%A5%E7%A8%8B%E5%8C%96/node-http-proxy%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" target="_blank" rel="noopener">node-http-proxy</a>，用于将 node 服务器接收到的请求转发到目标服务器，实现代理服务器的功能。</p>
 <h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>可以推想，使用 node-http-proxy 创建代理服务器 proxyServer 后，通过全局注册的转发规则获取到客户端请求 req 需要发送到的目标地址，再通过调用 proxyServer.web, proxyServer.ws 方法转发请求。</p>
 <h3 id="转发规则"><a href="#转发规则" class="headerlink" title="转发规则"></a>转发规则</h3><p>从原理层面简单的归纳转发规则，就是客户端请求路径到目标服务器地址的映射关系。node-http-proxy 库将转发规则分为两部分加以配置，context 用于匹配需要转发的客户端请求，options.target 用于设定目标服务器的 host；option.router 根据客户端请求重新设定目标服务器的 host（这样，根据不同的请求，可以设定多个目标服务器）；option.pathRewrite 用于辅助将客户端请求路径转化为目标服务器地址。</p>
 <h4 id="context"><a href="#context" class="headerlink" title="context"></a>context</h4><p>context 表示待转发请求的目录名。当客户端请求以 context 起始时，则该请求将被转发。如 context 设置为 ‘/api’，客户端所有以 ‘/api’ 起始的请求都会被转发；默认值为 ‘/‘，意为客户端发送的所有请求都会被转发。node-http-proxy 库使用 createConfig 解析获得 context；matchContext 函数校验客户端请求是否需要转发。</p>
@@ -421,8 +421,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/11/10/设计模式/工厂模式/" rel="next" title="">
-                <i class="fa fa-chevron-left"></i> 
+              <a href="/2018/11/11/设计模式/工厂模式/" rel="next" title="工厂模式">
+                <i class="fa fa-chevron-left"></i> 工厂模式
               </a>
             
           </div>

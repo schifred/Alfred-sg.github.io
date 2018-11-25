@@ -270,6 +270,164 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Grid/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/25/antd/Grid/" itemprop="url">Grid 栅格</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-25T00:00:00+08:00">2018-11-25</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/25/antd/Grid/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/25/antd/Grid/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>antd 提供的 24 栅格系统由 Row, Col 组件实现。</p>
+<h2 id="Row"><a href="#Row" class="headerlink" title="Row"></a>Row</h2><p>栅格布局组件 Row 用于设定整行 row 内各组 col 的布局风格。当 props.type 为 ‘flex’ 时，意味着整行采用 flex 布局。在 flex 布局的基础上，props.justify 通过 justify-content 样式影响各 col 元素的水平排列方式；props.align 通过 align-items 样式影响各 col 元素的垂直对齐方式。props.gutter 用于设定各 col 元素的间隔，间隔单位可以是 ‘px’ 或 ‘rem’。Row 支持以对象形式配置 props.gutter，如 { xs, sm, md, lg, xl, xxl }。其中，xs 为 576 px 以下屏幕；sm 为 576 - 768 px 尺寸屏幕；md 为 768 - 992 px 尺寸屏幕；lg 为 992 - 1200 px 尺寸屏幕；xl 为 1200 - 1600 px 尺寸屏幕；xxl 为 1600 px 以上屏幕；</p>
+<p>在响应式处理上，Row 组件借助 <a href="https://github.com/WickyNilliams/enquire.js" target="_blank" rel="noopener">enquire.js</a> 库实现。其场景如以 { md: 8, lg: 16 } 对象配置 props.gutter，那么，当屏幕尺寸小于 768px 时，就需要将各 col 元素的间隔从 16 px 调整为 8px。Row 组件对这一场景的实现机制为，在 componentDidMount 生命周期使用 enquire.js 库绑定监听函数，以使得当屏幕尺寸变更时，state.screen 当前屏幕状态也会相应得到更新；随后在 render 阶段，由 getGutter 方法获得当前屏幕尺寸下的 col 元素间隔 gutter，并借助 <a href="https://github.com/jamiebuilds/create-react-context" target="_blank" rel="noopener">create-react-context</a> 库将 gutter 注入到 Col 组件中。以下是该机制实现的源码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">componentDidMount() &#123;</span><br><span class="line">  <span class="built_in">Object</span>.keys(responsiveMap)</span><br><span class="line">    .map(<span class="function">(<span class="params">screen: Breakpoint</span>) =&gt;</span> enquire.register(responsiveMap[screen], &#123;</span><br><span class="line">        match: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">true</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        unmatch: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">false</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">// Keep a empty destory to avoid triggering unmatch when unregister</span></span><br><span class="line">        destroy() &#123;&#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getGutter(): number | <span class="literal">undefined</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; gutter &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> gutter === <span class="string">'object'</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt;= responsiveArray.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> breakpoint: Breakpoint = responsiveArray[i];</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.state.screens[breakpoint] &amp;&amp; gutter[breakpoint] !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> gutter[breakpoint];</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> gutter <span class="keyword">as</span> number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在样式处理方面，整行 row 采用 border-box 盒模型，相对定位，并嵌套使用 .clearfix 样式规则以清除浮动以及 :before, :after 伪类的内容。其余均较为简单，可参见<a href="https://github.com/ant-design/ant-design/blob/master/components/form/style/index.less" target="_blank" rel="noopener">源码</a>。</p>
+<h2 id="Col"><a href="#Col" class="headerlink" title="Col"></a>Col</h2><p>Col 组件主要通过样式类以设定 col 元素的大小和偏移情况。如当配置了 props.offset 属性为 4 时，将相应添加 ant-col-xs-offset-4, ant-col-sm-offset-4, ant-col-md-offset-4, ant-col-lg-offset-4, ant-col-xl-offset-4, ant-col-xll-offset-4 样式类。因此，Col 组件的逻辑主要是将 props 转化成样式类，其实现的重点仍在于 less 样式文件。</p>
+<p>当然，各 col 元素的间隔 gutter 由 Row 组件传入。以下是其源码实现，RowContext 通过 create-react-context 库创建，即通过 context 属性传递数据，但只有 Col 组件能加以访问。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Row</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Provider value=&#123;&#123; gutter &#125;&#125;&gt;</span><br><span class="line">      &lt;div &#123;...otherProps&#125; className=&#123;classes&#125; style=&#123;rowStyle&#125;&gt;</span><br><span class="line">        &#123;children&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>RowContext.Provider&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Col</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Consumer&gt;</span><br><span class="line">      &#123;(&#123; gutter &#125;) =&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> style = others.style;</span><br><span class="line">        <span class="keyword">if</span> (gutter <span class="keyword">as</span> number &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          style = &#123;</span><br><span class="line">            paddingLeft: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            paddingRight: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            ...style,</span><br><span class="line">          &#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span> &#123;<span class="attr">...others</span>&#125; <span class="attr">style</span>=<span class="string">&#123;style&#125;</span> <span class="attr">className</span>=<span class="string">&#123;classes&#125;</span>&gt;</span>&#123;children&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;</span><br><span class="line">      &#125;&#125;</span><br><span class="line">    &lt;<span class="regexp">/RowContext.Consumer&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>在 less 文件中，antd 使用自调用的混合函数创建从 .ant-col-1 到 .ant-col-24 的样式规则。以下是相关源码。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// style/theme/default.less</span></span><br><span class="line"><span class="variable">@grid-columns:</span> <span class="number">24</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// mixin.less</span></span><br><span class="line"><span class="comment">// index 由 1 到 24，构建样式规则</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>() &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">position</span>: relative;</span><br><span class="line">      <span class="comment">// Prevent columns from collapsing when empty</span></span><br><span class="line">      <span class="attribute">min-height</span>: <span class="number">1px</span>;</span><br><span class="line">      <span class="attribute">padding-left</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">      <span class="attribute">padding-right</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>) &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123; <span class="comment">// initial</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// general</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// terminal</span></span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">float</span>: left;</span><br><span class="line">      <span class="attribute">flex</span>: <span class="number">0</span> <span class="number">0</span> auto;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>); <span class="comment">// kickstart it</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index 由 24 到 1，构建样式规则</span></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">box-sizing</span>: border-box;</span><br><span class="line">    <span class="attribute">width</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="variable">@index</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>((<span class="variable">@index</span> - <span class="number">1</span>), <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> = <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: none;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(<span class="variable">@class</span>: <span class="string">~''</span>) &#123;</span><br><span class="line">  <span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>);</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>(<span class="variable">@grid-columns</span>, <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index.less</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>();</span><br><span class="line"><span class="selector-class">.make-grid</span>();</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(-xs);</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-sm-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-sm);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-md-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-md);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-lg-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-lg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xl);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xxl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xxl);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/17/css/less 使用指南/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -594,173 +752,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/ant design/antd-Input 组件/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/11/ant design/antd-Input 组件/" itemprop="url">antd-Input 组件</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/11/ant design/antd-Input 组件/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/11/11/ant design/antd-Input 组件/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Input-组件"><a href="#Input-组件" class="headerlink" title="Input 组件"></a>Input 组件</h2><p>Input 组件只关乎布局，其余均为常规处理。props.addonBefore 为前置标签，props.addonAfter 为后置标签，props.prefix 前缀图标，props.suffix 后缀图标。参看官方图例：</p>
-<img src="/2018/11/11/ant%20design/antd-Input%20组件/Input组件布局.png">
-<p>Input 组件在 render 方法执行阶段将绘制出 input 原生组件。鉴于 react 的实现机制，对于 input 原生组件的处理，有受控组件和非手空组件的区别。受控组件即根据组件的 state 变化渲染 input 节点的值，非受控组件只允许组件渲染出 input 节点的默认值，而其实时值将根据用户的操作行为加以改变。ant design 中的 Input 组件对于受控组件和非受控组件的处理，即是当开发者同时传入 props.value 和 props.defaultValue，props.value 的优先级高于 props.defaultValue，且当 props.value 为 undefined 或 null，均会以空字符串渲染 input 节点的值。</p>
-<p>在事件的绑定函数方面，常规的绑定函数均会透传到 input 原生组件上，而 props.onPressEnter, props.onKeyDown 两个绑定函数均会以 inputInstance.handleKeyDown 方法的形式挂载为 input 原生组件的 onKeyDown 绑定函数（inputInstance 为 Input 组件的实例）。</p>
-<p>此外，inputInstance 实例内置 focus, blur, select 方法，其功用如 inputInstance.focus 可以在校验表单时使校验失败的输入框组件获得焦点。inputInstance.input 属性用于访问 input 原生节点。</p>
-<p>在样式处理方面，笔者将作专文加以阐述。</p>
-<h2 id="TextArea-组件"><a href="#TextArea-组件" class="headerlink" title="TextArea 组件"></a>TextArea 组件</h2><p>TextArea 组件用于绘制 textarea 原生节点。不同于使用前后标签、前后图标影响渲染输入框组件的布局，TextArea 组件只包含 textarea 节点，没有其他布局元素。</p>
-<p>TextArea 组件的特殊处理逻辑是，textarea 节点的高度随用户输入内容而改变，受控于 props.autosize = { minRows?, maxRows? } 属性。其实现原理为：</p>
-<ol>
-<li>使用插入文档的隐藏文本框节点计算单行文本的高度，再由 minRows, maxRows 计算文本框的最大最小高度，并计算文本框的高度。计算获得的文本框即 textareaStyles 变量。</li>
-<li>调用组件实例的 setState 方法，更新 state.textareaStyles，最终构成组件实例的 resizeTextarea 方法。对于受控组件，将在componentWillReceiveProps 生命周期中判断组件获得的 props.value 是否更新，再使用 window.requestAnimationFrame 方式调用 resizeTextarea 方法，以调整文本框的高度。对于非受控组件，在 onChange 事件发生时调用 resizeTextarea 方法。</li>
-</ol>
-<p>calculateNodeHeight 函数计算文本框高度源码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> HIDDEN_TEXTAREA_STYLE = <span class="string">`</span></span><br><span class="line"><span class="string">  min-height:0 !important;</span></span><br><span class="line"><span class="string">  max-height:none !important;</span></span><br><span class="line"><span class="string">  height:0 !important;</span></span><br><span class="line"><span class="string">  visibility:hidden !important;</span></span><br><span class="line"><span class="string">  overflow:hidden !important;</span></span><br><span class="line"><span class="string">  position:absolute !important;</span></span><br><span class="line"><span class="string">  z-index:-1000 !important;</span></span><br><span class="line"><span class="string">  top:0 !important;</span></span><br><span class="line"><span class="string">  right:0 !important</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> SIZING_STYLE = [</span><br><span class="line">  <span class="string">'letter-spacing'</span>,</span><br><span class="line">  <span class="string">'line-height'</span>,</span><br><span class="line">  <span class="string">'padding-top'</span>,</span><br><span class="line">  <span class="string">'padding-bottom'</span>,</span><br><span class="line">  <span class="string">'font-family'</span>,</span><br><span class="line">  <span class="string">'font-weight'</span>,</span><br><span class="line">  <span class="string">'font-size'</span>,</span><br><span class="line">  <span class="string">'text-rendering'</span>,</span><br><span class="line">  <span class="string">'text-transform'</span>,</span><br><span class="line">  <span class="string">'width'</span>,</span><br><span class="line">  <span class="string">'text-indent'</span>,</span><br><span class="line">  <span class="string">'padding-left'</span>,</span><br><span class="line">  <span class="string">'padding-right'</span>,</span><br><span class="line">  <span class="string">'border-width'</span>,</span><br><span class="line">  <span class="string">'box-sizing'</span>,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> computedStyleCache: &#123;[key: string]: NodeType&#125; = &#123;&#125;;</span><br><span class="line"><span class="keyword">let</span> hiddenTextarea: HTMLTextAreaElement;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">calculateNodeStyling</span>(<span class="params">node: HTMLElement, useCache = false</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> nodeRef = (</span><br><span class="line">    node.getAttribute(<span class="string">'id'</span>) ||</span><br><span class="line">    node.getAttribute(<span class="string">'data-reactid'</span>) ||</span><br><span class="line">    node.getAttribute(<span class="string">'name'</span>)</span><br><span class="line">  ) <span class="keyword">as</span> string;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (useCache &amp;&amp; computedStyleCache[nodeRef]) &#123;</span><br><span class="line">    <span class="keyword">return</span> computedStyleCache[nodeRef];</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> style = <span class="built_in">window</span>.getComputedStyle(node);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> boxSizing = (</span><br><span class="line">    style.getPropertyValue(<span class="string">'box-sizing'</span>) ||</span><br><span class="line">    style.getPropertyValue(<span class="string">'-moz-box-sizing'</span>) ||</span><br><span class="line">    style.getPropertyValue(<span class="string">'-webkit-box-sizing'</span>)</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> paddingSize = (</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'padding-bottom'</span>)) +</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'padding-top'</span>))</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> borderSize = (</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'border-bottom-width'</span>)) +</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'border-top-width'</span>))</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> sizingStyle = SIZING_STYLE</span><br><span class="line">    .map(<span class="function"><span class="params">name</span> =&gt;</span> <span class="string">`<span class="subst">$&#123;name&#125;</span>:<span class="subst">$&#123;style.getPropertyValue(name)&#125;</span>`</span>)</span><br><span class="line">    .join(<span class="string">';'</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> nodeInfo: NodeType = &#123;</span><br><span class="line">    sizingStyle,</span><br><span class="line">    paddingSize,</span><br><span class="line">    borderSize,</span><br><span class="line">    boxSizing,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (useCache &amp;&amp; nodeRef) &#123;</span><br><span class="line">    computedStyleCache[nodeRef] = nodeInfo;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> nodeInfo;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">calculateNodeHeight</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  uiTextNode: HTMLTextAreaElement,</span></span></span><br><span class="line"><span class="function"><span class="params">  useCache = false,</span></span></span><br><span class="line"><span class="function"><span class="params">  minRows: number | null = null,</span></span></span><br><span class="line"><span class="function"><span class="params">  maxRows: number | null = null,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!hiddenTextarea) &#123;</span><br><span class="line">    hiddenTextarea = <span class="built_in">document</span>.createElement(<span class="string">'textarea'</span>);</span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(hiddenTextarea);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Fix wrap="off" issue</span></span><br><span class="line">  <span class="comment">// https://github.com/ant-design/ant-design/issues/6577</span></span><br><span class="line">  <span class="keyword">if</span> (uiTextNode.getAttribute(<span class="string">'wrap'</span>)) &#123;</span><br><span class="line">    hiddenTextarea.setAttribute(<span class="string">'wrap'</span>, uiTextNode.getAttribute(<span class="string">'wrap'</span>) <span class="keyword">as</span> string);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    hiddenTextarea.removeAttribute(<span class="string">'wrap'</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将影响文本框节点高度的样式属性拷贝给隐藏节点</span></span><br><span class="line">  <span class="comment">// overflow 样式属性置为 hidden，以此将滚动条排除在外</span></span><br><span class="line">  <span class="keyword">let</span> &#123;</span><br><span class="line">    paddingSize, borderSize,</span><br><span class="line">    boxSizing, sizingStyle,</span><br><span class="line">  &#125; = calculateNodeStyling(uiTextNode, useCache);</span><br><span class="line">  hiddenTextarea.setAttribute(<span class="string">'style'</span>, <span class="string">`<span class="subst">$&#123;sizingStyle&#125;</span>;<span class="subst">$&#123;HIDDEN_TEXTAREA_STYLE&#125;</span>`</span>);</span><br><span class="line">  hiddenTextarea.value = uiTextNode.value || uiTextNode.placeholder || <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> minHeight = <span class="built_in">Number</span>.MIN_SAFE_INTEGER;</span><br><span class="line">  <span class="keyword">let</span> maxHeight = <span class="built_in">Number</span>.MAX_SAFE_INTEGER;</span><br><span class="line">  <span class="keyword">let</span> height = hiddenTextarea.scrollHeight;<span class="comment">// 以隐藏节点计算文本框高度</span></span><br><span class="line">  <span class="keyword">let</span> overflowY: any;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 根据盒模式调整高度</span></span><br><span class="line">  <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">    height = height + borderSize;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (boxSizing === <span class="string">'content-box'</span>) &#123;</span><br><span class="line">    height = height - paddingSize;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (minRows !== <span class="literal">null</span> || maxRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// 计算文本框单行高度</span></span><br><span class="line">    hiddenTextarea.value = <span class="string">' '</span>;</span><br><span class="line">    <span class="keyword">let</span> singleRowHeight = hiddenTextarea.scrollHeight - paddingSize;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (minRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">      minHeight = singleRowHeight * minRows;</span><br><span class="line">      <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">        minHeight = minHeight + paddingSize + borderSize;</span><br><span class="line">      &#125;</span><br><span class="line">      height = <span class="built_in">Math</span>.max(minHeight, height);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (maxRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">      maxHeight = singleRowHeight * maxRows;</span><br><span class="line">      <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">        maxHeight = maxHeight + paddingSize + borderSize;</span><br><span class="line">      &#125;</span><br><span class="line">      overflowY = height &gt; maxHeight ? <span class="string">''</span> : <span class="string">'hidden'</span>;</span><br><span class="line">      height = <span class="built_in">Math</span>.min(maxHeight, height);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!maxRows) &#123;</span><br><span class="line">    overflowY = <span class="string">'hidden'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> &#123; height, minHeight, maxHeight, overflowY &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>setState 更新文本框高度源码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不打断本次渲染，在下一次渲染调整文本框的样式</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">onNextFrame</span>(<span class="params">cb: (</span>) =&gt; <span class="title">void</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">window</span>.requestAnimationFrame) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">window</span>.requestAnimationFrame(cb);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">window</span>.setTimeout(cb, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">clearNextFrameAction</span>(<span class="params">nextFrameId: number</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">window</span>.cancelAnimationFrame) &#123;</span><br><span class="line">    <span class="built_in">window</span>.cancelAnimationFrame(nextFrameId);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">window</span>.clearTimeout(nextFrameId);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextArea</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span>&lt;<span class="title">TextAreaProps</span>, <span class="title">TextAreaState</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> defaultProps = &#123;</span><br><span class="line">    prefixCls: <span class="string">'ant-input'</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  nextFrameActionId: number;</span><br><span class="line"></span><br><span class="line">  state = &#123;</span><br><span class="line">    textareaStyles: &#123;&#125;,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.resizeTextarea();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillReceiveProps(nextProps: TextAreaProps) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.props.value !== nextProps.value) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.nextFrameActionId) &#123;</span><br><span class="line">        clearNextFrameAction(<span class="keyword">this</span>.nextFrameActionId);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.nextFrameActionId = onNextFrame(<span class="keyword">this</span>.resizeTextarea);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  resizeTextarea = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; autosize &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (!autosize || !<span class="keyword">this</span>.textAreaRef) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> minRows = autosize ? (autosize <span class="keyword">as</span> AutoSizeType).minRows : <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">const</span> maxRows = autosize ? (autosize <span class="keyword">as</span> AutoSizeType).maxRows : <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">const</span> textareaStyles = calculateNodeHeight(<span class="keyword">this</span>.textAreaRef, <span class="literal">false</span>, minRows, maxRows);</span><br><span class="line">    <span class="keyword">this</span>.setState(&#123; textareaStyles &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  handleTextareaChange = <span class="function">(<span class="params">e: React.ChangeEvent&lt;HTMLTextAreaElement&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!(<span class="string">'value'</span> <span class="keyword">in</span> <span class="keyword">this</span>.props)) &#123;</span><br><span class="line">      <span class="keyword">this</span>.resizeTextarea();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> &#123; onChange &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (onChange) &#123;</span><br><span class="line">      onChange(e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 余略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h2><p>Search 组件基于 Input 组件制作，其特殊处理是在 inputInstance.onPressEnter 方法执行过程中调用 props.onSearch 方法，适用于远程搜索之类的场景；Search 组件还提供 props.enterButton 属性用于配置输入框的后缀图标，默认使用 search 图标，可渲染文本或按钮。实现请参考 ant design 源码。</p>
-<h2 id="Group"><a href="#Group" class="headerlink" title="Group"></a>Group</h2><p>Group 组件主要以样式控制多个表单项组件 props.children 的成组渲染。实现请参考 ant design 源码。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/工程化/http-proxy-middleware源码解读/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -886,6 +877,173 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// onError 绑定函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">defaultErrorHandler</span> (<span class="params">err, req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> host = (req.headers &amp;&amp; req.headers.host)</span><br><span class="line">  <span class="keyword">var</span> code = err.code</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (res.writeHead &amp;&amp; !res.headersSent) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/HPE_INVALID/</span>.test(code)) &#123;</span><br><span class="line">      res.writeHead(<span class="number">502</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">switch</span> (code) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'ECONNRESET'</span>:</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'ENOTFOUND'</span>:</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'ECONNREFUSED'</span>:</span><br><span class="line">          res.writeHead(<span class="number">504</span>)</span><br><span class="line">          <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">default</span>: res.writeHead(<span class="number">500</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  res.end(<span class="string">'Error occured while trying to proxy to: '</span> + host + req.url)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// onClose 绑定函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">logClose</span> (<span class="params">req, socket, head</span>) </span>&#123;</span><br><span class="line">  logger.info(<span class="string">'[HPM] Client disconnected'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="webpack-dev-server"><a href="#webpack-dev-server" class="headerlink" title="webpack-dev-server"></a>webpack-dev-server</h3><p>webpack-dev-server 库会创建 express 服务器，其服务器代理的实现就是解析配置项，并挂载 http-proxy-middleware 中间件。主要逻辑在 features.proxy 方法中实现：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> features = &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  proxy: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (options.proxy) &#123;</span><br><span class="line">      <span class="comment">// 解析配置</span></span><br><span class="line">      <span class="keyword">if</span> (!<span class="built_in">Array</span>.isArray(options.proxy)) &#123;</span><br><span class="line">        options.proxy = <span class="built_in">Object</span>.keys(options.proxy).map(<span class="function">(<span class="params">context</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">let</span> proxyOptions;</span><br><span class="line">          <span class="keyword">const</span> correctedContext = context</span><br><span class="line">            .replace(<span class="regexp">/^\*$/</span>, <span class="string">'**'</span>)</span><br><span class="line">            .replace(<span class="regexp">/\/\*$/</span>, <span class="string">''</span>);</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> options.proxy[context] === <span class="string">'string'</span>) &#123;</span><br><span class="line">            proxyOptions = &#123;</span><br><span class="line">              context: correctedContext,</span><br><span class="line">              target: options.proxy[context]</span><br><span class="line">            &#125;;</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            proxyOptions = <span class="built_in">Object</span>.assign(&#123;&#125;, options.proxy[context]);</span><br><span class="line">            proxyOptions.context = correctedContext;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 日志级别</span></span><br><span class="line">          proxyOptions.logLevel = proxyOptions.logLevel || <span class="string">'warn'</span>;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">return</span> proxyOptions;</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 获得 proxy 中间件</span></span><br><span class="line">      <span class="keyword">const</span> getProxyMiddleware = <span class="function">(<span class="params">proxyConfig</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> context = proxyConfig.context || proxyConfig.path;</span><br><span class="line">        <span class="keyword">if</span> (proxyConfig.target) &#123;</span><br><span class="line">          <span class="keyword">return</span> httpProxyMiddleware(context, proxyConfig);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">      </span><br><span class="line">      <span class="comment">// 以配置项挂载多个中间件</span></span><br><span class="line">      options.proxy.forEach(<span class="function">(<span class="params">proxyConfigOrCallback</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> proxyConfig;</span><br><span class="line">        <span class="keyword">let</span> proxyMiddleware;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">typeof</span> proxyConfigOrCallback === <span class="string">'function'</span>) &#123;</span><br><span class="line">          proxyConfig = proxyConfigOrCallback();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          proxyConfig = proxyConfigOrCallback;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        proxyMiddleware = getProxyMiddleware(proxyConfig);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (proxyConfig.ws) &#123;</span><br><span class="line">          websocketProxies.push(proxyMiddleware);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        app.use(<span class="function">(<span class="params">req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> proxyConfigOrCallback === <span class="string">'function'</span>) &#123;</span><br><span class="line">            <span class="keyword">const</span> newProxyConfig = proxyConfigOrCallback();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (newProxyConfig !== proxyConfig) &#123;</span><br><span class="line">              proxyConfig = newProxyConfig;</span><br><span class="line">              proxyMiddleware = getProxyMiddleware(proxyConfig);</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">const</span> bypass = <span class="keyword">typeof</span> proxyConfig.bypass === <span class="string">'function'</span>;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">const</span> bypassUrl = (bypass &amp;&amp; proxyConfig.bypass(req, res, proxyConfig)) || <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 转发到本地服务器</span></span><br><span class="line">          <span class="keyword">if</span> (bypassUrl) &#123;</span><br><span class="line">            req.url = bypassUrl;</span><br><span class="line"></span><br><span class="line">            next();</span><br><span class="line">          &#125; <span class="keyword">else</span> <span class="keyword">if</span> (proxyMiddleware) &#123;</span><br><span class="line">            <span class="keyword">return</span> proxyMiddleware(req, res, next);</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            next();</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/antd/Input/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/11/antd/Input/" itemprop="url">antd-Input 组件</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/11/antd/Input/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/11/antd/Input/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Input-组件"><a href="#Input-组件" class="headerlink" title="Input 组件"></a>Input 组件</h2><p>Input 组件只关乎布局，其余均为常规处理。props.addonBefore 为前置标签，props.addonAfter 为后置标签，props.prefix 前缀图标，props.suffix 后缀图标。参看官方图例：</p>
+<img src="/2018/11/11/antd/Input/Input组件布局.png">
+<p>Input 组件在 render 方法执行阶段将绘制出 input 原生组件。鉴于 react 的实现机制，对于 input 原生组件的处理，有受控组件和非手空组件的区别。受控组件即根据组件的 state 变化渲染 input 节点的值，非受控组件只允许组件渲染出 input 节点的默认值，而其实时值将根据用户的操作行为加以改变。ant design 中的 Input 组件对于受控组件和非受控组件的处理，即是当开发者同时传入 props.value 和 props.defaultValue，props.value 的优先级高于 props.defaultValue，且当 props.value 为 undefined 或 null，均会以空字符串渲染 input 节点的值。</p>
+<p>在事件的绑定函数方面，常规的绑定函数均会透传到 input 原生组件上，而 props.onPressEnter, props.onKeyDown 两个绑定函数均会以 inputInstance.handleKeyDown 方法的形式挂载为 input 原生组件的 onKeyDown 绑定函数（inputInstance 为 Input 组件的实例）。</p>
+<p>此外，inputInstance 实例内置 focus, blur, select 方法，其功用如 inputInstance.focus 可以在校验表单时使校验失败的输入框组件获得焦点。inputInstance.input 属性用于访问 input 原生节点。</p>
+<p>在样式处理方面，笔者将作专文加以阐述。</p>
+<h2 id="TextArea-组件"><a href="#TextArea-组件" class="headerlink" title="TextArea 组件"></a>TextArea 组件</h2><p>TextArea 组件用于绘制 textarea 原生节点。不同于使用前后标签、前后图标影响渲染输入框组件的布局，TextArea 组件只包含 textarea 节点，没有其他布局元素。</p>
+<p>TextArea 组件的特殊处理逻辑是，textarea 节点的高度随用户输入内容而改变，受控于 props.autosize = { minRows?, maxRows? } 属性。其实现原理为：</p>
+<ol>
+<li>使用插入文档的隐藏文本框节点计算单行文本的高度，再由 minRows, maxRows 计算文本框的最大最小高度，并计算文本框的高度。计算获得的文本框即 textareaStyles 变量。</li>
+<li>调用组件实例的 setState 方法，更新 state.textareaStyles，最终构成组件实例的 resizeTextarea 方法。对于受控组件，将在componentWillReceiveProps 生命周期中判断组件获得的 props.value 是否更新，再使用 window.requestAnimationFrame 方式调用 resizeTextarea 方法，以调整文本框的高度。对于非受控组件，在 onChange 事件发生时调用 resizeTextarea 方法。</li>
+</ol>
+<p>calculateNodeHeight 函数计算文本框高度源码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> HIDDEN_TEXTAREA_STYLE = <span class="string">`</span></span><br><span class="line"><span class="string">  min-height:0 !important;</span></span><br><span class="line"><span class="string">  max-height:none !important;</span></span><br><span class="line"><span class="string">  height:0 !important;</span></span><br><span class="line"><span class="string">  visibility:hidden !important;</span></span><br><span class="line"><span class="string">  overflow:hidden !important;</span></span><br><span class="line"><span class="string">  position:absolute !important;</span></span><br><span class="line"><span class="string">  z-index:-1000 !important;</span></span><br><span class="line"><span class="string">  top:0 !important;</span></span><br><span class="line"><span class="string">  right:0 !important</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> SIZING_STYLE = [</span><br><span class="line">  <span class="string">'letter-spacing'</span>,</span><br><span class="line">  <span class="string">'line-height'</span>,</span><br><span class="line">  <span class="string">'padding-top'</span>,</span><br><span class="line">  <span class="string">'padding-bottom'</span>,</span><br><span class="line">  <span class="string">'font-family'</span>,</span><br><span class="line">  <span class="string">'font-weight'</span>,</span><br><span class="line">  <span class="string">'font-size'</span>,</span><br><span class="line">  <span class="string">'text-rendering'</span>,</span><br><span class="line">  <span class="string">'text-transform'</span>,</span><br><span class="line">  <span class="string">'width'</span>,</span><br><span class="line">  <span class="string">'text-indent'</span>,</span><br><span class="line">  <span class="string">'padding-left'</span>,</span><br><span class="line">  <span class="string">'padding-right'</span>,</span><br><span class="line">  <span class="string">'border-width'</span>,</span><br><span class="line">  <span class="string">'box-sizing'</span>,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> computedStyleCache: &#123;[key: string]: NodeType&#125; = &#123;&#125;;</span><br><span class="line"><span class="keyword">let</span> hiddenTextarea: HTMLTextAreaElement;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">calculateNodeStyling</span>(<span class="params">node: HTMLElement, useCache = false</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> nodeRef = (</span><br><span class="line">    node.getAttribute(<span class="string">'id'</span>) ||</span><br><span class="line">    node.getAttribute(<span class="string">'data-reactid'</span>) ||</span><br><span class="line">    node.getAttribute(<span class="string">'name'</span>)</span><br><span class="line">  ) <span class="keyword">as</span> string;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (useCache &amp;&amp; computedStyleCache[nodeRef]) &#123;</span><br><span class="line">    <span class="keyword">return</span> computedStyleCache[nodeRef];</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> style = <span class="built_in">window</span>.getComputedStyle(node);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> boxSizing = (</span><br><span class="line">    style.getPropertyValue(<span class="string">'box-sizing'</span>) ||</span><br><span class="line">    style.getPropertyValue(<span class="string">'-moz-box-sizing'</span>) ||</span><br><span class="line">    style.getPropertyValue(<span class="string">'-webkit-box-sizing'</span>)</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> paddingSize = (</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'padding-bottom'</span>)) +</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'padding-top'</span>))</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> borderSize = (</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'border-bottom-width'</span>)) +</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'border-top-width'</span>))</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> sizingStyle = SIZING_STYLE</span><br><span class="line">    .map(<span class="function"><span class="params">name</span> =&gt;</span> <span class="string">`<span class="subst">$&#123;name&#125;</span>:<span class="subst">$&#123;style.getPropertyValue(name)&#125;</span>`</span>)</span><br><span class="line">    .join(<span class="string">';'</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> nodeInfo: NodeType = &#123;</span><br><span class="line">    sizingStyle,</span><br><span class="line">    paddingSize,</span><br><span class="line">    borderSize,</span><br><span class="line">    boxSizing,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (useCache &amp;&amp; nodeRef) &#123;</span><br><span class="line">    computedStyleCache[nodeRef] = nodeInfo;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> nodeInfo;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">calculateNodeHeight</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  uiTextNode: HTMLTextAreaElement,</span></span></span><br><span class="line"><span class="function"><span class="params">  useCache = false,</span></span></span><br><span class="line"><span class="function"><span class="params">  minRows: number | null = null,</span></span></span><br><span class="line"><span class="function"><span class="params">  maxRows: number | null = null,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!hiddenTextarea) &#123;</span><br><span class="line">    hiddenTextarea = <span class="built_in">document</span>.createElement(<span class="string">'textarea'</span>);</span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(hiddenTextarea);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Fix wrap="off" issue</span></span><br><span class="line">  <span class="comment">// https://github.com/ant-design/ant-design/issues/6577</span></span><br><span class="line">  <span class="keyword">if</span> (uiTextNode.getAttribute(<span class="string">'wrap'</span>)) &#123;</span><br><span class="line">    hiddenTextarea.setAttribute(<span class="string">'wrap'</span>, uiTextNode.getAttribute(<span class="string">'wrap'</span>) <span class="keyword">as</span> string);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    hiddenTextarea.removeAttribute(<span class="string">'wrap'</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将影响文本框节点高度的样式属性拷贝给隐藏节点</span></span><br><span class="line">  <span class="comment">// overflow 样式属性置为 hidden，以此将滚动条排除在外</span></span><br><span class="line">  <span class="keyword">let</span> &#123;</span><br><span class="line">    paddingSize, borderSize,</span><br><span class="line">    boxSizing, sizingStyle,</span><br><span class="line">  &#125; = calculateNodeStyling(uiTextNode, useCache);</span><br><span class="line">  hiddenTextarea.setAttribute(<span class="string">'style'</span>, <span class="string">`<span class="subst">$&#123;sizingStyle&#125;</span>;<span class="subst">$&#123;HIDDEN_TEXTAREA_STYLE&#125;</span>`</span>);</span><br><span class="line">  hiddenTextarea.value = uiTextNode.value || uiTextNode.placeholder || <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> minHeight = <span class="built_in">Number</span>.MIN_SAFE_INTEGER;</span><br><span class="line">  <span class="keyword">let</span> maxHeight = <span class="built_in">Number</span>.MAX_SAFE_INTEGER;</span><br><span class="line">  <span class="keyword">let</span> height = hiddenTextarea.scrollHeight;<span class="comment">// 以隐藏节点计算文本框高度</span></span><br><span class="line">  <span class="keyword">let</span> overflowY: any;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 根据盒模式调整高度</span></span><br><span class="line">  <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">    height = height + borderSize;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (boxSizing === <span class="string">'content-box'</span>) &#123;</span><br><span class="line">    height = height - paddingSize;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (minRows !== <span class="literal">null</span> || maxRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// 计算文本框单行高度</span></span><br><span class="line">    hiddenTextarea.value = <span class="string">' '</span>;</span><br><span class="line">    <span class="keyword">let</span> singleRowHeight = hiddenTextarea.scrollHeight - paddingSize;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (minRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">      minHeight = singleRowHeight * minRows;</span><br><span class="line">      <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">        minHeight = minHeight + paddingSize + borderSize;</span><br><span class="line">      &#125;</span><br><span class="line">      height = <span class="built_in">Math</span>.max(minHeight, height);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (maxRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">      maxHeight = singleRowHeight * maxRows;</span><br><span class="line">      <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">        maxHeight = maxHeight + paddingSize + borderSize;</span><br><span class="line">      &#125;</span><br><span class="line">      overflowY = height &gt; maxHeight ? <span class="string">''</span> : <span class="string">'hidden'</span>;</span><br><span class="line">      height = <span class="built_in">Math</span>.min(maxHeight, height);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!maxRows) &#123;</span><br><span class="line">    overflowY = <span class="string">'hidden'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> &#123; height, minHeight, maxHeight, overflowY &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>setState 更新文本框高度源码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不打断本次渲染，在下一次渲染调整文本框的样式</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">onNextFrame</span>(<span class="params">cb: (</span>) =&gt; <span class="title">void</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">window</span>.requestAnimationFrame) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">window</span>.requestAnimationFrame(cb);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">window</span>.setTimeout(cb, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">clearNextFrameAction</span>(<span class="params">nextFrameId: number</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">window</span>.cancelAnimationFrame) &#123;</span><br><span class="line">    <span class="built_in">window</span>.cancelAnimationFrame(nextFrameId);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">window</span>.clearTimeout(nextFrameId);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextArea</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span>&lt;<span class="title">TextAreaProps</span>, <span class="title">TextAreaState</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> defaultProps = &#123;</span><br><span class="line">    prefixCls: <span class="string">'ant-input'</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  nextFrameActionId: number;</span><br><span class="line"></span><br><span class="line">  state = &#123;</span><br><span class="line">    textareaStyles: &#123;&#125;,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.resizeTextarea();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillReceiveProps(nextProps: TextAreaProps) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.props.value !== nextProps.value) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.nextFrameActionId) &#123;</span><br><span class="line">        clearNextFrameAction(<span class="keyword">this</span>.nextFrameActionId);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.nextFrameActionId = onNextFrame(<span class="keyword">this</span>.resizeTextarea);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  resizeTextarea = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; autosize &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (!autosize || !<span class="keyword">this</span>.textAreaRef) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> minRows = autosize ? (autosize <span class="keyword">as</span> AutoSizeType).minRows : <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">const</span> maxRows = autosize ? (autosize <span class="keyword">as</span> AutoSizeType).maxRows : <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">const</span> textareaStyles = calculateNodeHeight(<span class="keyword">this</span>.textAreaRef, <span class="literal">false</span>, minRows, maxRows);</span><br><span class="line">    <span class="keyword">this</span>.setState(&#123; textareaStyles &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  handleTextareaChange = <span class="function">(<span class="params">e: React.ChangeEvent&lt;HTMLTextAreaElement&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!(<span class="string">'value'</span> <span class="keyword">in</span> <span class="keyword">this</span>.props)) &#123;</span><br><span class="line">      <span class="keyword">this</span>.resizeTextarea();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> &#123; onChange &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (onChange) &#123;</span><br><span class="line">      onChange(e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 余略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h2><p>Search 组件基于 Input 组件制作，其特殊处理是在 inputInstance.onPressEnter 方法执行过程中调用 props.onSearch 方法，适用于远程搜索之类的场景；Search 组件还提供 props.enterButton 属性用于配置输入框的后缀图标，默认使用 search 图标，可渲染文本或按钮。实现请参考 ant design 源码。</p>
+<h2 id="Group"><a href="#Group" class="headerlink" title="Group"></a>Group</h2><p>Group 组件主要以样式控制多个表单项组件 props.children 的成组渲染。实现请参考 ant design 源码。</p>
+
           
         
       
@@ -1479,7 +1637,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/04/ant design/antd-Form 组件/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/04/antd/Form/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -1498,7 +1656,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/11/04/ant design/antd-Form 组件/" itemprop="url">antd-Form 组件</a></h1>
+                <a class="post-title-link" href="/2018/11/04/antd/Form/" itemprop="url">antd-Form 组件</a></h1>
         
 
         <div class="post-meta">
@@ -1546,9 +1704,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/11/04/ant design/antd-Form 组件/#comments" itemprop="discussionUrl">
+                <a href="/2018/11/04/antd/Form/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/11/04/ant design/antd-Form 组件/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/11/04/antd/Form/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1585,8 +1743,8 @@
 <p>与业务实体不同的是，FieldsStore 实例仅止于存储字段的表单数据和元数据，提供一些便捷的访问器操作，却没有包含数据校验等操作，也没有关联上表单及字段组件。对于用户自定义表单组件，需要提供获取、更新及校验表单数据的方法，以便组织与远程接口密切相关的交互逻辑。对于字段组件，校验规则等与指定字段强关联的配置项适合在使用字段组件时通过 props 注入；同时，在字段组件的值发生变更时，需要收集该字段的值及启动对该字段的校验，因此需要将特定的绑定函数添加到 props 中。这些字段元数据写入 FieldsStore 就适合在绘制字段组件的过程中实现，因此就需要特定的方法用于装饰字段组件或其 props 属性。在 rc-form 中，BaseForm 用于实现这部分功能。</p>
 <p>想要为用户自定义组件注入工具函数，可以使用 HOC 高阶组件将工具函数配置为自定义子组件的 props  形式实现。BaseForm 就是这样的高阶组件。在 BaseForm 的 render  阶段，将为用户自定义组件注入 props.form 操纵表单的工具函数集。工具函数集中包含 getFieldValue, getFieldsValue, getFieldError, getFieldsError, isFieldsValidating, isFieldValidating, isFieldTouched, isFieldsTouched 方法用于获取字段的值、校验文案、校验状态、是否更新标识等；setFieldsInitialValue 方法用于设置字段的初始值；setFieldsValue 方法用于设置字段的值；setFields 方法用于设置表单的实时数据，包含字段的值及校验文案等；resetFields 方法用于重置表单；validateFields 方法用于校验表单；getFieldProps 方法用于转换传入字段组件的 props 数据（包含特定的绑定函数），并收集字段组件的元数据；getFieldDecorator 方法基于 getFieldProps 方法，不同于 getFieldProps 方法用于装饰字段组件的 props，getFieldDecorator 用于直接装饰字段组件，这样就可以直接获取并封装传入字段组件实例的 props.onChange 等属性或方法；getFieldInstance 方法用于获取字段实例。</p>
 <p>关于校验文案和校验状态的绘制，参见本文的第二部分。</p>
-<p>以时序图的方式表达 rc-form 的工作流程为：<br><img src="/2018/11/04/ant%20design/antd-Form%20组件/rc-form时序图.png"></p>
-<p>rc-form 的类图结构为：<br><img src="/2018/11/04/ant%20design/antd-Form%20组件/rc-form类图.png"></p>
+<p>以时序图的方式表达 rc-form 的工作流程为：<br><img src="/2018/11/04/antd/Form/rc-form时序图.png"></p>
+<p>rc-form 的类图结构为：<br><img src="/2018/11/04/antd/Form/rc-form类图.png"></p>
 <h3 id="FieldsStore"><a href="#FieldsStore" class="headerlink" title="FieldsStore"></a>FieldsStore</h3><p>如上文所述，FieldsStore 基本用作表单字段元数据和实时数据的存储器。此外，rc-form 支持以嵌套结构定义字段名，即使用 ‘.’, ‘[|]’ 作为分割符，如 ‘a.b’ 意味着 a 对象下的 b 属性；’c[0]’ 意味着 c 数组的首项。这一机制借助于 <a href="https://github.com/lodash/lodash" target="_blank" rel="noopener">lodash</a> 类库的 <a href="https://github.com/lodash/lodash/blob/master/set.js" target="_blank" rel="noopener">set</a>, <a href="https://github.com/lodash/lodash/blob/master/get.js" target="_blank" rel="noopener">get</a> 方法和内置的 flattenFields 函数实现的。并且，FieldsStore 提供 isValidNestedFieldName 方法用于校验表单中的字段名不能作为其他字段名的成员。</p>
 <p>flattenFields(maybeNestedFields, isLeafNode, errorMessage) 函数用于将嵌套数据扁平化，如将 { a: { b: 1 } } 转化成 { ‘a.b’: 1 }。参数 maybeNestedFields 即嵌套数据；参数 isLeafNode 用于校验扁平化后的数据成员的合理性；参数 errorMessage 校验不合理时的警告文案。其实现如：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">treeTraverse</span>(<span class="params">path = <span class="string">''</span>, tree, isLeafNode, errorMessage, callback</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (isLeafNode(path, tree)) &#123;</span><br><span class="line">    callback(path, tree);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (tree === <span class="literal">undefined</span> || tree === <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// Do nothing</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(tree)) &#123;</span><br><span class="line">    tree.forEach(<span class="function">(<span class="params">subTree, index</span>) =&gt;</span> treeTraverse(</span><br><span class="line">      <span class="string">`<span class="subst">$&#123;path&#125;</span>[<span class="subst">$&#123;index&#125;</span>]`</span>,</span><br><span class="line">      subTree,</span><br><span class="line">      isLeafNode,</span><br><span class="line">      errorMessage,</span><br><span class="line">      callback</span><br><span class="line">    ));</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123; <span class="comment">// It's object and not a leaf node</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> tree !== <span class="string">'object'</span>) &#123;</span><br><span class="line">      warning(<span class="literal">false</span>, errorMessage);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">Object</span>.keys(tree).forEach(<span class="function"><span class="params">subTreeKey</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> subTree = tree[subTreeKey];</span><br><span class="line">      treeTraverse(</span><br><span class="line">        <span class="string">`<span class="subst">$&#123;path&#125;</span><span class="subst">$&#123;path ? <span class="string">'.'</span> : <span class="string">''</span>&#125;</span><span class="subst">$&#123;subTreeKey&#125;</span>`</span>,</span><br><span class="line">        subTree,</span><br><span class="line">        isLeafNode,</span><br><span class="line">        errorMessage,</span><br><span class="line">        callback</span><br><span class="line">      );</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">flattenFields</span>(<span class="params">maybeNestedFields, isLeafNode, errorMessage</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> fields = &#123;&#125;;</span><br><span class="line">  treeTraverse(<span class="literal">undefined</span>, maybeNestedFields, isLeafNode, errorMessage, (path, node) =&gt; &#123;</span><br><span class="line">    fields[path] = node;</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> fields;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -2141,622 +2299,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/11/工程化/前端构建工具dawn/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/11/工程化/前端构建工具dawn/" itemprop="url">前端构建工具 dawn 不完全解密</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-11T00:00:00+08:00">2018-09-11</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/09/11/工程化/前端构建工具dawn/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/09/11/工程化/前端构建工具dawn/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>dawn 是一个采用中间件技术实现的轻量的任务流协调器，它和 gulp, grunt 有异曲同工之妙。dawn 本身并不处理任务，转而交由中间件承担这一职能，如同 gulp, grunt 插件。在实现上，dawn 是 webpack 出台后的产物，就不需要像 gulp, grunt 那样关注任务流的始点 —— 文件位置，而更容易聚焦于任务的分解，将编译、压缩作业交给 dn-middleware-webpack 中间件。若说 gulp 中的任务流是鱼跃似的，一个跟着另一个，那么，dawn 通过 ctx 上下文使得两个任务之间可以借助事件或实例属性进行通信。dawn 的中间件实现机制如同 koa，其一使用 next 引用下一个中间件串联任务流，其二以继承事件模型的 ctx 实例作为上下文。其核心代码如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Context</span> <span class="keyword">extends</span> <span class="title">EventEmitter</span> </span>&#123;</span><br><span class="line">  <span class="keyword">async</span> _execQueue(middlewares, args, onFail) &#123;</span><br><span class="line">    <span class="keyword">const</span> middleware = middlewares.shift();</span><br><span class="line">    <span class="keyword">if</span> (!middleware) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this.load 安装中间件，并执行中间件的外层函数，获得实际的任务逻辑 handler</span></span><br><span class="line">    <span class="keyword">const</span> handler = <span class="keyword">await</span> <span class="keyword">this</span>.load(middleware);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> next = <span class="function">(<span class="params">args</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// 若返回真值，在 watch 状态下，也只执行一次</span></span><br><span class="line">      <span class="keyword">if</span> (next.__result) <span class="keyword">return</span> next.__result;</span><br><span class="line"></span><br><span class="line">      next.__result = <span class="keyword">this</span>._execQueue(middlewares, args, onFail)</span><br><span class="line">        .catch(<span class="function"><span class="params">err</span> =&gt;</span> onFail(err));</span><br><span class="line">      <span class="keyword">return</span> next.__result;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">return</span> handler.call(<span class="keyword">this</span>, next, <span class="keyword">this</span>, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>因为 dawn 是一个任务流协调器，使得它就像一架航母，其能力仰赖于战斗机群 —— 由丰富的中间件、模板构成的生态系统。第一，这样使得 dawn 更着眼于为开发团队提供服务（两者呈互为因果的关系）。dawn 内建了复合远程配置的功能。不少公司会有私有的 npm 仓库，开发的 dn 中间件、模板先期都会在这些私有仓库中发展成形。借助于 dn config registry <a href="http://your_server_url" target="_blank" rel="noopener">http://your_server_url</a> 命令，dawn 安装中间件时会从这些私有仓库中拉取中间件或模板。对于配置文件，借助于 dn config server <a href="http://your_server_url" target="_blank" rel="noopener">http://your_server_url</a> 命令，dawn 也会从私有服务器中拉取远程配置，并与本地配置合并。如此，既能保有模板的闭源特征，又能实现配置文件的复用。扯开一个话题，使用 .yml 文件配置选项、将配置文件存于远端，这和我稍有耳闻的 spring boot 项目有些相仿。</p>
-<p>第二，为了开发中间件的方便，ctx 必然需要提供大而全的功能。以下简要地展示 ctx 提供的 api 列表：</p>
-<ul>
-<li>cli: 命令行 Command 实例。</li>
-<li>command: 当前执行的命令，如 init, dev, build 等。</li>
-<li>pipeline: 当前命令实际所用中间件列表。</li>
-<li>cwd: 项目路径。</li>
-<li>project: 项目 package.json 文件内容。</li>
-<li>middlewareMgr: 中间件管理器，用于查询私有中心的中间件列表，或者安装中间件。</li>
-<li>templateMgr: 模板管理器，用于查询私有中心的模板列表，或者文件重命名，或者下载模板。</li>
-<li>conf: rc配置管理器，用于获取本地或远程 rc 配置，或者设置 rc 配置，默认获取 .dawnrc 文件。</li>
-<li>console: 命令行编辑器 console。</li>
-<li>inquirer, utils.inquirer : 命令行交互接口，即 inquirer 类库。</li>
-<li>utils.exec(script, opts): 执行 script 命令，返回 promise；utils.exec.withResult(script, opts) 等待并返回执行结果。</li>
-<li>utils.writeFile(filename, content): 写文件，返回 promise。</li>
-<li>utils.readFile(filename): 读文件，返回 promise。</li>
-<li>utils.del: 删除文件，返回 promise。</li>
-<li>utils.mkdirp: 创建目录，返回 promise。</li>
-<li>download: fetch 响应。</li>
-<li>sleep: 延时执行。</li>
-<li>prompt: 使用 inquirer.prompt 在命令行编辑器创建引导式交互界面。</li>
-<li>utils.mod: 模块管理器，用于执行 npm 命令，或者安装依赖，或者下载模板（缓存在计算机的特定位置），或者获取 npm 包信息。</li>
-<li>utils.open: 打开浏览器，即 react-dev-utils/openBrowser 模块。</li>
-<li>utils.oneport: 获取一个空闲的端口，即 oneport 类库。</li>
-<li>utils.fetch: fetch 响应。</li>
-<li>utils.yaml: 通过 js-yaml 类库解析或编译 .yml 文件格式数据。</li>
-<li>utils.globby: 通过匹配规则获取文件路径，即 <a href="https://github.com/sindresorhus/globby" target="_blank" rel="noopener">globby 类库</a>。</li>
-<li>utils.confman: 配置文件加载器，即 <a href="https://github.com/Houfeng/confman" target="_blank" rel="noopener">confman 类库</a></li>
-<li>utils.streamToBuffer, utils.stream2buffer: 将可读流转化成 字符串或 buffer，返回 promise。</li>
-<li>utils.bufferToStream, utils.buffer2stream: 将字符串或 buffer 转化成可读流，返回 promise。</li>
-<li>utils.copydir: 拷贝文件夹，返回 promise。</li>
-<li>utils.findCommand(dirname, command): 获取执行脚本文件。</li>
-<li>load(opts): 加载中间件，并执行外层函数。</li>
-<li>exec(middlewares, initailArgs): 构建任务流，可用于在中间件中构建子任务流。</li>
-</ul>
-<h2 id="常用中间件"><a href="#常用中间件" class="headerlink" title="常用中间件"></a>常用中间件</h2><h3 id="dn-middleware-webpack"><a href="#dn-middleware-webpack" class="headerlink" title="dn-middleware-webpack"></a>dn-middleware-webpack</h3><p>概述：基于 webpack3 实现的中间件，打包模块。本地开发模式也将打包模块，而不是读取 webpack 缓存数据。</p>
-<p>奥妙：</p>
-<ol>
-<li>dn-middleware-webpack 在回调中执行后续中间件的处理逻辑。</li>
-<li>通过 vmodule-webpack-plugin 插件将 config.yml 类配置文件注入为可以 import 引入的虚拟模块。</li>
-<li>ctx 中添加 webpack 属性，即 webpack 类库。</li>
-</ol>
-<p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>config</td>
-<td>不同环境通过加载配置文件的模块名和文件路径，使用 <a href="https://github.com/Houfeng/vmodule-webpack-plugin" target="_blank" rel="noopener">vmodule-webpack-plugin</a> 创建虚拟模块</td>
-<td>{ name: ‘$config’, path: ‘./config’ }</td>
-</tr>
-<tr>
-<td>configFile</td>
-<td>webpack 配置文件路径，配置文件导出函数有效</td>
-<td>‘./webpack.config.js’</td>
-</tr>
-<tr>
-<td>mode</td>
-<td>模式</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>entry</td>
-<td>入口文件</td>
-<td>[‘./src/*.{js,jsx,ts,tsx}’]</td>
-</tr>
-<tr>
-<td>inject</td>
-<td>注入模板中的公用入口文件</td>
-<td>[‘./src/*.{js,jsx,ts,tsx}’]</td>
-</tr>
-<tr>
-<td>template</td>
-<td>模板文件，模板会加载同名的入口文件</td>
-<td>[‘./src/assets/*.html’]</td>
-</tr>
-<tr>
-<td>output</td>
-<td>打包文件目录</td>
-<td>‘./build/‘</td>
-</tr>
-<tr>
-<td>publicPath</td>
-<td>浏览器端访问打包文件的路径</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>folders</td>
-<td>不同文件类型的打包目录</td>
-<td>{ js: ‘js’, css: ‘css’, img: ‘img’, font: ‘font’, html: ‘’ }</td>
-</tr>
-<tr>
-<td>chunkFilename</td>
-<td>懒加载模块名</td>
-<td>‘chunks/[name]-[chunkhash].js’</td>
-</tr>
-<tr>
-<td>umd</td>
-<td>值为对象时，混合到 webpackConfig.output 配置中</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>external</td>
-<td>是否使用外部扩展</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>externals</td>
-<td>外部扩展</td>
-<td>{ ‘jquery’: ‘jQuery’, ‘zepto’: ‘Zepto’, ‘react’: ‘React’, ‘react-dom’: ‘ReactDOM’ }</td>
-</tr>
-<tr>
-<td>sourceMap</td>
-<td>是否生成 source map，开发环境默认生成，false 时不生成；打包时置为 true 才生成</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>watch</td>
-<td>是否使用 webpack 监听文件变更，执行 compiler.watch 或 compiler.run 的差别</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>watchOpts</td>
-<td>watch 配置</td>
-<td>{ aggregateTimeout: 600, ignored: /node_modules/ }</td>
-</tr>
-<tr>
-<td>babel</td>
-<td>babel-loader 选项相关，参见下文</td>
-<td></td>
-</tr>
-<tr>
-<td>rules</td>
-<td>配置额外的加载器，默认加载器包含 babel-loader, vue-loader, json-loader, raw-loader, ejs-loader, url-loade, css-loader, less-loader, fast-sass-loader，可加载的文件可想而知</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>cssModules</td>
-<td>是否使用 css modules</td>
-<td>undefined</td>
-</tr>
-</tbody>
-</table>
-<p>babel 选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>presets</td>
-<td>配置额外的 presets，默认包含 ‘babel-preset-env’, ‘babel-preset-react’, ‘babel-preset-stage-0’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>plugins</td>
-<td>配置额外的 plugins，默认包含 ‘babel-plugin-typecheck’, ‘babel-plugin-transform-decorators-legacy’, ‘babel-plugin-transform-runtime’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>targets</td>
-<td>作用于 ‘babel-preset-env’，设定编译后脚本的适配环境</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>browsers</td>
-<td>适配的浏览器环境，默认适配 [ ‘last 2 versions’, ‘IE &gt;= 9’ ]</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>uglify</td>
-<td>targets 中属性，使用 uglify.js 压缩脚本前是否已编译成 es5，默认是，false 为否</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>include</td>
-<td>作用于 ‘babel-preset-env’，设定包含的插件</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>exclude</td>
-<td>作用于 ‘babel-preset-env’，设定移除的插件</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>loose</td>
-<td>作用于 ‘babel-preset-env’，是否允许插件启用 “loose” 转换，默认为否</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>modules</td>
-<td>作用于 ‘babel-preset-env’，将es6模块语法转换为何种模块规范语法，默认为 ‘commonjs’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>useBuiltIns</td>
-<td>作用于 ‘babel-preset-env’，是否自动引入 ‘babel-ployfill’，默认使用时引入</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>spec</td>
-<td>作用于 ‘babel-preset-env’，是否允许插件启用 “spec” 转换，更符合规范，编译较慢，默认为 false</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>debug</td>
-<td>作用于 ‘babel-preset-env’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>react</td>
-<td>是否使用 ‘babel-preset-react’，默认使用，false 时不使用</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform</td>
-<td>作用于 ‘babel-plugin-transform-runtime’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform.helpers</td>
-<td>是否内置 classCallCheck, extends 等，默认内置</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform.polyfill</td>
-<td>是否内置 Promise, Set, Map, Symbol 等，默认内置</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform.regenerator</td>
-<td>是否内置生成器函数，async 函数，默认内置</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform.moduleName</td>
-<td>模块名，import 导入需要，默认为 ‘babel-runtime’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform.useBuiltIns</td>
-<td>默认自动引入</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>addExports</td>
-<td>影响 ‘babel-plugin-add-module-exports’ 插件的使用（该插件可在模块转换成 common.js，无需从default 属性中取出模块导出内容），false 时不使用 ‘babel-plugin-add-module-exports’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>strict</td>
-<td>影响 ‘babel-plugin-transform-remove-strict-mode’ 插件的使用，true 时不使用</td>
-<td>undefined</td>
-</tr>
-</tbody>
-</table>
-<p>事件：</p>
-<ul>
-<li>‘webpack.opts’，可用于修改 opts 配置项，参数 opts。</li>
-<li>‘webpack.config’，可用于修改注入 webpack 的 config 配置，参数 config, webpack, opts。</li>
-<li>‘webpack.compiler’，操纵 webpack 的编译器，参数 compiler。</li>
-<li>‘webpack.stats’，可用于监控编译状态，参数 stats。</li>
-</ul>
-<h3 id="dn-middleware-server"><a href="#dn-middleware-server" class="headerlink" title="dn-middleware-server"></a>dn-middleware-server</h3><p>概述：基于 <a href="https://github.com/nokitjs/nokit" target="_blank" rel="noopener">nokit</a>，启动本地服务。首次执行时将在项目空间创建 server.yml 配置文件。</p>
-<p>奥妙：</p>
-<ol>
-<li>在 nokit 服务器中设置拦截器，通过 <a href="https://github.com/nodejitsu/node-http-proxy" target="_blank" rel="noopener">httpProxy</a> 转发请求。</li>
-<li>ctx 中添加 server 属性，即 nokit.Server 实例；以及 httpServer 属性，即 server.httpServer。</li>
-</ol>
-<p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>host</td>
-<td>主机，影响自动访问的页面地址</td>
-<td>‘<a href="http://localhost" target="_blank" rel="noopener">http://localhost</a>‘</td>
-</tr>
-<tr>
-<td>config</td>
-<td>配置文件路径，作为 nokit 服务器的配置文件路径，默认读取 server.yml</td>
-<td>‘server’</td>
-</tr>
-<tr>
-<td>public</td>
-<td>浏览器端访问资源文件的路径</td>
-<td>‘./build’</td>
-</tr>
-<tr>
-<td>port</td>
-<td>端口，默认使用 ctx.oneport 检测空闲的端口</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>autoOpen</td>
-<td>是否自动访问网页，false 时为否</td>
-<td>undefined</td>
-</tr>
-</tbody>
-</table>
-<p>server.yml 中 proxy 支持配置选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>rules</td>
-<td>转发路径匹配规则，如 ^/api(.*): ‘<a href="https://www.aliyun.com/" target="_blank" rel="noopener">https://www.aliyun.com/</a>‘</td>
-<td>{}</td>
-</tr>
-<tr>
-<td>options</td>
-<td>作为 Proxy Server 的选项</td>
-<td>{ xfwd: true, changeOrigin: true }</td>
-</tr>
-<tr>
-<td>headers</td>
-<td>设置代理请求的 header 头，如 Referer: ‘<a href="https://www.aliyun.com/" target="_blank" rel="noopener">https://www.aliyun.com/</a>‘ 可携带 cookie</td>
-<td>undefined</td>
-</tr>
-</tbody>
-</table>
-<p>事件：</p>
-<ul>
-<li>‘server.init’，服务未启动时事件，参数 server 实例。</li>
-<li>‘server.start’，服务启动成功时事件，参数 server 实例。</li>
-</ul>
-<h3 id="dn-middleware-dll"><a href="#dn-middleware-dll" class="headerlink" title="dn-middleware-dll"></a>dn-middleware-dll</h3><p>概述：独立构建项目依赖，节省打包时间。</p>
-<p>奥妙：</p>
-<ol>
-<li>借助 ctx.exec 方法执行 webpack 中间件，打包项目的依赖，默认存放在工程目录 .cache 文件夹内。子文件夹名基于项目所使用的依赖通过 md5 生成散列，以便在依赖更新时重新打包。再借助 ctx.exec 方法执行 copy 中间件，将打包文件拷贝到 build/js 文件夹内。</li>
-<li>通过 ‘webpack.config’ 事件，在 webpackConfig 插件中注入 webpack.DllReferencePlugin 插件。</li>
-</ol>
-<p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>output</td>
-<td>打包文件输出位置</td>
-<td>‘build/js’</td>
-</tr>
-<tr>
-<td>libName</td>
-<td>打包文件名</td>
-<td>‘lib’</td>
-</tr>
-<tr>
-<td>compress</td>
-<td>是否压缩打包文件，默认压缩，false 时不压缩</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>vendors</td>
-<td>待打包模块列表，默认为 package.json 中依赖</td>
-<td>undefined</td>
-</tr>
-</tbody>
-</table>
-<h3 id="dn-middleware-faked"><a href="#dn-middleware-faked" class="headerlink" title="dn-middleware-faked"></a>dn-middleware-faked</h3><p>概述：基于 <a href="https://github.com/Houfeng/faked" target="_blank" rel="noopener">faked</a> 提供数据模拟服务。</p>
-<p>奥妙：</p>
-<ol>
-<li>基于 faked 创建 gui server 服务器，配置的模拟数据将输出到工程目录 mock 文件夹中 index.js, gui.data.json。</li>
-<li>模拟数据文件最终将作为 webpack 入口文件，以此实现远程请求的拦截，并实现热更新。</li>
-<li>执行逻辑被封装为 ctx.faked.apply 方法，在 dn-middleware-webpack 中执行，两个中间件耦合度较高。</li>
-</ol>
-<p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>dir</td>
-<td>打包文件输出位置</td>
-<td>‘mock’</td>
-</tr>
-<tr>
-<td>port</td>
-<td>gui server 服务启动的端口号，默认使用 this.utils.oneport 检出</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>gui</td>
-<td>禁用 gui server 服务</td>
-<td>‘build/js’</td>
-</tr>
-</tbody>
-</table>
-<h3 id="dn-middleware-i18n"><a href="#dn-middleware-i18n" class="headerlink" title="dn-middleware-i18n"></a>dn-middleware-i18n</h3><p>概述：将工程目录中 locales 语言包加载为 $locales 模块，通过 $i18n 获取指定模块，实现国际化。</p>
-<p>奥妙：</p>
-<ol>
-<li>使用 confman.webpackPlugin 方法将工程目录中的语言包输出为 $locales 虚拟模块。</li>
-<li>使用 vmodule-webpack-plugin 类库输出 $i18n 虚拟模块，以获取指定文案。</li>
-</ol>
-<p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>dir</td>
-<td>语言包所在位置</td>
-<td>‘./locales’</td>
-</tr>
-<tr>
-<td>extract</td>
-<td>指定将语言包输出为单独的 js 资源的文件夹路径，默认不输出单独的脚本</td>
-<td>null</td>
-</tr>
-</tbody>
-</table>
-<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
-<li>dn-middleware-clean，清理文件或目录，可用 opts.target 加以配置，默认清理 ‘./build/<em>*/</em>.*’。</li>
-<li>dn-middleware-copy，复制文件。选项 from 查询源文件的文件夹路径，默认 ‘./from’; to 目标文件夹路径; log 是否打印日志; dot 源文件匹配规则是否支持 ‘.’ 起始; direction 影响映射 key 键指代源文件还是目标文件; files 源文件和目标文件映射，目标文件路径支持占位符 {index} 替换（index 自右而左），或使用源文件路径（映射中，目标文件以 ‘/‘ 结尾）。</li>
-<li>dn-middleware-browser-sync 基于 ‘browser-sync’ 监听打包文件变更，借助 ‘connect-browser-sync’ express中间件实现热更新。选项 files 配置监听的文件，默认 [‘./build/<em>*/</em>.*’]；port 为 ‘browser-sync’ 服务启动端口，默认 5001。</li>
-<li>dn-middleware-git-sync，git 操作，包含 commit, push 动作（push 又区分日常和预发环境）。</li>
-<li>dn-middleware-jcs，在 babel-loader 中添加 ‘jsx-control-statements’ 插件，以使 jsx 可使用结构控制语句，同时 lint 阶段也会作代码检查，参考 <a href="https://zhuanlan.zhihu.com/p/28519304" target="_blank" rel="noopener">通过 JSX Control Statements 编写 JSX</a>。</li>
-<li>dn-middleware-lint，使用 eslint 命令作语法检查。</li>
-<li>dn-middleware-tslint，对 typescript 进行语法检查。</li>
-<li>dn-middleware-typedoc，使用 typedoc 为 typescript 项目生成文档。</li>
-<li>dn-middleware-typescript，在 webpackConfig 中添加 awesome-typescript-loader，支持编译 tsx 模块。选项 declaration 是否分离 ts, js 文件，默认分离，false 时不分离。</li>
-<li>dn-middleware-pkginfo，更新项目 package.json 中的 name, version, description 信息。</li>
-<li>dn-middleware-prepush，在 .git/hooks/pre-push 添加 shell 命令，推送前执行 dn build 命令。</li>
-<li>dn-middleware-sensitive-path，在 webpackConfig 中添加 ‘case-sensitive-paths-webpack-plugin’ 插件，使 mac, windows 引入模块时严格区分模块的大小写。</li>
-<li>dn-middleware-shell，调用 ctx.utils.exec 执行 shell 命令。选项 script 命令内容；wscript 为 windows 系统下命令内容；async 是否异步执行，默认同步。</li>
-<li>dn-middleware-watch，基于 ‘chokidar’ 监听执行文件变更。选项 match 匹配的文件，默认为 ‘./src/<em>*/</em>.*’；event 监听的事件类型；script 事件发生后执行的脚本；onChange 事件发生后执行的动作。</li>
-<li>dn-middleware-unit，基于 ‘mocha’ 对 ./test/unit 文件夹中内容作单元测试。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2808,7 +2350,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-count">38</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

@@ -107,24 +107,24 @@
 <meta name="keywords" content="analyst,react,antd">
 <meta property="og:type" content="article">
 <meta property="og:title" content="antd-Form 组件">
-<meta property="og:url" content="http://yoursite.com/2018/11/04/ant design/antd-Form 组件/index.html">
+<meta property="og:url" content="http://yoursite.com/2018/11/04/antd/Form/index.html">
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="ant design 中的 Form 组件基于 rc-form 实现。本文第一部分将介绍 rc-form 库；第二部分再介绍 ant design 中的 Form 组件。 rc-form常规收集表单数据并作校验，只需以 store 实时记录表单数据，校验后重绘表单。这样的思路以业务代码为例，就是，以数据模型 model 集成数据处理操作，再通过 setState 将 model 中的实时数据注入组">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2018/11/04/ant%20design/antd-Form%20组件/rc-form时序图.png">
-<meta property="og:image" content="http://yoursite.com/2018/11/04/ant%20design/antd-Form%20组件/rc-form类图.png">
-<meta property="og:updated_time" content="2018-11-19T16:21:26.728Z">
+<meta property="og:image" content="http://yoursite.com/2018/11/04/antd/Form/rc-form时序图.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/04/antd/Form/rc-form类图.png">
+<meta property="og:updated_time" content="2018-11-25T06:02:15.996Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="antd-Form 组件">
 <meta name="twitter:description" content="ant design 中的 Form 组件基于 rc-form 实现。本文第一部分将介绍 rc-form 库；第二部分再介绍 ant design 中的 Form 组件。 rc-form常规收集表单数据并作校验，只需以 store 实时记录表单数据，校验后重绘表单。这样的思路以业务代码为例，就是，以数据模型 model 集成数据处理操作，再通过 setState 将 model 中的实时数据注入组">
-<meta name="twitter:image" content="http://yoursite.com/2018/11/04/ant%20design/antd-Form%20组件/rc-form时序图.png">
+<meta name="twitter:image" content="http://yoursite.com/2018/11/04/antd/Form/rc-form时序图.png">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/11/04/ant design/antd-Form 组件/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/11/04/antd/Form/"/>
 
 
   <title>antd-Form 组件 | 修子范语</title>
@@ -274,7 +274,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/04/ant design/antd-Form 组件/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/04/antd/Form/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -339,9 +339,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/11/04/ant design/antd-Form 组件/#comments" itemprop="discussionUrl">
+                <a href="/2018/11/04/antd/Form/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/11/04/ant design/antd-Form 组件/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/11/04/antd/Form/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -376,8 +376,8 @@
 <p>与业务实体不同的是，FieldsStore 实例仅止于存储字段的表单数据和元数据，提供一些便捷的访问器操作，却没有包含数据校验等操作，也没有关联上表单及字段组件。对于用户自定义表单组件，需要提供获取、更新及校验表单数据的方法，以便组织与远程接口密切相关的交互逻辑。对于字段组件，校验规则等与指定字段强关联的配置项适合在使用字段组件时通过 props 注入；同时，在字段组件的值发生变更时，需要收集该字段的值及启动对该字段的校验，因此需要将特定的绑定函数添加到 props 中。这些字段元数据写入 FieldsStore 就适合在绘制字段组件的过程中实现，因此就需要特定的方法用于装饰字段组件或其 props 属性。在 rc-form 中，BaseForm 用于实现这部分功能。</p>
 <p>想要为用户自定义组件注入工具函数，可以使用 HOC 高阶组件将工具函数配置为自定义子组件的 props  形式实现。BaseForm 就是这样的高阶组件。在 BaseForm 的 render  阶段，将为用户自定义组件注入 props.form 操纵表单的工具函数集。工具函数集中包含 getFieldValue, getFieldsValue, getFieldError, getFieldsError, isFieldsValidating, isFieldValidating, isFieldTouched, isFieldsTouched 方法用于获取字段的值、校验文案、校验状态、是否更新标识等；setFieldsInitialValue 方法用于设置字段的初始值；setFieldsValue 方法用于设置字段的值；setFields 方法用于设置表单的实时数据，包含字段的值及校验文案等；resetFields 方法用于重置表单；validateFields 方法用于校验表单；getFieldProps 方法用于转换传入字段组件的 props 数据（包含特定的绑定函数），并收集字段组件的元数据；getFieldDecorator 方法基于 getFieldProps 方法，不同于 getFieldProps 方法用于装饰字段组件的 props，getFieldDecorator 用于直接装饰字段组件，这样就可以直接获取并封装传入字段组件实例的 props.onChange 等属性或方法；getFieldInstance 方法用于获取字段实例。</p>
 <p>关于校验文案和校验状态的绘制，参见本文的第二部分。</p>
-<p>以时序图的方式表达 rc-form 的工作流程为：<br><img src="/2018/11/04/ant%20design/antd-Form%20组件/rc-form时序图.png"></p>
-<p>rc-form 的类图结构为：<br><img src="/2018/11/04/ant%20design/antd-Form%20组件/rc-form类图.png"></p>
+<p>以时序图的方式表达 rc-form 的工作流程为：<br><img src="/2018/11/04/antd/Form/rc-form时序图.png"></p>
+<p>rc-form 的类图结构为：<br><img src="/2018/11/04/antd/Form/rc-form类图.png"></p>
 <h3 id="FieldsStore"><a href="#FieldsStore" class="headerlink" title="FieldsStore"></a>FieldsStore</h3><p>如上文所述，FieldsStore 基本用作表单字段元数据和实时数据的存储器。此外，rc-form 支持以嵌套结构定义字段名，即使用 ‘.’, ‘[|]’ 作为分割符，如 ‘a.b’ 意味着 a 对象下的 b 属性；’c[0]’ 意味着 c 数组的首项。这一机制借助于 <a href="https://github.com/lodash/lodash" target="_blank" rel="noopener">lodash</a> 类库的 <a href="https://github.com/lodash/lodash/blob/master/set.js" target="_blank" rel="noopener">set</a>, <a href="https://github.com/lodash/lodash/blob/master/get.js" target="_blank" rel="noopener">get</a> 方法和内置的 flattenFields 函数实现的。并且，FieldsStore 提供 isValidNestedFieldName 方法用于校验表单中的字段名不能作为其他字段名的成员。</p>
 <p>flattenFields(maybeNestedFields, isLeafNode, errorMessage) 函数用于将嵌套数据扁平化，如将 { a: { b: 1 } } 转化成 { ‘a.b’: 1 }。参数 maybeNestedFields 即嵌套数据；参数 isLeafNode 用于校验扁平化后的数据成员的合理性；参数 errorMessage 校验不合理时的警告文案。其实现如：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">treeTraverse</span>(<span class="params">path = <span class="string">''</span>, tree, isLeafNode, errorMessage, callback</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (isLeafNode(path, tree)) &#123;</span><br><span class="line">    callback(path, tree);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (tree === <span class="literal">undefined</span> || tree === <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// Do nothing</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(tree)) &#123;</span><br><span class="line">    tree.forEach(<span class="function">(<span class="params">subTree, index</span>) =&gt;</span> treeTraverse(</span><br><span class="line">      <span class="string">`<span class="subst">$&#123;path&#125;</span>[<span class="subst">$&#123;index&#125;</span>]`</span>,</span><br><span class="line">      subTree,</span><br><span class="line">      isLeafNode,</span><br><span class="line">      errorMessage,</span><br><span class="line">      callback</span><br><span class="line">    ));</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123; <span class="comment">// It's object and not a leaf node</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> tree !== <span class="string">'object'</span>) &#123;</span><br><span class="line">      warning(<span class="literal">false</span>, errorMessage);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">Object</span>.keys(tree).forEach(<span class="function"><span class="params">subTreeKey</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> subTree = tree[subTreeKey];</span><br><span class="line">      treeTraverse(</span><br><span class="line">        <span class="string">`<span class="subst">$&#123;path&#125;</span><span class="subst">$&#123;path ? <span class="string">'.'</span> : <span class="string">''</span>&#125;</span><span class="subst">$&#123;subTreeKey&#125;</span>`</span>,</span><br><span class="line">        subTree,</span><br><span class="line">        isLeafNode,</span><br><span class="line">        errorMessage,</span><br><span class="line">        callback</span><br><span class="line">      );</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">flattenFields</span>(<span class="params">maybeNestedFields, isLeafNode, errorMessage</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> fields = &#123;&#125;;</span><br><span class="line">  treeTraverse(<span class="literal">undefined</span>, maybeNestedFields, isLeafNode, errorMessage, (path, node) =&gt; &#123;</span><br><span class="line">    fields[path] = node;</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> fields;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -632,7 +632,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-count">38</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -866,8 +866,8 @@
   
     <script type="text/javascript">
       var disqus_config = function () {
-        this.page.url = 'http://yoursite.com/2018/11/04/ant design/antd-Form 组件/';
-        this.page.identifier = '2018/11/04/ant design/antd-Form 组件/';
+        this.page.url = 'http://yoursite.com/2018/11/04/antd/Form/';
+        this.page.identifier = '2018/11/04/antd/Form/';
         this.page.title = 'antd-Form 组件';
       };
       function loadComments () {

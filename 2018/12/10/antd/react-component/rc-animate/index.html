@@ -103,19 +103,20 @@
   <meta name="keywords" content="analyst,react,antd," />
 
 
-<meta name="description" content="rc-animate 同 react-transition-group，都用于实现元素的移入移出动效。本文分为两部分讲解：  视图分解，这一部分涉及移入移出动效所需实现的视图特征。 rc-animate 原理。  视图分解 上图即为移入移出动效的视图特征：  child1, child3 元素初始化即显现在视图中，该过程将呈现 appear 动效。 child2 元素在下一个渲染过程中将移入视图，">
+<meta name="description" content="rc-animate 同 react-transition-group，都用于实现元素的移入移出动效。 实现原理 上图即为移入移出动效的视图特征：  child1, child3 元素初始化即显现在视图中，该过程将呈现 appear 动效。 child2 元素在下一个渲染过程中将移入视图，该过程将呈现 enter 动效。 child3 元素在下一个渲染过程中将移出视图，该过程将呈现 leave 动">
 <meta name="keywords" content="analyst,react,antd">
 <meta property="og:type" content="article">
 <meta property="og:title" content="rc-animate">
 <meta property="og:url" content="http://yoursite.com/2018/12/10/antd/react-component/rc-animate/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="rc-animate 同 react-transition-group，都用于实现元素的移入移出动效。本文分为两部分讲解：  视图分解，这一部分涉及移入移出动效所需实现的视图特征。 rc-animate 原理。  视图分解 上图即为移入移出动效的视图特征：  child1, child3 元素初始化即显现在视图中，该过程将呈现 appear 动效。 child2 元素在下一个渲染过程中将移入视图，">
+<meta property="og:description" content="rc-animate 同 react-transition-group，都用于实现元素的移入移出动效。 实现原理 上图即为移入移出动效的视图特征：  child1, child3 元素初始化即显现在视图中，该过程将呈现 appear 动效。 child2 元素在下一个渲染过程中将移入视图，该过程将呈现 enter 动效。 child3 元素在下一个渲染过程中将移出视图，该过程将呈现 leave 动">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2018/12/10/antd/react-component/rc-animate/动效视图特征.png">
-<meta property="og:updated_time" content="2018-12-11T12:53:46.425Z">
+<meta property="og:image" content="http://yoursite.com/2018/12/10/antd/react-component/rc-animate/rc-animate时序图.png">
+<meta property="og:updated_time" content="2018-12-12T12:05:23.531Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="rc-animate">
-<meta name="twitter:description" content="rc-animate 同 react-transition-group，都用于实现元素的移入移出动效。本文分为两部分讲解：  视图分解，这一部分涉及移入移出动效所需实现的视图特征。 rc-animate 原理。  视图分解 上图即为移入移出动效的视图特征：  child1, child3 元素初始化即显现在视图中，该过程将呈现 appear 动效。 child2 元素在下一个渲染过程中将移入视图，">
+<meta name="twitter:description" content="rc-animate 同 react-transition-group，都用于实现元素的移入移出动效。 实现原理 上图即为移入移出动效的视图特征：  child1, child3 元素初始化即显现在视图中，该过程将呈现 appear 动效。 child2 元素在下一个渲染过程中将移入视图，该过程将呈现 enter 动效。 child3 元素在下一个渲染过程中将移出视图，该过程将呈现 leave 动">
 <meta name="twitter:image" content="http://yoursite.com/2018/12/10/antd/react-component/rc-animate/动效视图特征.png">
 
 
@@ -368,12 +369,8 @@
       
 
       
-        <p>rc-animate 同 <a href="https://github.com/reactjs/react-transition-group" target="_blank" rel="noopener">react-transition-group</a>，都用于实现元素的移入移出动效。本文分为两部分讲解：</p>
-<ol>
-<li>视图分解，这一部分涉及移入移出动效所需实现的视图特征。</li>
-<li>rc-animate 原理。</li>
-</ol>
-<h2 id="视图分解"><a href="#视图分解" class="headerlink" title="视图分解"></a>视图分解</h2><img src="/2018/12/10/antd/react-component/rc-animate/动效视图特征.png">
+        <p>rc-animate 同 <a href="https://github.com/reactjs/react-transition-group" target="_blank" rel="noopener">react-transition-group</a>，都用于实现元素的移入移出动效。</p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><img src="/2018/12/10/antd/react-component/rc-animate/动效视图特征.png">
 <p>上图即为移入移出动效的视图特征：</p>
 <ol>
 <li>child1, child3 元素初始化即显现在视图中，该过程将呈现 appear 动效。</li>
@@ -385,7 +382,9 @@
 <li>若 child2 在 child1 元素的 appear 动效还未完成时移入，child1 需要继续执行 appear 动效。对此，我们可以用内部状态记录动效执行中的元素，从而不打断动效的执行过程。若 child2 元素的 enter 动效执行期间，视图中再添加 child4, child5，也作相同处理。</li>
 <li>若 child3 即将移出视图，先将 child3 保存在内部状态中，等 leave 动效执行完成后，再移除 child3。</li>
 </ol>
-<p>在 rc-animate 中，上述两个状态表现为 Animate 组件的 currentlyAnimatingKeys 实例属性和 state.children。在 Animate 的 componentWillReceiveProps 生命周期中，将通过 currentlyAnimatingKeys 判断动效是否还在执行期间，以便在 state.children 中保留该元素。</p>
+<p>在 rc-animate 中，上述两个状态表现为 Animate 组件的 currentlyAnimatingKeys 实例属性和 state.children。在 Animate 的 componentWillReceiveProps 生命周期中，将通过 currentlyAnimatingKeys 判断动效是否还在执行阶段，以便在 state.children 中保留该元素。当然，在 componentWillReceiveProps 生命周期，主要的处理逻辑为：根据元素移入移出视图情况更新 state.children，并使用 keysToEnter, keysToLeave 属性记录哪些元素需要执行 enter 或者 leave 动效。对问题 2 的解答也就是在动效完成后更新 state.children。</p>
+<p>我们可以将 Animate 看成是动效调节器。不计 enter 动效，Animate 首先将在 componentWillReceiveProps 生命周期计算 child 元素需要执行何种动效，然后在 componentDidUpdate 生命周期执行该动效。实际执行的动效与 child 元素挂钩，那样就可以支持不同元素的展示动效多样化。在 rc-animate 中，AnimateChild 就可以理解成不同元素的动效驱动器。通过 props 定义 child 待执行的动效，由 AnimateChild 提供 componentWillAppear, componentWillEnter, componentWillLeave 方法与 Animate 对接。实际表现为，在 Animate 的 componentDidUpdate 生命周期，最终将调用 AnimateChild 的上述方法。下图是 rc-animate 实现动效的时序图。</p>
+<img src="/2018/12/10/antd/react-component/rc-animate/rc-animate时序图.png">
 
       
     </div>
@@ -594,7 +593,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#视图分解"><span class="nav-number">1.</span> <span class="nav-text">视图分解</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">1.</span> <span class="nav-text">实现原理</span></a></li></ol></div>
             
 
           </div>

@@ -585,12 +585,8 @@
       
         
           
-            <p>rc-animate 同 <a href="https://github.com/reactjs/react-transition-group" target="_blank" rel="noopener">react-transition-group</a>，都用于实现元素的移入移出动效。本文分为两部分讲解：</p>
-<ol>
-<li>视图分解，这一部分涉及移入移出动效所需实现的视图特征。</li>
-<li>rc-animate 原理。</li>
-</ol>
-<h2 id="视图分解"><a href="#视图分解" class="headerlink" title="视图分解"></a>视图分解</h2><img src="/2018/12/10/antd/react-component/rc-animate/动效视图特征.png">
+            <p>rc-animate 同 <a href="https://github.com/reactjs/react-transition-group" target="_blank" rel="noopener">react-transition-group</a>，都用于实现元素的移入移出动效。</p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><img src="/2018/12/10/antd/react-component/rc-animate/动效视图特征.png">
 <p>上图即为移入移出动效的视图特征：</p>
 <ol>
 <li>child1, child3 元素初始化即显现在视图中，该过程将呈现 appear 动效。</li>
@@ -602,7 +598,9 @@
 <li>若 child2 在 child1 元素的 appear 动效还未完成时移入，child1 需要继续执行 appear 动效。对此，我们可以用内部状态记录动效执行中的元素，从而不打断动效的执行过程。若 child2 元素的 enter 动效执行期间，视图中再添加 child4, child5，也作相同处理。</li>
 <li>若 child3 即将移出视图，先将 child3 保存在内部状态中，等 leave 动效执行完成后，再移除 child3。</li>
 </ol>
-<p>在 rc-animate 中，上述两个状态表现为 Animate 组件的 currentlyAnimatingKeys 实例属性和 state.children。在 Animate 的 componentWillReceiveProps 生命周期中，将通过 currentlyAnimatingKeys 判断动效是否还在执行期间，以便在 state.children 中保留该元素。</p>
+<p>在 rc-animate 中，上述两个状态表现为 Animate 组件的 currentlyAnimatingKeys 实例属性和 state.children。在 Animate 的 componentWillReceiveProps 生命周期中，将通过 currentlyAnimatingKeys 判断动效是否还在执行阶段，以便在 state.children 中保留该元素。当然，在 componentWillReceiveProps 生命周期，主要的处理逻辑为：根据元素移入移出视图情况更新 state.children，并使用 keysToEnter, keysToLeave 属性记录哪些元素需要执行 enter 或者 leave 动效。对问题 2 的解答也就是在动效完成后更新 state.children。</p>
+<p>我们可以将 Animate 看成是动效调节器。不计 enter 动效，Animate 首先将在 componentWillReceiveProps 生命周期计算 child 元素需要执行何种动效，然后在 componentDidUpdate 生命周期执行该动效。实际执行的动效与 child 元素挂钩，那样就可以支持不同元素的展示动效多样化。在 rc-animate 中，AnimateChild 就可以理解成不同元素的动效驱动器。通过 props 定义 child 待执行的动效，由 AnimateChild 提供 componentWillAppear, componentWillEnter, componentWillLeave 方法与 Animate 对接。实际表现为，在 Animate 的 componentDidUpdate 生命周期，最终将调用 AnimateChild 的上述方法。下图是 rc-animate 实现动效的时序图。</p>
+<img src="/2018/12/10/antd/react-component/rc-animate/rc-animate时序图.png">
 
           
         
@@ -1629,6 +1627,155 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/设计模式/适配器模式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/11/设计模式/适配器模式/" itemprop="url">适配器模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/11/设计模式/适配器模式/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/11/设计模式/适配器模式/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/antd/Input/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1747,155 +1894,6 @@
 <h2 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h2><p>Search 组件基于 Input 组件制作，其特殊处理是在 inputInstance.onPressEnter 方法执行过程中调用 props.onSearch 方法，适用于远程搜索之类的场景；Search 组件还提供 props.enterButton 属性用于配置输入框的后缀图标，默认使用 search 图标，可渲染文本或按钮。实现请参考 ant design 源码。</p>
 <h2 id="Group"><a href="#Group" class="headerlink" title="Group"></a>Group</h2><p>Group 组件主要以样式控制多个表单项组件 props.children 的成组渲染。实现请参考 ant design 源码。</p>
 
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/设计模式/适配器模式/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/11/设计模式/适配器模式/" itemprop="url">适配器模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/11/设计模式/适配器模式/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/11/11/设计模式/适配器模式/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
           
         
       

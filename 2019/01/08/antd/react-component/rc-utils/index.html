@@ -103,18 +103,18 @@
   <meta name="keywords" content="analyst,react,antd," />
 
 
-<meta name="description" content="rc-utils 是绘制 react-component 组件所使用的工具库。 ContainerRenderChilren Chilren/mapSelf(children): 将成组的 ReactElement 转换为 React16 支持渲染的数组形式。关于使用 jsx 语法书写的成组的 ReactElement，也可以使用 React.Fragment 组件进行渲染。 Children/t">
+<meta name="description" content="rc-utils 是绘制 react-component 组件所使用的工具库。 Portal使用 react16 中的 ReactDOM.createPortal 将浮层组件渲染到指定节点中。    prop 属性 意义 默认值     autoMount componentDidMount, componentDidUpdate 生命周期是否自动渲染浮层组件 true   children 浮层">
 <meta name="keywords" content="analyst,react,antd">
 <meta property="og:type" content="article">
 <meta property="og:title" content="rc-utils">
 <meta property="og:url" content="http://yoursite.com/2019/01/08/antd/react-component/rc-utils/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="rc-utils 是绘制 react-component 组件所使用的工具库。 ContainerRenderChilren Chilren/mapSelf(children): 将成组的 ReactElement 转换为 React16 支持渲染的数组形式。关于使用 jsx 语法书写的成组的 ReactElement，也可以使用 React.Fragment 组件进行渲染。 Children/t">
+<meta property="og:description" content="rc-utils 是绘制 react-component 组件所使用的工具库。 Portal使用 react16 中的 ReactDOM.createPortal 将浮层组件渲染到指定节点中。    prop 属性 意义 默认值     autoMount componentDidMount, componentDidUpdate 生命周期是否自动渲染浮层组件 true   children 浮层">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-01-08T15:17:45.856Z">
+<meta property="og:updated_time" content="2019-01-08T15:44:51.641Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="rc-utils">
-<meta name="twitter:description" content="rc-utils 是绘制 react-component 组件所使用的工具库。 ContainerRenderChilren Chilren/mapSelf(children): 将成组的 ReactElement 转换为 React16 支持渲染的数组形式。关于使用 jsx 语法书写的成组的 ReactElement，也可以使用 React.Fragment 组件进行渲染。 Children/t">
+<meta name="twitter:description" content="rc-utils 是绘制 react-component 组件所使用的工具库。 Portal使用 react16 中的 ReactDOM.createPortal 将浮层组件渲染到指定节点中。    prop 属性 意义 默认值     autoMount componentDidMount, componentDidUpdate 生命周期是否自动渲染浮层组件 true   children 浮层">
 
 
 
@@ -367,7 +367,124 @@
 
       
         <p>rc-utils 是绘制 <a href="https://github.com/react-component" target="_blank" rel="noopener">react-component</a> 组件所使用的工具库。</p>
-<h2 id="ContainerRender"><a href="#ContainerRender" class="headerlink" title="ContainerRender"></a>ContainerRender</h2><h2 id="Chilren"><a href="#Chilren" class="headerlink" title="Chilren"></a>Chilren</h2><ul>
+<h2 id="Portal"><a href="#Portal" class="headerlink" title="Portal"></a>Portal</h2><p>使用 react16 中的 ReactDOM.createPortal 将浮层组件渲染到指定节点中。</p>
+<table>
+<thead>
+<tr>
+<th>prop 属性</th>
+<th>意义</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>autoMount</td>
+<td>componentDidMount, componentDidUpdate 生命周期是否自动渲染浮层组件</td>
+<td>true</td>
+</tr>
+<tr>
+<td>children</td>
+<td>浮层组件，ReactElement</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>didUpdate</td>
+<td>componentDidUpdate 生命周期重绘时的回调函数</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>实例属性</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>container</td>
+<td>浮层组件的父节点</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> ReactDOM <span class="keyword">from</span> <span class="string">'react-dom'</span>;</span><br><span class="line"><span class="keyword">import</span> PropTypes <span class="keyword">from</span> <span class="string">'prop-types'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">Portal</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> propTypes = &#123;</span><br><span class="line">    getContainer: PropTypes.func.isRequired,</span><br><span class="line">    children: PropTypes.node.isRequired,</span><br><span class="line">    didUpdate: PropTypes.func,</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.createContainer();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidUpdate(prevProps) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; didUpdate &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (didUpdate) &#123;</span><br><span class="line">      didUpdate(prevProps);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillUnmount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.removeContainer();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  createContainer() &#123;</span><br><span class="line">    <span class="keyword">this</span>._container = <span class="keyword">this</span>.props.getContainer();</span><br><span class="line">    <span class="keyword">this</span>.forceUpdate();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  removeContainer() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>._container) &#123;</span><br><span class="line">      <span class="keyword">this</span>._container.parentNode.removeChild(<span class="keyword">this</span>._container);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>._container) &#123;</span><br><span class="line">      <span class="keyword">return</span> ReactDOM.createPortal(<span class="keyword">this</span>.props.children, <span class="keyword">this</span>._container);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="ContainerRender"><a href="#ContainerRender" class="headerlink" title="ContainerRender"></a>ContainerRender</h2><p>使用 <a href="https://zhuanlan.zhihu.com/p/29880992?utm_source=wechat_session&amp;utm_medium=social&amp;from=singlemessage" target="_blank" rel="noopener">ReactDOM.unstable_renderSubtreeIntoContainer</a> 将组件渲染到指定节点中，通常用于渲染浮层。下文以浮层组件指代渲染到指定节点中的组件。</p>
+<table>
+<thead>
+<tr>
+<th>prop 属性</th>
+<th>意义</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>autoMount</td>
+<td>componentDidMount, componentDidUpdate 生命周期是否自动渲染浮层组件</td>
+<td>true</td>
+</tr>
+<tr>
+<td>autoDestroy</td>
+<td>componentWillUnmount 生命周期是否自动卸载浮层组件</td>
+<td>true</td>
+</tr>
+<tr>
+<td>visible</td>
+<td>是否显示浮层组件</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>forceRender</td>
+<td>ContainerRender 或子组件重绘过程中，是否重绘浮层组件</td>
+<td>false</td>
+</tr>
+<tr>
+<td>parent</td>
+<td>渲染过程中的虚拟父节点，需要使用者主动将浮层组价记录到 parent._component；parent._component 为真值时将重绘浮层组件</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>getComponent</td>
+<td>函数形式，用于渲染浮层组件</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>getContainer</td>
+<td>函数形式，用于指定浮层组件的父节点，需要临时创建</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>children</td>
+<td>渲染过程中的虚拟子节点，函数形式 ({ renderComponent, removeContainer }) =&gt; {}</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>实例方法及属性</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>renderComponent(props, ready)</td>
+<td>渲染浮层组件，props 将注入到浮层组件中，ready 为渲染完成后的回调</td>
+</tr>
+<tr>
+<td>removeContainer</td>
+<td>移除浮层组件并其父节点</td>
+</tr>
+<tr>
+<td>container</td>
+<td>浮层组件的父节点</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> ReactDOM <span class="keyword">from</span> <span class="string">'react-dom'</span>;</span><br><span class="line"><span class="keyword">import</span> PropTypes <span class="keyword">from</span> <span class="string">'prop-types'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">ContainerRender</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> propTypes = &#123;</span><br><span class="line">    autoMount: PropTypes.bool,</span><br><span class="line">    autoDestroy: PropTypes.bool,</span><br><span class="line">    visible: PropTypes.bool,</span><br><span class="line">    forceRender: PropTypes.bool,</span><br><span class="line">    parent: PropTypes.any,</span><br><span class="line">    getComponent: PropTypes.func.isRequired,</span><br><span class="line">    getContainer: PropTypes.func.isRequired,</span><br><span class="line">    children: PropTypes.func.isRequired,</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> defaultProps = &#123;</span><br><span class="line">    autoMount: <span class="literal">true</span>,</span><br><span class="line">    autoDestroy: <span class="literal">true</span>,</span><br><span class="line">    forceRender: <span class="literal">false</span>,</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.props.autoMount) &#123;</span><br><span class="line">      <span class="keyword">this</span>.renderComponent();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidUpdate() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.props.autoMount) &#123;</span><br><span class="line">      <span class="keyword">this</span>.renderComponent();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillUnmount() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.props.autoDestroy) &#123;</span><br><span class="line">      <span class="keyword">this</span>.removeContainer();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  removeContainer = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.container) &#123;</span><br><span class="line">      ReactDOM.unmountComponentAtNode(<span class="keyword">this</span>.container);</span><br><span class="line">      <span class="keyword">this</span>.container.parentNode.removeChild(<span class="keyword">this</span>.container);</span><br><span class="line">      <span class="keyword">this</span>.container = <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  renderComponent = <span class="function">(<span class="params">props, ready</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; visible, getComponent, forceRender, getContainer, parent &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (visible || parent._component || forceRender) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!<span class="keyword">this</span>.container) &#123;</span><br><span class="line">        <span class="keyword">this</span>.container = getContainer();</span><br><span class="line">      &#125;</span><br><span class="line">      ReactDOM.unstable_renderSubtreeIntoContainer(</span><br><span class="line">        parent,</span><br><span class="line">        getComponent(props),</span><br><span class="line">        <span class="keyword">this</span>.container,</span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">callback</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">          <span class="keyword">if</span> (ready) &#123;</span><br><span class="line">            ready.call(<span class="keyword">this</span>);</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      );</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.props.children(&#123;</span><br><span class="line">      renderComponent: <span class="keyword">this</span>.renderComponent,</span><br><span class="line">      removeContainer: <span class="keyword">this</span>.removeContainer,</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Chilren"><a href="#Chilren" class="headerlink" title="Chilren"></a>Chilren</h2><ul>
 <li>Chilren/mapSelf(children): 将成组的 ReactElement 转换为 React16 支持渲染的数组形式。关于使用 jsx 语法书写的成组的 ReactElement，也可以使用 React.Fragment 组件进行渲染。</li>
 <li>Children/toArray(children): 将成组的 ReactElement 转换为数组，效果同 mapSelf 函数。</li>
 </ul>
@@ -458,7 +575,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/01/08/antd/react-component/rc-trigger/" rel="prev" title="rc-trigger">
+              <a href="/2019/01/09/antd/react-component/rc-trigger/" rel="prev" title="rc-trigger">
                 rc-trigger <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -622,7 +739,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ContainerRender"><span class="nav-number">1.</span> <span class="nav-text">ContainerRender</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chilren"><span class="nav-number">2.</span> <span class="nav-text">Chilren</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dom"><span class="nav-number">3.</span> <span class="nav-text">Dom</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#css"><span class="nav-number">3.1.</span> <span class="nav-text">css</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#focus"><span class="nav-number">3.2.</span> <span class="nav-text">focus</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#getScrollBarSize"><span class="nav-number">3.3.</span> <span class="nav-text">getScrollBarSize</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#KeyCode"><span class="nav-number">4.</span> <span class="nav-text">KeyCode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pickAttrs"><span class="nav-number">5.</span> <span class="nav-text">pickAttrs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">6.</span> <span class="nav-text">其他</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Portal"><span class="nav-number">1.</span> <span class="nav-text">Portal</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ContainerRender"><span class="nav-number">2.</span> <span class="nav-text">ContainerRender</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chilren"><span class="nav-number">3.</span> <span class="nav-text">Chilren</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dom"><span class="nav-number">4.</span> <span class="nav-text">Dom</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#css"><span class="nav-number">4.1.</span> <span class="nav-text">css</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#focus"><span class="nav-number">4.2.</span> <span class="nav-text">focus</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#getScrollBarSize"><span class="nav-number">4.3.</span> <span class="nav-text">getScrollBarSize</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#KeyCode"><span class="nav-number">5.</span> <span class="nav-text">KeyCode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pickAttrs"><span class="nav-number">6.</span> <span class="nav-text">pickAttrs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">7.</span> <span class="nav-text">其他</span></a></li></ol></div>
             
 
           </div>

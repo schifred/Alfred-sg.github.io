@@ -270,6 +270,203 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/15/react/react16源码/scheduler/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/15/react/react16源码/scheduler/" itemprop="url">scheduler 源码分析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-15T00:00:00+08:00">2019-01-15</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/01/15/react/react16源码/scheduler/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/01/15/react/react16源码/scheduler/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="requestHostCallback"><a href="#requestHostCallback" class="headerlink" title="requestHostCallback"></a>requestHostCallback</h2><p>针对不同平台构建 requestHostCallback, cancelHostCallback, shouldYieldToHost, getCurrentTime 函数。用于执行回调，基于 rAF 实现的回调执行策略也将与平台的重绘机制契合。</p>
+<p>关于 getCurrentTime 函数的实现：如果平台支持 performance，那么 getCurrentTime 函数的返回值就是 performance.now()；否则返回 Date.now()。</p>
+<h3 id="基于-schedMock"><a href="#基于-schedMock" class="headerlink" title="基于 _schedMock"></a>基于 _schedMock</h3><p>如果设置了 window._schedMock 或 global._schedMock 数组，上述四种函数就相应设置为指定的数组项。</p>
+<h3 id="基于-setTimeout"><a href="#基于-setTimeout" class="headerlink" title="基于 setTimeout"></a>基于 setTimeout</h3><p>当没有设置 _schedMock，且 window 是 undefined 或 MessageChannel 的类型不是 function 时，React 将基于 setTimeout, clearTimeout 定时器实现上述函数。该实现的过程中，首先以 _callback 变量缓存回调，_flushCallback 函数一次性调用 _callback 回调；其次按下述步骤实现指定函数。</p>
+<ol>
+<li>requestHostCallback(cb, ms): 分两次调用 setTimeout 制作定时器：第一次使用 requestHostCallback 自身作为回调；第二次，调用前先将 cb 缓存到 _callback 中，然后使用定时器执行 _flushCallback，由 _flushCallback 间接调用实际的入参 cb。</li>
+<li>cancelHostCallback: 清除缓存 _callback。</li>
+<li>shouldYieldToHost: 实现为返回 true 的函数。</li>
+</ol>
+<h3 id="基于-rAF"><a href="#基于-rAF" class="headerlink" title="基于 rAF"></a>基于 rAF</h3><p>当没有设置 _schedMock，且 window 不是 undefined 或 MessageChannel 的类型是 function 时，React 将基于 requestAnimationFrame, cancelAnimationFrame 实现上述函数。</p>
+<p>该实现中包含如下缓存：</p>
+<ul>
+<li>scheduledHostCallback 意为待执行的回调。我们可以把它理解成任务，下文也将用任务指代。因为 scheduler 使用 rAF 轮询任务，因此当任务先后添加时，在一个重绘周期内所添加并执行的任务流可视为队列。</li>
+<li>timeoutTime 记录回调执行允许的超时时间，值为时间点，而非时长。</li>
+<li>isAnimationFrameScheduled 真值时意味着 rAF 轮询已启动。通过 requestHostCallback 函数启动轮询，在 rAF 执行回调 animationTick 时若 scheduledHostCallback 为 null，则退出 rAF 轮询。rAF 轮询的意义在于保证任务的执行时机为重绘完成后。</li>
+<li>isMessageEventScheduled 真值时意味着 onMessage 监听函数正在执行过程中。</li>
+<li>isFlushingHostCallback 真值时意味着某个任务正在执行中。这时，scheduler 允许在该任务的执行期间，直接启动另一个任务的执行逻辑；或者说，isFlushingHostCallback 对于其他任务来说现在是可执行的（requestHostCallback 函数基于此调用 postMessage 发送消息，以执行刚添加的任务）。</li>
+<li>activeFrameTime 作为一帧的理想执行时长，预设为 33 ms。当页面刷新率很高时，这个值也会在 animationTick 执行过程中被更新，即变小。</li>
+<li>previousFrameTime 前一帧执行时长。</li>
+<li>frameDeadline 一帧执行完成的期望时间点。当我们的代码不包含视图更新时，setTimeout 将取代 rAF 唤醒回调（或者说没有空闲），造成 onMessage 监听函数的执行时机大于 frameDeadline。在这种情况下，frameDeadline 可用于回调是否在默许的超时范围内，onmessage 监听函数就是这么做的。</li>
+</ul>
+<p>以下是实现过程：</p>
+<p>一、实现 requestAnimationFrameWithTimeout(callback) 函数。该函数存在的意义为，当我们的代码不包含视图更新时，requestAnimationFrame 将得不到调用，因此作为兜底，scheduler 在 requestAnimationFrame 之外，还使用 setTimeout 调用 callback，以免 callback 没有执行。介于 requestAnimationFrame, setTimeout 都将 callback 作为回调，为避免两次调用，callback 内势必要借助某种机制避免第二次调用的有效执行。以下是 requestAnimationFrameWithTimeout 的实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// requestAnimationFrame does not run when the tab is in the background. If</span></span><br><span class="line"><span class="comment">// we're backgrounded we prefer for that work to happen so that the page</span></span><br><span class="line"><span class="comment">// continues to load in the background. So we also schedule a 'setTimeout' as</span></span><br><span class="line"><span class="comment">// a fallback.</span></span><br><span class="line"><span class="comment">// <span class="doctag">TODO:</span> Need a better heuristic for backgrounded work.</span></span><br><span class="line"><span class="keyword">var</span> ANIMATION_FRAME_TIMEOUT = <span class="number">100</span>;</span><br><span class="line"><span class="keyword">var</span> rAFID;</span><br><span class="line"><span class="keyword">var</span> rAFTimeoutID;</span><br><span class="line"><span class="keyword">var</span> requestAnimationFrameWithTimeout = <span class="function"><span class="keyword">function</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  rAFID = localRequestAnimationFrame(<span class="function"><span class="keyword">function</span>(<span class="params">timestamp</span>) </span>&#123;</span><br><span class="line">    localClearTimeout(rAFTimeoutID);</span><br><span class="line">    callback(timestamp);</span><br><span class="line">  &#125;);</span><br><span class="line">  rAFTimeoutID = localSetTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    localCancelAnimationFrame(rAFID);</span><br><span class="line">    callback(getCurrentTime());</span><br><span class="line">  &#125;, ANIMATION_FRAME_TIMEOUT);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>二、实现 requestHostCallback(callback, absoluteTimeout)。首先将 scheduledHostCallback 更新为参数 callback，timeoutTime 更新为 absoluteTimeout。若 isFlushingHostCallback 为真或者 absoluteTimeout 超时时间为否值，使用 MessageChanel 机制发送消息，以执行 callback。否则，在 isAnimationFrameScheduled 为否值（即 rAF 轮询未启动的情况下），scheduler 将启动 rAF 轮询。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">requestHostCallback = <span class="function"><span class="keyword">function</span>(<span class="params">callback, absoluteTimeout</span>) </span>&#123;</span><br><span class="line">  scheduledHostCallback = callback;</span><br><span class="line">  timeoutTime = absoluteTimeout;</span><br><span class="line">  <span class="keyword">if</span> (isFlushingHostCallback || absoluteTimeout &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="comment">// Don't wait for the next frame. Continue working ASAP, in a new event.</span></span><br><span class="line">    port.postMessage(<span class="literal">undefined</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!isAnimationFrameScheduled) &#123;</span><br><span class="line">    <span class="comment">// If rAF didn't already schedule one, we need to schedule a frame.</span></span><br><span class="line">    <span class="comment">// <span class="doctag">TODO:</span> If this rAF doesn't materialize because the browser throttles, we</span></span><br><span class="line">    <span class="comment">// might want to still have setTimeout trigger rIC as a backup to ensure</span></span><br><span class="line">    <span class="comment">// that we keep performing work.</span></span><br><span class="line">    isAnimationFrameScheduled = <span class="literal">true</span>;</span><br><span class="line">    requestAnimationFrameWithTimeout(animationTick);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>三、实现 animationTick 函数。该函数作为 rAF 的回调，也即 requestAnimationFrameWithTimeout 的参数。其处理流程为：</p>
+<ol>
+<li>如果 scheduledHostCallback 不是 null，持续启用 rAF 轮询新添加的任务（以便在一个重绘周期内批处理多个任务）；否则将 isAnimationFrameScheduled 置为 false，并中断 rAF 轮询。</li>
+<li>帧率调整、下一帧执行完成的期望时间点计算。包含如下步骤：<ul>
+<li>以当前帧执行完成的实际时间点减去期望时间点、再加上理想执行时长的方式，计算 nextFrameTime。</li>
+<li>若前一帧和当前帧的执行时长均小于理想执行时长，将理想执行时长 activeFrameTime 调整为这两帧执行时长的最大值；若这两帧执行时长有一个大于理想执行时长，将前一帧的执行时长 previousFrameTime 缓存更新为当前帧的执行时长。</li>
+<li>以当前帧执行完成的实际时间点加上理想执行时长的方式，计算下一帧执行完成的期望时间点 frameDeadline。</li>
+</ul>
+</li>
+<li>当 isMessageEventScheduled 为 false 时，将 isMessageEventScheduled 置为 true，同时调用 postMessage 发送消息。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> animationTick = <span class="function"><span class="keyword">function</span>(<span class="params">rafTime</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (scheduledHostCallback !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// Eagerly schedule the next animation callback at the beginning of the</span></span><br><span class="line">    <span class="comment">// frame. If the scheduler queue is not empty at the end of the frame, it</span></span><br><span class="line">    <span class="comment">// will continue flushing inside that callback. If the queue *is* empty,</span></span><br><span class="line">    <span class="comment">// then it will exit immediately. Posting the callback at the start of the</span></span><br><span class="line">    <span class="comment">// frame ensures it's fired within the earliest possible frame. If we</span></span><br><span class="line">    <span class="comment">// waited until the end of the frame to post the callback, we risk the</span></span><br><span class="line">    <span class="comment">// browser skipping a frame and not firing the callback until the frame</span></span><br><span class="line">    <span class="comment">// after that.</span></span><br><span class="line">    requestAnimationFrameWithTimeout(animationTick);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// No pending work. Exit.</span></span><br><span class="line">    isAnimationFrameScheduled = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> nextFrameTime = rafTime - frameDeadline + activeFrameTime;</span><br><span class="line">  <span class="keyword">if</span> (</span><br><span class="line">    nextFrameTime &lt; activeFrameTime &amp;&amp;</span><br><span class="line">    previousFrameTime &lt; activeFrameTime</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nextFrameTime &lt; <span class="number">8</span>) &#123;</span><br><span class="line">      <span class="comment">// Defensive coding. We don't support higher frame rates than 120hz.</span></span><br><span class="line">      <span class="comment">// If the calculated frame time gets lower than 8, it is probably a bug.</span></span><br><span class="line">      nextFrameTime = <span class="number">8</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// If one frame goes long, then the next one can be short to catch up.</span></span><br><span class="line">    <span class="comment">// If two frames are short in a row, then that's an indication that we</span></span><br><span class="line">    <span class="comment">// actually have a higher frame rate than what we're currently optimizing.</span></span><br><span class="line">    <span class="comment">// We adjust our heuristic dynamically accordingly. For example, if we're</span></span><br><span class="line">    <span class="comment">// running on 120hz display or 90hz VR display.</span></span><br><span class="line">    <span class="comment">// Take the max of the two in case one of them was an anomaly due to</span></span><br><span class="line">    <span class="comment">// missed frame deadlines.</span></span><br><span class="line">    activeFrameTime =</span><br><span class="line">      nextFrameTime &lt; previousFrameTime ? previousFrameTime : nextFrameTime;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    previousFrameTime = nextFrameTime;</span><br><span class="line">  &#125;</span><br><span class="line">  frameDeadline = rafTime + activeFrameTime;</span><br><span class="line">  <span class="keyword">if</span> (!isMessageEventScheduled) &#123;</span><br><span class="line">    isMessageEventScheduled = <span class="literal">true</span>;</span><br><span class="line">    port.postMessage(<span class="literal">undefined</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>四、实现 channel.port1.onmessage 监听函数，作为实际执行任务的触发器。其处理逻辑为：</p>
+<ol>
+<li>将 isMessageEventScheduled 置为 false。</li>
+<li>通过对比 frameDeadline 和 onmessage 监听函数的执行时机，判断 setTimeout 是否取代 rAF 唤醒回调，如是，判断超时时间是否在默许的范围内：当超出了默许的范围，以 true 作为首参执行任务；当没有超出，启动 rAF 轮询，在下一次重绘后执行任务。</li>
+<li>将 isFlushingHostCallback 置为 true，并执行任务。在任务执行完后成，再将 isFlushingHostCallback 置为 false。这时如果 scheduledHostCallback 为 null，也会造成 onmessage 监听函空转。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> channel = <span class="keyword">new</span> MessageChannel();</span><br><span class="line"><span class="keyword">var</span> port = channel.port2;</span><br><span class="line">channel.port1.onmessage = <span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</span><br><span class="line">  isMessageEventScheduled = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> prevScheduledCallback = scheduledHostCallback;</span><br><span class="line">  <span class="keyword">var</span> prevTimeoutTime = timeoutTime;</span><br><span class="line">  scheduledHostCallback = <span class="literal">null</span>;</span><br><span class="line">  timeoutTime = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> currentTime = getCurrentTime();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> didTimeout = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 代码不包含视图更新，setTimeout 将取代 rAF 唤醒回调，造成 currentTime 大于 frameDeadline</span></span><br><span class="line">  <span class="keyword">if</span> (frameDeadline - currentTime &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="comment">// There's no time left in this idle period. Check if the callback has</span></span><br><span class="line">    <span class="comment">// a timeout and whether it's been exceeded.</span></span><br><span class="line">    <span class="keyword">if</span> (prevTimeoutTime !== <span class="number">-1</span> &amp;&amp; prevTimeoutTime &lt;= currentTime) &#123;</span><br><span class="line">      <span class="comment">// Exceeded the timeout. Invoke the callback even though there's no</span></span><br><span class="line">      <span class="comment">// time left.</span></span><br><span class="line">      didTimeout = <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// No timeout.</span></span><br><span class="line">      <span class="keyword">if</span> (!isAnimationFrameScheduled) &#123;</span><br><span class="line">        <span class="comment">// Schedule another animation callback so we retry later.</span></span><br><span class="line">        isAnimationFrameScheduled = <span class="literal">true</span>;</span><br><span class="line">        requestAnimationFrameWithTimeout(animationTick);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">// Exit without invoking the callback.</span></span><br><span class="line">      scheduledHostCallback = prevScheduledCallback;</span><br><span class="line">      timeoutTime = prevTimeoutTime;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (prevScheduledCallback !== <span class="literal">null</span>) &#123;</span><br><span class="line">    isFlushingHostCallback = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      prevScheduledCallback(didTimeout);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      isFlushingHostCallback = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>五、实现 cancelHostCallback，取消任务。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cancelHostCallback = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  scheduledHostCallback = <span class="literal">null</span>;</span><br><span class="line">  isMessageEventScheduled = <span class="literal">false</span>;</span><br><span class="line">  timeoutTime = <span class="number">-1</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>六、实现 shouldYieldToHost，通过将 frameDeadline 置为当前时间，frameDeadline 总会小于 onMessage 监听函数的执行事件点，在没有设置超时点的前提下，任务将等待下一次重绘完成后再执行，相当于挂起。这一部分逻辑参见 onmessage 函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">shouldYieldToHost = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> frameDeadline &lt;= getCurrentTime();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/14/react/react16源码/React/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1995,330 +2192,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/17/css/less 使用指南/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/17/css/less 使用指南/" itemprop="url">less 使用指南</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-17T00:00:00+08:00">2018-11-17</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/17/css/less 使用指南/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/11/17/css/less 使用指南/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这篇文章本不打算发布在知乎平台。但是在汇总笔者所不常用的 less 语法时，笔者又小小费了点脑筋，推想了一下 less 的实现（这样有助于从更高的维度去看待很多功能实现）。因此，笔者就希望能在一个更开阔的平台上得到一些回馈和纠错性意见。之所以要汇总 less 语法，那是因为要推究网页、组件库改变样式主题的实现。</p>
-<h2 id="导入"><a href="#导入" class="headerlink" title="导入"></a>导入</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@import</span> <span class="string">"library"</span>; <span class="comment">// library.less</span></span><br><span class="line"><span class="keyword">@import</span> <span class="string">"typo.css"</span>;</span><br></pre></td></tr></table></figure>
-<h3 id="导入关键字"><a href="#导入关键字" class="headerlink" title="导入关键字"></a>导入关键字</h3><p>导入关键字使用形式如 @import (optional, reference) “foo.less”。</p>
-<p>所包含的关键字有：</p>
-<ol>
-<li>reference: 导入的样式文件将作为参考，其所包含的选择器将不会呈现在输出文件，却可以使用 mixin 混入或 extend 扩展将原选择器的样式添加到新的选择器中。reference 的应用场景如，@import (reference) bootstrap.less 样式，使用混入或扩展关键字只将 .navbar all 相关选择器的样式输出。推想其实现如，以内存形式缓存编译后的样式文件，被引用时才注入到输出文件中。</li>
-<li>inline: 全量复制 css 文件，不作处理（less 在某些地方不支持注释；且在不修改 css 的情形下，less 也不支持全部的 css hacks）。</li>
-<li>less: 以 less 文件形式处理导入的样式文件，不管文件扩展名。</li>
-<li>css: 以 css 文件形式处理导入的样式文件，不管文件扩展名。</li>
-<li>once: 样式文件只导入一次，默认。</li>
-<li>multiple：样式文件导入多次。</li>
-<li>optional: 样式文件不存在时不会报错。</li>
-</ol>
-<h2 id="嵌套规则"><a href="#嵌套规则" class="headerlink" title="嵌套规则"></a>嵌套规则</h2><p>使用嵌套形式书写样式文件时，&amp; 表示父选择器。</p>
-<p>less 将使用父选择器名替换 &amp;。特殊的，使用 &amp; 能改变选择器的顺序；当有多个父选择器时，&amp; 依次解析为这几个父选择器。</p>
-<p>推想其实现如，以块 {} 为编译单元，以 selectors 缓存 {} 前选择器，以 content 缓存 {} 内容并作解析，将样式写入 output；然后递归调用前述过程，传入父 selectors, content，解析子块时再将父 selector 添加到子 selector 前，将样式写入 output。嵌套规则以树形结构组织，但样式写入 output 时为扁平化结构。单个 &amp; 可以使用父 selector；多个 &amp;，可先构建两维数组，每个数组项为父 selector 的有序列表，然后遍历两维数组进行替换。若 &amp; 在选择器的尾部，编译时无需在子选择器前添加父选择器，而只将 &amp; 替换为父选择器。</p>
-<ol>
-<li><p>多个父选择器</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-tag">p</span>, <span class="selector-tag">a</span> &#123;</span><br><span class="line">  <span class="selector-tag">&amp;</span> + <span class="selector-tag">&amp;</span> &#123;</span><br><span class="line">    <span class="attribute">border-top</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-tag">p</span> + <span class="selector-tag">p</span>,</span><br><span class="line"><span class="selector-tag">p</span> + <span class="selector-tag">a</span>,</span><br><span class="line"><span class="selector-tag">a</span> + <span class="selector-tag">p</span>,</span><br><span class="line"><span class="selector-tag">a</span> + <span class="selector-tag">a</span> &#123;</span><br><span class="line">  <span class="attribute">border-top</span>: <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>改变选择器的顺序</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-class">.header</span> &#123;</span><br><span class="line">  <span class="selector-class">.menu</span> &#123;</span><br><span class="line">    <span class="selector-class">.no-borderradius</span> <span class="selector-tag">&amp;</span> &#123;</span><br><span class="line">      <span class="attribute">background-image</span>: url(<span class="string">'images/button-background.png'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-class">.no-borderradius</span> <span class="selector-class">.header</span> <span class="selector-class">.menu</span> &#123;</span><br><span class="line">  <span class="attribute">background-image</span>: url(<span class="string">'images/button-background.png'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><p>less 中变量使用 @variableName: variableValue 形式声明；@variableName 或 @{variableName} 形式使用。变量可用于选择器的名称，样式属性的名称，样式属性的值，url，import 语句等。</p>
-<p>less 允许使用变量去定义另一个变量的名称，即 @@variablename2 形式声明变量 variablename1。</p>
-<p>less 允许先使用变量，再声明变量。推想其实现如，同 js 一样会将声明提前，并保留在内存中，以精确的值替换掉使用的变量，文件解析完成后，再释放内存。</p>
-<p>变量有作用域，就近定义的优先。推想其编译过程，块将解析为函数，当在块中再度遇到相同的变量名，注入函数的实参就会被改变，最终输出也因而改变。其实现可能譬如模板引擎。</p>
-<p>变量的一大用途包含，通过变量设置网页样式的主题。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@var:</span> red;</span><br><span class="line"></span><br><span class="line"><span class="selector-id">#page</span> &#123;</span><br><span class="line">  <span class="variable">@var:</span> white;</span><br><span class="line">  <span class="selector-id">#header</span> &#123;</span><br><span class="line">    <span class="attribute">color</span>: <span class="variable">@var</span>; <span class="comment">// white</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="变量与混合"><a href="#变量与混合" class="headerlink" title="变量与混合"></a>变量与混合</h3><p>变量可以存储分离的规则集，其下可包含属性、嵌套规则集、变量声明、混合等。分离的规则集在块 {} 中以函数形式使用，该块内就可以使用分离的规则集内所声明的变量、样式属性和混合。</p>
-<p>推想其实现如，将分离规则集解析为函数，在快内使用时再行植入。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="variable">@detached-ruleset:</span> &#123;</span><br><span class="line">  <span class="selector-class">.mixin</span>() &#123;</span><br><span class="line">    <span class="attribute">font-family</span>: <span class="string">"Comic Sans MS"</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#AA86EE</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.cont</span> &#123;</span><br><span class="line">  <span class="variable">@detached-ruleset</span>();</span><br><span class="line">  <span class="selector-class">.mixin</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-class">.cont</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: <span class="string">"Comic Sans MS"</span>;</span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#AA86EE</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="操作符"><a href="#操作符" class="headerlink" title="操作符"></a>操作符</h2><p>算数运算符 +, -, *, / 可作用于变量、颜色、数值，less 将尝试获得单位。推想其实现，首先将变量替换为实际的值，然后匹配到操作符，解析操作符前后数值的单位并获得最终单位，使用最终单位修正数值，数值计算并输出。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@conversion-1:</span> <span class="number">5cm</span> + <span class="number">10mm</span>; <span class="comment">// 输出 6cm</span></span><br><span class="line"><span class="variable">@conversion-2:</span> <span class="number">2</span> - <span class="number">3cm</span> - <span class="number">5mm</span>; <span class="comment">// 输出 1.5cm</span></span><br><span class="line"><span class="variable">@incompatible-units:</span> <span class="number">2</span> + <span class="number">5px</span> - <span class="number">3cm</span>; <span class="comment">// 输出 4px</span></span><br><span class="line"><span class="variable">@base:</span> <span class="number">5%</span>;</span><br><span class="line"><span class="variable">@filler:</span> <span class="variable">@base</span> * <span class="number">2</span>; <span class="comment">// 输出 10%</span></span><br><span class="line"><span class="variable">@other:</span> <span class="variable">@base</span> + <span class="variable">@filler</span>; <span class="comment">// 输出 15%</span></span><br></pre></td></tr></table></figure>
-<h2 id="转义"><a href="#转义" class="headerlink" title="转义"></a>转义</h2><p>任何 ~”anything” 或 ~’anything’ 语句内，单双引号内容都将被保留，可用于规避 ‘//‘, ‘/<em> </em>/‘被误认为注释。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.weird-element</span> &#123;</span><br><span class="line">  <span class="attribute">content</span>: <span class="string">~"^//* some horrible but needed css hack"</span>;<span class="comment">// 输出 content: ^//* some horrible but needed css hack;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="混合"><a href="#混合" class="headerlink" title="混合"></a>混合</h2><p>混合能将某个类或 id 选择器中的样式添加到另一个选择器中，其书写形式如 css 中为类或 id 选择器添加样式，其下可包含选择器（当子选择器为类或 id 选择器时，该子选择器构成另一个混合，可以直接使用；这样，父选择器也称为命名空间）。</p>
-<p>当 guard 应用于命名空间时，当且仅当 guard 条件返回真值，才能使用由命名空间定义的混合。参见 guard。</p>
-<p>使用混合时添加 !important 关键字，混合下所有样式都将添加 !important。</p>
-<p>特别，当类或 id 选择器以 () 结尾时，选择器将不会在输出文件中有所表现，而只是在使用时会将样式混入到其他选择器中。() 中可以添加参数（以 ‘,’ 或 ‘;’ 分割参数），使函数具有函数特征，且支持多态。混合函数使用时可以借助参数名指定参数的值，这样就无关参数的位置；且使用时，@arguments 将包含所有参数；参数支持解构语法如 … 或 @rest…。混合函数的参数可以是复杂的样式规则。</p>
-<p>在混合函数中声明的变量，可以在使用混合的块中访问。但是块中若有同名变量，以块中声明的变量优先。</p>
-<p>推想其实现如，编译结束后类或 id 选择器构成的混合将保留在内存中，对于 () 结尾的选择器将以函数形式保存，使用时调用函数，这样就不会有样式输出。且保留在内存中的函数是在解析到 () 时构建的，这样就使得 less 语法上呈现多态，编译出来的函数可以使用控制语句处理函数体内参数的多态特征。</p>
-<ol>
-<li><p>命名空间，不输出混合。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-id">#bundle</span>() &#123;</span><br><span class="line">  <span class="selector-class">.button</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">border</span>: <span class="number">1px</span> solid black;</span><br><span class="line">    <span class="attribute">background-color</span>: grey;</span><br><span class="line">    <span class="selector-tag">&amp;</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">      <span class="attribute">background-color</span>: white</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.tab</span> &#123; ... &#125;</span><br><span class="line">  <span class="selector-class">.citation</span> &#123; ... &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-id">#header</span> <span class="selector-tag">a</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: orange;</span><br><span class="line">  <span class="selector-id">#bundle</span> &gt; <span class="selector-class">.button</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-id">#header</span> <span class="selector-tag">a</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: orange;</span><br><span class="line">  <span class="attribute">display</span>: block;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">1px</span> solid black;</span><br><span class="line">  <span class="attribute">background-color</span>: grey;</span><br><span class="line">  <span class="selector-tag">&amp;</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: white</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用 !important</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-class">.foo</span> (<span class="variable">@bg</span>: <span class="number">#f5f5f5</span>, <span class="variable">@color</span>: <span class="number">#900</span>) &#123;</span><br><span class="line">  <span class="attribute">background</span>: <span class="variable">@bg</span>;</span><br><span class="line">  <span class="attribute">color</span>: <span class="variable">@color</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.important</span> &#123;</span><br><span class="line">  <span class="selector-class">.foo</span>() !important;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-class">.important</span> &#123;</span><br><span class="line">  <span class="attribute">background</span>: <span class="number">#f5f5f5</span> <span class="meta">!important</span>;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#900</span> <span class="meta">!important</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>混合函数支持多态</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-class">.mixin</span>(dark; <span class="variable">@color</span>) &#123;</span><br><span class="line">  <span class="attribute">color</span>: darken(<span class="variable">@color</span>, <span class="number">10%</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.mixin</span>(light; <span class="variable">@color</span>) &#123;</span><br><span class="line">  <span class="attribute">color</span>: lighten(<span class="variable">@color</span>, <span class="number">10%</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.mixin</span>(<span class="variable">@_</span>; <span class="variable">@color</span>) &#123;</span><br><span class="line">  <span class="attribute">display</span>: block;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">@switch:</span> light;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.class</span> &#123;</span><br><span class="line">  <span class="selector-class">.mixin</span>(<span class="variable">@switch</span>; <span class="number">#888</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-class">.class</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#a2a2a2</span>;</span><br><span class="line">  <span class="attribute">display</span>: block;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>混合函数中定义的变量，可以在使用时引用</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-class">.mixin</span>() &#123;</span><br><span class="line">  <span class="variable">@width:</span>  <span class="number">100%</span>;</span><br><span class="line">  <span class="variable">@height:</span> <span class="number">200px</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.caller</span> &#123;</span><br><span class="line">  <span class="selector-class">.mixin</span>();</span><br><span class="line">  <span class="attribute">width</span>:  <span class="variable">@width</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="variable">@height</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-class">.caller</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>:  <span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">200px</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h2><p>扩展 :extend 是 less 提供的伪类，使用形式如 .big-bag:extend(.bag) 将使 .big-bag 拥有 .bag 的样式。</p>
-<p>使用 all 关键字如 .replacement:extend(.test all)，将把 .test 替换为 .replacement，再行输出另一份样式规则。</p>
-<p>推想其实现如，selector1:extend(selector2) 伪类前后内容解析为映射形式，在将 selector2 的样式规则赋值给 selector1。</p>
-<ol>
-<li>all 关键字<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-class">.a</span><span class="selector-class">.b</span><span class="selector-class">.test</span>,</span><br><span class="line"><span class="selector-class">.test</span><span class="selector-class">.c</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: orange;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.test</span> &#123;</span><br><span class="line">  <span class="selector-tag">&amp;</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">color</span>: green;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.replacement</span><span class="selector-pseudo">:extend(.test</span> <span class="keyword">all</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-class">.a</span><span class="selector-class">.b</span><span class="selector-class">.test</span>,</span><br><span class="line"><span class="selector-class">.test</span><span class="selector-class">.c</span>,</span><br><span class="line"><span class="selector-class">.a</span><span class="selector-class">.b</span><span class="selector-class">.replacement</span>,</span><br><span class="line"><span class="selector-class">.replacement</span><span class="selector-class">.c</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: orange;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.test</span><span class="selector-pseudo">:hover</span>,</span><br><span class="line"><span class="selector-class">.replacement</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: green;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h3 id="扩展和指令"><a href="#扩展和指令" class="headerlink" title="扩展和指令"></a>扩展和指令</h3><p>若 extend 伪类在 @media 指令中定义，那么 less 将在 @media 指令内查找匹配的选择器。若 extend 伪类在顶层定义，less 将能匹配到所有 @media 指令中的选择器。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="keyword">@media</span> print &#123;</span><br><span class="line">  <span class="selector-class">.screenClass</span><span class="selector-pseudo">:extend(.selector)</span> &#123;&#125; <span class="comment">// extend inside media</span></span><br><span class="line">  <span class="selector-class">.selector</span> &#123; <span class="comment">// this will be matched - it is in the same media</span></span><br><span class="line">    <span class="attribute">color</span>: black;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="keyword">@media</span> print &#123;</span><br><span class="line">  <span class="selector-class">.selector</span>,</span><br><span class="line">  <span class="selector-class">.screenClass</span> &#123; <span class="comment">/*  ruleset inside the same media was extended */</span></span><br><span class="line">    <span class="attribute">color</span>: black;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="嵌套指令"><a href="#嵌套指令" class="headerlink" title="嵌套指令"></a>嵌套指令</h2><p>嵌套指令会冒泡到顶层。对于条件指令如 @Media, @supports, @document 等，条件指令上的父选择器会被植入条件指令内；对于非条件指令如 @font-face, @keyframes 等，条件指令上的父选择器会被忽略。</p>
-<ol>
-<li><p>条件指令</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-class">.screen-color</span> &#123;</span><br><span class="line">  <span class="keyword">@media</span> screen &#123;</span><br><span class="line">    <span class="attribute">color</span>: green;</span><br><span class="line">    <span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="number">768px</span>) &#123;</span><br><span class="line">      <span class="attribute">color</span>: red;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="keyword">@media</span> screen &#123;</span><br><span class="line">  <span class="selector-class">.screen-color</span> &#123;</span><br><span class="line">    <span class="attribute">color</span>: green;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@media</span> screen and (<span class="attribute">min-width</span>: <span class="number">768px</span>) &#123;</span><br><span class="line">  <span class="selector-class">.screen-color</span> &#123;</span><br><span class="line">    <span class="attribute">color</span>: red;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>非条件指令</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-id">#a</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: blue;</span><br><span class="line">  <span class="keyword">@font-face</span> &#123;</span><br><span class="line">    <span class="attribute">src</span>: made-up-url;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-id">#a</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: blue;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">  <span class="attribute">src</span>: made-up-url;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="guard"><a href="#guard" class="headerlink" title="guard"></a>guard</h2><p>guard 用于指定条件，在满足该条件时，才会有样式输出。使用形式如 when (@var = value)，即当 @var 变量或参数等于 value 时，才满足条件。when 条件内可包含比较运算符如 =, &lt;, &gt;, &lt;=, &gt;=，以及逻辑运算符 and, and not，内置的类型检查函数如 iscolor, isnumber, isstring, iskeyword, isurl, ispixel, ispercentage, isem, isunit。</p>
-<p>当使用 guard 递归构建 mixin 时，可以形成循环。</p>
-<ol>
-<li><p>逻辑运算符</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-class">.mixin</span> (<span class="variable">@a</span>) <span class="keyword">when</span> (<span class="variable">@a</span> &gt; <span class="number">50%</span>) <span class="keyword">and</span> (<span class="variable">@a</span> &gt; <span class="number">5px</span>)&#123;</span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">14px</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.mixin</span> (<span class="variable">@a</span>) <span class="keyword">when</span> <span class="keyword">not</span> (<span class="variable">@a</span> &lt; <span class="number">50%</span>) <span class="keyword">and</span> <span class="keyword">not</span> (<span class="variable">@a</span> &lt; <span class="number">5px</span>)&#123;</span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">20px</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.mixin</span> (<span class="variable">@a</span>) &#123;</span><br><span class="line">  <span class="attribute">color</span>: <span class="variable">@a</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.class1</span> &#123; <span class="selector-class">.mixin</span>(<span class="number">#FF0000</span>) &#125;</span><br><span class="line"><span class="selector-class">.class2</span> &#123; <span class="selector-class">.mixin</span>(<span class="number">#555</span>) &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-class">.class1</span> &#123;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">20px</span>;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#FF0000</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.class2</span> &#123;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">20px</span>;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#555</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>循环</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-class">.cont</span>(<span class="variable">@count</span>) <span class="keyword">when</span> (<span class="variable">@count</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.cont</span>((<span class="variable">@count</span> - <span class="number">1</span>));</span><br><span class="line">  <span class="attribute">width</span>: (<span class="number">25px</span> * <span class="variable">@count</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-tag">div</span> &#123;</span><br><span class="line">  <span class="selector-class">.cont</span>(<span class="number">3</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-tag">div</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">25px</span>;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">50px</span>;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">75px</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="合并"><a href="#合并" class="headerlink" title="合并"></a>合并</h2><ol>
-<li><p>使用 ‘,’ 串联多个样式属性</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-class">.myfunc</span>() &#123;</span><br><span class="line">  <span class="selector-tag">box-shadow</span>+: <span class="selector-tag">5px</span> <span class="selector-tag">5px</span> <span class="selector-tag">5px</span> <span class="selector-tag">grey</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.class</span> &#123;</span><br><span class="line">  <span class="selector-class">.myfunc</span>();</span><br><span class="line">  <span class="selector-tag">box-shadow</span>+: <span class="selector-tag">0</span> <span class="selector-tag">0</span> <span class="selector-tag">5px</span> <span class="selector-id">#f78181</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-class">.class</span> &#123;</span><br><span class="line">  <span class="attribute">box-shadow</span>: <span class="number">5px</span> <span class="number">5px</span> <span class="number">5px</span> grey, <span class="number">0</span> <span class="number">0</span> <span class="number">5px</span> <span class="number">#f78181</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用空格串联多个样式属性</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="selector-class">.mixin</span>() &#123;</span><br><span class="line">  <span class="selector-tag">transform</span>+<span class="selector-tag">_</span>: <span class="selector-tag">scale</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.class</span> &#123;</span><br><span class="line">  <span class="selector-class">.mixin</span>();</span><br><span class="line">  <span class="selector-tag">transform</span>+<span class="selector-tag">_</span>: <span class="selector-tag">rotate</span>(<span class="number">2deg</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// output</span></span><br><span class="line"><span class="selector-class">.class</span> &#123;</span><br><span class="line">  <span class="attribute">transform</span>: scale(<span class="number">1</span>) rotate(<span class="number">2deg</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>推想其实现如，由 less 提供上下文环境，并通过该上下文环境输出内置函数。颜色函数的实现是笔者鞭长莫及的。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@base:</span> <span class="number">#f04615</span>;</span><br><span class="line"><span class="variable">@width:</span> <span class="number">0.5</span>;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.class</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: percentage(<span class="variable">@width</span>);</span><br><span class="line">  <span class="attribute">color</span>: saturate(<span class="variable">@base</span>, <span class="number">5%</span>);</span><br><span class="line">  <span class="attribute">background-color</span>: spin(lighten(<span class="variable">@base</span>, <span class="number">25%</span>), <span class="number">8</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="其他函数"><a href="#其他函数" class="headerlink" title="其他函数"></a>其他函数</h3><ol>
-<li>color: 颜色转换函数。</li>
-<li>image-size: 从文件中获取图像的宽度及高度，可作为 image-size 样式的值。</li>
-<li>image-width : 从文件中获取图像的宽度。</li>
-<li>image-height: 从文件中获取图像的高度。</li>
-<li>convert: 单位转换，如 convert(10cm, mm)。</li>
-<li>data-uri: 用于嵌入资源，data-uri(url, mimeType)。</li>
-<li>unit: 可用于指定单位，unit(dimension, unit)。</li>
-<li>get-unit: 可用于获取单位，如 get-unit(30px)。</li>
-<li>svg-gradient: 可用于转换颜色，</li>
-<li>if: 按条件返回指定的值，if(condition, value1, value2)，当 condition 成立时，返回 value1，否则返回 value2。</li>
-</ol>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.style</span> &#123;</span><br><span class="line">  <span class="variable">@style:</span> orange, green <span class="number">30%</span>, <span class="number">#DAA520</span>;</span><br><span class="line">  <span class="attribute">background-image</span>: svg-gradient(ellipse, <span class="variable">@style</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="字符串函数"><a href="#字符串函数" class="headerlink" title="字符串函数"></a>字符串函数</h3><ol>
-<li>escape: 对特殊字符使用URL编码来对字符串或信息进行编码。</li>
-<li>e: 去除字符串的引号。</li>
-<li>%: format 函数，用于转化字符串，如 %(string，arguments …)。</li>
-<li>replace: 用于替换字符串，如 replace(string, pattern, replacement, flags)。</li>
-</ol>
-<h3 id="列表函数"><a href="#列表函数" class="headerlink" title="列表函数"></a>列表函数</h3><ol>
-<li>length: 用于获取列表的长度，如 @list: “audi”, “benz”, “toyota”, “honda”; length(@list)。</li>
-<li>extract: 用于获取列表中指定位置的值，如 @list: “audi”, “benz”, “toyota”, “honda”; length(@list, 2)。</li>
-</ol>
-<h3 id="数学函数"><a href="#数学函数" class="headerlink" title="数学函数"></a>数学函数</h3><ol>
-<li>ceil: 向上取整。</li>
-<li>floor: 向下取整。</li>
-<li>percentage: 将浮点数转换为百分比字符串。</li>
-<li>round: 四舍五入。</li>
-<li>sqrt: 获取平方根。</li>
-<li>abs: 取绝对值，如 abs(30ft) 将获得 30ft。</li>
-<li>sin, asin, cos, acos, tan, atan: 计算正弦、反正弦等。</li>
-<li>pi: 返回 pi 的值。</li>
-<li>pow: 计算幂。</li>
-<li>mod: 计算首参相对次参的模。</li>
-<li>min: 计算最小值，如 min(70,30,45,20)。</li>
-<li>max: 计算最大值。</li>
-</ol>
-<h3 id="类型函数"><a href="#类型函数" class="headerlink" title="类型函数"></a>类型函数</h3><p>类型函数包含 iscolor, isnumber, isstring, iskeyword, isurl, ispixel, ispercentage, isem, isunit, isruleset，返回布尔值。</p>
-<h3 id="颜色定义函数"><a href="#颜色定义函数" class="headerlink" title="颜色定义函数"></a>颜色定义函数</h3><p>颜色定义函数包含 rgb(red, green, blue), rgba(red, green, blue, alpha), argb, hsl, hsla, hsv, hsva，具体可以参看 <a href="https://www.w3cschool.cn/less/less_color_defination_functions.html" target="_blank" rel="noopener">Less 颜色定义函数</a>。</p>
-<h3 id="颜色通道函数"><a href="#颜色通道函数" class="headerlink" title="颜色通道函数"></a>颜色通道函数</h3><ol>
-<li>hue: 在 HSL 颜色空间中，提取颜色对象的色调通道。</li>
-<li>saturation: 在 HSL 颜色空间中，提取彩色对象的饱和通道。</li>
-<li>lightness: 在 HSL 颜色空间中，从颜色对象提取亮度通道。</li>
-<li>hsvhue: 在 HSV 色彩空间中，提取色彩对象的色调通道。</li>
-<li>hsvsaturation: 在 HSL 颜色空间中，提取彩色对象的饱和通道。</li>
-<li>hsvvalue: 在 HSL 颜色空间中，提取颜色对象的值通道。</li>
-<li>red: 提取彩色对象的红色通道。</li>
-<li>green: 提取彩色对象的绿色通道。</li>
-<li>blue: 提取彩色对象的蓝色通道。</li>
-<li>alpha: 提取颜色对象的 alpha 通道。</li>
-<li>luma: 计算颜色对象的亮度值。</li>
-<li>luminance: 在没有伽马校正的情况下计算亮度值。</li>
-</ol>
-<h3 id="颜色操作函数"><a href="#颜色操作函数" class="headerlink" title="颜色操作函数"></a>颜色操作函数</h3><ol>
-<li>saturate: 改变颜色的强度或饱和度，如 saturate(color, amount)。</li>
-<li>desaturate: 降低颜色的强度或饱和度。</li>
-<li>lighten: 增加颜色的亮度，如 lighten(color, amount)。</li>
-<li>darken: 降低颜色的亮度。</li>
-<li>fadein: 增加颜色的不透明度，如 fadein(color, amount)。</li>
-<li>fadeout: 降低颜色的不透明度。</li>
-<li>fade: 设置颜色的不透明度，如 fade(color, amount)。</li>
-<li>spin: 旋转颜色的角度，如 spin(color, angle)。</li>
-<li>mix: 混合两种颜色以及不透明度，如 mix(color1, color2, weight)，参数 weight 为权重。</li>
-<li>tint: 混合颜色和白色，如 tint(color, weight)。</li>
-<li>shade: 混合颜色和黑色。</li>
-<li>greyscale: 丢弃颜色的饱和度，如 greyscale(color)。</li>
-<li>contrast: 设置颜色的对比度，如 contrast(color, dark, light, amount)。</li>
-</ol>
-<h3 id="颜色混合函数"><a href="#颜色混合函数" class="headerlink" title="颜色混合函数"></a>颜色混合函数</h3><ol>
-<li>multiply: 两种RGB通道颜色相乘，然后除以 255 以得到较暗的颜色作为结果。</li>
-<li>screen: 获取两种颜色中更明亮的颜色。</li>
-<li>overlay: 结合 multiply, screen 的效果生成结果，使光通道更轻，暗通道更暗。</li>
-<li>softlight: 工作方式类似于 overlay 函数，但它仅使用颜色的一部分，其中柔和地突出显示其他颜色。</li>
-<li>hardlight: 与 overlay 函数类似，但颜色的作用相反。 它使用第二个参数执行 overlay()函数，以确定是否应该执行乘法或屏幕操作。</li>
-<li>difference: 从首参颜色中减去次参颜色，负值将反转。</li>
-<li>exclusion: 类似于 difference 函数，但具有较低的对比度。</li>
-<li>average: 计算两种颜色的均值。</li>
-<li>negation: 与 difference 函数相反，从次参颜色减去首参颜色。</li>
-</ol>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://lesscss.cn/features/" target="_blank" rel="noopener">less 语言特性</a><br><a href="https://www.w3cschool.cn/less/" target="_blank" rel="noopener">less 教程</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2370,7 +2243,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-count">47</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

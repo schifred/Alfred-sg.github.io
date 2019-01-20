@@ -369,7 +369,7 @@
       
         
           
-            <p>scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。</p>
+            <p>scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。在 requestHostCallback 的基础上，scheduler 使用双向链表构建含有优先级的原子任务节点，再输出添加并执行任务节点、打断任务节点执行的 api。</p>
 <h2 id="requestHostCallback"><a href="#requestHostCallback" class="headerlink" title="requestHostCallback"></a>requestHostCallback</h2><p>scheduler 模块支持三种方式实现 requestHostCallback, cancelHostCallback, shouldYieldToHost, getCurrentTime 函数：一、通过 window._schedMock 或 global._schedMock 数组注入；二、通过 setTimeout 实现（实现上当 requestHostCallback 的首参 —— 任务函数尚在执行过程中，scheduler 将 requestHostCallback 作为 setTimeout 的回调函数，以使在新添加任务函数间接添加到 macrotasks 队列中，可参看源码）；三、基于 MessageChannel, requestAnimationFrame 实现（MessageChannel 用于探知线程是否空闲，requestAnimationFrame 用于与重绘机制契合）。本文着重介绍第三种方式，并用 rAF 指代 requestAnimationFrame。</p>
 <p>基于 MessageChannel, requestAnimationFrame 实现的上述四种函数的功能点为：</p>
 <table>

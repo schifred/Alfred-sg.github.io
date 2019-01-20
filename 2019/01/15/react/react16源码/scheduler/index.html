@@ -103,19 +103,19 @@
   <meta name="keywords" content="analyst,react," />
 
 
-<meta name="description" content="scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。 requestHostCallbackscheduler 模块支持三种方式实现 requestHostCallback, cancelHostCallback, shouldYiel">
+<meta name="description" content="scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。在 requestHostCallback 的基础上，scheduler 使用双向链表构建含有优先级的原子任务节点，再输出添加并执行任务节点、打断任务节点执行的 api。 reques">
 <meta name="keywords" content="analyst,react">
 <meta property="og:type" content="article">
 <meta property="og:title" content="scheduler 源码分析">
 <meta property="og:url" content="http://yoursite.com/2019/01/15/react/react16源码/scheduler/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。 requestHostCallbackscheduler 模块支持三种方式实现 requestHostCallback, cancelHostCallback, shouldYiel">
+<meta property="og:description" content="scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。在 requestHostCallback 的基础上，scheduler 使用双向链表构建含有优先级的原子任务节点，再输出添加并执行任务节点、打断任务节点执行的 api。 reques">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/01/15/react/react16源码/scheduler/requestHostCallback流程图.png">
-<meta property="og:updated_time" content="2019-01-20T09:13:39.709Z">
+<meta property="og:updated_time" content="2019-01-20T09:21:41.776Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="scheduler 源码分析">
-<meta name="twitter:description" content="scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。 requestHostCallbackscheduler 模块支持三种方式实现 requestHostCallback, cancelHostCallback, shouldYiel">
+<meta name="twitter:description" content="scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。在 requestHostCallback 的基础上，scheduler 使用双向链表构建含有优先级的原子任务节点，再输出添加并执行任务节点、打断任务节点执行的 api。 reques">
 <meta name="twitter:image" content="http://yoursite.com/2019/01/15/react/react16源码/scheduler/requestHostCallback流程图.png">
 
 
@@ -368,7 +368,7 @@
       
 
       
-        <p>scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。</p>
+        <p>scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。在 requestHostCallback 的基础上，scheduler 使用双向链表构建含有优先级的原子任务节点，再输出添加并执行任务节点、打断任务节点执行的 api。</p>
 <h2 id="requestHostCallback"><a href="#requestHostCallback" class="headerlink" title="requestHostCallback"></a>requestHostCallback</h2><p>scheduler 模块支持三种方式实现 requestHostCallback, cancelHostCallback, shouldYieldToHost, getCurrentTime 函数：一、通过 window._schedMock 或 global._schedMock 数组注入；二、通过 setTimeout 实现（实现上当 requestHostCallback 的首参 —— 任务函数尚在执行过程中，scheduler 将 requestHostCallback 作为 setTimeout 的回调函数，以使在新添加任务函数间接添加到 macrotasks 队列中，可参看源码）；三、基于 MessageChannel, requestAnimationFrame 实现（MessageChannel 用于探知线程是否空闲，requestAnimationFrame 用于与重绘机制契合）。本文着重介绍第三种方式，并用 rAF 指代 requestAnimationFrame。</p>
 <p>基于 MessageChannel, requestAnimationFrame 实现的上述四种函数的功能点为：</p>
 <table>

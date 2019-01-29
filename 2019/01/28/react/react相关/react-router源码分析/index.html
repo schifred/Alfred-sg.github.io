@@ -111,7 +111,7 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="react-router基于 history 创建的 history 对象、以及 create-react-context 为上下游组件传递 context 数据，上游的 Router 组件用于监听地址栏的变更，随后将 history 对象以及当前的 state.location 信息写入 context；下游的 Route 组件通过工具函数 matchPath 判断 location.pathn">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-01-28T15:48:36.010Z">
+<meta property="og:updated_time" content="2019-01-29T14:23:06.987Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="react-router">
 <meta name="twitter:description" content="react-router基于 history 创建的 history 对象、以及 create-react-context 为上下游组件传递 context 数据，上游的 Router 组件用于监听地址栏的变更，随后将 history 对象以及当前的 state.location 信息写入 context；下游的 Route 组件通过工具函数 matchPath 判断 location.pathn">
@@ -367,7 +367,9 @@
 
       
         <h2 id="react-router"><a href="#react-router" class="headerlink" title="react-router"></a>react-router</h2><p>基于 <a href="http://xzfyu.com/2019/01/27/history%E6%BA%90%E7%A0%81/" target="_blank" rel="noopener">history</a> 创建的 history 对象、以及 <a href="https://github.com/jamiebuilds/create-react-context" target="_blank" rel="noopener">create-react-context</a> 为上下游组件传递 context 数据，上游的 Router 组件用于监听地址栏的变更，随后将 history 对象以及当前的 state.location 信息写入 context；下游的 Route 组件通过工具函数 matchPath 判断 location.pathname 是否匹配 props.path，以此渲染出内容。</p>
-<p>在这种机制下，存在两个问题：如果 location.pathname 与多个 Route 匹配时，react-router 将会渲染出这几个 Route 的内容；如果嵌套使用的 Route 元素均需要与 location.pathname 当前的地址栏信息加以比较的话，那么这个 Route 元素的 props.path 属性也需要感知父 Route 元素的 props.path 信息。针对第一个问题，react-router 提供了 Switch 组件。借助 Switch 组件，react-router 将只渲染首个匹配的 Route 元素，且为子组件注入 props.computedMatch 属性（以避免 matchPath 的多次调用）。针对第二个问题，react-router 通过 Switch 组件或父 Route 组件向子组件注入 props.match 属性，再通过 match.path 构造子 Route 的 props.path 属性（参见 <a href="https://reacttraining.com/react-router/web/example/basic" target="_blank" rel="noopener">basic 示例</a>）。</p>
+<p>在这种机制下，存在两个问题：如果 location.pathname 与多个 Route 匹配时，react-router 将会渲染出这几个 Route 的内容；如果嵌套使用的 Route 元素均需要与 location.pathname 当前的地址栏信息加以比较的话，那么这个 Route 元素的 props.path 属性也需要感知父 Route 元素的 props.path 信息。针对第一个问题，react-router 提供了 Switch 组件。借助 Switch 组件，react-router 将只渲染首个匹配的 Route 元素，且为子组件注入 props.computedMatch 属性（以避免 matchPath 的多次调用）。针对第二个问题，react-router 通过 Switch 组件或父 Route 组件向子组件注入 props.match 属性，再通过 match.path 设置子 Route 的 props.path 属性（参见 <a href="https://reacttraining.com/react-router/web/example/basic" target="_blank" rel="noopener">basic 示例</a>）。</p>
+<p>除了改变子组件的 props.match 属性外，Switch 和 Route 组件均能改变子组件的 props.location 属性。react-router 以 <a href="https://reacttraining.com/react-router/web/example/animated-transitions" target="_blank" rel="noopener">Animated Transitions 示例</a> 指出 props.location 属性可应用于动效渲染场景。在示例中，react-router 使用指定 location 属性的 Switch 组件包裹前后两个页面级渲染内容，再经由指定 key 键为 location.key 的 CSSTransition 组件包裹（指定 key 键是为了重绘 CSSTransition 组件，并使组件的卸载、挂载机制和移入移出动效契合），而后统一由 TransitionGroup 组件管理 CSSTransition 组件的动效切换过程。这样就可以实现，在地址栏改变过程中，前一个 CSSTransition 组件同步驻留，执行完隐藏动效后再移除；后一个 CSSTransition 组件执行完显示动效后再移入。可以设想的黑魔法是，对于指定动态 location 属性的 Route 或 Switch，其子 Route 可以根据该 location 属性设定渲染情况。</p>
+<p>在 Router 之外，react-router 还提供 MemoryRouter, StaticRouter 组件。MemoryRouter 组件可根据虚拟的缓存历史堆栈控制子 Route 内容的渲染。</p>
 <h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
 <li>generatePath(path, params): 基于 <a href="https://github.com/pillarjs/path-to-regexp" target="_blank" rel="noopener">path-to-regexp</a>，将路径规则 path 和路由参数 params 解析为实际的路径。实现上，根据路径规则的解析函数会以对象形式缓存在内存中。</li>
 <li>matchPath(pathname, { path, exact, strict, sensitive }): 基于 <a href="https://github.com/pillarjs/path-to-regexp" target="_blank" rel="noopener">path-to-regexp</a>，将实际路径 pathname 解析为 { path, url, isExact, params } 形式。其中，path 为路径规则；url 为匹配的路径内容；isExact 指实际路径 path 和路径规则 pathname 是否相等；params 为路由参数。</li>

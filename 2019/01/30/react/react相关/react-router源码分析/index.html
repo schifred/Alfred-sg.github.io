@@ -107,21 +107,23 @@
 <meta name="keywords" content="analyst,react">
 <meta property="og:type" content="article">
 <meta property="og:title" content="react-router">
-<meta property="og:url" content="http://yoursite.com/2019/01/28/react/react相关/react-router源码分析/index.html">
+<meta property="og:url" content="http://yoursite.com/2019/01/30/react/react相关/react-router源码分析/index.html">
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="react-router基于 history 创建的 history 对象、以及 create-react-context 为上下游组件传递 context 数据，上游的 Router 组件用于监听地址栏的变更，随后将 history 对象以及当前的 state.location 信息写入 context；下游的 Route 组件通过工具函数 matchPath 判断 location.pathn">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-01-29T14:23:06.987Z">
+<meta property="og:image" content="http://yoursite.com/2019/01/30/react/react相关/react-router源码分析/react-router层级关系.png">
+<meta property="og:updated_time" content="2019-01-30T15:24:17.934Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="react-router">
 <meta name="twitter:description" content="react-router基于 history 创建的 history 对象、以及 create-react-context 为上下游组件传递 context 数据，上游的 Router 组件用于监听地址栏的变更，随后将 history 对象以及当前的 state.location 信息写入 context；下游的 Route 组件通过工具函数 matchPath 判断 location.pathn">
+<meta name="twitter:image" content="http://yoursite.com/2019/01/30/react/react相关/react-router源码分析/react-router层级关系.png">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/01/28/react/react相关/react-router源码分析/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/01/30/react/react相关/react-router源码分析/"/>
 
 
   <title>react-router | 修子范语</title>
@@ -271,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/28/react/react相关/react-router源码分析/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/30/react/react相关/react-router源码分析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -300,7 +302,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-28T00:00:00+08:00">2019-01-28</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-30T00:00:00+08:00">2019-01-30</time>
             
 
             
@@ -336,9 +338,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/01/28/react/react相关/react-router源码分析/#comments" itemprop="discussionUrl">
+                <a href="/2019/01/30/react/react相关/react-router源码分析/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/01/28/react/react相关/react-router源码分析/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2019/01/30/react/react相关/react-router源码分析/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -368,13 +370,31 @@
       
         <h2 id="react-router"><a href="#react-router" class="headerlink" title="react-router"></a>react-router</h2><p>基于 <a href="http://xzfyu.com/2019/01/27/history%E6%BA%90%E7%A0%81/" target="_blank" rel="noopener">history</a> 创建的 history 对象、以及 <a href="https://github.com/jamiebuilds/create-react-context" target="_blank" rel="noopener">create-react-context</a> 为上下游组件传递 context 数据，上游的 Router 组件用于监听地址栏的变更，随后将 history 对象以及当前的 state.location 信息写入 context；下游的 Route 组件通过工具函数 matchPath 判断 location.pathname 是否匹配 props.path，以此渲染出内容。</p>
 <p>在这种机制下，存在两个问题：如果 location.pathname 与多个 Route 匹配时，react-router 将会渲染出这几个 Route 的内容；如果嵌套使用的 Route 元素均需要与 location.pathname 当前的地址栏信息加以比较的话，那么这个 Route 元素的 props.path 属性也需要感知父 Route 元素的 props.path 信息。针对第一个问题，react-router 提供了 Switch 组件。借助 Switch 组件，react-router 将只渲染首个匹配的 Route 元素，且为子组件注入 props.computedMatch 属性（以避免 matchPath 的多次调用）。针对第二个问题，react-router 通过 Switch 组件或父 Route 组件向子组件注入 props.match 属性，再通过 match.path 设置子 Route 的 props.path 属性（参见 <a href="https://reacttraining.com/react-router/web/example/basic" target="_blank" rel="noopener">basic 示例</a>）。</p>
-<p>除了改变子组件的 props.match 属性外，Switch 和 Route 组件均能改变子组件的 props.location 属性。react-router 以 <a href="https://reacttraining.com/react-router/web/example/animated-transitions" target="_blank" rel="noopener">Animated Transitions 示例</a> 指出 props.location 属性可应用于动效渲染场景。在示例中，react-router 使用指定 location 属性的 Switch 组件包裹前后两个页面级渲染内容，再经由指定 key 键为 location.key 的 CSSTransition 组件包裹（指定 key 键是为了重绘 CSSTransition 组件，并使组件的卸载、挂载机制和移入移出动效契合），而后统一由 TransitionGroup 组件管理 CSSTransition 组件的动效切换过程。这样就可以实现，在地址栏改变过程中，前一个 CSSTransition 组件同步驻留，执行完隐藏动效后再移除；后一个 CSSTransition 组件执行完显示动效后再移入。可以设想的黑魔法是，对于指定动态 location 属性的 Route 或 Switch，其子 Route 可以根据该 location 属性设定渲染情况。</p>
-<p>在 Router 之外，react-router 还提供 MemoryRouter, StaticRouter 组件。MemoryRouter 组件可根据虚拟的缓存历史堆栈控制子 Route 内容的渲染。</p>
+<p>除了改变子组件的 props.match 属性外，Switch 和 Route 组件均能改变子组件的 props.location 属性。react-router 以 <a href="https://reacttraining.com/react-router/web/example/animated-transitions" target="_blank" rel="noopener">Animated Transitions 示例</a> 指出 props.location 属性可应用于动效渲染场景。在示例中，react-router 使用指定 location 属性的 Switch 组件包裹前后两个页面级渲染内容，再经由指定 key 键为 location.key 的 CSSTransition 组件包裹（指定 key 键是为了在 CSSTransition 组件重绘期间，使该组件一前一后、卸载再挂载的机制切合视图上的移入移出动效），而后统一由 TransitionGroup 组件管理 CSSTransition 组件的动效切换过程。这样就可以实现：在地址栏变更过程中，前一个 CSSTransition 组件同步驻留，执行完隐藏动效后再移出；后一个 CSSTransition 组件执行完显示动效后再移入。</p>
+<p>顺带指出的是，因为 Route 或 Switch 组件都可以指定动态的 props.location 属性，那就可以设想如下的黑魔法：自定义的、且与历史堆栈无甚关联的动态 location 属性将主导子 Route 的渲染状态。当然，这一黑魔法并不规范，理应避免使用。</p>
+<p>在 Router 之外，react-router 还提供 MemoryRouter, StaticRouter 组件。MemoryRouter 组件可根据虚拟的缓存历史堆栈控制子 Route 的渲染状态，适用于测试或 native 环境。StaticRouter 组件适用于服务端渲染：react-router 会根据地址栏渲染出指定的内容，因此可以在 node 端设定 controller 对不同的前端路由统一发送 html 内容（通过 ReactDOMServer.renderToString 获得指定路由的 html 内容）；但是当地址栏与前端路由不匹配时，我们需要跳转到 404 页面，react-router 就会通过 StaticRouter 组件的机制在 ReactDOMServer.renderToString 方法执行期间，使用 content 引用对象收集待 404 页面地址，然后在 node 端进行重定向。引用对象 content 收集数据的方式有两种：第一种在虚拟跳转页面环节（为此，react-router 为 StaticRouter 组件提供了特定的 push, replace 方法实现）；第二种在待渲染页面 render 期间对 content 属性进行赋值。当然，这两种收集方式都在 ReactDOMServer.renderToString 方法执行期间完成。以上机制，可参考官方的 <a href="https://reacttraining.com/react-router/web/guides/server-rendering" target="_blank" rel="noopener">Server Rendering 示例</a>。</p>
+<p>上一个段落的 ReactDOMServer.renderToString 方法执行期间，前端代码会虚拟地重定向到 404 页面；node 端再通过 context 感知到这一虚拟重定向过程，然后再发起真实的重定向。在这个过程中，虚拟重定向是由 Redirect 组件完成的。在 react-router4 中，Redirect 组件的机制就是在组件的生命周期中跳转页面、或者在渲染期间改变 context 的属性（服务端渲染时，将待跳转页面上报给 node 服务器），并无其他内容。因此，如果不需要重定向，就需要条件语句控制 Redirect 组件的渲染。参考 <a href="https://reacttraining.com/react-router/web/example/auth-workflow" target="_blank" rel="noopener">Redirects (Auth) 示例</a>。</p>
+<p>在 Redirect 组件之外，借助 history 库封装的 block 方法，Prompt 组件用于拦截地址栏的变更，如默认会使用 window.confirm 提醒用户是否要进行跳转。Prompt 组件按两种条件决定是否需要对用户进行提示，其一是 props.when 属性，当其为真值进入条件二（因此可以将 state 状态赋值给 props.when 以设定条件）；其二是 props.message 属性，即 history 库中的 prompt，该值可以为函数，允许开发者根据待变更地址的 location, action 动态加以判断，是否需要提示用户。</p>
+<p>我们用下图表示上文中组件的层级关系（虚线表示可有无可）：<br><img src="/2019/01/30/react/react相关/react-router源码分析/react-router层级关系.png"></p>
+<p>以下列表简要概括各组价的输出能力和特点：</p>
+<ul>
+<li>StaticRouter: 服务器端渲染时，配合收集跳转页面地址并完成服务器端重定向。</li>
+<li>MemoryRouter: native 环境使用虚拟历史堆栈实现前端路由。</li>
+<li>Router: 将真实或虚拟的路由信息注入到子组件中，以控制 Route 内容的渲染。</li>
+<li>Switch: 控制渲染首个匹配路由信息的 Route 内容。</li>
+<li>Route: 设定单个路由规则，匹配时渲染内容。渲染内容可以是 children, Component, render 懒加载。其中，children 可以 React 元素，或 render props 形式。</li>
+<li>Render: 作为 Route 下的渲染内容。</li>
+<li>Redirect: 渲染时即重定向。</li>
+<li>Prompt: 拦截地址栏变更。</li>
+</ul>
+<h3 id="RouterContext"><a href="#RouterContext" class="headerlink" title="__RouterContext"></a>__RouterContext</h3><p>基于 <a href="https://github.com/jamiebuilds/create-react-context" target="_blank" rel="noopener">create-react-context</a>，__RouterContext 用于为上下游组件传递 context。</p>
+<h3 id="withRouter"><a href="#withRouter" class="headerlink" title="withRouter"></a>withRouter</h3><p>withRouter 装饰器将构造 HOC 组件，用于将 context 内容注入到子组件的 props 中。并且，HOC 组件基于 <a href="https://github.com/mridgway/hoist-non-react-statics" target="_blank" rel="noopener">hoist-non-react-statics</a>，拷贝了原始组件的非 react 类静态属性或方法。</p>
 <h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
+<li>Lifecycle: 生命周期方法管理组件。</li>
 <li>generatePath(path, params): 基于 <a href="https://github.com/pillarjs/path-to-regexp" target="_blank" rel="noopener">path-to-regexp</a>，将路径规则 path 和路由参数 params 解析为实际的路径。实现上，根据路径规则的解析函数会以对象形式缓存在内存中。</li>
 <li>matchPath(pathname, { path, exact, strict, sensitive }): 基于 <a href="https://github.com/pillarjs/path-to-regexp" target="_blank" rel="noopener">path-to-regexp</a>，将实际路径 pathname 解析为 { path, url, isExact, params } 形式。其中，path 为路径规则；url 为匹配的路径内容；isExact 指实际路径 path 和路径规则 pathname 是否相等；params 为路由参数。</li>
 </ul>
-
+<h2 id="react-router-dom"><a href="#react-router-dom" class="headerlink" title="react-router-dom"></a>react-router-dom</h2>
       
     </div>
     
@@ -576,7 +596,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#react-router"><span class="nav-number">1.</span> <span class="nav-text">react-router</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#工具函数"><span class="nav-number">1.1.</span> <span class="nav-text">工具函数</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#react-router"><span class="nav-number">1.</span> <span class="nav-text">react-router</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RouterContext"><span class="nav-number">1.1.</span> <span class="nav-text">__RouterContext</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#withRouter"><span class="nav-number">1.2.</span> <span class="nav-text">withRouter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#工具函数"><span class="nav-number">1.3.</span> <span class="nav-text">工具函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#react-router-dom"><span class="nav-number">2.</span> <span class="nav-text">react-router-dom</span></a></li></ol></div>
             
 
           </div>
@@ -736,8 +756,8 @@
   
     <script type="text/javascript">
       var disqus_config = function () {
-        this.page.url = 'http://yoursite.com/2019/01/28/react/react相关/react-router源码分析/';
-        this.page.identifier = '2019/01/28/react/react相关/react-router源码分析/';
+        this.page.url = 'http://yoursite.com/2019/01/30/react/react相关/react-router源码分析/';
+        this.page.identifier = '2019/01/30/react/react相关/react-router源码分析/';
         this.page.title = 'react-router';
       };
       function loadComments () {

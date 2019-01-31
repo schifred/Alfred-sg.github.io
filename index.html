@@ -270,7 +270,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/30/react/react相关/react-router源码分析/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/31/react/react相关/react-router源码分析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -289,7 +289,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/01/30/react/react相关/react-router源码分析/" itemprop="url">react-router</a></h1>
+                <a class="post-title-link" href="/2019/01/31/react/react相关/react-router源码分析/" itemprop="url">react-router</a></h1>
         
 
         <div class="post-meta">
@@ -301,7 +301,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-30T00:00:00+08:00">2019-01-30</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-31T00:00:00+08:00">2019-01-31</time>
             
 
             
@@ -337,9 +337,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/01/30/react/react相关/react-router源码分析/#comments" itemprop="discussionUrl">
+                <a href="/2019/01/31/react/react相关/react-router源码分析/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/01/30/react/react相关/react-router源码分析/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2019/01/31/react/react相关/react-router源码分析/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -376,7 +376,7 @@
 <p>在 Router 之外，react-router 还提供 MemoryRouter, StaticRouter 组件。MemoryRouter 组件可根据虚拟的缓存历史堆栈控制子 Route 的渲染状态，适用于测试或 native 环境。StaticRouter 组件适用于服务端渲染：react-router 会根据地址栏渲染出指定的内容，因此可以在 node 端设定 controller 对不同的前端路由统一发送 html 内容（通过 ReactDOMServer.renderToString 获得指定路由的 html 内容）；但是当地址栏与前端路由不匹配时，我们需要跳转到 404 页面，react-router 就会通过 StaticRouter 组件的机制在 ReactDOMServer.renderToString 方法执行期间，使用 content 引用对象收集待 404 页面地址，然后在 node 端进行重定向。引用对象 content 收集数据的方式有两种：第一种在虚拟跳转页面环节（为此，react-router 为 StaticRouter 组件提供了特定的 push, replace 方法实现）；第二种在待渲染页面 render 期间对 content 属性进行赋值。当然，这两种收集方式都在 ReactDOMServer.renderToString 方法执行期间完成。以上机制，可参考官方的 <a href="https://reacttraining.com/react-router/web/guides/server-rendering" target="_blank" rel="noopener">Server Rendering 示例</a>。</p>
 <p>上一个段落的 ReactDOMServer.renderToString 方法执行期间，前端代码会虚拟地重定向到 404 页面；node 端再通过 context 感知到这一虚拟重定向过程，然后再发起真实的重定向。在这个过程中，虚拟重定向是由 Redirect 组件完成的。在 react-router4 中，Redirect 组件的机制就是在组件的生命周期中跳转页面、或者在渲染期间改变 context 的属性（服务端渲染时，将待跳转页面上报给 node 服务器），并无其他内容。因此，如果不需要重定向，就需要条件语句控制 Redirect 组件的渲染。参考 <a href="https://reacttraining.com/react-router/web/example/auth-workflow" target="_blank" rel="noopener">Redirects (Auth) 示例</a>。</p>
 <p>在 Redirect 组件之外，借助 history 库封装的 block 方法，Prompt 组件用于拦截地址栏的变更，如默认会使用 window.confirm 提醒用户是否要进行跳转。Prompt 组件按两种条件决定是否需要对用户进行提示，其一是 props.when 属性，当其为真值进入条件二（因此可以将 state 状态赋值给 props.when 以设定条件）；其二是 props.message 属性，即 history 库中的 prompt，该值可以为函数，允许开发者根据待变更地址的 location, action 动态加以判断，是否需要提示用户。</p>
-<p>我们用下图表示上文中组件的层级关系（虚线表示可有无可）：<br><img src="/2019/01/30/react/react相关/react-router源码分析/react-router层级关系.png"></p>
+<p>我们用下图表示上文中组件的层级关系（虚线表示可有无可）：<br><img src="/2019/01/31/react/react相关/react-router源码分析/react-router层级关系.png"></p>
 <p>以下列表简要概括各组价的输出能力和特点：</p>
 <ul>
 <li>StaticRouter: 服务器端渲染时，配合收集跳转页面地址并完成服务器端重定向。</li>
@@ -395,7 +395,27 @@
 <li>generatePath(path, params): 基于 <a href="https://github.com/pillarjs/path-to-regexp" target="_blank" rel="noopener">path-to-regexp</a>，将路径规则 path 和路由参数 params 解析为实际的路径。实现上，根据路径规则的解析函数会以对象形式缓存在内存中。</li>
 <li>matchPath(pathname, { path, exact, strict, sensitive }): 基于 <a href="https://github.com/pillarjs/path-to-regexp" target="_blank" rel="noopener">path-to-regexp</a>，将实际路径 pathname 解析为 { path, url, isExact, params } 形式。其中，path 为路径规则；url 为匹配的路径内容；isExact 指实际路径 path 和路径规则 pathname 是否相等；params 为路由参数。</li>
 </ul>
-<h2 id="react-router-dom"><a href="#react-router-dom" class="headerlink" title="react-router-dom"></a>react-router-dom</h2>
+<h2 id="react-router-config"><a href="#react-router-config" class="headerlink" title="react-router-config"></a>react-router-config</h2><p>react-router-config 输出如下两个工具函数：</p>
+<ul>
+<li>matchRoutes(routes, pathname): 从类树形结构的路由中获取当前匹配的路由节点分叉。主要针对 react-router4 没有在全局层面缓存全量的路由配置信息，路由配置散落在 Route 组件中。</li>
+<li>renderRoutes(routes, extraProps, switchProps): 使用 Switch, Route 组件渲染单层结构的数组路由 routes。</li>
+</ul>
+<h2 id="react-router-dom"><a href="#react-router-dom" class="headerlink" title="react-router-dom"></a>react-router-dom</h2><p>基于 react-router 包，react-router-dom 针对浏览器环境提供了如下组件：</p>
+<ul>
+<li>BrowserRouter: 使用 history 库输出的 createBrowserHistory，构建前端路由。</li>
+<li>HashRouter: 使用 history 库输出的 createBrowserHistory, 构建 hash 路由。</li>
+<li>Link: 基于 __RouterContext，绘制 a 标签跳转链接。在配置 props.onClick 方法的情景中，可以采用采用浏览器机制跳转。</li>
+<li>NavLink: 根据路由匹配情况，为 Link 元素设置特殊的样式。</li>
+</ul>
+<h2 id="react-router-native"><a href="#react-router-native" class="headerlink" title="react-router-native"></a>react-router-native</h2><p>基于 react-router 包，react-router-dom 针对 native 环境提供了如下组件：</p>
+<ul>
+<li>NativeRouter: 基于 MemoryRouter 组件，构建前端路由。默认的 props.getUserConfirmation 方法通过 react-native 输出的 Alert 实现。</li>
+<li>BackButton: 基于 react-native 输出的 BackHandler 绑定 hardwareBackPress 事件，实现点击 back 按钮回退页面的功能。</li>
+<li>Link: 通过为 props.Component 组件绑定 onPress 事件并渲染，实现页面跳转。</li>
+<li>DeepLinking: 基于 react-native 输出的 Linking 绑定 url 事件，以使 Linking.openURL 调用过程中移除参数 url 中 ‘://‘ 及其前的内容。关于深度链接，可参看 <a href="https://www.jianshu.com/p/117a2cd510a6" target="_blank" rel="noopener">浅析移动应用深度链接 (Deeplinking)</a>， <a href="https://facebook.github.io/react-native/docs/linking.html" target="_blank" rel="noopener">Linking</a>。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文的写作基于反向演绎，缺少遇到问题时正向推理的顺畅感，又介于笔者水平有限，文中难免谬误，仍望海涵。</p>
+
           
         
       

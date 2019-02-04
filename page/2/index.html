@@ -270,6 +270,326 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/27/antd/Radio, Checkbox/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/27/antd/Radio, Checkbox/" itemprop="url">Radio, Checkbox</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-27T00:00:00+08:00">2018-11-27</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/27/antd/Radio, Checkbox/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/27/antd/Radio, Checkbox/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>antd 中的 Radio, Checkbox 组件均基于 rc-checkbox 实现。本文第一部分将介绍 <a href="https://github.com/react-component/checkbox" target="_blank" rel="noopener">rc-checkbox</a>，余下两部分再介绍 Radio, Checkbox 组件。</p>
+<h2 id="rc-checkbox"><a href="#rc-checkbox" class="headerlink" title="rc-checkbox"></a>rc-checkbox</h2><p>rc-checkbox 输出 Checkbox 组件。其处理逻辑较为简单，包含样式类转换、多余 props 剔除等。元素层级上，rc-checkbox 使用 span 包裹 input 节点和内层 span 节点（该 span 节点将绘制可见的单选框样式）。样式类转换指 span 元素的样式类包含或可能包含 props.prefixCls, props.className, <code>${props.prefixCls}-checked</code>, <code>${props.prefixCls}-disabled</code>；input 节点的样式类为 <code>${props.prefixCls}-input</code>；内层 span 节点的样式类为 <code>${props.prefixCls}-inner</code>。多余 props 剔除指 input 元素只接受 name, id, type, readOnly, disabled, tabIndex, checked, onClick, onFocus, onBlur, onChange, autoFocus, value, ‘aria-<em>‘, ‘data-</em>‘, role 属性。其中，checked 由 Checkbox 组件的 state.checked 设定；onChange 设置为 Checkbox 组件的 handleChange 方法。当 input 节点数据变更时，props.onChange 接受到的数据先经由 Checkbox 组件转换。以下是其实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">handleChange = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; props &#125; = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">if</span> (props.disabled) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!(<span class="string">'checked'</span> <span class="keyword">in</span> props)) &#123;</span><br><span class="line">    <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">      checked: e.target.checked,</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  props.onChange(&#123;</span><br><span class="line">    target: &#123;</span><br><span class="line">      ...props,</span><br><span class="line">      checked: e.target.checked,</span><br><span class="line">    &#125;,</span><br><span class="line">    stopPropagation() &#123;</span><br><span class="line">      e.stopPropagation();</span><br><span class="line">    &#125;,</span><br><span class="line">    preventDefault() &#123;</span><br><span class="line">      e.preventDefault();</span><br><span class="line">    &#125;,</span><br><span class="line">    nativeEvent: e.nativeEvent,</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="Radio-组件"><a href="#Radio-组件" class="headerlink" title="Radio 组件"></a>Radio 组件</h2><p>antd 提供三种单选框组件：单选框 Radio, 单选框组合 RadioGroup, 单选框按钮 RadioButton。</p>
+<p>Radio 组件的特殊处理逻辑为：通过 context.radioGroup = { name, onChange, value, disabled } 获得 RadioGroup 组件注入的数据，以与单选框组合完成交互。</p>
+<p>Radio 组件的元素层级关系为 label 元素和 RcCheckbox 组件。以下 less 样式中，.@{radio-prefix-cls} 即 RcCheckbox 组件绘制的外层 span 元素；.@{radio-inner-prefix-cls} 即 RcCheckbox 组件绘制的内层 span 元素。Radio 组件呈现在视图上的样式以内层 span 元素及其 span:after 伪类内容绘制，选中时 span:after 设置 opacity: 1 样式。以下是 less 代码。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.@&#123;radio-prefix-cls&#125;</span> &#123;</span><br><span class="line">  <span class="selector-tag">&amp;</span><span class="selector-tag">-inner</span> &#123;</span><br><span class="line">    <span class="selector-tag">&amp;</span><span class="selector-pseudo">:after</span> &#123;</span><br><span class="line">      <span class="variable">@radio-dot-size:</span> <span class="variable">@radio-size</span> - <span class="number">8px</span>;</span><br><span class="line">      <span class="attribute">position</span>: absolute;</span><br><span class="line">      <span class="attribute">width</span>: <span class="variable">@radio-dot-size</span>;</span><br><span class="line">      <span class="attribute">height</span>: <span class="variable">@radio-dot-size</span>;</span><br><span class="line">      <span class="attribute">left</span>: (<span class="variable">@radio-size</span> - <span class="variable">@radio-dot-size</span>) / <span class="number">2</span> - <span class="number">1px</span>;</span><br><span class="line">      <span class="attribute">top</span>: (<span class="variable">@radio-size</span> - <span class="variable">@radio-dot-size</span>) / <span class="number">2</span> - <span class="number">1px</span>;</span><br><span class="line">      <span class="attribute">border-radius</span>: <span class="variable">@radio-dot-size</span>;</span><br><span class="line">      <span class="attribute">display</span>: table;</span><br><span class="line">      <span class="attribute">border-top</span>: <span class="number">0</span>;</span><br><span class="line">      <span class="attribute">border-left</span>: <span class="number">0</span>;</span><br><span class="line">      <span class="attribute">content</span>: <span class="string">' '</span>;</span><br><span class="line">      <span class="attribute">background-color</span>: <span class="variable">@radio-dot-color</span>;</span><br><span class="line">      <span class="attribute">opacity</span>: <span class="number">0</span>;</span><br><span class="line">      <span class="attribute">transform</span>: scale(<span class="number">0</span>);</span><br><span class="line">      <span class="attribute">transition</span>: all <span class="variable">@radio-duration</span> <span class="variable">@ease-in-out-circ</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">position</span>: relative;</span><br><span class="line">    <span class="attribute">top</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">left</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">width</span>: <span class="variable">@radio-size</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="variable">@radio-size</span>;</span><br><span class="line">    <span class="attribute">border-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">border-style</span>: solid;</span><br><span class="line">    <span class="attribute">border-radius</span>: <span class="number">100px</span>;</span><br><span class="line">    <span class="attribute">border-color</span>: <span class="variable">@border-color-base</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="variable">@radio-button-bg</span>;</span><br><span class="line">    <span class="attribute">transition</span>: all <span class="variable">@radio-duration</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.@&#123;radio-prefix-cls&#125;</span><span class="selector-tag">-checked</span> &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;radio-inner-prefix-cls&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">border-color</span>: <span class="variable">@radio-dot-color</span>;</span><br><span class="line">    <span class="selector-tag">&amp;</span><span class="selector-pseudo">:after</span> &#123;</span><br><span class="line">      <span class="attribute">transform</span>: scale(.<span class="number">875</span>);</span><br><span class="line">      <span class="attribute">opacity</span>: <span class="number">1</span>;</span><br><span class="line">      <span class="attribute">transition</span>: all <span class="variable">@radio-duration</span> <span class="variable">@ease-in-out-circ</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>RadioButton 组件的渲染过程无甚特别之处，主要是默认将 props.prefixCls 设定为 ‘ant-radio-button’。</p>
+<p>RadioGroup 组件接受 props.options 作为选项配置内容（props.options 数组项内容可以是字符串或对象）；并将 radioGroup 作为 context 内容传入子孙组件中。</p>
+<h2 id="Checkbox"><a href="#Checkbox" class="headerlink" title="Checkbox"></a>Checkbox</h2><p>antd 提供两种复选框组件：复选框 Checkbox, 复选框组合 CheckboxGroup。</p>
+<p>Checkbox 组件与 Radio 组件的实现无异，只是其接受的 context 数据内容为 checkboxGroup = { toggleOption, value, disabled } 属性。其中，toggleOption 用于影响 Checkbox 组件的 onChange 绑定函数，即改变 CheckboxGroup 组件的 state.value 状态；value 用于判断当前 Checkbox 组件是否处于选中状态。</p>
+<p>CheckboxGroup 组件也与 RadioGroup 组件无异，只是其实现 toggleOption 方法，用于在复选框勾选或取消勾选时，实时更新 state.value 值，并调用 props.onChange 方法；并通过 context 注入到子孙组件中。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Layout/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/25/antd/Layout/" itemprop="url">Layout 布局</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-25T00:00:00+08:00">2018-11-25</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/25/antd/Layout/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/25/antd/Layout/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>antd 提供 Layout, Header, Sider, Content, Footer 组件用于划定页面布局。实现上，侧边栏 Sider 组件比较特殊，将在第一部分加以介绍；其余组件均将在第一部分加以介绍。</p>
+<h2 id="Layout"><a href="#Layout" class="headerlink" title="Layout"></a>Layout</h2><p>布局容器 Layout, 顶部布局 Header, 内容部分 Content, 底部布局 Footer 在实现上大体相当：都是通过 generator(props) = BasicComponent =&gt; Adapter 创建高阶组件 Adapter，再由该高阶组件将 props.prefixCls 注入到 BasicComponent 中。</p>
+<p>作为 Layout 组件的 BasicComponent，BasicLayout 组件以 state.siders 记录侧边栏的 id，并允许在子组件中使用 context.siderHook 添加或移除侧边栏，其意义是触发 BasicLayout 组件重绘并判断是否需要添加 .ant-layout-has-sider 样式类。作为 Header, Content, Footer 组件的 BasicComponent，Basic 组件只用于拼接 props.prefixCls, props.className，以构成新的样式类。</p>
+<p>Header, Sider, Content, Footer 组件只能作为 Layout 的子组件这一特征，由 less 文件约定，即如果当上述组件不作为 Layout 的子组件时，其样式将得不到正常展示。</p>
+<h2 id="Sider"><a href="#Sider" class="headerlink" title="Sider"></a>Sider</h2><p>侧边栏 Sider 组件用于设定布局，其内容可由 <a href="https://ant.design/components/menu-cn/" target="_blank" rel="noopener">Menu 组件</a> 绘制。在 componentDidMount, componentWillUnmount 生命周期中，侧边栏组件也将通过 context.siderHook.addSider, context.siderHook.removeSider 方法，以添加或移除 Layout 容器中记录的侧边栏 id。侧边栏组件既可以根据折叠状态切换按钮展开或折叠（通过 props.collapsible 或 props.collapsedWidth = 0 开启）；也可以根据屏幕尺寸响应式展开或折叠（通过 props.breakpoint 属性开启），其实现借助 window.matchMedia 方法。子组件可通过 context.siderCollapsed 获得侧边栏的展开和折叠状态。以下是响应式展开或折叠功能的实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// matchMedia polyfill for</span></span><br><span class="line"><span class="comment">// https://github.com/WickyNilliams/enquire.js/issues/82</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="built_in">window</span> !== <span class="string">'undefined'</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> matchMediaPolyfill = <span class="function">(<span class="params">mediaQuery: string</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      media: mediaQuery,</span><br><span class="line">      matches: <span class="literal">false</span>,</span><br><span class="line">      addListener() &#123;</span><br><span class="line">      &#125;,</span><br><span class="line">      removeListener() &#123;</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="built_in">window</span>.matchMedia = <span class="built_in">window</span>.matchMedia || matchMediaPolyfill;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sider</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span>&lt;<span class="title">SiderProps</span>, <span class="title">SiderState</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(props: SiderProps) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> matchMedia;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="built_in">window</span> !== <span class="string">'undefined'</span>) &#123;</span><br><span class="line">      matchMedia = <span class="built_in">window</span>.matchMedia;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (matchMedia &amp;&amp; props.breakpoint &amp;&amp; props.breakpoint <span class="keyword">in</span> dimensionMap) &#123;</span><br><span class="line">      <span class="keyword">this</span>.mql = matchMedia(<span class="string">`(max-width: <span class="subst">$&#123;dimensionMap[props.breakpoint]&#125;</span>)`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.mql) &#123;</span><br><span class="line">      <span class="keyword">this</span>.mql.addListener(<span class="keyword">this</span>.responsiveHandler);</span><br><span class="line">      <span class="keyword">this</span>.responsiveHandler(<span class="keyword">this</span>.mql);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  responsiveHandler = <span class="function">(<span class="params">mql: MediaQueryListEvent | MediaQueryList</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.setState(&#123; <span class="attr">below</span>: mql.matches &#125;);</span><br><span class="line">    <span class="keyword">const</span> &#123; onBreakpoint &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (onBreakpoint) &#123;</span><br><span class="line">      onBreakpoint(mql.matches);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.state.collapsed !== mql.matches) &#123;</span><br><span class="line">      <span class="keyword">this</span>.setCollapsed(mql.matches, <span class="string">'responsive'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setCollapsed = <span class="function">(<span class="params">collapsed: boolean, type: CollapseType</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!(<span class="string">'collapsed'</span> <span class="keyword">in</span> <span class="keyword">this</span>.props)) &#123;</span><br><span class="line">      <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">        collapsed,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> &#123; onCollapse &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (onCollapse) &#123;</span><br><span class="line">      onCollapse(collapsed, type);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>侧边栏组件的断点 props.breakpoint 包含五种可能：xs 为 480px；sm 为 576px；md 为 768px；lg 为 992px；xl 为 1200px；xxl 为 1600px。当设置了 props.breakpoint 时，就能实现响应式展开与折叠功能。</p>
+<p>当 props.collapsedWidth 设置为 0，折叠状态切换按钮为 bars 类型。默认的折叠状态切换按钮为 left 或 right 类型。此外，可以使用 props.trigger 设置自定义折叠状态切换按钮。</p>
+<p>侧边栏的主题样式通过设置样式类实现，如 ant-layout-sider-light。</p>
+<p>侧边栏组件使用 <a href="https://github.com/reactjs/react-lifecycles-compat" target="_blank" rel="noopener">react-lifecycles-compat</a> 封装，以在低版本的 react 中书写 static getDerivedStateFromProps, getSnapshotBeforeUpdate 生命周期方法。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Grid/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -752,180 +1072,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/工程化/http-proxy-middleware源码解读/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/11/工程化/http-proxy-middleware源码解读/" itemprop="url">http-proxy-middleware 源码解读</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/11/工程化/http-proxy-middleware源码解读/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/11/11/工程化/http-proxy-middleware源码解读/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>http-proxy-middleware 库借助于 <a href="http://xzfyu.com/2018/11/09/%E5%B7%A5%E7%A8%8B%E5%8C%96/node-http-proxy%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" target="_blank" rel="noopener">node-http-proxy</a>，用于将 node 服务器接收到的请求转发到目标服务器，实现代理服务器的功能。</p>
-<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>可以推想，使用 node-http-proxy 创建代理服务器 proxyServer 后，通过全局注册的转发规则获取到客户端请求 req 需要发送到的目标地址，再通过调用 proxyServer.web, proxyServer.ws 方法转发请求。</p>
-<h3 id="转发规则"><a href="#转发规则" class="headerlink" title="转发规则"></a>转发规则</h3><p>从原理层面简单的归纳转发规则，就是客户端请求路径到目标服务器地址的映射关系。node-http-proxy 库将转发规则分为两部分加以配置，context 用于匹配需要转发的客户端请求，options.target 用于设定目标服务器的 host；option.router 根据客户端请求重新设定目标服务器的 host（这样，根据不同的请求，可以设定多个目标服务器）；option.pathRewrite 用于辅助将客户端请求路径转化为目标服务器地址。</p>
-<h4 id="context"><a href="#context" class="headerlink" title="context"></a>context</h4><p>context 表示待转发请求的目录名。当客户端请求以 context 起始时，则该请求将被转发。如 context 设置为 ‘/api’，客户端所有以 ‘/api’ 起始的请求都会被转发；默认值为 ‘/‘，意为客户端发送的所有请求都会被转发。node-http-proxy 库使用 createConfig 解析获得 context；matchContext 函数校验客户端请求是否需要转发。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 解析获取 context，需要代理的请求 url 前缀</span></span><br><span class="line"><span class="comment"> * @param &#123;string|object|function&#125; context 作为 HttpProxyMiddleware 接口传入 createConfig 函数的参数</span></span><br><span class="line"><span class="comment"> * @param &#123;undefined|object&#125; opts 作为 HttpProxyMiddleware 接口传入 createConfig 函数的参数</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createConfig</span> (<span class="params">context, opts</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> config = &#123;</span><br><span class="line">    context: <span class="literal">undefined</span>,</span><br><span class="line">    options: &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// context 作为 opts 传入，config.context 使用默认值</span></span><br><span class="line">  <span class="keyword">if</span> (isContextless(context, opts)) &#123;</span><br><span class="line">    config.context = <span class="string">'/'</span></span><br><span class="line">    config.options = _.assign(config.options, context)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// context 以 url 形式配置，可同时配置 context, options.target</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isStringShortHand(context)) &#123;</span><br><span class="line">    <span class="keyword">var</span> oUrl = url.parse(context)</span><br><span class="line">    <span class="keyword">var</span> target = [oUrl.protocol, <span class="string">'//'</span>, oUrl.host].join(<span class="string">''</span>)</span><br><span class="line"></span><br><span class="line">    config.context = oUrl.pathname || <span class="string">'/'</span></span><br><span class="line">    config.options = _.assign(config.options, &#123; <span class="attr">target</span>: target &#125;, opts)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (oUrl.protocol === <span class="string">'ws:'</span> || oUrl.protocol === <span class="string">'wss:'</span>) &#123;</span><br><span class="line">      config.options.ws = <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    config.context = context</span><br><span class="line">    config.options = _.assign(config.options, opts)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 配置 Logger 实例</span></span><br><span class="line">  configureLogger(config.options)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!config.options.target) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(ERRORS.ERR_CONFIG_FACTORY_TARGET_MISSING)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> config</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 解析获取 context，需要代理的请求 url 前缀</span></span><br><span class="line"><span class="comment"> * @param &#123;string|function&#125; context 需要代理的请求 url 前缀</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; uri 客户端请求的 uri，即 req.originalUrl 或 req.url</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; req 客户端请求 req</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">matchContext</span> (<span class="params">context, uri, req</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// context 为字符串路径，校验 url 是否以 context 起始</span></span><br><span class="line">  <span class="keyword">if</span> (isStringPath(context)) &#123;</span><br><span class="line">    <span class="keyword">return</span> matchSingleStringPath(context, uri)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// context 为 glob 模式的字符串路径（通过 is-glob 模块判断），校验  url 是否匹配 context（通过 micromatch 判断）</span></span><br><span class="line">  <span class="comment">// [glob 介绍](https://blog.csdn.net/Free_Wind22/article/details/78344166)</span></span><br><span class="line">  <span class="keyword">if</span> (isGlobPath(context)) &#123;</span><br><span class="line">    <span class="keyword">return</span> matchSingleGlobPath(context, uri)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 遍历 context，调用 matchSingleStringPath, matchSingleGlobPath 作校验</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(context)) &#123;</span><br><span class="line">    <span class="keyword">if</span> (context.every(isStringPath)) &#123;</span><br><span class="line">      <span class="keyword">return</span> matchMultiPath(context, uri)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (context.every(isGlobPath)) &#123;</span><br><span class="line">      <span class="keyword">return</span> matchMultiGlobPath(context, uri)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(ERRORS.ERR_CONTEXT_MATCHER_INVALID_ARRAY)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// context 自定义函数，用于校验客户端请求是否需要转发</span></span><br><span class="line">  <span class="keyword">if</span> (_.isFunction(context)) &#123;</span><br><span class="line">    <span class="keyword">var</span> pathname = getUrlPathName(uri)</span><br><span class="line">    <span class="keyword">return</span> context(pathname, req)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(ERRORS.ERR_CONTEXT_MATCHER_GENERIC)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="target"><a href="#target" class="headerlink" title="target"></a>target</h4><p>target 表示目标服务器的 host。在 createConfig 函数的源码中，可以看到，target 即能通过 url 形式的 context 设定，又能通过 options.target 选项设定。当然，这样是作为全局配置设定的；同 node-http-proxy 库，http-proxy-middleware 也可以在具体的请求发生时作特殊处理。这后半分的内容，是通过全局配置 options.router 达成的。在 http-proxy-middleware 处理客户端请求的过程中，getTarget 函数将通过 options.router 获取目标服务器的 host。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 获取目标服务器的 host</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; req 客户端请求 req</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; config 即 HttpProxyMiddleware 接口的 options 参数，获取 options.router</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getTarget</span> (<span class="params">req, config</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> newTarget</span><br><span class="line">  <span class="keyword">var</span> router = config.router</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (_.isPlainObject(router)) &#123;</span><br><span class="line">    newTarget = getTargetFromProxyTable(req, router)</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (_.isFunction(router)) &#123;</span><br><span class="line">    newTarget = router(req)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> newTarget</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getTargetFromProxyTable</span> (<span class="params">req, table</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> result</span><br><span class="line">  <span class="keyword">var</span> host = req.headers.host</span><br><span class="line">  <span class="keyword">var</span> path = req.url</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> hostAndPath = host + path<span class="comment">// 客户端请求路径</span></span><br><span class="line"></span><br><span class="line">  _.forIn(table, <span class="function"><span class="keyword">function</span> (<span class="params">value, key</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// containsPath(str) 函数，判断 str 是否包含 '/'</span></span><br><span class="line">    <span class="keyword">if</span> (containsPath(key)) &#123;</span><br><span class="line">      <span class="keyword">if</span> (hostAndPath.indexOf(key) &gt; <span class="number">-1</span>) &#123;</span><br><span class="line">        result = table[key]</span><br><span class="line">        logger.debug(<span class="string">'[HPM] Router table match: "%s"'</span>, key)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (key === host) &#123;</span><br><span class="line">        result = table[key]</span><br><span class="line">        logger.debug(<span class="string">'[HPM] Router table match: "%s"'</span>, host)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="pathRewrite"><a href="#pathRewrite" class="headerlink" title="pathRewrite"></a>pathRewrite</h4><p>在 http-proxy-middleware 库中，options.pathRewrite 用于将客户端请求路径转化为目标服务器的路径（pathname 部分），既可以是 map 映射，也可以函数。createPathRewriter 函数将根据 options.pathRewrite 生成路径转化器 pathRewriter 函数；而 pathRewriter 用于将实际的客户端请求地址转化为目标服务器的路径。当 options.pathRewrite 为对象 key-value 时，pathRewriter 将把匹配 key 的客户端请求转化为 value 路径；当 options.pathRewrite 为函数时，将由客户端请求 req.url 获取目标服务器路径。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 生成 pathRewriter 函数</span></span><br><span class="line"><span class="comment"> * @param &#123;object|function&#125; rewriteConfig 即 HttpProxyMiddleware 接口的 options.pathRewrite 配置项</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createPathRewriter</span> (<span class="params">rewriteConfig</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> rulesCache</span><br><span class="line"></span><br><span class="line">  <span class="comment">// isValidRewriteConfig 函数用于校验 options.pathRewrite</span></span><br><span class="line">  <span class="keyword">if</span> (!isValidRewriteConfig(rewriteConfig)) &#123;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (_.isFunction(rewriteConfig)) &#123;</span><br><span class="line">    <span class="keyword">var</span> customRewriteFn = rewriteConfig</span><br><span class="line">    <span class="keyword">return</span> customRewriteFn</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    rulesCache = parsePathRewriteRules(rewriteConfig)</span><br><span class="line">    <span class="keyword">return</span> rewritePath</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 参数 path 为 req.url</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">rewritePath</span> (<span class="params">path</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> result = path</span><br><span class="line"></span><br><span class="line">    _.forEach(rulesCache, <span class="function"><span class="keyword">function</span> (<span class="params">rule</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (rule.regex.test(path)) &#123;</span><br><span class="line">        result = result.replace(rule.regex, rule.value)</span><br><span class="line">        logger.debug(<span class="string">'[HPM] Rewriting path from "%s" to "%s"'</span>, path, result)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">parsePathRewriteRules</span> (<span class="params">rewriteConfig</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> rules = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (_.isPlainObject(rewriteConfig)) &#123;</span><br><span class="line">    _.forIn(rewriteConfig, <span class="function"><span class="keyword">function</span> (<span class="params">value, key</span>) </span>&#123;</span><br><span class="line">      rules.push(&#123;</span><br><span class="line">        regex: <span class="keyword">new</span> <span class="built_in">RegExp</span>(key),</span><br><span class="line">        value: rewriteConfig[key]</span><br><span class="line">      &#125;)</span><br><span class="line">      logger.info(<span class="string">'[HPM] Proxy rewrite rule created: "%s" ~&gt; "%s"'</span>, key, rewriteConfig[key])</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> rules</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h3><p>这部分将串联转发规则的解析和应用，是为 http-proxy-middleware 库的整体工作流程。</p>
-<ol>
-<li>解析 context，options 配置，获得全局注册的 context, options.target；并配置 Logger 实例。</li>
-<li>使用 node-http-proxy 库常见代理服务器 proxy。</li>
-<li>根据 options.pathRewrite 生成路径转化器 pathRewriter。</li>
-<li>为代理服务器绑定事件。</li>
-<li>创建转发 http, https, websocket 请求的代理中间件。</li>
-</ol>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">HttpProxyMiddleware</span> (<span class="params">context, opts</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// https://github.com/chimurai/http-proxy-middleware/issues/57</span></span><br><span class="line">  <span class="keyword">var</span> wsUpgradeDebounced = _.debounce(handleUpgrade)</span><br><span class="line">  <span class="keyword">var</span> wsInitialized = <span class="literal">false</span></span><br><span class="line">  <span class="keyword">var</span> config = configFactory.createConfig(context, opts)</span><br><span class="line">  <span class="keyword">var</span> proxyOptions = config.options</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> proxy = httpProxy.createProxyServer(&#123;&#125;)</span><br><span class="line">  logger.info(<span class="string">'[HPM] Proxy created:'</span>, config.context, <span class="string">' -&gt; '</span>, proxyOptions.target)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> pathRewriter = PathRewriter.create(proxyOptions.pathRewrite)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 为代理服务器绑定事件</span></span><br><span class="line">  handlers.init(proxy, proxyOptions)</span><br><span class="line"></span><br><span class="line">  proxy.on(<span class="string">'error'</span>, logError)</span><br><span class="line"></span><br><span class="line">  middleware.upgrade = wsUpgradeDebounced</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> middleware</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 实际的代理中间件</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">middleware</span> (<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (shouldProxy(config.context, req)) &#123;</span><br><span class="line">      <span class="keyword">var</span> activeProxyOptions = prepareProxyRequest(req)</span><br><span class="line">      proxy.web(req, res, activeProxyOptions)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      next()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (proxyOptions.ws === <span class="literal">true</span>) &#123;</span><br><span class="line">      catchUpgradeRequest(req.connection.server)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">catchUpgradeRequest</span> (<span class="params">server</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!wsInitialized) &#123;</span><br><span class="line">      server.on(<span class="string">'upgrade'</span>, wsUpgradeDebounced)</span><br><span class="line">      wsInitialized = <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 转发 websocket 请求</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handleUpgrade</span> (<span class="params">req, socket, head</span>) </span>&#123;</span><br><span class="line">    wsInitialized = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (shouldProxy(config.context, req)) &#123;</span><br><span class="line">      <span class="keyword">var</span> activeProxyOptions = prepareProxyRequest(req)</span><br><span class="line">      proxy.ws(req, socket, head, activeProxyOptions)</span><br><span class="line">      logger.info(<span class="string">'[HPM] Upgrading to WebSocket'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 判断请求是否需要转发</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">shouldProxy</span> (<span class="params">context, req</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> path = (req.originalUrl || req.url)</span><br><span class="line">    <span class="keyword">return</span> contextMatcher.match(context, path, req)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 转发请求</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">prepareProxyRequest</span> (<span class="params">req</span>) </span>&#123;</span><br><span class="line">    req.url = (req.originalUrl || req.url)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> originalPath = req.url</span><br><span class="line">    <span class="keyword">var</span> newProxyOptions = _.assign(&#123;&#125;, proxyOptions)</span><br><span class="line"></span><br><span class="line">    __applyRouter(req, newProxyOptions)</span><br><span class="line">    __applyPathRewrite(req, pathRewriter)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (proxyOptions.logLevel === <span class="string">'debug'</span>) &#123;</span><br><span class="line">      <span class="comment">// getArrow 返回的标识，用于区分 options.router, options.pathRewrite 的作用与否</span></span><br><span class="line">      <span class="comment">// '-&gt;' options.router, options.pathRewrite 均未作用</span></span><br><span class="line">      <span class="comment">// '=&gt;' options.router 作用, options.pathRewrite 未作用</span></span><br><span class="line">      <span class="comment">// '~&gt;' options.router 未作用, options.pathRewrite 作用</span></span><br><span class="line">      <span class="comment">// '≈&gt;' options.router, options.pathRewrite 均作用</span></span><br><span class="line">      <span class="keyword">var</span> arrow = getArrow(originalPath, req.url, proxyOptions.target, newProxyOptions.target)</span><br><span class="line">      logger.debug(<span class="string">'[HPM] %s %s %s %s'</span>, req.method, originalPath, arrow, newProxyOptions.target)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> newProxyOptions</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 根据请求获取目标服务器的 host</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">__applyRouter</span> (<span class="params">req, options</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> newTarget</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (options.router) &#123;</span><br><span class="line">      newTarget = Router.getTarget(req, options)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (newTarget) &#123;</span><br><span class="line">        logger.debug(<span class="string">'[HPM] Router new target: %s -&gt; "%s"'</span>, options.target, newTarget)</span><br><span class="line">        options.target = newTarget</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将目标服务器路径写入 req.url</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">__applyPathRewrite</span> (<span class="params">req, pathRewriter</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (pathRewriter) &#123;</span><br><span class="line">      <span class="keyword">var</span> path = pathRewriter(req.url, req)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> path === <span class="string">'string'</span>) &#123;</span><br><span class="line">        req.url = path</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        logger.info(<span class="string">'[HPM] pathRewrite: No rewritten path found. (%s)'</span>, req.url)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">logError</span> (<span class="params">err, req, res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> hostname = (req.headers &amp;&amp; req.headers.host) || (req.hostname || req.host)</span><br><span class="line">    <span class="keyword">var</span> target = proxyOptions.target.host || proxyOptions.target</span><br><span class="line">    <span class="keyword">var</span> errorMessage = <span class="string">'[HPM] Error occurred while trying to proxy request %s from %s to %s (%s) (%s)'</span></span><br><span class="line">    <span class="keyword">var</span> errReference = <span class="string">'https://nodejs.org/api/errors.html#errors_common_system_errors'</span></span><br><span class="line"></span><br><span class="line">    logger.error(errorMessage, req.url, hostname, target, err.code, errReference)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><h4 id="logger"><a href="#logger" class="headerlink" title="logger"></a>logger</h4><p>http-proxy-middleware 库使用单例模式创建 Logger 实例，并提供 setProvider 函数切换打印日志的 console 函数；setLevel 方法用于设定日志级别；继而由 Logger 实例提供 log, error, info, warn, debug 方法，这些方法在调用过程都会校验当前执行的方法是否符合当前日志级别，同时会允许首参以 %s 设定占位符，以注入次参等。</p>
-<p>因日志模块在 node 服务器中广为应用，这里贴出 http-proxy-middleware 库中的代码实现。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> loggerInstance</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> defaultProvider = &#123;</span><br><span class="line">  log: <span class="built_in">console</span>.log,</span><br><span class="line">  debug: <span class="built_in">console</span>.log, </span><br><span class="line">  info: <span class="built_in">console</span>.info,</span><br><span class="line">  warn: <span class="built_in">console</span>.warn,</span><br><span class="line">  error: <span class="built_in">console</span>.error</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> LEVELS = &#123;</span><br><span class="line">  debug: <span class="number">10</span>,</span><br><span class="line">  info: <span class="number">20</span>,</span><br><span class="line">  warn: <span class="number">30</span>,</span><br><span class="line">  error: <span class="number">50</span>,</span><br><span class="line">  silent: <span class="number">80</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Logger</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> logLevel</span><br><span class="line">  <span class="keyword">var</span> provider</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> api = &#123;</span><br><span class="line">    log: log,</span><br><span class="line">    debug: debug,</span><br><span class="line">    info: info,</span><br><span class="line">    warn: warn,</span><br><span class="line">    error: error,</span><br><span class="line">    setLevel: <span class="function"><span class="keyword">function</span> (<span class="params">v</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (isValidLevel(v)) &#123;<span class="comment">// isValidLevel 校验 v 是否 debug, info, warn, error, slient 中的一个</span></span><br><span class="line">        logLevel = v</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    setProvider: <span class="function"><span class="keyword">function</span> (<span class="params">fn</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (fn &amp;&amp; isValidProvider(fn)) &#123;<span class="comment">// isValidProvider 校验 fn 是否函数</span></span><br><span class="line">        provider = fn(defaultProvider)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  init()</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> api</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">init</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    api.setLevel(<span class="string">'info'</span>)</span><br><span class="line">    api.setProvider(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> defaultProvider</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">log</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    provider.log(_interpolate.apply(<span class="literal">null</span>, <span class="built_in">arguments</span>))</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">debug</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_showLevel(<span class="string">'debug'</span>)) &#123;</span><br><span class="line">      provider.debug(_interpolate.apply(<span class="literal">null</span>, <span class="built_in">arguments</span>))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">info</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_showLevel(<span class="string">'info'</span>)) &#123;</span><br><span class="line">      provider.info(_interpolate.apply(<span class="literal">null</span>, <span class="built_in">arguments</span>))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">warn</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_showLevel(<span class="string">'warn'</span>)) &#123;</span><br><span class="line">      provider.warn(_interpolate.apply(<span class="literal">null</span>, <span class="built_in">arguments</span>))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">error</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_showLevel(<span class="string">'error'</span>)) &#123;</span><br><span class="line">      provider.error(_interpolate.apply(<span class="literal">null</span>, <span class="built_in">arguments</span>))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 校验调用的方法是否在当前允许的日志级别下</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">_showLevel</span> (<span class="params">showLevel</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> result = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">var</span> currentLogLevel = LEVELS[logLevel]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (currentLogLevel &amp;&amp; (currentLogLevel &lt;= LEVELS[showLevel])) &#123;</span><br><span class="line">      result = <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 参数转化，允许首参以 %s 形式设置占位符</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">_interpolate</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> fn = _.spread(util.format)</span><br><span class="line">    <span class="keyword">var</span> result = fn(_.slice(<span class="built_in">arguments</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  getInstance: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!loggerInstance) &#123;</span><br><span class="line">      loggerInstance = <span class="keyword">new</span> Logger()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> loggerInstance</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="事件绑定"><a href="#事件绑定" class="headerlink" title="事件绑定"></a>事件绑定</h4><p>解析 options.onError, options.onProxyReq, options.onProxyReqWs, options.onProxyRes, options.onOpen, options.onClose，并绑定为代理服务器的事件。</p>
-<p>默认的绑定函数为：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// onError 绑定函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">defaultErrorHandler</span> (<span class="params">err, req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> host = (req.headers &amp;&amp; req.headers.host)</span><br><span class="line">  <span class="keyword">var</span> code = err.code</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (res.writeHead &amp;&amp; !res.headersSent) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/HPE_INVALID/</span>.test(code)) &#123;</span><br><span class="line">      res.writeHead(<span class="number">502</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">switch</span> (code) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'ECONNRESET'</span>:</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'ENOTFOUND'</span>:</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'ECONNREFUSED'</span>:</span><br><span class="line">          res.writeHead(<span class="number">504</span>)</span><br><span class="line">          <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">default</span>: res.writeHead(<span class="number">500</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  res.end(<span class="string">'Error occured while trying to proxy to: '</span> + host + req.url)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// onClose 绑定函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">logClose</span> (<span class="params">req, socket, head</span>) </span>&#123;</span><br><span class="line">  logger.info(<span class="string">'[HPM] Client disconnected'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="webpack-dev-server"><a href="#webpack-dev-server" class="headerlink" title="webpack-dev-server"></a>webpack-dev-server</h3><p>webpack-dev-server 库会创建 express 服务器，其服务器代理的实现就是解析配置项，并挂载 http-proxy-middleware 中间件。主要逻辑在 features.proxy 方法中实现：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> features = &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  proxy: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (options.proxy) &#123;</span><br><span class="line">      <span class="comment">// 解析配置</span></span><br><span class="line">      <span class="keyword">if</span> (!<span class="built_in">Array</span>.isArray(options.proxy)) &#123;</span><br><span class="line">        options.proxy = <span class="built_in">Object</span>.keys(options.proxy).map(<span class="function">(<span class="params">context</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">let</span> proxyOptions;</span><br><span class="line">          <span class="keyword">const</span> correctedContext = context</span><br><span class="line">            .replace(<span class="regexp">/^\*$/</span>, <span class="string">'**'</span>)</span><br><span class="line">            .replace(<span class="regexp">/\/\*$/</span>, <span class="string">''</span>);</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> options.proxy[context] === <span class="string">'string'</span>) &#123;</span><br><span class="line">            proxyOptions = &#123;</span><br><span class="line">              context: correctedContext,</span><br><span class="line">              target: options.proxy[context]</span><br><span class="line">            &#125;;</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            proxyOptions = <span class="built_in">Object</span>.assign(&#123;&#125;, options.proxy[context]);</span><br><span class="line">            proxyOptions.context = correctedContext;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 日志级别</span></span><br><span class="line">          proxyOptions.logLevel = proxyOptions.logLevel || <span class="string">'warn'</span>;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">return</span> proxyOptions;</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 获得 proxy 中间件</span></span><br><span class="line">      <span class="keyword">const</span> getProxyMiddleware = <span class="function">(<span class="params">proxyConfig</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> context = proxyConfig.context || proxyConfig.path;</span><br><span class="line">        <span class="keyword">if</span> (proxyConfig.target) &#123;</span><br><span class="line">          <span class="keyword">return</span> httpProxyMiddleware(context, proxyConfig);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">      </span><br><span class="line">      <span class="comment">// 以配置项挂载多个中间件</span></span><br><span class="line">      options.proxy.forEach(<span class="function">(<span class="params">proxyConfigOrCallback</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> proxyConfig;</span><br><span class="line">        <span class="keyword">let</span> proxyMiddleware;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">typeof</span> proxyConfigOrCallback === <span class="string">'function'</span>) &#123;</span><br><span class="line">          proxyConfig = proxyConfigOrCallback();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          proxyConfig = proxyConfigOrCallback;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        proxyMiddleware = getProxyMiddleware(proxyConfig);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (proxyConfig.ws) &#123;</span><br><span class="line">          websocketProxies.push(proxyMiddleware);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        app.use(<span class="function">(<span class="params">req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> proxyConfigOrCallback === <span class="string">'function'</span>) &#123;</span><br><span class="line">            <span class="keyword">const</span> newProxyConfig = proxyConfigOrCallback();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (newProxyConfig !== proxyConfig) &#123;</span><br><span class="line">              proxyConfig = newProxyConfig;</span><br><span class="line">              proxyMiddleware = getProxyMiddleware(proxyConfig);</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">const</span> bypass = <span class="keyword">typeof</span> proxyConfig.bypass === <span class="string">'function'</span>;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">const</span> bypassUrl = (bypass &amp;&amp; proxyConfig.bypass(req, res, proxyConfig)) || <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 转发到本地服务器</span></span><br><span class="line">          <span class="keyword">if</span> (bypassUrl) &#123;</span><br><span class="line">            req.url = bypassUrl;</span><br><span class="line"></span><br><span class="line">            next();</span><br><span class="line">          &#125; <span class="keyword">else</span> <span class="keyword">if</span> (proxyMiddleware) &#123;</span><br><span class="line">            <span class="keyword">return</span> proxyMiddleware(req, res, next);</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            next();</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/设计模式/适配器模式/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1193,6 +1339,180 @@
 <h2 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h2><p>Search 组件基于 Input 组件制作，其特殊处理是在 inputInstance.onPressEnter 方法执行过程中调用 props.onSearch 方法，适用于远程搜索之类的场景；Search 组件还提供 props.enterButton 属性用于配置输入框的后缀图标，默认使用 search 图标，可渲染文本或按钮。实现请参考 ant design 源码。</p>
 <h2 id="Group"><a href="#Group" class="headerlink" title="Group"></a>Group</h2><p>Group 组件主要以样式控制多个表单项组件 props.children 的成组渲染。实现请参考 ant design 源码。</p>
 
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/工程化/http-proxy-middleware源码解读/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/11/工程化/http-proxy-middleware源码解读/" itemprop="url">http-proxy-middleware 源码解读</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/11/工程化/http-proxy-middleware源码解读/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/11/工程化/http-proxy-middleware源码解读/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>http-proxy-middleware 库借助于 <a href="http://xzfyu.com/2018/11/09/%E5%B7%A5%E7%A8%8B%E5%8C%96/node-http-proxy%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" target="_blank" rel="noopener">node-http-proxy</a>，用于将 node 服务器接收到的请求转发到目标服务器，实现代理服务器的功能。</p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>可以推想，使用 node-http-proxy 创建代理服务器 proxyServer 后，通过全局注册的转发规则获取到客户端请求 req 需要发送到的目标地址，再通过调用 proxyServer.web, proxyServer.ws 方法转发请求。</p>
+<h3 id="转发规则"><a href="#转发规则" class="headerlink" title="转发规则"></a>转发规则</h3><p>从原理层面简单的归纳转发规则，就是客户端请求路径到目标服务器地址的映射关系。node-http-proxy 库将转发规则分为两部分加以配置，context 用于匹配需要转发的客户端请求，options.target 用于设定目标服务器的 host；option.router 根据客户端请求重新设定目标服务器的 host（这样，根据不同的请求，可以设定多个目标服务器）；option.pathRewrite 用于辅助将客户端请求路径转化为目标服务器地址。</p>
+<h4 id="context"><a href="#context" class="headerlink" title="context"></a>context</h4><p>context 表示待转发请求的目录名。当客户端请求以 context 起始时，则该请求将被转发。如 context 设置为 ‘/api’，客户端所有以 ‘/api’ 起始的请求都会被转发；默认值为 ‘/‘，意为客户端发送的所有请求都会被转发。node-http-proxy 库使用 createConfig 解析获得 context；matchContext 函数校验客户端请求是否需要转发。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 解析获取 context，需要代理的请求 url 前缀</span></span><br><span class="line"><span class="comment"> * @param &#123;string|object|function&#125; context 作为 HttpProxyMiddleware 接口传入 createConfig 函数的参数</span></span><br><span class="line"><span class="comment"> * @param &#123;undefined|object&#125; opts 作为 HttpProxyMiddleware 接口传入 createConfig 函数的参数</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createConfig</span> (<span class="params">context, opts</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> config = &#123;</span><br><span class="line">    context: <span class="literal">undefined</span>,</span><br><span class="line">    options: &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// context 作为 opts 传入，config.context 使用默认值</span></span><br><span class="line">  <span class="keyword">if</span> (isContextless(context, opts)) &#123;</span><br><span class="line">    config.context = <span class="string">'/'</span></span><br><span class="line">    config.options = _.assign(config.options, context)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// context 以 url 形式配置，可同时配置 context, options.target</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isStringShortHand(context)) &#123;</span><br><span class="line">    <span class="keyword">var</span> oUrl = url.parse(context)</span><br><span class="line">    <span class="keyword">var</span> target = [oUrl.protocol, <span class="string">'//'</span>, oUrl.host].join(<span class="string">''</span>)</span><br><span class="line"></span><br><span class="line">    config.context = oUrl.pathname || <span class="string">'/'</span></span><br><span class="line">    config.options = _.assign(config.options, &#123; <span class="attr">target</span>: target &#125;, opts)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (oUrl.protocol === <span class="string">'ws:'</span> || oUrl.protocol === <span class="string">'wss:'</span>) &#123;</span><br><span class="line">      config.options.ws = <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    config.context = context</span><br><span class="line">    config.options = _.assign(config.options, opts)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 配置 Logger 实例</span></span><br><span class="line">  configureLogger(config.options)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!config.options.target) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(ERRORS.ERR_CONFIG_FACTORY_TARGET_MISSING)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> config</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 解析获取 context，需要代理的请求 url 前缀</span></span><br><span class="line"><span class="comment"> * @param &#123;string|function&#125; context 需要代理的请求 url 前缀</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; uri 客户端请求的 uri，即 req.originalUrl 或 req.url</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; req 客户端请求 req</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">matchContext</span> (<span class="params">context, uri, req</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// context 为字符串路径，校验 url 是否以 context 起始</span></span><br><span class="line">  <span class="keyword">if</span> (isStringPath(context)) &#123;</span><br><span class="line">    <span class="keyword">return</span> matchSingleStringPath(context, uri)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// context 为 glob 模式的字符串路径（通过 is-glob 模块判断），校验  url 是否匹配 context（通过 micromatch 判断）</span></span><br><span class="line">  <span class="comment">// [glob 介绍](https://blog.csdn.net/Free_Wind22/article/details/78344166)</span></span><br><span class="line">  <span class="keyword">if</span> (isGlobPath(context)) &#123;</span><br><span class="line">    <span class="keyword">return</span> matchSingleGlobPath(context, uri)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 遍历 context，调用 matchSingleStringPath, matchSingleGlobPath 作校验</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(context)) &#123;</span><br><span class="line">    <span class="keyword">if</span> (context.every(isStringPath)) &#123;</span><br><span class="line">      <span class="keyword">return</span> matchMultiPath(context, uri)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (context.every(isGlobPath)) &#123;</span><br><span class="line">      <span class="keyword">return</span> matchMultiGlobPath(context, uri)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(ERRORS.ERR_CONTEXT_MATCHER_INVALID_ARRAY)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// context 自定义函数，用于校验客户端请求是否需要转发</span></span><br><span class="line">  <span class="keyword">if</span> (_.isFunction(context)) &#123;</span><br><span class="line">    <span class="keyword">var</span> pathname = getUrlPathName(uri)</span><br><span class="line">    <span class="keyword">return</span> context(pathname, req)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(ERRORS.ERR_CONTEXT_MATCHER_GENERIC)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="target"><a href="#target" class="headerlink" title="target"></a>target</h4><p>target 表示目标服务器的 host。在 createConfig 函数的源码中，可以看到，target 即能通过 url 形式的 context 设定，又能通过 options.target 选项设定。当然，这样是作为全局配置设定的；同 node-http-proxy 库，http-proxy-middleware 也可以在具体的请求发生时作特殊处理。这后半分的内容，是通过全局配置 options.router 达成的。在 http-proxy-middleware 处理客户端请求的过程中，getTarget 函数将通过 options.router 获取目标服务器的 host。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 获取目标服务器的 host</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; req 客户端请求 req</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; config 即 HttpProxyMiddleware 接口的 options 参数，获取 options.router</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getTarget</span> (<span class="params">req, config</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> newTarget</span><br><span class="line">  <span class="keyword">var</span> router = config.router</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (_.isPlainObject(router)) &#123;</span><br><span class="line">    newTarget = getTargetFromProxyTable(req, router)</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (_.isFunction(router)) &#123;</span><br><span class="line">    newTarget = router(req)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> newTarget</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getTargetFromProxyTable</span> (<span class="params">req, table</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> result</span><br><span class="line">  <span class="keyword">var</span> host = req.headers.host</span><br><span class="line">  <span class="keyword">var</span> path = req.url</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> hostAndPath = host + path<span class="comment">// 客户端请求路径</span></span><br><span class="line"></span><br><span class="line">  _.forIn(table, <span class="function"><span class="keyword">function</span> (<span class="params">value, key</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// containsPath(str) 函数，判断 str 是否包含 '/'</span></span><br><span class="line">    <span class="keyword">if</span> (containsPath(key)) &#123;</span><br><span class="line">      <span class="keyword">if</span> (hostAndPath.indexOf(key) &gt; <span class="number">-1</span>) &#123;</span><br><span class="line">        result = table[key]</span><br><span class="line">        logger.debug(<span class="string">'[HPM] Router table match: "%s"'</span>, key)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (key === host) &#123;</span><br><span class="line">        result = table[key]</span><br><span class="line">        logger.debug(<span class="string">'[HPM] Router table match: "%s"'</span>, host)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="pathRewrite"><a href="#pathRewrite" class="headerlink" title="pathRewrite"></a>pathRewrite</h4><p>在 http-proxy-middleware 库中，options.pathRewrite 用于将客户端请求路径转化为目标服务器的路径（pathname 部分），既可以是 map 映射，也可以函数。createPathRewriter 函数将根据 options.pathRewrite 生成路径转化器 pathRewriter 函数；而 pathRewriter 用于将实际的客户端请求地址转化为目标服务器的路径。当 options.pathRewrite 为对象 key-value 时，pathRewriter 将把匹配 key 的客户端请求转化为 value 路径；当 options.pathRewrite 为函数时，将由客户端请求 req.url 获取目标服务器路径。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 生成 pathRewriter 函数</span></span><br><span class="line"><span class="comment"> * @param &#123;object|function&#125; rewriteConfig 即 HttpProxyMiddleware 接口的 options.pathRewrite 配置项</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createPathRewriter</span> (<span class="params">rewriteConfig</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> rulesCache</span><br><span class="line"></span><br><span class="line">  <span class="comment">// isValidRewriteConfig 函数用于校验 options.pathRewrite</span></span><br><span class="line">  <span class="keyword">if</span> (!isValidRewriteConfig(rewriteConfig)) &#123;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (_.isFunction(rewriteConfig)) &#123;</span><br><span class="line">    <span class="keyword">var</span> customRewriteFn = rewriteConfig</span><br><span class="line">    <span class="keyword">return</span> customRewriteFn</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    rulesCache = parsePathRewriteRules(rewriteConfig)</span><br><span class="line">    <span class="keyword">return</span> rewritePath</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 参数 path 为 req.url</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">rewritePath</span> (<span class="params">path</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> result = path</span><br><span class="line"></span><br><span class="line">    _.forEach(rulesCache, <span class="function"><span class="keyword">function</span> (<span class="params">rule</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (rule.regex.test(path)) &#123;</span><br><span class="line">        result = result.replace(rule.regex, rule.value)</span><br><span class="line">        logger.debug(<span class="string">'[HPM] Rewriting path from "%s" to "%s"'</span>, path, result)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">parsePathRewriteRules</span> (<span class="params">rewriteConfig</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> rules = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (_.isPlainObject(rewriteConfig)) &#123;</span><br><span class="line">    _.forIn(rewriteConfig, <span class="function"><span class="keyword">function</span> (<span class="params">value, key</span>) </span>&#123;</span><br><span class="line">      rules.push(&#123;</span><br><span class="line">        regex: <span class="keyword">new</span> <span class="built_in">RegExp</span>(key),</span><br><span class="line">        value: rewriteConfig[key]</span><br><span class="line">      &#125;)</span><br><span class="line">      logger.info(<span class="string">'[HPM] Proxy rewrite rule created: "%s" ~&gt; "%s"'</span>, key, rewriteConfig[key])</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> rules</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h3><p>这部分将串联转发规则的解析和应用，是为 http-proxy-middleware 库的整体工作流程。</p>
+<ol>
+<li>解析 context，options 配置，获得全局注册的 context, options.target；并配置 Logger 实例。</li>
+<li>使用 node-http-proxy 库常见代理服务器 proxy。</li>
+<li>根据 options.pathRewrite 生成路径转化器 pathRewriter。</li>
+<li>为代理服务器绑定事件。</li>
+<li>创建转发 http, https, websocket 请求的代理中间件。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">HttpProxyMiddleware</span> (<span class="params">context, opts</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// https://github.com/chimurai/http-proxy-middleware/issues/57</span></span><br><span class="line">  <span class="keyword">var</span> wsUpgradeDebounced = _.debounce(handleUpgrade)</span><br><span class="line">  <span class="keyword">var</span> wsInitialized = <span class="literal">false</span></span><br><span class="line">  <span class="keyword">var</span> config = configFactory.createConfig(context, opts)</span><br><span class="line">  <span class="keyword">var</span> proxyOptions = config.options</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> proxy = httpProxy.createProxyServer(&#123;&#125;)</span><br><span class="line">  logger.info(<span class="string">'[HPM] Proxy created:'</span>, config.context, <span class="string">' -&gt; '</span>, proxyOptions.target)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> pathRewriter = PathRewriter.create(proxyOptions.pathRewrite)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 为代理服务器绑定事件</span></span><br><span class="line">  handlers.init(proxy, proxyOptions)</span><br><span class="line"></span><br><span class="line">  proxy.on(<span class="string">'error'</span>, logError)</span><br><span class="line"></span><br><span class="line">  middleware.upgrade = wsUpgradeDebounced</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> middleware</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 实际的代理中间件</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">middleware</span> (<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (shouldProxy(config.context, req)) &#123;</span><br><span class="line">      <span class="keyword">var</span> activeProxyOptions = prepareProxyRequest(req)</span><br><span class="line">      proxy.web(req, res, activeProxyOptions)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      next()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (proxyOptions.ws === <span class="literal">true</span>) &#123;</span><br><span class="line">      catchUpgradeRequest(req.connection.server)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">catchUpgradeRequest</span> (<span class="params">server</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!wsInitialized) &#123;</span><br><span class="line">      server.on(<span class="string">'upgrade'</span>, wsUpgradeDebounced)</span><br><span class="line">      wsInitialized = <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 转发 websocket 请求</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handleUpgrade</span> (<span class="params">req, socket, head</span>) </span>&#123;</span><br><span class="line">    wsInitialized = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (shouldProxy(config.context, req)) &#123;</span><br><span class="line">      <span class="keyword">var</span> activeProxyOptions = prepareProxyRequest(req)</span><br><span class="line">      proxy.ws(req, socket, head, activeProxyOptions)</span><br><span class="line">      logger.info(<span class="string">'[HPM] Upgrading to WebSocket'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 判断请求是否需要转发</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">shouldProxy</span> (<span class="params">context, req</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> path = (req.originalUrl || req.url)</span><br><span class="line">    <span class="keyword">return</span> contextMatcher.match(context, path, req)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 转发请求</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">prepareProxyRequest</span> (<span class="params">req</span>) </span>&#123;</span><br><span class="line">    req.url = (req.originalUrl || req.url)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> originalPath = req.url</span><br><span class="line">    <span class="keyword">var</span> newProxyOptions = _.assign(&#123;&#125;, proxyOptions)</span><br><span class="line"></span><br><span class="line">    __applyRouter(req, newProxyOptions)</span><br><span class="line">    __applyPathRewrite(req, pathRewriter)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (proxyOptions.logLevel === <span class="string">'debug'</span>) &#123;</span><br><span class="line">      <span class="comment">// getArrow 返回的标识，用于区分 options.router, options.pathRewrite 的作用与否</span></span><br><span class="line">      <span class="comment">// '-&gt;' options.router, options.pathRewrite 均未作用</span></span><br><span class="line">      <span class="comment">// '=&gt;' options.router 作用, options.pathRewrite 未作用</span></span><br><span class="line">      <span class="comment">// '~&gt;' options.router 未作用, options.pathRewrite 作用</span></span><br><span class="line">      <span class="comment">// '≈&gt;' options.router, options.pathRewrite 均作用</span></span><br><span class="line">      <span class="keyword">var</span> arrow = getArrow(originalPath, req.url, proxyOptions.target, newProxyOptions.target)</span><br><span class="line">      logger.debug(<span class="string">'[HPM] %s %s %s %s'</span>, req.method, originalPath, arrow, newProxyOptions.target)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> newProxyOptions</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 根据请求获取目标服务器的 host</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">__applyRouter</span> (<span class="params">req, options</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> newTarget</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (options.router) &#123;</span><br><span class="line">      newTarget = Router.getTarget(req, options)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (newTarget) &#123;</span><br><span class="line">        logger.debug(<span class="string">'[HPM] Router new target: %s -&gt; "%s"'</span>, options.target, newTarget)</span><br><span class="line">        options.target = newTarget</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将目标服务器路径写入 req.url</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">__applyPathRewrite</span> (<span class="params">req, pathRewriter</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (pathRewriter) &#123;</span><br><span class="line">      <span class="keyword">var</span> path = pathRewriter(req.url, req)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> path === <span class="string">'string'</span>) &#123;</span><br><span class="line">        req.url = path</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        logger.info(<span class="string">'[HPM] pathRewrite: No rewritten path found. (%s)'</span>, req.url)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">logError</span> (<span class="params">err, req, res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> hostname = (req.headers &amp;&amp; req.headers.host) || (req.hostname || req.host)</span><br><span class="line">    <span class="keyword">var</span> target = proxyOptions.target.host || proxyOptions.target</span><br><span class="line">    <span class="keyword">var</span> errorMessage = <span class="string">'[HPM] Error occurred while trying to proxy request %s from %s to %s (%s) (%s)'</span></span><br><span class="line">    <span class="keyword">var</span> errReference = <span class="string">'https://nodejs.org/api/errors.html#errors_common_system_errors'</span></span><br><span class="line"></span><br><span class="line">    logger.error(errorMessage, req.url, hostname, target, err.code, errReference)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><h4 id="logger"><a href="#logger" class="headerlink" title="logger"></a>logger</h4><p>http-proxy-middleware 库使用单例模式创建 Logger 实例，并提供 setProvider 函数切换打印日志的 console 函数；setLevel 方法用于设定日志级别；继而由 Logger 实例提供 log, error, info, warn, debug 方法，这些方法在调用过程都会校验当前执行的方法是否符合当前日志级别，同时会允许首参以 %s 设定占位符，以注入次参等。</p>
+<p>因日志模块在 node 服务器中广为应用，这里贴出 http-proxy-middleware 库中的代码实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> loggerInstance</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> defaultProvider = &#123;</span><br><span class="line">  log: <span class="built_in">console</span>.log,</span><br><span class="line">  debug: <span class="built_in">console</span>.log, </span><br><span class="line">  info: <span class="built_in">console</span>.info,</span><br><span class="line">  warn: <span class="built_in">console</span>.warn,</span><br><span class="line">  error: <span class="built_in">console</span>.error</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> LEVELS = &#123;</span><br><span class="line">  debug: <span class="number">10</span>,</span><br><span class="line">  info: <span class="number">20</span>,</span><br><span class="line">  warn: <span class="number">30</span>,</span><br><span class="line">  error: <span class="number">50</span>,</span><br><span class="line">  silent: <span class="number">80</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Logger</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> logLevel</span><br><span class="line">  <span class="keyword">var</span> provider</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> api = &#123;</span><br><span class="line">    log: log,</span><br><span class="line">    debug: debug,</span><br><span class="line">    info: info,</span><br><span class="line">    warn: warn,</span><br><span class="line">    error: error,</span><br><span class="line">    setLevel: <span class="function"><span class="keyword">function</span> (<span class="params">v</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (isValidLevel(v)) &#123;<span class="comment">// isValidLevel 校验 v 是否 debug, info, warn, error, slient 中的一个</span></span><br><span class="line">        logLevel = v</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    setProvider: <span class="function"><span class="keyword">function</span> (<span class="params">fn</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (fn &amp;&amp; isValidProvider(fn)) &#123;<span class="comment">// isValidProvider 校验 fn 是否函数</span></span><br><span class="line">        provider = fn(defaultProvider)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  init()</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> api</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">init</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    api.setLevel(<span class="string">'info'</span>)</span><br><span class="line">    api.setProvider(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> defaultProvider</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">log</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    provider.log(_interpolate.apply(<span class="literal">null</span>, <span class="built_in">arguments</span>))</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">debug</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_showLevel(<span class="string">'debug'</span>)) &#123;</span><br><span class="line">      provider.debug(_interpolate.apply(<span class="literal">null</span>, <span class="built_in">arguments</span>))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">info</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_showLevel(<span class="string">'info'</span>)) &#123;</span><br><span class="line">      provider.info(_interpolate.apply(<span class="literal">null</span>, <span class="built_in">arguments</span>))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">warn</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_showLevel(<span class="string">'warn'</span>)) &#123;</span><br><span class="line">      provider.warn(_interpolate.apply(<span class="literal">null</span>, <span class="built_in">arguments</span>))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">error</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_showLevel(<span class="string">'error'</span>)) &#123;</span><br><span class="line">      provider.error(_interpolate.apply(<span class="literal">null</span>, <span class="built_in">arguments</span>))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 校验调用的方法是否在当前允许的日志级别下</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">_showLevel</span> (<span class="params">showLevel</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> result = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">var</span> currentLogLevel = LEVELS[logLevel]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (currentLogLevel &amp;&amp; (currentLogLevel &lt;= LEVELS[showLevel])) &#123;</span><br><span class="line">      result = <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 参数转化，允许首参以 %s 形式设置占位符</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">_interpolate</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> fn = _.spread(util.format)</span><br><span class="line">    <span class="keyword">var</span> result = fn(_.slice(<span class="built_in">arguments</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  getInstance: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!loggerInstance) &#123;</span><br><span class="line">      loggerInstance = <span class="keyword">new</span> Logger()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> loggerInstance</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="事件绑定"><a href="#事件绑定" class="headerlink" title="事件绑定"></a>事件绑定</h4><p>解析 options.onError, options.onProxyReq, options.onProxyReqWs, options.onProxyRes, options.onOpen, options.onClose，并绑定为代理服务器的事件。</p>
+<p>默认的绑定函数为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// onError 绑定函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">defaultErrorHandler</span> (<span class="params">err, req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> host = (req.headers &amp;&amp; req.headers.host)</span><br><span class="line">  <span class="keyword">var</span> code = err.code</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (res.writeHead &amp;&amp; !res.headersSent) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/HPE_INVALID/</span>.test(code)) &#123;</span><br><span class="line">      res.writeHead(<span class="number">502</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">switch</span> (code) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'ECONNRESET'</span>:</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'ENOTFOUND'</span>:</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'ECONNREFUSED'</span>:</span><br><span class="line">          res.writeHead(<span class="number">504</span>)</span><br><span class="line">          <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">default</span>: res.writeHead(<span class="number">500</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  res.end(<span class="string">'Error occured while trying to proxy to: '</span> + host + req.url)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// onClose 绑定函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">logClose</span> (<span class="params">req, socket, head</span>) </span>&#123;</span><br><span class="line">  logger.info(<span class="string">'[HPM] Client disconnected'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="webpack-dev-server"><a href="#webpack-dev-server" class="headerlink" title="webpack-dev-server"></a>webpack-dev-server</h3><p>webpack-dev-server 库会创建 express 服务器，其服务器代理的实现就是解析配置项，并挂载 http-proxy-middleware 中间件。主要逻辑在 features.proxy 方法中实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> features = &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  proxy: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (options.proxy) &#123;</span><br><span class="line">      <span class="comment">// 解析配置</span></span><br><span class="line">      <span class="keyword">if</span> (!<span class="built_in">Array</span>.isArray(options.proxy)) &#123;</span><br><span class="line">        options.proxy = <span class="built_in">Object</span>.keys(options.proxy).map(<span class="function">(<span class="params">context</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">let</span> proxyOptions;</span><br><span class="line">          <span class="keyword">const</span> correctedContext = context</span><br><span class="line">            .replace(<span class="regexp">/^\*$/</span>, <span class="string">'**'</span>)</span><br><span class="line">            .replace(<span class="regexp">/\/\*$/</span>, <span class="string">''</span>);</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> options.proxy[context] === <span class="string">'string'</span>) &#123;</span><br><span class="line">            proxyOptions = &#123;</span><br><span class="line">              context: correctedContext,</span><br><span class="line">              target: options.proxy[context]</span><br><span class="line">            &#125;;</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            proxyOptions = <span class="built_in">Object</span>.assign(&#123;&#125;, options.proxy[context]);</span><br><span class="line">            proxyOptions.context = correctedContext;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 日志级别</span></span><br><span class="line">          proxyOptions.logLevel = proxyOptions.logLevel || <span class="string">'warn'</span>;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">return</span> proxyOptions;</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 获得 proxy 中间件</span></span><br><span class="line">      <span class="keyword">const</span> getProxyMiddleware = <span class="function">(<span class="params">proxyConfig</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> context = proxyConfig.context || proxyConfig.path;</span><br><span class="line">        <span class="keyword">if</span> (proxyConfig.target) &#123;</span><br><span class="line">          <span class="keyword">return</span> httpProxyMiddleware(context, proxyConfig);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">      </span><br><span class="line">      <span class="comment">// 以配置项挂载多个中间件</span></span><br><span class="line">      options.proxy.forEach(<span class="function">(<span class="params">proxyConfigOrCallback</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> proxyConfig;</span><br><span class="line">        <span class="keyword">let</span> proxyMiddleware;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">typeof</span> proxyConfigOrCallback === <span class="string">'function'</span>) &#123;</span><br><span class="line">          proxyConfig = proxyConfigOrCallback();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          proxyConfig = proxyConfigOrCallback;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        proxyMiddleware = getProxyMiddleware(proxyConfig);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (proxyConfig.ws) &#123;</span><br><span class="line">          websocketProxies.push(proxyMiddleware);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        app.use(<span class="function">(<span class="params">req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> proxyConfigOrCallback === <span class="string">'function'</span>) &#123;</span><br><span class="line">            <span class="keyword">const</span> newProxyConfig = proxyConfigOrCallback();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (newProxyConfig !== proxyConfig) &#123;</span><br><span class="line">              proxyConfig = newProxyConfig;</span><br><span class="line">              proxyMiddleware = getProxyMiddleware(proxyConfig);</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">const</span> bypass = <span class="keyword">typeof</span> proxyConfig.bypass === <span class="string">'function'</span>;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">const</span> bypassUrl = (bypass &amp;&amp; proxyConfig.bypass(req, res, proxyConfig)) || <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 转发到本地服务器</span></span><br><span class="line">          <span class="keyword">if</span> (bypassUrl) &#123;</span><br><span class="line">            req.url = bypassUrl;</span><br><span class="line"></span><br><span class="line">            next();</span><br><span class="line">          &#125; <span class="keyword">else</span> <span class="keyword">if</span> (proxyMiddleware) &#123;</span><br><span class="line">            <span class="keyword">return</span> proxyMiddleware(req, res, next);</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            next();</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           
         
       
@@ -1900,405 +2220,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/10/react/react相关/react-jsonschema-form源码分析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/10/react/react相关/react-jsonschema-form源码分析/" itemprop="url">react-jsonschema-form源码分析</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-10T00:00:00+08:00">2018-10-10</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/类库/" itemprop="url" rel="index"><span itemprop="name">类库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/10/10/react/react相关/react-jsonschema-form源码分析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/10/10/react/react相关/react-jsonschema-form源码分析/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/09/es6/Reflect, Proxy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/09/es6/Reflect, Proxy/" itemprop="url">Reflect, Proxy</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-09T00:00:00+08:00">2018-10-09</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/es6/" itemprop="url" rel="index"><span itemprop="name">es6</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/10/09/es6/Reflect, Proxy/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/10/09/es6/Reflect, Proxy/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Reflect"><a href="#Reflect" class="headerlink" title="Reflect"></a>Reflect</h2><p>ES6 提供的 API，集成语言层面的对象操作（操作与 Proxy 一一对应，且为函数形式）。</p>
-<ul>
-<li>Reflect.get(target, name, receiver): 获取属性。</li>
-<li>Reflect.set(target, name, value, receiver): 对属性赋值。</li>
-<li>Reflect.defineProperty(target, name, desc): 修改属性的描述符。</li>
-<li>Reflect.deleteProperty(target, name): 删除属性。</li>
-<li>Reflect.has(target, name): propKey in proxy 判断。</li>
-<li>Reflect.ownKeys(target): 返回对象的自有属性。</li>
-<li>Reflect.enumerate(target): 以迭代器形式获取对象的可枚举属性。</li>
-<li>Reflect.isExtensible(target): 判断对象是否可扩展。</li>
-<li>Reflect.preventExtensions(target): 使对象不可扩展。</li>
-<li>Reflect.getOwnPropertyDescriptor(target, name): 获取属性的描述符。</li>
-<li>Reflect.getPrototypeOf(target): 获取对象的 <strong>proto</strong> 属性。</li>
-<li>Reflect.setPrototypeOf(target, prototype): 设置对象的原型。</li>
-<li>Reflect.apply(target, thisArg, args): 以 thisArg 为上下文执行 target 函数。</li>
-<li>Reflect.construct(target, args): 创建 target 实例。</li>
-</ul>
-<h2 id="Proxy"><a href="#Proxy" class="headerlink" title="Proxy"></a>Proxy</h2><p>Proxy 在语言层面，拦截针对对象的操作。ES6 原生提供 Proxy 构造函数，用来生成 Proxy 实例。</p>
-<p>使用 let proxy = new Proxy(target, handler); 创建 Proxy 实例。参数 target 可以是对象，也可以是函数。handler 为设定拦截操作的集合。操作 proxy，将同时影响 target。</p>
-<p>Proxy.revocable 方法返回一个可取消的 Proxy 实例。返回值中，proxy 属性即为 Proxy 实例，revoke 方法用于取消 Proxy 实例。</p>
-<p>在 Proxy 代理的情况下，目标对象内的 this 关键字将指向 Proxy 实例。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> proto = <span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">  get(target, propertyKey, receiver) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'GET '</span> + propertyKey);</span><br><span class="line">    <span class="keyword">return</span> target[propertyKey];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> obj = <span class="built_in">Object</span>.create(proto);</span><br><span class="line">obj.foo <span class="comment">// "GET foo"</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> target = &#123;&#125;;</span><br><span class="line"><span class="keyword">let</span> handler = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> &#123;proxy, revoke&#125; = <span class="built_in">Proxy</span>.revocable(target, handler);</span><br><span class="line"></span><br><span class="line">proxy.foo = <span class="number">123</span>;</span><br><span class="line">proxy.foo <span class="comment">// 123</span></span><br><span class="line"></span><br><span class="line">revoke();</span><br><span class="line">proxy.foo <span class="comment">// TypeError: Revoked</span></span><br></pre></td></tr></table></figure>
-<p>可拦截的操作包含：</p>
-<ul>
-<li>get(target, propKey, receiver): 拦截对象属性的读取。参数 reveiver 为操作行为所针对的对象，通常是 proxy 实例。</li>
-<li>set(target, propKey, value): 拦截对象属性的设置，返回布尔值。</li>
-<li>has(target, propKey): 拦截 propKey in proxy 操作，返回布尔值。</li>
-<li>delete(target, propKey): 拦截 delete proxy[propKey] 的操作，返回布尔值。</li>
-<li>ownKeys(target): 拦截 Object.getOwnPropertyNames(proxy)、Object.getOwnPropertySymbols(proxy)、Object.keys(proxy)、for…in 循环，返回目标对象自身所有的属性，Object.keys() 返回仅包括目标对象自身的可遍历属性。</li>
-<li>getOwnPropertyDescriptor(target, propKey): 拦截 Object.getOwnPropertyDescriptor(proxy, propKey)，返回属性的描述对象。</li>
-<li>defineProperty(target, propKey, propDesc): 拦截 Object.defineProperty(proxy, propKey, propDesc）、Object.defineProperties(proxy, propDescs)，返回布尔值。</li>
-<li>preventExtensions(target): 拦截 Object.preventExtensions(proxy)，返回布尔值。</li>
-<li>getPrototypeOf(target): 拦截 Object.getPrototypeOf(proxy)，返回对象。</li>
-<li>isExtensible(target): 拦截 Object.isExtensible(proxy)，返回布尔值。</li>
-<li>setPrototypeOf(target, proto): 拦截 Object.setPrototypeOf(proxy, proto)，返回布尔值。</li>
-<li>apply(target, object, args): 拦截 Proxy 实例作为函数调用的操作，比如 proxy(…args)、proxy.call(object, …args)、proxy.apply(…)。</li>
-<li>construct(target, args): 拦截 Proxy 实例作为构造函数调用的操作，比如 new proxy(…args)。</li>
-</ul>
-<h2 id="harmony-reflect"><a href="#harmony-reflect" class="headerlink" title="harmony-reflect"></a>harmony-reflect</h2><p>作为垫片，提供 Reflect 全局对象，扩展 Object 及 Proxy。</p>
-<h3 id="Reflect-1"><a href="#Reflect-1" class="headerlink" title="Reflect"></a>Reflect</h3><p>扩展或提供平台提供的 Reflect 对象。</p>
-<ul>
-<li>Reflect.get(target, name, receiver) 方法实现: 首先，若 target 为 Proxy 实例，获取并调用 handler.get 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取属性描述符，若属性描述符为 undefined，尝试通过 Object.getPrototypeOf 方法获取原型的 name 属性；其次，若属性描述符不是 undefined，尝试获取属性描述符中的 value 属性或执行 get 方法。</li>
-<li>Reflect.set(target, name, value, receiver) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.set 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取属性描述符，若属性描述符为 undefined，尝试通过 Object.getPrototypeOf 方法调用原型的 set 方法；其次，若属性描述符不是 undefined，且访问器属性 set 为真值，尝试以 receiver 为上下文调用属性描述符中的 set 方法；其次，通过 Object.getOwnPropertyDescriptor 获取 receiver 对象的属性描述符，若属性描述符为 undefined，调用 Object.defineProperty 重新设置属性描述符，更新 value 值；其次，若 receiver 对象的属性描述符不是 undefined，校验 receiver 是否可扩展，若可扩展，调用 Object.defineProperty 重新设置属性描述符。</li>
-<li>Reflect.defineProperty(target, name, desc) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.defineProperty 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取当前的属性描述符，当属性描述符的 configurable 属性为 false 时，运行原有的 Object.defineProperty 将报错，实现上将引起报错的情形全部以 return false 形式剔除，随后再调用 Object.defineProperty，重新设定属性描述符。</li>
-<li>Reflect.deleteProperty(target, name) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.deleteProperty 方法；其次，通过 Object.getOwnPropertyDescriptor 获取当前的属性描述符并判断其 configurable 属性，若属性为真，调用 delete target[name] 语句，否则返回 false。</li>
-<li>Reflect.has(target, name) 方法: 执行 name in target 语句。</li>
-<li>Reflect.ownKeys(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.ownKeys 方法；其次，调用 Object.getOwnPropertyNames 方法。</li>
-<li>Reflect.enumerate(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.enumerate 方法；其次，通过 for…in 语句获取目标的可枚举属性集合，以迭代器形式输出。</li>
-<li>Reflect.isExtensible(target) 方法: 直接调用 Object.isExtensible 方法。</li>
-<li>Reflect.preventExtensions(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.preventExtensions 方法；其次，调用 Object.preventExtensions 方法。</li>
-<li>Reflect.getOwnPropertyDescriptor(target, name) 方法: 直接调用 Object.getOwnPropertyDescriptor 方法。</li>
-<li>Reflect.getPrototypeOf(target) 方法: 直接调用 Object.getPrototypeOf 方法。</li>
-<li>Reflect.setPrototypeOf(target, prototype): 首先，若 target 为 Proxy 实例，获取并调用 handler.setPrototypeOf 方法；其次，判断目标的可扩展性，若其可扩展，以 try-catch 语句执行 Object.setPrototypeOf 方法，以捕获错误。</li>
-<li>Reflect.apply(target, thisArg, args): 调用 Function.prototype.apply.call(target, thisArg, args)。</li>
-<li>Reflect.construct(target, args, newTarget): 首先，若 target 为 Proxy 实例，获取并调用 handler.construct 方法；其次，在 newTarget 为 undefined 或与 target 等值的基础上，基于 target 并以 null 为上下文生成构造函数；否则，Object.create(newTarget.prototype) 为上文生成构造函数。</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> <span class="built_in">Reflect</span> = &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  enumerate: <span class="function"><span class="keyword">function</span>(<span class="params">target</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> handler = directProxies.get(target);</span><br><span class="line">    <span class="keyword">var</span> result;</span><br><span class="line">    <span class="keyword">if</span> (handler !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      result = handler.enumerate(handler.target);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      result = [];</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">var</span> name <span class="keyword">in</span> target) &#123; result.push(name); &#125;;      </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> l = +result.length;</span><br><span class="line">    <span class="keyword">var</span> idx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      next: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (idx === l) <span class="keyword">return</span> &#123; <span class="attr">done</span>: <span class="literal">true</span> &#125;;</span><br><span class="line">        <span class="keyword">return</span> &#123; <span class="attr">done</span>: <span class="literal">false</span>, <span class="attr">value</span>: result[idx++] &#125;;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  construct: <span class="function"><span class="keyword">function</span>(<span class="params">target, args, newTarget</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> handler = directProxies.get(target);</span><br><span class="line">    <span class="keyword">if</span> (handler !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> handler.construct(handler.target, args, newTarget);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> target !== <span class="string">"function"</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">"target is not a function: "</span> + target);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (newTarget === <span class="literal">undefined</span> || newTarget === target) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> (<span class="built_in">Function</span>.prototype.bind.apply(target, [<span class="literal">null</span>].concat(args)));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> newTarget !== <span class="string">"function"</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">"newTarget is not a function: "</span> + target);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">var</span> proto = newTarget.prototype;</span><br><span class="line">      <span class="keyword">var</span> instance = (<span class="built_in">Object</span>(proto) === proto) ? <span class="built_in">Object</span>.create(proto) : &#123;&#125;;</span><br><span class="line">      <span class="keyword">var</span> result = <span class="built_in">Function</span>.prototype.apply.call(target, instance, args);</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">Object</span>(result) === result ? result : instance;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="proxy"><a href="#proxy" class="headerlink" title="proxy"></a>proxy</h3><p>构建 const vHandler = function Validator(target, handler){} 构造函数，用于对象操作并作校验。当平台提供 Proxy api 时，vHandler 将作为 Proxy.create, Proxy.createFunction 的参数，以改写 global.Proxy(target, handler) 构造函数。生成的 proxy 实例将以 { [proxy]: vHandler } 的形式存入 WeakMap 实例 directProxies 中，用于使 Object 的部分原型方法先作代理处理，再作常规处理。</p>
-<p>Validator 实例方法（proxy 为 new Proxy(target, handler) 实例）：</p>
-<ul>
-<li>proxy.get(receiver, propKey, receiver): 若没有设置 handler.get，调用 Reflect.get 方法；若设置，以 handler 为上下文调用 handler.get，并校验 target[propKey] 的 configurable, writable, get 属性或方法，特定条件下作报错处理。</li>
-<li>proxy.set(receiver, propKey, value): 若没有设置 handler.set，调用 Reflect.set 方法；若设置，以 handler 为上下文调用 handler.set，并校验 target[propKey] 的 configurable, writable, get 属性或方法，特定条件下作报错处理。</li>
-<li>proxy.has(propKey): 若没有设置 handler.has，调用 Reflect.has 方法；若设置，以 handler 为上下文调用 handler.has，当返回结果为 false 时，并校验 target[propKey] 的 configurable 属性, 及可扩展性，特定条件下作报错处理。</li>
-<li>proxy.delete(propKey): 若没有设置 handler.deleteProperty，调用 Reflect.deleteProperty 方法；若设置，以 handler 为上下文调用 handler.deleteProperty，校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.ownKeys(): 若没有设置 handler.ownKeys，调用 Reflect.ownKeys 方法；若设置，以 handler 为上下文调用 handler.ownKeys，并校验 target 各属性的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.enumate(), proxy.iterate(): 若没有设置 handler.enumate，调用 Reflect.enumate 方法；若设置，以 handler 为上下文调用 handler.enumate，并校验 target 各属性的可扩展性，特定条件下作报错处理。返回迭代器。</li>
-<li>proxy.getPropertyDescriptor(propKey): 若 proxy.has 返回否值，返回 undefined；否则以包装 proxy.set, proxy.get 形式返回属性描述符，且 enumerable, configurable 属性均为真值。</li>
-<li>proxy.getOwnPropertyDescriptor(propKey): 若没有设置 handler.getOwnPropertyDescriptor，调用 Reflect.getOwnPropertyDescriptor 方法；若设置，以 handler 为上下文调用 handler.getOwnPropertyDescriptor，校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.defineProperty(propKey, propDesc): 若没有设置 handler.defineProperty，调用 Reflect.defineProperty 方法；若设置，以 handler 为上下文调用 handler.defineProperty，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.preventExtensions(): 若没有设置 handler.preventExtensions，调用 Reflect.preventExtensions 方法；若设置，以 handler 为上下文调用 handler.preventExtensions，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.getPrototypeOf(): 若没有设置 handler.getPrototypeOf，调用 Reflect.getPrototypeOf 方法；若设置，以 handler 为上下文调用 handler.getPrototypeOf，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.isExtensible(): 若没有设置 handler.isExtensible，调用 Reflect.isExtensible 方法；若设置，以 handler 为上下文调用 handler.isExtensible，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.setPrototypeOf(proto): 若没有设置 handler.setPrototypeOf，调用 Reflect.setPrototypeOf 方法；若设置，以 handler 为上下文调用 handler.setPrototypeOf，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.apply(target, thisBinding, args): 若没有设置 handler.apply，调用 Reflect.apply 方法；若设置，以 handler 为上下文调用 handler.apply。</li>
-<li>proxy.construct(target, args, newTarget): 若没有设置 handler.construct，调用 Reflect.construct 方法；若设置，以 handler 为上下文调用 handler.construct。</li>
-</ul>
-<h3 id="Object-扩展"><a href="#Object-扩展" class="headerlink" title="Object 扩展"></a>Object 扩展</h3><ul>
-<li>Object.preventExtensions(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 preventExtensions 方法；其次尝试调用 Object.preventExtensions 原始方法。</li>
-<li>Object.seal(subject): 密封对象，可改变现有属性，即将所有属性描述符的 configurable 置为否。</li>
-<li>Object.freeze(subject): 冻结对象，即将所有属性描述符的 configurable, writable 置为否（访问器属性的状况下仅需处理 configurable 属性）。</li>
-<li>Object.isExtensible(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 isExtensible 方法；其次尝试调用 Object.isExtensible 原始方法。</li>
-<li>Object.isSealed(subject): 判断是否密封。</li>
-<li>Object.isFrozen(subject): 判断是否冻结。</li>
-<li>Object.getOwnPropertyDescriptor(subject, name): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 getOwnPropertyDescriptor 方法；其次尝试调用 Object.getOwnPropertyDescriptor 原始方法。</li>
-<li>Object.defineProperty(subject, name, desc): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 defineProperty 方法；其次尝试调用 Object.defineProperty 原始方法。</li>
-<li>Object.defineProperties(subject, descs): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，针对属性逐个调用代理对象的 defineProperty 方法；其次尝试调用 Object.defineProperties 原始方法。</li>
-<li>Object.keys(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 ownKeys 方法，剔除其中的不可枚举项；其次尝试调用 Object.keys 原始方法。</li>
-<li>Object.getOwnPropertyNames(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 ownKeys 方法；其次尝试调用 Object.getOwnPropertyNames 原始方法。</li>
-<li>Object.getOwnPropertySymbols(subject): 平台提供 Object.getOwnPropertySymbols 原始方法的基础下封装。若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，返回空数组；其次尝试调用 Object.getOwnPropertySymbols 原始方法。</li>
-<li>Object.assign(target, …source): 平台提供 Object.assign 原始方法的基础下封装。若各参数均为代理对象，直接调用 Object.assign 原始方法；否则，遍历属性以拷贝。</li>
-<li>Object.setPrototypeOf(target, proto): 若 target 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 setPrototypeOf 方法；其次尝试调用 Object.setPrototypeOf 原始方法；其次通过 Object.defineProperty 设置target 的 <strong>proto</strong> 属性。</li>
-<li>Object.prototype.isPrototypeOf(arg): 若 arg 为代理实例，通过 vHandler.getPrototypeOf 方法向上逐层获取 arg 的原型，原型同 this 作等值比较；否则直接调用 Object.prototype.isPrototypeOf 作判断。</li>
-<li>Object.prototype.valueOf(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Object.prototype.valueOf；否则，直接执行 Object.prototype.valueOf。</li>
-<li>Object.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Object.prototype.toString；否则，直接执行 Object.prototype.toString。</li>
-<li>Function.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Function.prototype.toString；否则，直接执行 Function.prototype.toString。</li>
-<li>Date.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Date.prototype.toString；否则，直接执行 Date.prototype.toString。</li>
-<li>Object.prototype.hasOwnProperty(propKey): 若 this 为代理实例，从 directProxies 中获取代理对象的 vHandler，调动 vHandler.getOwnPropertyDescriptor，并判断返回值是否为 undefined；否则，直接执行 Object.prototype.hasOwnProperty。</li>
-<li>Array.isArray(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 target，并调用 Array.isArray 原始方法判断 target 是否为数组；其次尝试调用 Array.isArray 原始方法。</li>
-<li>Array.prototype.concat(…args): 使用 Array.prototype.slice 方法将 args 数组项中的代理实例数组拆解为普通数组，随后使用 Array.prototype.concat 原始方法拼接数组。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2350,7 +2271,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">48</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

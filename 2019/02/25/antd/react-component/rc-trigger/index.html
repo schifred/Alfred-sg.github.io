@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="analyst,react,antd," />
+
+
+<meta name="description" content="rc-trigger 集成了弹层显示隐藏的处理逻辑，以便在操作挂载元素时显示和隐藏弹层。简单的使用场景如：当鼠标移入帮助符号时，显示文本提示；当鼠标移出时，隐藏文本提示。rc-trigger 的组件层级如下：  为适配弹层的多种处理逻辑，rc-trigger 统一在弹层触发元素外围以虚拟组件 Trigger 的形式组织弹层显示隐藏的处理逻辑。为使弹层不受触发元素位置及大小的影响，rc-trigge">
+<meta name="keywords" content="analyst,react,antd">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rc-trigger">
+<meta property="og:url" content="http://yoursite.com/2019/02/25/antd/react-component/rc-trigger/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="rc-trigger 集成了弹层显示隐藏的处理逻辑，以便在操作挂载元素时显示和隐藏弹层。简单的使用场景如：当鼠标移入帮助符号时，显示文本提示；当鼠标移出时，隐藏文本提示。rc-trigger 的组件层级如下：  为适配弹层的多种处理逻辑，rc-trigger 统一在弹层触发元素外围以虚拟组件 Trigger 的形式组织弹层显示隐藏的处理逻辑。为使弹层不受触发元素位置及大小的影响，rc-trigge">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/02/25/antd/react-component/rc-trigger/层级结构.png">
+<meta property="og:updated_time" content="2019-02-24T15:27:13.989Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="rc-trigger">
+<meta name="twitter:description" content="rc-trigger 集成了弹层显示隐藏的处理逻辑，以便在操作挂载元素时显示和隐藏弹层。简单的使用场景如：当鼠标移入帮助符号时，显示文本提示；当鼠标移出时，隐藏文本提示。rc-trigger 的组件层级如下：  为适配弹层的多种处理逻辑，rc-trigger 统一在弹层触发元素外围以虚拟组件 Trigger 的形式组织弹层显示隐藏的处理逻辑。为使弹层不受触发元素位置及大小的影响，rc-trigge">
+<meta name="twitter:image" content="http://yoursite.com/2019/02/25/antd/react-component/rc-trigger/层级结构.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/02/25/antd/react-component/rc-trigger/"/>
+
+
+  <title>rc-trigger | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/25/antd/react-component/rc-trigger/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">rc-trigger</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-25T00:00:00+08:00">2019-02-25</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/02/25/antd/react-component/rc-trigger/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/02/25/antd/react-component/rc-trigger/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>rc-trigger 集成了弹层显示隐藏的处理逻辑，以便在操作挂载元素时显示和隐藏弹层。简单的使用场景如：当鼠标移入帮助符号时，显示文本提示；当鼠标移出时，隐藏文本提示。rc-trigger 的组件层级如下：</p>
+<img src="/2019/02/25/antd/react-component/rc-trigger/层级结构.png">
+<p>为适配弹层的多种处理逻辑，rc-trigger 统一在弹层触发元素外围以虚拟组件 Trigger 的形式组织弹层显示隐藏的处理逻辑。为使弹层不受触发元素位置及大小的影响，rc-trigger 统一将弹层插入到 document 根节点中：Popup 组件既用于绘制蒙层，又用于组织弹层的动效以及调整弹层的位置；PopupInner 对接 Trigger，弹层实际内容外围挂载鼠标移入移出事件对弹层的影响；LazyRenderBox 根据 props.visible 等属性，决定是否需要绘制弹层实际内容，还是绘制空的 div 元素；popup 用于渲染弹层的实际内容。</p>
+<p>作为对外交互组件，Trigger 实现了系列方法管理着弹层的显示隐藏状态 state.popupVisible，该值即作为 LazyRenderBox 组件获得的 props.visible 属性。rc-trigger 针对弹层的显示隐藏状态，有两种事件处理逻辑：以指定的事件操纵触发元素时显示弹层；或者如鼠标移出弹层时隐藏弹层。因为这两种事件处理逻辑都与弹层的显示隐藏状态有关，所以都在 Trigger 组件内实现。Trigger 组件向下对接 PopupInner 组件，为其注入 props.onMouseLeave 等方法以操纵弹层的显隐。Trigger 组件内部实现 onClick 等方法，这样就可以在点击触发元素时显示弹层。最终，Trigger 组件对外透出可配置的 props 属性，以满足开发者的特定处理逻辑。同样的，为使 Popup 组件中实现的弹层动效处理逻辑、弹层调整方式可配置，Trigger 组件的 props 属性覆盖了弹层动效、位置相关的配置项。</p>
+<p>这样的处理机制有其一般性，即在构造抽象组件时，在父组件中实现抽象组件层级的视图状态和状态管理方法，并将子组件中使用的状态管理方法透传到子组件中，以使透传的状态管理方法和子组件的渲染内容相互绑定；再由父组件对外提供可配置项，既可以定制父组件的处理逻辑，也可以定制子组件的处理逻辑，从而满足开发者的特定需求。</p>
+<p>对于 Trigger 组件的处理逻辑，小结如下：</p>
+<ol>
+<li>通过 props.action, props.showAction, props.hideAction 指定切换弹层显示隐藏状态的事件；在 Trigger 组件中实现诸如 onClick 等方法以切换弹层的显示隐藏状态。</li>
+<li>在 Trigger 组件中实现 onPopupMouseLeave 等方法，透传到 PopupInner 组件中，以使鼠标移出弹层时隐藏弹层。</li>
+<li>Trigger 将弹层动效、位置调整相关属性传入 Popup 组件中。</li>
+<li>渲染时将弹层插入 document 根节点。</li>
+</ol>
+<h2 id="触发元素的绑定事件"><a href="#触发元素的绑定事件" class="headerlink" title="触发元素的绑定事件"></a>触发元素的绑定事件</h2><p>触发元素上可绑定的事件包含 ‘onClick’, ‘onMouseDown’, ‘onTouchStart’, ‘onMouseEnter’, ‘onMouseLeave’, ‘onFocus’, ‘onBlur’, ‘onContextMenu’。props.action, props.showAction, props.hideAction 就允许开发者以数组形式指定触发元素上绑定的事件。同时，Trigger 组件中实现了 isClickToShow 等方法用于判断开发者指定在触发元素的绑定事件。若 isClickToShow 方法返回真值时，那么触发元素上绑定的 onClick 方法就可以调用 Trigger 组件的内置处理逻辑，以显示或隐藏弹层；否则，触发元素上绑定的 onClick 方法就只能调用开发者传给 Trigger 组件或触发元素 children 的 props.onClick。其他事件的处理机制与此类同。</p>
+<p>在实现上，rc-trigger 有两层处理逻辑：若所处理的事件不影响弹层的显示隐藏状态，将 createTwoChains 创建的兜底函数作为绑定函数，直接调用外层 Trigger 元素或 children 触发元素的 props 同名方法；若影响，使用内置的 onClick 方法作为事件的绑定函数，以切换弹层的显示隐藏状态。下面就是兜底函数和内置绑定函数的实现，内置绑定函数仅以 onClick 作为示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 事件的兜底处理函数</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// const ALL_HANDLERS = ['onClick', 'onMouseDown', 'onTouchStart', 'onMouseEnter', </span></span><br><span class="line"><span class="comment">// 'onMouseLeave', 'onFocus', 'onBlur', 'onContextMenu'];</span></span><br><span class="line">componentWillMount() &#123;</span><br><span class="line">  ALL_HANDLERS.forEach(<span class="function">(<span class="params">h</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>[<span class="string">`fire<span class="subst">$&#123;h&#125;</span>`</span>] = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.fireEvents(h, e);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 先调用触发元素 children 的 props 方法，再调用 Trigger 元素的 props 方法</span></span><br><span class="line">fireEvents(type, e) &#123;</span><br><span class="line">  <span class="keyword">const</span> childCallback = <span class="keyword">this</span>.props.children.props[type];</span><br><span class="line">  <span class="keyword">if</span> (childCallback) &#123;</span><br><span class="line">    childCallback(e);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> callback = <span class="keyword">this</span>.props[type];</span><br><span class="line">  <span class="keyword">if</span> (callback) &#123;</span><br><span class="line">    callback(e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在 render 时作为触发元素 children 实际绑定的方法</span></span><br><span class="line">createTwoChains(event) &#123;</span><br><span class="line">  <span class="keyword">const</span> childPros = <span class="keyword">this</span>.props.children.props;</span><br><span class="line">  <span class="keyword">const</span> props = <span class="keyword">this</span>.props;</span><br><span class="line">  <span class="keyword">if</span> (childPros[event] &amp;&amp; props[event]) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>[<span class="string">`fire<span class="subst">$&#123;event&#125;</span>`</span>];</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> childPros[event] || props[event];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 通过事件显隐弹层</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 实时或延迟显隐弹窗</span></span><br><span class="line">delaySetPopupVisible(visible, delayS, event) &#123;</span><br><span class="line">  <span class="keyword">const</span> delay = delayS * <span class="number">1000</span>;</span><br><span class="line">  <span class="keyword">this</span>.clearDelayTimer();</span><br><span class="line">  <span class="keyword">if</span> (delay) &#123;</span><br><span class="line">    <span class="keyword">const</span> point = event ? &#123; <span class="attr">pageX</span>: event.pageX, <span class="attr">pageY</span>: event.pageY &#125; : <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">this</span>.delayTimer = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.setPopupVisible(visible, point);</span><br><span class="line">      <span class="keyword">this</span>.clearDelayTimer();</span><br><span class="line">    &#125;, delay);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.setPopupVisible(visible, event);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">onClick = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">this</span>.fireEvents(<span class="string">'onClick'</span>, event);</span><br><span class="line">  <span class="comment">// focus will trigger click</span></span><br><span class="line">  <span class="comment">// 聚焦时快速点击，不必隐藏弹层</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.focusTime) &#123;</span><br><span class="line">    <span class="keyword">let</span> preTime;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.preClickTime &amp;&amp; <span class="keyword">this</span>.preTouchTime) &#123;</span><br><span class="line">      preTime = <span class="built_in">Math</span>.min(<span class="keyword">this</span>.preClickTime, <span class="keyword">this</span>.preTouchTime);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.preClickTime) &#123;</span><br><span class="line">      preTime = <span class="keyword">this</span>.preClickTime;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.preTouchTime) &#123;</span><br><span class="line">      preTime = <span class="keyword">this</span>.preTouchTime;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Math</span>.abs(preTime - <span class="keyword">this</span>.focusTime) &lt; <span class="number">20</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.focusTime = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>.preClickTime = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">this</span>.preTouchTime = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (event &amp;&amp; event.preventDefault) &#123;</span><br><span class="line">    event.preventDefault();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> nextVisible = !<span class="keyword">this</span>.state.popupVisible;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.isClickToHide() &amp;&amp; !nextVisible || nextVisible &amp;&amp; <span class="keyword">this</span>.isClickToShow()) &#123;</span><br><span class="line">    <span class="keyword">this</span>.setPopupVisible(!<span class="keyword">this</span>.state.popupVisible, event);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">onMouseDown = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">this</span>.fireEvents(<span class="string">'onMouseDown'</span>, e);</span><br><span class="line">  <span class="keyword">this</span>.preClickTime = <span class="built_in">Date</span>.now();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">onTouchStart = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">this</span>.fireEvents(<span class="string">'onTouchStart'</span>, e);</span><br><span class="line">  <span class="keyword">this</span>.preTouchTime = <span class="built_in">Date</span>.now();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">onFocus = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">this</span>.fireEvents(<span class="string">'onFocus'</span>, e);</span><br><span class="line">  <span class="comment">// incase focusin and focusout</span></span><br><span class="line">  <span class="keyword">this</span>.clearDelayTimer();</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.isFocusToShow()) &#123;</span><br><span class="line">    <span class="keyword">this</span>.focusTime = <span class="built_in">Date</span>.now();</span><br><span class="line">    <span class="keyword">this</span>.delaySetPopupVisible(<span class="literal">true</span>, <span class="keyword">this</span>.props.focusDelay);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="弹层的绑定事件"><a href="#弹层的绑定事件" class="headerlink" title="弹层的绑定事件"></a>弹层的绑定事件</h2><p>当弹层已经显示时，rc-trigger 既支持在文档被点击时隐藏弹层，又支持在鼠标移出弹层时隐藏弹层。因此，Trigger 组件中有两种相关的处理逻辑：对于文档中挂载的事件，Trigger 组件在 componentDidUpdate 生命周期中对 document 节点绑定事件，所绑定的事件不限于点击，还包含文档滚动、窗口失焦；对于弹层挂载的事件，Trigger 组件实现了 onPopupMouseEnter, onPopupMouseLeave, onPopupMouseDown 方法，并透传给 PopupInner 组件，作为该组件渲染内容的绑定函数。其实现如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 文档绑定事件处理函数</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 根据可操控弹层显隐的事件，对 document 或 window 绑定事件处理函数</span></span><br><span class="line">componentDidUpdate(_, prevState) &#123;</span><br><span class="line">  <span class="keyword">const</span> props = <span class="keyword">this</span>.props;</span><br><span class="line">  <span class="keyword">const</span> state = <span class="keyword">this</span>.state;</span><br><span class="line">  <span class="keyword">const</span> triggerAfterPopupVisibleChange = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (prevState.popupVisible !== state.popupVisible) &#123;</span><br><span class="line">      props.afterPopupVisibleChange(state.popupVisible);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="keyword">if</span> (!IS_REACT_16) &#123;</span><br><span class="line">    <span class="keyword">this</span>.renderComponent(<span class="literal">null</span>, triggerAfterPopupVisibleChange);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.prevPopupVisible = prevState.popupVisible;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// We must listen to `mousedown` or `touchstart`, edge case:</span></span><br><span class="line">  <span class="comment">// https://github.com/ant-design/ant-design/issues/5804</span></span><br><span class="line">  <span class="comment">// https://github.com/react-component/calendar/issues/250</span></span><br><span class="line">  <span class="comment">// https://github.com/react-component/trigger/issues/50</span></span><br><span class="line">  <span class="keyword">if</span> (state.popupVisible) &#123;</span><br><span class="line">    <span class="keyword">let</span> currentDocument;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.clickOutsideHandler &amp;&amp; (<span class="keyword">this</span>.isClickToHide() || <span class="keyword">this</span>.isContextMenuToShow())) &#123;</span><br><span class="line">      currentDocument = props.getDocument();</span><br><span class="line">      <span class="keyword">this</span>.clickOutsideHandler = addEventListener(currentDocument,</span><br><span class="line">        <span class="string">'mousedown'</span>, <span class="keyword">this</span>.onDocumentClick);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// always hide on mobile</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.touchOutsideHandler) &#123;</span><br><span class="line">      currentDocument = currentDocument || props.getDocument();</span><br><span class="line">      <span class="keyword">this</span>.touchOutsideHandler = addEventListener(currentDocument,</span><br><span class="line">        <span class="string">'touchstart'</span>, <span class="keyword">this</span>.onDocumentClick);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// close popup when trigger type contains 'onContextMenu' and document is scrolling.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.contextMenuOutsideHandler1 &amp;&amp; <span class="keyword">this</span>.isContextMenuToShow()) &#123;</span><br><span class="line">      currentDocument = currentDocument || props.getDocument();</span><br><span class="line">      <span class="keyword">this</span>.contextMenuOutsideHandler1 = addEventListener(currentDocument,</span><br><span class="line">        <span class="string">'scroll'</span>, <span class="keyword">this</span>.onContextMenuClose);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// close popup when trigger type contains 'onContextMenu' and window is blur.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.contextMenuOutsideHandler2 &amp;&amp; <span class="keyword">this</span>.isContextMenuToShow()) &#123;</span><br><span class="line">      <span class="keyword">this</span>.contextMenuOutsideHandler2 = addEventListener(<span class="built_in">window</span>,</span><br><span class="line">        <span class="string">'blur'</span>, <span class="keyword">this</span>.onContextMenuClose);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.clearOutsideHandler();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当蒙层可关闭时，点击文档关闭弹层</span></span><br><span class="line">onDocumentClick = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.props.mask &amp;&amp; !<span class="keyword">this</span>.props.maskClosable) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> target = event.target;</span><br><span class="line">  <span class="keyword">const</span> root = findDOMNode(<span class="keyword">this</span>);</span><br><span class="line">  <span class="keyword">if</span> (!contains(root, target) &amp;&amp; !<span class="keyword">this</span>.hasPopupMouseDown) &#123;</span><br><span class="line">    <span class="keyword">this</span>.close();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 鼠标右键可显示弹层时，通过文档滚动、窗口失焦可隐藏弹层</span></span><br><span class="line">onContextMenuClose = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.isContextMenuToShow()) &#123;</span><br><span class="line">    <span class="keyword">this</span>.close();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">close() &#123;</span><br><span class="line">  <span class="keyword">this</span>.setPopupVisible(<span class="literal">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 弹层绑定事件处理函数</span></span><br><span class="line"></span><br><span class="line">onPopupMouseEnter = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">this</span>.clearDelayTimer();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当鼠标移出弹层时，隐藏弹层</span></span><br><span class="line"><span class="comment">// this._component 即 Popup 组件实例</span></span><br><span class="line"><span class="comment">// this._component.getPopupDomNode 用于获取 PopupInner 组件绘制的节点内容</span></span><br><span class="line">onPopupMouseLeave = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// https://github.com/react-component/trigger/pull/13</span></span><br><span class="line">  <span class="comment">// react bug?</span></span><br><span class="line">  <span class="keyword">if</span> (e.relatedTarget &amp;&amp; !e.relatedTarget.setTimeout &amp;&amp;</span><br><span class="line">    <span class="keyword">this</span>._component &amp;&amp;</span><br><span class="line">    <span class="keyword">this</span>._component.getPopupDomNode &amp;&amp;</span><br><span class="line">    contains(<span class="keyword">this</span>._component.getPopupDomNode(), e.relatedTarget)) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>.delaySetPopupVisible(<span class="literal">false</span>, <span class="keyword">this</span>.props.mouseLeaveDelay);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 点击弹层变更 Trigger 实例的 hasPopupMouseDown 属性，以指定文档点击区域不是弹层内部</span></span><br><span class="line"><span class="comment">// 当弹层相互嵌套时，向上递归调用 onPopupMouseDown 方法也用于阻止祖先弹层的隐藏</span></span><br><span class="line">onPopupMouseDown = <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; rcTrigger = &#123;&#125; &#125; = <span class="keyword">this</span>.context;</span><br><span class="line">  <span class="keyword">this</span>.hasPopupMouseDown = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  clearTimeout(<span class="keyword">this</span>.mouseDownTimeout);</span><br><span class="line">  <span class="keyword">this</span>.mouseDownTimeout = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.hasPopupMouseDown = <span class="literal">false</span>;</span><br><span class="line">  &#125;, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (rcTrigger.onPopupMouseDown) &#123;</span><br><span class="line">    rcTrigger.onPopupMouseDown(...args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="弹层动效和位置调整"><a href="#弹层动效和位置调整" class="headerlink" title="弹层动效和位置调整"></a>弹层动效和位置调整</h2><p>弹层的动效实现基于 rc-animate 类库；位置调整基于 rc-align 类库。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+            <a href="/tags/antd/" rel="tag"># antd</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/24/随笔/换种角度/" rel="next" title="换种角度">
+                <i class="fa fa-chevron-left"></i> 换种角度
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="Alfred" />
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">52</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">20</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#触发元素的绑定事件"><span class="nav-number">1.</span> <span class="nav-text">触发元素的绑定事件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#弹层的绑定事件"><span class="nav-number">2.</span> <span class="nav-text">弹层的绑定事件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#弹层动效和位置调整"><span class="nav-number">3.</span> <span class="nav-text">弹层动效和位置调整</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2019/02/25/antd/react-component/rc-trigger/';
+        this.page.identifier = '2019/02/25/antd/react-component/rc-trigger/';
+        this.page.title = 'rc-trigger';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script>
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

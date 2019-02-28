@@ -407,7 +407,26 @@
 <li>Waiting(TTFB) 等待初始响应所用的时间，也称为至第一字节的响应时间</li>
 <li>Content Download 接收响应数据所用的时间</li>
 </ul>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.w3.org/TR/navigation-timing/#dom-performancetiming-navigationstart" target="_blank" rel="noopener">Navigation Timing</a><br><a href="https://developers.google.cn/web/tools/chrome-devtools/network-performance/understanding-resource-timing" target="_blank" rel="noopener">了解 Resource Timing</a><br><a href="http://www.barretlee.com/blog/2016/04/01/optimization-in-taobao-homepage/" target="_blank" rel="noopener">淘宝首页性能优化实践</a><br><a href="https://imweb.io/topic/5b6fd3c13cb5a02f33c013bd" target="_blank" rel="noopener">网站性能优化实战——从12.67s到1.06s的故事</a></p>
+<h3 id="performance-查看性能"><a href="#performance-查看性能" class="headerlink" title="performance 查看性能"></a>performance 查看性能</h3><p>首页加载时间：</p>
+<ul>
+<li>DNS 寻址时间：domainLookupEnd - domainLookupStart</li>
+<li>TCP 连接耗时：connectEnd - connectStart</li>
+<li>request 请求耗时：responseEnd - requestStart</li>
+<li>白屏时间：responseStart - navigationStart</li>
+<li>解析 dom 树耗时：domComplete - domInteractive</li>
+<li>domready 时间(用户可操作时间节点)：domContentLoadedEventEnd - navigationStart</li>
+<li>onload 时间(总下载时间)：loadEventEnd - navigationStart</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> t = performance.timing;</span><br><span class="line"><span class="keyword">const</span> timing = &#123;</span><br><span class="line">  domainLookupTime: t.domainLookupEnd - t.domainLookupStart,</span><br><span class="line">  TCPConnectTime: t.connectEnd - t.connectStart,</span><br><span class="line">  ttfb: t.responseStart - t.navigationStart,</span><br><span class="line">  requestTime: t.responseEnd - t.requestStart,</span><br><span class="line">  waitTime: t.domLoading - t.navigationStart,</span><br><span class="line">  renderDomTime: t.domComplete - t.domLoading,</span><br><span class="line">  loadPageTime: t.loadEventEnd - t.fetchStart</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>performance 方法：</p>
+<ul>
+<li>performance.getEntries()：每个资源的请求时间</li>
+<li>performance.now()：获取从 performance.timing.navigationStart 到当前时间的毫秒，可用于计算方法的执行时间</li>
+<li>performance.mark()：给相应的视点做标记</li>
+<li>performance.measure(name, startMark, endMark)：计算方法的执行时间</li>
+<li>performance.getEntries(name)：获取资源的加载时间</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.w3.org/TR/navigation-timing/#dom-performancetiming-navigationstart" target="_blank" rel="noopener">Navigation Timing</a><br><a href="https://developers.google.cn/web/tools/chrome-devtools/network-performance/understanding-resource-timing" target="_blank" rel="noopener">了解 Resource Timing</a><br><a href="https://www.cnblogs.com/bldxh/p/6857324.html" target="_blank" rel="noopener">Performance — 前端性能监控利器</a><br><a href="http://www.barretlee.com/blog/2016/04/01/optimization-in-taobao-homepage/" target="_blank" rel="noopener">淘宝首页性能优化实践</a><br><a href="https://imweb.io/topic/5b6fd3c13cb5a02f33c013bd" target="_blank" rel="noopener">网站性能优化实战——从12.67s到1.06s的故事</a></p>
 
           
         

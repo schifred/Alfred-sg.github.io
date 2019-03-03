@@ -114,7 +114,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/03/03/frontend/网页渲染机制/网页渲染过程.png">
 <meta property="og:image" content="http://yoursite.com/2019/03/03/frontend/网页渲染机制/NavigationTiming.png">
 <meta property="og:image" content="http://yoursite.com/2019/03/03/frontend/网页渲染机制/资源加载过程.png">
-<meta property="og:updated_time" content="2019-03-03T06:19:54.490Z">
+<meta property="og:updated_time" content="2019-03-03T10:43:13.660Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="网页渲染机制">
 <meta name="twitter:description" content="网页渲染机制按特定的理解方式，当用户在浏览器地址栏输入 url 起，网页渲染过程包含页面加载和渲染两个过程。网页加载过程指从服务器端请求资源到构建 DOM 树的过程。网页渲染过程指从 DOM 树渲染除视图内容。这两个过程有所重合，因为异步加载的 js 脚本可能会修改 DOM 树的结构。 在 webkit 中，浏览器会构建多个加载类加载不同类型的资源，大体策略为：先从本地缓存池中查找资源；如果找不到">
@@ -375,7 +375,7 @@
 <p>浏览器首先加载网页内容，使用 html 解释器将网页转变成一系列的 token，再根据 token 构建 DOM 树。在一个可见的 DOM 节点（不包含 head 元素和 display 置为 none 的节点）插入到 DOM 树的同时，浏览器同时会构建 RenderObject 树，该树中包含节点的样式信息等内容，且使用布局模块（排版引擎）计算节点的大小位置等布局信息。在 css 2 中，RenderObject 节点都称为 box，包含的属性有：width, height, margin， padding, left, top, border 等。当网页中存在 css 样式时，首先将使用 css 解释器计算各元素的样式信息，然后将样式信息插入到 RenderObject 树中。当网页中存在 javascript 样式时，首先使用 javascript 引擎解释脚本，并通过 DOM 接口和 CSSOM 接口来修改网页内容和样式信息，最终也会影响 RenderObject 树。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RenderObject</span>&#123;</span></span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">layout</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">paint</span><span class="params">(PaintInfo)</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> rect <span class="title">repaintRect</span><span class="params">()</span></span>;</span><br><span class="line">  Node* node;  <span class="comment">//the DOM node</span></span><br><span class="line">  RenderStyle* style;  <span class="comment">// the computed style</span></span><br><span class="line">  RenderLayer* containgLayer; <span class="comment">//the containing z-index layer</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>为处理 position 定位等，浏览器在 RenderObject 树之外，还会构建 RenderLayer 树。比如根节点从属于一个 RenderLayer 节点，绝对定位的节点从属于另一个 RenderLayer 节点，这样就能有效地处理视图元素的层次结构。如果某 DOM 节点没有对应的 RenderLayer，就从属于父节点的 RenderLayer。</p>
-<p>在有了 RenderObject 树和 RenderLayer 树的基础上，渲染引擎首先以一个布局信息不够明确的矩形绘制 RenderLayer 节点，再遍历其下的子 RenderLayer 节点并完成相关的 RenderObject 节点的绘制，再向上递归调整 RenderLayer 节点的布局（即回流）。因此，RenderObject 树决定网页的内容，RenderLayer 树决定网页的层次结构。</p>
+<p>在有了 RenderObject 树和 RenderLayer 树的基础上，渲染引擎首先以一个布局信息不够明确的矩形绘制 RenderLayer 节点，再遍历其下的子 RenderLayer 节点并完成相关的 RenderObject 节点的绘制，再向上递归调整 RenderLayer 节点的布局（即回流）。因此，RenderObject 树决定网页的内容，RenderLayer 树决定网页的层次结构。RenderLayer 布局由 CPU 处理，然后将位图作为纹理上传给 GPU，由 GPU 绘制内容并缓存（如果下次上传的渲染层没有发生变化，GPU 就不需要对其进行重绘）。chrome 浏览器的开发者工具 - more tools - Layers、rendering 插件可用于查看网页层级及渲染性能。</p>
 <p>网页整体的渲染过程如下：</p>
 <img src="/2019/03/03/frontend/网页渲染机制/网页渲染过程.png">
 <h3 id="Navigation-Timing"><a href="#Navigation-Timing" class="headerlink" title="Navigation Timing"></a>Navigation Timing</h3><img src="/2019/03/03/frontend/网页渲染机制/NavigationTiming.png">
@@ -435,12 +435,12 @@
 <li>performance.measure(name, startMark, endMark)：计算方法的执行时间</li>
 <li>performance.getEntries(name)：获取资源的加载时间</li>
 </ul>
-<h2 id="回流、重绘机制"><a href="#回流、重绘机制" class="headerlink" title="回流、重绘机制"></a>回流、重绘机制</h2><p>回流指的是，当元素的布局或显示等信息改变时，引起 RenderObject 树部分或整体的重新构建，即网页布局的调整。重绘指的是，RenderObject 树中节点属性的更新。因此，回流必然会引起重绘，重绘不一定引起回流。与布局无关的元素属性操作将只引起重绘，否则将同时引起回流和重绘。可能引起回流、重绘的行为如下：</p>
+<h2 id="回流、重绘机制"><a href="#回流、重绘机制" class="headerlink" title="回流、重绘机制"></a>回流、重绘机制</h2><p>回流（重排）指的是，当元素的布局或显示等信息改变时，引起 RenderObject 树部分或整体的重新构建，即网页布局的调整。重绘指的是，RenderObject 树中节点属性的更新。因此，回流必然会引起重绘，重绘不一定引起回流。与布局无关的元素属性操作将只引起重绘，否则将同时引起回流和重绘。可能引起回流、重绘的行为如下：</p>
 <ul>
 <li>添加、删除元素（回流+重绘）</li>
 <li>隐藏元素：display:none（回流+重绘）；visibility:hidden（只重绘，不回流）</li>
 <li>移动元素：改变 top,left（不一定引起回流）；将元素移动到另一个父元素中（回流+重绘）等</li>
-<li>改变 style：布局相关属性如 padding, border-width, font-size（回流+重绘）；布局无关属性（只重绘，不回流）</li>
+<li>改变 style：布局相关属性如 padding, border-width, font-size（回流+重绘）；布局无关属性（只重绘，不回流）。可查看 <a href="https://csstriggers.com/" target="_blank" rel="noopener">https://csstriggers.com/</a> 以获取更多信息</li>
 <li>用户操作：改变浏览器大小，改变浏览器的字体大小等（回流+重绘）</li>
 </ul>
 <p>回流的开销比重绘大。如果 body 顶部插入一个节点，将引起整个 body 的回流；如果尾部插入一个节点，将只引起部分内容的回流，因此开销较小。浏览器为提升回流、重绘的性能，会构建队列以执行批量处理。但是，访问节点的 offsetTop, scrollTop, clientTop, width, height 类属性或调用了 getComputedStyle 方法，将迫使浏览器提前执行队列以获得最新的样式。减少回流、重绘的方法如下：</p>
@@ -448,9 +448,11 @@
 <li>className 或 cssText 批量更新样式，避免单属性操作引起的频繁回流或重绘</li>
 <li>新创建的元素改完样式后，再插入文档；或者以 display 为 none 形式调整样式</li>
 <li>使用变量缓存元素的样式，避免频繁读取元素的样式，致使浏览器提前执行回流队列</li>
+<li>指定图片的宽高，避免新加载的图片调整大小时引起的回流</li>
+<li>[慎用]使频繁回流、重绘的元素单独有一个 RenderLayer：借助 video 元素、WebGL、Canvas、CSS3 3D、CSS滤镜、z-index 大于某个相邻节点的元素都会有独立的 RenderLayer，比如通过添加 transform: translateZ(0);<br>backface-visibility: hidden; 样式即可。</li>
 </ol>
 <p>回流、重置可借助 dynaTrace(测试ie),Speed Tracer(测试Chrome) 测试。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/444f3b7fcc63" target="_blank" rel="noopener">WebKit之网络加载</a><br><a href="https://www.cnblogs.com/inJS/p/9709499.html" target="_blank" rel="noopener">聊聊浏览器（webkit）资源加载机制</a><br><a href="http://www.nowamagic.net/academy/detail/48110562" target="_blank" rel="noopener">Render树、RenderObject与RenderLayer</a><br><a href="https://segmentfault.com/a/1190000015808716" target="_blank" rel="noopener">webkit渲染机制浅析</a><br><a href="https://www.w3.org/TR/navigation-timing/#dom-performancetiming-navigationstart" target="_blank" rel="noopener">Navigation Timing</a><br><a href="https://developers.google.cn/web/tools/chrome-devtools/network-performance/understanding-resource-timing" target="_blank" rel="noopener">了解 Resource Timing</a><br><a href="https://www.cnblogs.com/bldxh/p/6857324.html" target="_blank" rel="noopener">Performance — 前端性能监控利器</a><br><a href="https://blog.csdn.net/xingsilong/article/details/80624765" target="_blank" rel="noopener">页面呈现、重绘、回流</a></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/444f3b7fcc63" target="_blank" rel="noopener">WebKit之网络加载</a><br><a href="https://www.cnblogs.com/inJS/p/9709499.html" target="_blank" rel="noopener">聊聊浏览器（webkit）资源加载机制</a><br><a href="http://www.nowamagic.net/academy/detail/48110562" target="_blank" rel="noopener">Render树、RenderObject与RenderLayer</a><br><a href="https://segmentfault.com/a/1190000015808716" target="_blank" rel="noopener">webkit渲染机制浅析</a><br><a href="https://www.w3.org/TR/navigation-timing/#dom-performancetiming-navigationstart" target="_blank" rel="noopener">Navigation Timing</a><br><a href="https://developers.google.cn/web/tools/chrome-devtools/network-performance/understanding-resource-timing" target="_blank" rel="noopener">了解 Resource Timing</a><br><a href="https://www.cnblogs.com/bldxh/p/6857324.html" target="_blank" rel="noopener">Performance — 前端性能监控利器</a><br><a href="https://blog.csdn.net/xingsilong/article/details/80624765" target="_blank" rel="noopener">页面呈现、重绘、回流</a><br><a href="https://blog.csdn.net/qq_40128367/article/details/82920370" target="_blank" rel="noopener">首屏时间从12.67s到1.06s，我是如何做到的？</a></p>
 
       
     </div>
@@ -483,8 +485,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/02/27/frontend/首页性能优化/" rel="next" title="首页性能优化">
-                <i class="fa fa-chevron-left"></i> 首页性能优化
+              <a href="/2019/02/26/网站制作/nginx/" rel="next" title="nginx">
+                <i class="fa fa-chevron-left"></i> nginx
               </a>
             
           </div>
@@ -492,6 +494,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/03/frontend/首页性能优化/" rel="prev" title="首页性能优化">
+                首页性能优化 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>

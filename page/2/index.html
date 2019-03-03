@@ -270,6 +270,298 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/15/react/react16源码/scheduler/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/15/react/react16源码/scheduler/" itemprop="url">scheduler 源码分析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-15T00:00:00+08:00">2019-01-15</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/01/15/react/react16源码/scheduler/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/01/15/react/react16源码/scheduler/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>scheduler 模块用于管理重绘完成后回调的执行逻辑。在 scheduler 中，requestHostCallback 函数用于实现在重绘完成后、视线程的空闲程度以及任务预设的超时时间，以在特定的时机执行任务。在 requestHostCallback 的基础上，scheduler 使用双向链表构建含有优先级的原子任务节点，再输出添加并执行任务节点、打断任务节点执行的 api。</p>
+<h2 id="requestHostCallback"><a href="#requestHostCallback" class="headerlink" title="requestHostCallback"></a>requestHostCallback</h2><p>scheduler 模块支持三种方式实现 requestHostCallback, cancelHostCallback, shouldYieldToHost, getCurrentTime 函数：一、通过 window._schedMock 或 global._schedMock 数组注入；二、通过 setTimeout 实现（实现上当 requestHostCallback 的首参 —— 任务函数尚在执行过程中，scheduler 将 requestHostCallback 作为 setTimeout 的回调函数，以使在新添加任务函数间接添加到 macrotasks 队列中，可参看源码）；三、基于 MessageChannel, requestAnimationFrame 实现（MessageChannel 用于探知线程是否空闲，requestAnimationFrame 用于与重绘机制契合）。本文着重介绍第三种方式，并用 rAF 指代 requestAnimationFrame。</p>
+<p>基于 MessageChannel, requestAnimationFrame 实现的上述四种函数的功能点为：</p>
+<table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>requestHostCallback(callback, absoluteTimeout)</td>
+<td>在重绘完成后执行任务，并与线程的空闲程度相契合，详情见下文</td>
+</tr>
+<tr>
+<td>cancelHostCallback</td>
+<td>用于取消任务</td>
+</tr>
+<tr>
+<td>shouldYieldToHost</td>
+<td>用于判断任务是否超时、需要被打断</td>
+</tr>
+<tr>
+<td>getCurrentTime</td>
+<td>使用 performance 或 Date 对象获取当前时间</td>
+</tr>
+</tbody>
+</table>
+<p>requestHostCallback 执行的流程图为：</p>
+<img src="/2019/01/15/react/react16源码/scheduler/requestHostCallback流程图.png">
+<p>上图中所用的缓存值有：</p>
+<table>
+<thead>
+<tr>
+<th>缓存</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>scheduledHostCallback</td>
+<td>待执行的回调，即上图中的任务，会被刷新</td>
+</tr>
+<tr>
+<td>timeoutTime</td>
+<td>任务允许的超时时间点</td>
+</tr>
+<tr>
+<td>isAnimationFrameScheduled</td>
+<td>rAF 轮询启动状态</td>
+</tr>
+<tr>
+<td>isMessageEventScheduled</td>
+<td>消息发送中标识</td>
+</tr>
+<tr>
+<td>isFlushingHostCallback</td>
+<td>任务执行中标识</td>
+</tr>
+<tr>
+<td>activeFrameTime</td>
+<td>任务允许的超时时间点</td>
+</tr>
+<tr>
+<td>timeoutTime</td>
+<td>一帧的期望执行时长，预设为 33 ms，在视图刷新过快时会更新，值将变小</td>
+</tr>
+<tr>
+<td>previousFrameTime</td>
+<td>前一帧执行时长</td>
+</tr>
+<tr>
+<td>frameDeadline</td>
+<td>下一帧期望完成时间点，用于判断重绘后 js 线程是否空闲，还是长期占用</td>
+</tr>
+</tbody>
+</table>
+<p>实现机制上，scheduler 首先实现 requestAnimationFrameWithTimeout 函数。该函数封装 requestAnimationFrame 函数，以使任务在重绘完后才予执行；但如果一些视图操作在后台执行，requestAnimationFrame 的回调将得不到执行，因此 scheduler 使用 setTimeout 兜底。流程图中启动 rAF 轮询就是指调用 requestAnimationFrameWithTimeout； animateTick 作为 requestAnimationFrameWithTimeout 回调。在 animateTick 的实现中，若 scheduledHostCallback 非 null，scheduler 将持续调用 requestAnimationFrameWithTimeout。因此本文将这一过程称为 rAF 轮询。</p>
+<p>scheduler 考虑了重绘完成后、线程可能处于紧张的场景，因此所添加的任务并没有直接作为 requestAnimationFrameWithTimeout 的回调。scheduler 使用 MessageChannel 添加 macrotasks 队列作桥接，等待线程空闲，然后再执行任务。在 animateTick 中，scheduler 将计算下一帧期望完成时间点 previousFrameTime，然后通过 port.postMessage 方法发送消息。等到 port1 接受到消息时，schdulear 将 previousFrameTime 与 currentTime 作比较：当 previousFrameTime 小于等于 currentTime 时，scheduler 认为线程不是空闲的，对于超时的任务将立即执行，对于未超时的任务将在下次重绘后予以处理；当 previousFrameTime 大于 currentTime 时，线程就是空闲的，scheduler 将立即执行。这一处理机制在 port1.onMessage 监听函数中实现（作为 macrotasks，port1 接受消息的时机将随着线程的空闲程度起变化）。</p>
+<p>有了上述的处理逻辑，scheduler 在外围制作 requestHostCallback(callback, absoluteTimeout) 接口：当前如果有任务正在执行中（意为当前没有重绘任务，重绘线程是空闲的）或者所添加的任务需要立即执行，scheduler 直接调用 port.postMessage 发送消息，跳过 rAF 轮询，以使任务得到即时执行；否则，如果 rAF 轮询未启动，调用 requestAnimationFrameWithTimeout(animationTick) 启动轮询。</p>
+<p>在 requestHostCallback 接口之外，cancelHostCallback 通过 scheduledHostCallback 置为 null，以中断任务的执行；shouldYieldToHost 用于比较 frameDeadline 是否小于等于 currentTime（在一帧时间外），以此推断线程是否空闲，好添加并处理新任务。以下是 requestHostCallback 函数实现的源码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> requestAnimationFrameWithTimeout = <span class="function"><span class="keyword">function</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// schedule rAF and also a setTimeout</span></span><br><span class="line">  rAFID = localRequestAnimationFrame(<span class="function"><span class="keyword">function</span>(<span class="params">timestamp</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// cancel the setTimeout</span></span><br><span class="line">    localClearTimeout(rAFTimeoutID);</span><br><span class="line">    callback(timestamp);</span><br><span class="line">  &#125;);</span><br><span class="line">  rAFTimeoutID = localSetTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// cancel the requestAnimationFrame</span></span><br><span class="line">    localCancelAnimationFrame(rAFID);</span><br><span class="line">    callback(getCurrentTime());</span><br><span class="line">  &#125;, ANIMATION_FRAME_TIMEOUT);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> channel = <span class="keyword">new</span> MessageChannel();</span><br><span class="line"><span class="keyword">var</span> port = channel.port2;</span><br><span class="line">channel.port1.onmessage = <span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</span><br><span class="line">  isMessageEventScheduled = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> prevScheduledCallback = scheduledHostCallback;</span><br><span class="line">  <span class="keyword">var</span> prevTimeoutTime = timeoutTime;</span><br><span class="line">  scheduledHostCallback = <span class="literal">null</span>;</span><br><span class="line">  timeoutTime = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> currentTime = getCurrentTime();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> didTimeout = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 线程不空闲</span></span><br><span class="line">  <span class="keyword">if</span> (frameDeadline - currentTime &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="comment">// There's no time left in this idle period. Check if the callback has</span></span><br><span class="line">    <span class="comment">// a timeout and whether it's been exceeded.</span></span><br><span class="line">    <span class="keyword">if</span> (prevTimeoutTime !== <span class="number">-1</span> &amp;&amp; prevTimeoutTime &lt;= currentTime) &#123;</span><br><span class="line">      <span class="comment">// Exceeded the timeout. Invoke the callback even though there's no</span></span><br><span class="line">      <span class="comment">// time left.</span></span><br><span class="line">      didTimeout = <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// No timeout.</span></span><br><span class="line">      <span class="keyword">if</span> (!isAnimationFrameScheduled) &#123;</span><br><span class="line">        <span class="comment">// Schedule another animation callback so we retry later.</span></span><br><span class="line">        isAnimationFrameScheduled = <span class="literal">true</span>;</span><br><span class="line">        requestAnimationFrameWithTimeout(animationTick);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">// Exit without invoking the callback.</span></span><br><span class="line">      scheduledHostCallback = prevScheduledCallback;</span><br><span class="line">      timeoutTime = prevTimeoutTime;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (prevScheduledCallback !== <span class="literal">null</span>) &#123;</span><br><span class="line">    isFlushingHostCallback = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      prevScheduledCallback(didTimeout);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      isFlushingHostCallback = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> animationTick = <span class="function"><span class="keyword">function</span>(<span class="params">rafTime</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (scheduledHostCallback !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// Eagerly schedule the next animation callback at the beginning of the</span></span><br><span class="line">    <span class="comment">// frame. If the scheduler queue is not empty at the end of the frame, it</span></span><br><span class="line">    <span class="comment">// will continue flushing inside that callback. If the queue *is* empty,</span></span><br><span class="line">    <span class="comment">// then it will exit immediately. Posting the callback at the start of the</span></span><br><span class="line">    <span class="comment">// frame ensures it's fired within the earliest possible frame. If we</span></span><br><span class="line">    <span class="comment">// waited until the end of the frame to post the callback, we risk the</span></span><br><span class="line">    <span class="comment">// browser skipping a frame and not firing the callback until the frame</span></span><br><span class="line">    <span class="comment">// after that.</span></span><br><span class="line">    requestAnimationFrameWithTimeout(animationTick);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// No pending work. Exit.</span></span><br><span class="line">    isAnimationFrameScheduled = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> nextFrameTime = rafTime - frameDeadline + activeFrameTime;</span><br><span class="line">  <span class="keyword">if</span> (</span><br><span class="line">    nextFrameTime &lt; activeFrameTime &amp;&amp;</span><br><span class="line">    previousFrameTime &lt; activeFrameTime</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nextFrameTime &lt; <span class="number">8</span>) &#123;</span><br><span class="line">      <span class="comment">// Defensive coding. We don't support higher frame rates than 120hz.</span></span><br><span class="line">      <span class="comment">// If the calculated frame time gets lower than 8, it is probably a bug.</span></span><br><span class="line">      nextFrameTime = <span class="number">8</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// If one frame goes long, then the next one can be short to catch up.</span></span><br><span class="line">    <span class="comment">// If two frames are short in a row, then that's an indication that we</span></span><br><span class="line">    <span class="comment">// actually have a higher frame rate than what we're currently optimizing.</span></span><br><span class="line">    <span class="comment">// We adjust our heuristic dynamically accordingly. For example, if we're</span></span><br><span class="line">    <span class="comment">// running on 120hz display or 90hz VR display.</span></span><br><span class="line">    <span class="comment">// Take the max of the two in case one of them was an anomaly due to</span></span><br><span class="line">    <span class="comment">// missed frame deadlines.</span></span><br><span class="line">    activeFrameTime =</span><br><span class="line">      nextFrameTime &lt; previousFrameTime ? previousFrameTime : nextFrameTime;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    previousFrameTime = nextFrameTime;</span><br><span class="line">  &#125;</span><br><span class="line">  frameDeadline = rafTime + activeFrameTime;</span><br><span class="line">  <span class="keyword">if</span> (!isMessageEventScheduled) &#123;</span><br><span class="line">    isMessageEventScheduled = <span class="literal">true</span>;</span><br><span class="line">    port.postMessage(<span class="literal">undefined</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">requestHostCallback = <span class="function"><span class="keyword">function</span>(<span class="params">callback, absoluteTimeout</span>) </span>&#123;</span><br><span class="line">  scheduledHostCallback = callback;</span><br><span class="line">  timeoutTime = absoluteTimeout;</span><br><span class="line">  <span class="keyword">if</span> (isFlushingHostCallback || absoluteTimeout &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="comment">// Don't wait for the next frame. Continue working ASAP, in a new event.</span></span><br><span class="line">    port.postMessage(<span class="literal">undefined</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!isAnimationFrameScheduled) &#123;</span><br><span class="line">    <span class="comment">// If rAF didn't already schedule one, we need to schedule a frame.</span></span><br><span class="line">    <span class="comment">// <span class="doctag">TODO:</span> If this rAF doesn't materialize because the browser throttles, we</span></span><br><span class="line">    <span class="comment">// might want to still have setTimeout trigger rIC as a backup to ensure</span></span><br><span class="line">    <span class="comment">// that we keep performing work.</span></span><br><span class="line">    isAnimationFrameScheduled = <span class="literal">true</span>;</span><br><span class="line">    requestAnimationFrameWithTimeout(animationTick);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="scheduler"><a href="#scheduler" class="headerlink" title="scheduler"></a>scheduler</h2><h3 id="callbackNode-及其执行机制"><a href="#callbackNode-及其执行机制" class="headerlink" title="callbackNode 及其执行机制"></a>callbackNode 及其执行机制</h3><p>scheduler 以首尾相连的双向链表缓存 callbackNode，每个任务节点的 previous 属性指向上一个任务节点（firstCallbackNode 的 previous 属性指向 lastCallbackNode），next 属性指向下一个任务节点（lastCallbackNode 的 next 属性指向 firstCallbackNode）。链表中的 callbackNode 以优先级（以超时时间 expirationTime 属性表示）进行排序。以双向链表构建的数据，只需要缓存 firstCallbackNode 首任务节点。</p>
+<p>scheduler 针对 callbackNode 设定五种优先级，分别是 ImmediatePriority, UserBlockingPriority, NormalPriority, LowPriority, IdlePriority。优先级会影响超时时间，以上五个优先级的超时时间分别为 -1, 250, 5000, 10000, 1073741823。因此对于 ImmediatePriority 优先级的任务节点，在使用 requestHostCallback 函数处理的过程中，该任务节点就不需要经过 rAF 回调机制，而是会经由 MessageChannel 直接被处理。</p>
+<p>在 callbackNode 任务节点中，callback 属性为待执行的函数，priorityLevel 为执行优先级，expirationTime 为允许的超时时间点（以当前时间 + 超时时间的方式计算）。因为 requestHostCallback 每次调用时都会刷新 scheduledHostCallback 缓存，callbackNode.callback 并不能直接作为 requestHostCallback 的参数，那样会在两次调用过程中，造成前一个任务丢失。scheduler 实际使用 flushWork 函数作为 requestHostCallback 的参数（在 ensureHostCallbackIsScheduled 函数中处理），便于批量执行双向链表中的 callbackNode.callback 函数，也不至使任务丢失。</p>
+<p>flushWork 函数基于 flushFirstCallback, flushImmediateWork，以下是这三个函数的实现机制：</p>
+<p>flushFirstCallback 从双向链表中取出首个任务节点并执行。若首个任务节点的 callback 返回函数，使用该函数构建新的 callbackNode 任务节点，并将该任务节点插入双向链表中：若该任务节点的优先级最高、且不只包含一个任务节点，调用 ensureHostCallbackIsScheduled，在下一次重绘后酌情执行双向链表中的任务节点；否则只将新创建的任务节点添加到双向链表中。</p>
+<p>基于 flushFirstCallback，flushImmediateWork 函数用于执行双向链表中所有优先级为 ImmediatePriority 的任务节点。如果双向链表不只包含优先级为 ImmediatePriority 的任务节点，flushImmediateWork 将调用 ensureHostCallbackIsScheduled 等待下次重绘后执行剩余的任务节点。</p>
+<p>flushWork 作为 requestHostCallback 函数的参数，获得的首个实参 didTimeout 为是否超时的标识。如果超时，flushWork 通过调用 flushFirstCallback 批量执行所有未超时的任务节点；若果没有超时，flushWork 将在下一帧未完成前（通过 shouldYieldToHost 函数判断）尽可能地执行任务节点。等上述条件逻辑执行完成后，如果双向链表非空，调用 ensureHostCallbackIsScheduled 等待下次重绘后执行剩余的任务节点。特别的，当双向链表中还存在 ImmediatePriority 优先级的任务节点，flushWork 将调用 flushImmediateWork 批量执行这些任务节点。</p>
+<p>因为 scheduler 使用首个任务节点的超时时间点作为 requestHostCallback 函数的次参（在 ensureHostCallbackIsScheduled 函数中处理）。因此，如果首个任务节点的优先级为 ImmediatePriority，flushWork 所获得参数 didTimeout 也将是否值，其执行逻辑将是执行所有优先级为 ImmediatePriority 的任务节点，再调用 ensureHostCallbackIsScheduled 等待下一次重绘时执行其余任务节点。如果首个任务节点的优先级为 UserBlockingPriority 等，flushWork 将执行同优先级的任务节点，再调用 ensureHostCallbackIsScheduled 等待下一次重绘时执行其余任务节点。所有对不同优先级的任务节点，scheduler 采用分段执行的策略。</p>
+<table>
+<thead>
+<tr>
+<th>缓存</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>currentPriorityLevel</td>
+<td>执行中任务节点的优先级，默认为 NormalPriority</td>
+</tr>
+<tr>
+<td>currentExpirationTime</td>
+<td>执行中任务节点的超时时间点</td>
+</tr>
+<tr>
+<td>enableSchedulerDebugging</td>
+<td>debug 模式？</td>
+</tr>
+<tr>
+<td>isExecutingCallback</td>
+<td>任务节点正在批量执行中标识</td>
+</tr>
+<tr>
+<td>isHostCallbackScheduled</td>
+<td>requestHostCallback 已执行并开启 rAF 轮询标识</td>
+</tr>
+<tr>
+<td>isSchedulerPaused</td>
+<td>scheduler 是否被打断，将不会执行任务节点，由接口层更新该值</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ensureHostCallbackIsScheduled</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (isExecutingCallback) &#123;</span><br><span class="line">    <span class="comment">// Don't schedule work yet; wait until the next time we yield.</span></span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// Schedule the host callback using the earliest expiration in the list.</span></span><br><span class="line">  <span class="keyword">var</span> expirationTime = firstCallbackNode.expirationTime;</span><br><span class="line">  <span class="keyword">if</span> (!isHostCallbackScheduled) &#123;</span><br><span class="line">    isHostCallbackScheduled = <span class="literal">true</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// Cancel the existing host callback.</span></span><br><span class="line">    cancelHostCallback();</span><br><span class="line">  &#125;</span><br><span class="line">  requestHostCallback(flushWork, expirationTime);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">flushFirstCallback</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> flushedNode = firstCallbackNode;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Remove the node from the list before calling the callback. That way the</span></span><br><span class="line">  <span class="comment">// list is in a consistent state even if the callback throws.</span></span><br><span class="line">  <span class="keyword">var</span> next = firstCallbackNode.next;</span><br><span class="line">  <span class="keyword">if</span> (firstCallbackNode === next) &#123;</span><br><span class="line">    <span class="comment">// This is the last callback in the list.</span></span><br><span class="line">    firstCallbackNode = <span class="literal">null</span>;</span><br><span class="line">    next = <span class="literal">null</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> lastCallbackNode = firstCallbackNode.previous;</span><br><span class="line">    firstCallbackNode = lastCallbackNode.next = next;</span><br><span class="line">    next.previous = lastCallbackNode;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  flushedNode.next = flushedNode.previous = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Now it's safe to call the callback.</span></span><br><span class="line">  <span class="keyword">var</span> callback = flushedNode.callback;</span><br><span class="line">  <span class="keyword">var</span> expirationTime = flushedNode.expirationTime;</span><br><span class="line">  <span class="keyword">var</span> priorityLevel = flushedNode.priorityLevel;</span><br><span class="line">  <span class="keyword">var</span> previousPriorityLevel = currentPriorityLevel;</span><br><span class="line">  <span class="keyword">var</span> previousExpirationTime = currentExpirationTime;</span><br><span class="line">  currentPriorityLevel = priorityLevel;</span><br><span class="line">  currentExpirationTime = expirationTime;</span><br><span class="line">  <span class="keyword">var</span> continuationCallback;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    continuationCallback = callback();</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    currentPriorityLevel = previousPriorityLevel;</span><br><span class="line">    currentExpirationTime = previousExpirationTime;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// A callback may return a continuation. The continuation should be scheduled</span></span><br><span class="line">  <span class="comment">// with the same priority and expiration as the just-finished callback.</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> continuationCallback === <span class="string">'function'</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> continuationNode: CallbackNode = &#123;</span><br><span class="line">      callback: continuationCallback,</span><br><span class="line">      priorityLevel,</span><br><span class="line">      expirationTime,</span><br><span class="line">      next: <span class="literal">null</span>,</span><br><span class="line">      previous: <span class="literal">null</span>,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Insert the new callback into the list, sorted by its expiration. This is</span></span><br><span class="line">    <span class="comment">// almost the same as the code in `scheduleCallback`, except the callback</span></span><br><span class="line">    <span class="comment">// is inserted into the list *before* callbacks of equal expiration instead</span></span><br><span class="line">    <span class="comment">// of after.</span></span><br><span class="line">    <span class="keyword">if</span> (firstCallbackNode === <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">// This is the first callback in the list.</span></span><br><span class="line">      firstCallbackNode = continuationNode.next = continuationNode.previous = continuationNode;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">var</span> nextAfterContinuation = <span class="literal">null</span>;</span><br><span class="line">      <span class="keyword">var</span> node = firstCallbackNode;</span><br><span class="line">      <span class="keyword">do</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (node.expirationTime &gt;= expirationTime) &#123;</span><br><span class="line">          <span class="comment">// This callback expires at or after the continuation. We will insert</span></span><br><span class="line">          <span class="comment">// the continuation *before* this callback.</span></span><br><span class="line">          nextAfterContinuation = node;</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        node = node.next;</span><br><span class="line">      &#125; <span class="keyword">while</span> (node !== firstCallbackNode);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (nextAfterContinuation === <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// No equal or lower priority callback was found, which means the new</span></span><br><span class="line">        <span class="comment">// callback is the lowest priority callback in the list.</span></span><br><span class="line">        nextAfterContinuation = firstCallbackNode;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (nextAfterContinuation === firstCallbackNode) &#123;</span><br><span class="line">        <span class="comment">// The new callback is the highest priority callback in the list.</span></span><br><span class="line">        firstCallbackNode = continuationNode;</span><br><span class="line">        ensureHostCallbackIsScheduled();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">var</span> previous = nextAfterContinuation.previous;</span><br><span class="line">      previous.next = nextAfterContinuation.previous = continuationNode;</span><br><span class="line">      continuationNode.next = nextAfterContinuation;</span><br><span class="line">      continuationNode.previous = previous;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">flushImmediateWork</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (</span><br><span class="line">    <span class="comment">// Confirm we've exited the outer most event handler</span></span><br><span class="line">    currentEventStartTime === <span class="number">-1</span> &amp;&amp;</span><br><span class="line">    firstCallbackNode !== <span class="literal">null</span> &amp;&amp;</span><br><span class="line">    firstCallbackNode.priorityLevel === ImmediatePriority</span><br><span class="line">  ) &#123;</span><br><span class="line">    isExecutingCallback = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">do</span> &#123;</span><br><span class="line">        flushFirstCallback();</span><br><span class="line">      &#125; <span class="keyword">while</span> (</span><br><span class="line">        <span class="comment">// Keep flushing until there are no more immediate callbacks</span></span><br><span class="line">        firstCallbackNode !== <span class="literal">null</span> &amp;&amp;</span><br><span class="line">        firstCallbackNode.priorityLevel === ImmediatePriority</span><br><span class="line">      );</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      isExecutingCallback = <span class="literal">false</span>;</span><br><span class="line">      <span class="keyword">if</span> (firstCallbackNode !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// There's still work remaining. Request another callback.</span></span><br><span class="line">        ensureHostCallbackIsScheduled();</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        isHostCallbackScheduled = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">flushWork</span>(<span class="params">didTimeout</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// Exit right away if we're currently paused</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (enableSchedulerDebugging &amp;&amp; isSchedulerPaused) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  isExecutingCallback = <span class="literal">true</span>;</span><br><span class="line">  <span class="keyword">const</span> previousDidTimeout = currentDidTimeout;</span><br><span class="line">  currentDidTimeout = didTimeout;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (didTimeout) &#123;</span><br><span class="line">      <span class="comment">// Flush all the expired callbacks without yielding.</span></span><br><span class="line">      <span class="keyword">while</span> (</span><br><span class="line">        firstCallbackNode !== <span class="literal">null</span> &amp;&amp;</span><br><span class="line">        !(enableSchedulerDebugging &amp;&amp; isSchedulerPaused)</span><br><span class="line">      ) &#123;</span><br><span class="line">        <span class="comment">// TODO Wrap i nfeature flag</span></span><br><span class="line">        <span class="comment">// Read the current time. Flush all the callbacks that expire at or</span></span><br><span class="line">        <span class="comment">// earlier than that time. Then read the current time again and repeat.</span></span><br><span class="line">        <span class="comment">// This optimizes for as few performance.now calls as possible.</span></span><br><span class="line">        <span class="keyword">var</span> currentTime = getCurrentTime();</span><br><span class="line">        <span class="keyword">if</span> (firstCallbackNode.expirationTime &lt;= currentTime) &#123;</span><br><span class="line">          <span class="keyword">do</span> &#123;</span><br><span class="line">            flushFirstCallback();</span><br><span class="line">          &#125; <span class="keyword">while</span> (</span><br><span class="line">            firstCallbackNode !== <span class="literal">null</span> &amp;&amp;</span><br><span class="line">            firstCallbackNode.expirationTime &lt;= currentTime &amp;&amp;</span><br><span class="line">            !(enableSchedulerDebugging &amp;&amp; isSchedulerPaused)</span><br><span class="line">          );</span><br><span class="line">          <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// Keep flushing callbacks until we run out of time in the frame.</span></span><br><span class="line">      <span class="keyword">if</span> (firstCallbackNode !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (enableSchedulerDebugging &amp;&amp; isSchedulerPaused) &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          flushFirstCallback();</span><br><span class="line">        &#125; <span class="keyword">while</span> (firstCallbackNode !== <span class="literal">null</span> &amp;&amp; !shouldYieldToHost());</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    isExecutingCallback = <span class="literal">false</span>;</span><br><span class="line">    currentDidTimeout = previousDidTimeout;</span><br><span class="line">    <span class="keyword">if</span> (firstCallbackNode !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">// There's still work remaining. Request another callback.</span></span><br><span class="line">      ensureHostCallbackIsScheduled();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      isHostCallbackScheduled = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Before exiting, flush all the immediate work that was scheduled.</span></span><br><span class="line">    flushImmediateWork();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="apis"><a href="#apis" class="headerlink" title="apis"></a>apis</h3><h4 id="unstable-scheduleCallback"><a href="#unstable-scheduleCallback" class="headerlink" title="unstable_scheduleCallback"></a>unstable_scheduleCallback</h4><p>unstable_scheduleCallback(callback, deprecated_options) 基于 currentPriorityLevel 优先级计算超时时间点，将 callback 构建为一个 callbackNode 任务节点，并将该节点插入双向链表，启用 ensureHostCallbackIsScheduled 等待重绘后执行任务节点。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">unstable_scheduleCallback</span>(<span class="params">callback, deprecated_options</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> startTime =</span><br><span class="line">    currentEventStartTime !== <span class="number">-1</span> ? currentEventStartTime : getCurrentTime();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> expirationTime;</span><br><span class="line">  <span class="keyword">if</span> (</span><br><span class="line">    <span class="keyword">typeof</span> deprecated_options === <span class="string">'object'</span> &amp;&amp;</span><br><span class="line">    deprecated_options !== <span class="literal">null</span> &amp;&amp;</span><br><span class="line">    <span class="keyword">typeof</span> deprecated_options.timeout === <span class="string">'number'</span></span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="comment">// <span class="doctag">FIXME:</span> Remove this branch once we lift expiration times out of React.</span></span><br><span class="line">    expirationTime = startTime + deprecated_options.timeout;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">switch</span> (currentPriorityLevel) &#123;</span><br><span class="line">      <span class="keyword">case</span> ImmediatePriority:</span><br><span class="line">        expirationTime = startTime + IMMEDIATE_PRIORITY_TIMEOUT;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> UserBlockingPriority:</span><br><span class="line">        expirationTime = startTime + USER_BLOCKING_PRIORITY;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> IdlePriority:</span><br><span class="line">        expirationTime = startTime + IDLE_PRIORITY;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> LowPriority:</span><br><span class="line">        expirationTime = startTime + LOW_PRIORITY_TIMEOUT;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> NormalPriority:</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        expirationTime = startTime + NORMAL_PRIORITY_TIMEOUT;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> newNode = &#123;</span><br><span class="line">    callback,</span><br><span class="line">    priorityLevel: currentPriorityLevel,</span><br><span class="line">    expirationTime,</span><br><span class="line">    next: <span class="literal">null</span>,</span><br><span class="line">    previous: <span class="literal">null</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Insert the new callback into the list, ordered first by expiration, then</span></span><br><span class="line">  <span class="comment">// by insertion. So the new callback is inserted any other callback with</span></span><br><span class="line">  <span class="comment">// equal expiration.</span></span><br><span class="line">  <span class="keyword">if</span> (firstCallbackNode === <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// This is the first callback in the list.</span></span><br><span class="line">    firstCallbackNode = newNode.next = newNode.previous = newNode;</span><br><span class="line">    ensureHostCallbackIsScheduled();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> next = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">var</span> node = firstCallbackNode;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (node.expirationTime &gt; expirationTime) &#123;</span><br><span class="line">        <span class="comment">// The new callback expires before this one.</span></span><br><span class="line">        next = node;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      node = node.next;</span><br><span class="line">    &#125; <span class="keyword">while</span> (node !== firstCallbackNode);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (next === <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">// No callback with a later expiration was found, which means the new</span></span><br><span class="line">      <span class="comment">// callback has the latest expiration in the list.</span></span><br><span class="line">      next = firstCallbackNode;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (next === firstCallbackNode) &#123;</span><br><span class="line">      <span class="comment">// The new callback has the earliest expiration in the entire list.</span></span><br><span class="line">      firstCallbackNode = newNode;</span><br><span class="line">      ensureHostCallbackIsScheduled();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> previous = next.previous;</span><br><span class="line">    previous.next = next.previous = newNode;</span><br><span class="line">    newNode.next = next;</span><br><span class="line">    newNode.previous = previous;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> newNode;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="unstable-runWithPriority"><a href="#unstable-runWithPriority" class="headerlink" title="unstable_runWithPriority"></a>unstable_runWithPriority</h4><p>unstable_runWithPriority(priorityLevel, eventHandler) 将 currentPriorityLevel 缓存设置为 priorityLevel，随后再执行 eventHandler，最后调用 flushImmediateWork 函数执行所有优先级为 ImmediatePriority 的任务节点，其余任务节点等待下次重绘后再执行。可以设想，当 eventHandler 为 unstable_scheduleCallback 函数时，将影响所添加任务节点的优先级，并立即执行 ImmediatePriority 优先级的任务。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">unstable_runWithPriority</span>(<span class="params">priorityLevel, eventHandler</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span> (priorityLevel) &#123;</span><br><span class="line">    <span class="keyword">case</span> ImmediatePriority:</span><br><span class="line">    <span class="keyword">case</span> UserBlockingPriority:</span><br><span class="line">    <span class="keyword">case</span> NormalPriority:</span><br><span class="line">    <span class="keyword">case</span> LowPriority:</span><br><span class="line">    <span class="keyword">case</span> IdlePriority:</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      priorityLevel = NormalPriority;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> previousPriorityLevel = currentPriorityLevel;</span><br><span class="line">  <span class="keyword">var</span> previousEventStartTime = currentEventStartTime;</span><br><span class="line">  currentPriorityLevel = priorityLevel;</span><br><span class="line">  currentEventStartTime = getCurrentTime();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> eventHandler();</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    currentPriorityLevel = previousPriorityLevel;</span><br><span class="line">    currentEventStartTime = previousEventStartTime;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Before exiting, flush all the immediate work that was scheduled.</span></span><br><span class="line">    flushImmediateWork();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="unstable-wrapCallback"><a href="#unstable-wrapCallback" class="headerlink" title="unstable_wrapCallback"></a>unstable_wrapCallback</h4><p>unstable_wrapCallback(callback) 记录当前的优先级 currentPriorityLevel，返回函数处理效果如 unstable_runWithPriority，对于 callback 中新添加的任务节点将使用所记录的 currentPriorityLevel 作为优先级。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">unstable_wrapCallback</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> parentPriorityLevel = currentPriorityLevel;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// This is a fork of runWithPriority, inlined for performance.</span></span><br><span class="line">    <span class="keyword">var</span> previousPriorityLevel = currentPriorityLevel;</span><br><span class="line">    <span class="keyword">var</span> previousEventStartTime = currentEventStartTime;</span><br><span class="line">    currentPriorityLevel = parentPriorityLevel;</span><br><span class="line">    currentEventStartTime = getCurrentTime();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> callback.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      currentPriorityLevel = previousPriorityLevel;</span><br><span class="line">      currentEventStartTime = previousEventStartTime;</span><br><span class="line">      flushImmediateWork();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><ul>
+<li>unstable_pauseExecution 通过将 isSchedulerPaused 置为 true，打断 scheduler 处理任务节点。</li>
+<li>unstable_continueExecution 取消打断状态，使 scheduler 恢复处理任务节点。</li>
+<li>unstable_getFirstCallbackNode 获取双向链表中的首个任务节点。</li>
+<li>unstable_cancelCallback(callbackNode) 从双向链表中移除指定任务节点。</li>
+<li>unstable_getCurrentPriorityLevel 获取当前优先级 currentPriorityLevel 缓存。</li>
+<li>unstable_shouldYield 是否需要被打断。</li>
+<li>unstable_now 获取当前时间。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">unstable_shouldYield</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    !currentDidTimeout &amp;&amp;</span><br><span class="line">    ((firstCallbackNode !== <span class="literal">null</span> &amp;&amp;</span><br><span class="line">      firstCallbackNode.expirationTime &lt; currentExpirationTime) ||</span><br><span class="line">      shouldYieldToHost())</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>scheduler 模块代码简短，逻辑复杂，在这篇文章中，难免有理解不当的地方。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/14/react/react16源码/React/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1395,6 +1687,164 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Grid/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/25/antd/Grid/" itemprop="url">Grid 栅格</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-25T00:00:00+08:00">2018-11-25</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/25/antd/Grid/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/25/antd/Grid/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>antd 提供的 24 栅格系统由 Row, Col 组件实现。</p>
+<h2 id="Row"><a href="#Row" class="headerlink" title="Row"></a>Row</h2><p>栅格布局组件 Row 用于设定整行 row 内各组 col 的布局风格。当 props.type 为 ‘flex’ 时，意味着整行采用 flex 布局。在 flex 布局的基础上，props.justify 通过 justify-content 样式影响各 col 元素的水平排列方式；props.align 通过 align-items 样式影响各 col 元素的垂直对齐方式。props.gutter 用于设定各 col 元素的间隔，间隔单位可以是 ‘px’ 或 ‘rem’。Row 支持以对象形式配置 props.gutter，如 { xs, sm, md, lg, xl, xxl }。其中，xs 为 576 px 以下屏幕；sm 为 576 - 768 px 尺寸屏幕；md 为 768 - 992 px 尺寸屏幕；lg 为 992 - 1200 px 尺寸屏幕；xl 为 1200 - 1600 px 尺寸屏幕；xxl 为 1600 px 以上屏幕；</p>
+<p>在响应式处理上，Row 组件借助 <a href="https://github.com/WickyNilliams/enquire.js" target="_blank" rel="noopener">enquire.js</a> 库实现。其场景如以 { md: 8, lg: 16 } 对象配置 props.gutter，那么，当屏幕尺寸小于 768px 时，就需要将各 col 元素的间隔从 16 px 调整为 8px。Row 组件对这一场景的实现机制为，在 componentDidMount 生命周期使用 enquire.js 库绑定监听函数，以使得当屏幕尺寸变更时，state.screen 当前屏幕状态也会相应得到更新；随后在 render 阶段，由 getGutter 方法获得当前屏幕尺寸下的 col 元素间隔 gutter，并借助 <a href="https://github.com/jamiebuilds/create-react-context" target="_blank" rel="noopener">create-react-context</a> 库将 gutter 注入到 Col 组件中。以下是该机制实现的源码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">componentDidMount() &#123;</span><br><span class="line">  <span class="built_in">Object</span>.keys(responsiveMap)</span><br><span class="line">    .map(<span class="function">(<span class="params">screen: Breakpoint</span>) =&gt;</span> enquire.register(responsiveMap[screen], &#123;</span><br><span class="line">        match: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">true</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        unmatch: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">false</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">// Keep a empty destory to avoid triggering unmatch when unregister</span></span><br><span class="line">        destroy() &#123;&#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getGutter(): number | <span class="literal">undefined</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; gutter &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> gutter === <span class="string">'object'</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt;= responsiveArray.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> breakpoint: Breakpoint = responsiveArray[i];</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.state.screens[breakpoint] &amp;&amp; gutter[breakpoint] !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> gutter[breakpoint];</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> gutter <span class="keyword">as</span> number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在样式处理方面，整行 row 采用 border-box 盒模型，相对定位，并嵌套使用 .clearfix 样式规则以清除浮动以及 :before, :after 伪类的内容。其余均较为简单，可参见<a href="https://github.com/ant-design/ant-design/blob/master/components/form/style/index.less" target="_blank" rel="noopener">源码</a>。</p>
+<h2 id="Col"><a href="#Col" class="headerlink" title="Col"></a>Col</h2><p>Col 组件主要通过样式类以设定 col 元素的大小和偏移情况。如当配置了 props.offset 属性为 4 时，将相应添加 ant-col-xs-offset-4, ant-col-sm-offset-4, ant-col-md-offset-4, ant-col-lg-offset-4, ant-col-xl-offset-4, ant-col-xll-offset-4 样式类。因此，Col 组件的逻辑主要是将 props 转化成样式类，其实现的重点仍在于 less 样式文件。</p>
+<p>当然，各 col 元素的间隔 gutter 由 Row 组件传入。以下是其源码实现，RowContext 通过 create-react-context 库创建，即通过 context 属性传递数据，但只有 Col 组件能加以访问。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Row</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Provider value=&#123;&#123; gutter &#125;&#125;&gt;</span><br><span class="line">      &lt;div &#123;...otherProps&#125; className=&#123;classes&#125; style=&#123;rowStyle&#125;&gt;</span><br><span class="line">        &#123;children&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>RowContext.Provider&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Col</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Consumer&gt;</span><br><span class="line">      &#123;(&#123; gutter &#125;) =&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> style = others.style;</span><br><span class="line">        <span class="keyword">if</span> (gutter <span class="keyword">as</span> number &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          style = &#123;</span><br><span class="line">            paddingLeft: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            paddingRight: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            ...style,</span><br><span class="line">          &#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span> &#123;<span class="attr">...others</span>&#125; <span class="attr">style</span>=<span class="string">&#123;style&#125;</span> <span class="attr">className</span>=<span class="string">&#123;classes&#125;</span>&gt;</span>&#123;children&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;</span><br><span class="line">      &#125;&#125;</span><br><span class="line">    &lt;<span class="regexp">/RowContext.Consumer&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>在 less 文件中，antd 使用自调用的混合函数创建从 .ant-col-1 到 .ant-col-24 的样式规则。以下是相关源码。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// style/theme/default.less</span></span><br><span class="line"><span class="variable">@grid-columns:</span> <span class="number">24</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// mixin.less</span></span><br><span class="line"><span class="comment">// index 由 1 到 24，构建样式规则</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>() &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">position</span>: relative;</span><br><span class="line">      <span class="comment">// Prevent columns from collapsing when empty</span></span><br><span class="line">      <span class="attribute">min-height</span>: <span class="number">1px</span>;</span><br><span class="line">      <span class="attribute">padding-left</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">      <span class="attribute">padding-right</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>) &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123; <span class="comment">// initial</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// general</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// terminal</span></span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">float</span>: left;</span><br><span class="line">      <span class="attribute">flex</span>: <span class="number">0</span> <span class="number">0</span> auto;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>); <span class="comment">// kickstart it</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index 由 24 到 1，构建样式规则</span></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">box-sizing</span>: border-box;</span><br><span class="line">    <span class="attribute">width</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="variable">@index</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>((<span class="variable">@index</span> - <span class="number">1</span>), <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> = <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: none;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(<span class="variable">@class</span>: <span class="string">~''</span>) &#123;</span><br><span class="line">  <span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>);</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>(<span class="variable">@grid-columns</span>, <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index.less</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>();</span><br><span class="line"><span class="selector-class">.make-grid</span>();</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(-xs);</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-sm-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-sm);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-md-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-md);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-lg-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-lg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xl);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xxl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xxl);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Layout/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1505,164 +1955,6 @@
 <p>侧边栏的主题样式通过设置样式类实现，如 ant-layout-sider-light。</p>
 <p>侧边栏组件使用 <a href="https://github.com/reactjs/react-lifecycles-compat" target="_blank" rel="noopener">react-lifecycles-compat</a> 封装，以在低版本的 react 中书写 static getDerivedStateFromProps, getSnapshotBeforeUpdate 生命周期方法。</p>
 
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Grid/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/25/antd/Grid/" itemprop="url">Grid 栅格</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-25T00:00:00+08:00">2018-11-25</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/25/antd/Grid/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/11/25/antd/Grid/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>antd 提供的 24 栅格系统由 Row, Col 组件实现。</p>
-<h2 id="Row"><a href="#Row" class="headerlink" title="Row"></a>Row</h2><p>栅格布局组件 Row 用于设定整行 row 内各组 col 的布局风格。当 props.type 为 ‘flex’ 时，意味着整行采用 flex 布局。在 flex 布局的基础上，props.justify 通过 justify-content 样式影响各 col 元素的水平排列方式；props.align 通过 align-items 样式影响各 col 元素的垂直对齐方式。props.gutter 用于设定各 col 元素的间隔，间隔单位可以是 ‘px’ 或 ‘rem’。Row 支持以对象形式配置 props.gutter，如 { xs, sm, md, lg, xl, xxl }。其中，xs 为 576 px 以下屏幕；sm 为 576 - 768 px 尺寸屏幕；md 为 768 - 992 px 尺寸屏幕；lg 为 992 - 1200 px 尺寸屏幕；xl 为 1200 - 1600 px 尺寸屏幕；xxl 为 1600 px 以上屏幕；</p>
-<p>在响应式处理上，Row 组件借助 <a href="https://github.com/WickyNilliams/enquire.js" target="_blank" rel="noopener">enquire.js</a> 库实现。其场景如以 { md: 8, lg: 16 } 对象配置 props.gutter，那么，当屏幕尺寸小于 768px 时，就需要将各 col 元素的间隔从 16 px 调整为 8px。Row 组件对这一场景的实现机制为，在 componentDidMount 生命周期使用 enquire.js 库绑定监听函数，以使得当屏幕尺寸变更时，state.screen 当前屏幕状态也会相应得到更新；随后在 render 阶段，由 getGutter 方法获得当前屏幕尺寸下的 col 元素间隔 gutter，并借助 <a href="https://github.com/jamiebuilds/create-react-context" target="_blank" rel="noopener">create-react-context</a> 库将 gutter 注入到 Col 组件中。以下是该机制实现的源码。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">componentDidMount() &#123;</span><br><span class="line">  <span class="built_in">Object</span>.keys(responsiveMap)</span><br><span class="line">    .map(<span class="function">(<span class="params">screen: Breakpoint</span>) =&gt;</span> enquire.register(responsiveMap[screen], &#123;</span><br><span class="line">        match: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">true</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        unmatch: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">false</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">// Keep a empty destory to avoid triggering unmatch when unregister</span></span><br><span class="line">        destroy() &#123;&#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getGutter(): number | <span class="literal">undefined</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; gutter &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> gutter === <span class="string">'object'</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt;= responsiveArray.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> breakpoint: Breakpoint = responsiveArray[i];</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.state.screens[breakpoint] &amp;&amp; gutter[breakpoint] !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> gutter[breakpoint];</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> gutter <span class="keyword">as</span> number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在样式处理方面，整行 row 采用 border-box 盒模型，相对定位，并嵌套使用 .clearfix 样式规则以清除浮动以及 :before, :after 伪类的内容。其余均较为简单，可参见<a href="https://github.com/ant-design/ant-design/blob/master/components/form/style/index.less" target="_blank" rel="noopener">源码</a>。</p>
-<h2 id="Col"><a href="#Col" class="headerlink" title="Col"></a>Col</h2><p>Col 组件主要通过样式类以设定 col 元素的大小和偏移情况。如当配置了 props.offset 属性为 4 时，将相应添加 ant-col-xs-offset-4, ant-col-sm-offset-4, ant-col-md-offset-4, ant-col-lg-offset-4, ant-col-xl-offset-4, ant-col-xll-offset-4 样式类。因此，Col 组件的逻辑主要是将 props 转化成样式类，其实现的重点仍在于 less 样式文件。</p>
-<p>当然，各 col 元素的间隔 gutter 由 Row 组件传入。以下是其源码实现，RowContext 通过 create-react-context 库创建，即通过 context 属性传递数据，但只有 Col 组件能加以访问。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Row</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Provider value=&#123;&#123; gutter &#125;&#125;&gt;</span><br><span class="line">      &lt;div &#123;...otherProps&#125; className=&#123;classes&#125; style=&#123;rowStyle&#125;&gt;</span><br><span class="line">        &#123;children&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>RowContext.Provider&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Col</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Consumer&gt;</span><br><span class="line">      &#123;(&#123; gutter &#125;) =&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> style = others.style;</span><br><span class="line">        <span class="keyword">if</span> (gutter <span class="keyword">as</span> number &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          style = &#123;</span><br><span class="line">            paddingLeft: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            paddingRight: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            ...style,</span><br><span class="line">          &#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span> &#123;<span class="attr">...others</span>&#125; <span class="attr">style</span>=<span class="string">&#123;style&#125;</span> <span class="attr">className</span>=<span class="string">&#123;classes&#125;</span>&gt;</span>&#123;children&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;</span><br><span class="line">      &#125;&#125;</span><br><span class="line">    &lt;<span class="regexp">/RowContext.Consumer&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>在 less 文件中，antd 使用自调用的混合函数创建从 .ant-col-1 到 .ant-col-24 的样式规则。以下是相关源码。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// style/theme/default.less</span></span><br><span class="line"><span class="variable">@grid-columns:</span> <span class="number">24</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// mixin.less</span></span><br><span class="line"><span class="comment">// index 由 1 到 24，构建样式规则</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>() &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">position</span>: relative;</span><br><span class="line">      <span class="comment">// Prevent columns from collapsing when empty</span></span><br><span class="line">      <span class="attribute">min-height</span>: <span class="number">1px</span>;</span><br><span class="line">      <span class="attribute">padding-left</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">      <span class="attribute">padding-right</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>) &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123; <span class="comment">// initial</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// general</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// terminal</span></span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">float</span>: left;</span><br><span class="line">      <span class="attribute">flex</span>: <span class="number">0</span> <span class="number">0</span> auto;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>); <span class="comment">// kickstart it</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index 由 24 到 1，构建样式规则</span></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">box-sizing</span>: border-box;</span><br><span class="line">    <span class="attribute">width</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="variable">@index</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>((<span class="variable">@index</span> - <span class="number">1</span>), <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> = <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: none;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(<span class="variable">@class</span>: <span class="string">~''</span>) &#123;</span><br><span class="line">  <span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>);</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>(<span class="variable">@grid-columns</span>, <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index.less</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>();</span><br><span class="line"><span class="selector-class">.make-grid</span>();</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(-xs);</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-sm-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-sm);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-md-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-md);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-lg-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-lg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xl);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xxl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xxl);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           
         
       
@@ -2188,155 +2480,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/设计模式/适配器模式/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/11/设计模式/适配器模式/" itemprop="url">适配器模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/11/设计模式/适配器模式/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/11/11/设计模式/适配器模式/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2388,7 +2531,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">54</span>
+                    <span class="site-state-item-count">55</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

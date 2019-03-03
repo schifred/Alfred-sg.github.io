@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="analyst,性能," />
+
+
+<meta name="description" content="网页渲染机制按特定的理解方式，当用户在浏览器地址栏输入 url 起，网页渲染过程包含页面加载和渲染两个过程。网页加载过程指从服务器端请求资源到构建 DOM 树的过程。网页渲染过程指从 DOM 树渲染除视图内容。这两个过程有所重合，因为异步加载的 js 脚本可能会修改 DOM 树的结构。 在 webkit 中，浏览器会构建多个加载类加载不同类型的资源，大体策略为：先从本地缓存池中查找资源；如果找不到">
+<meta name="keywords" content="analyst,性能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网页渲染机制">
+<meta property="og:url" content="http://yoursite.com/2019/03/03/frontend/网页渲染机制/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="网页渲染机制按特定的理解方式，当用户在浏览器地址栏输入 url 起，网页渲染过程包含页面加载和渲染两个过程。网页加载过程指从服务器端请求资源到构建 DOM 树的过程。网页渲染过程指从 DOM 树渲染除视图内容。这两个过程有所重合，因为异步加载的 js 脚本可能会修改 DOM 树的结构。 在 webkit 中，浏览器会构建多个加载类加载不同类型的资源，大体策略为：先从本地缓存池中查找资源；如果找不到">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/03/03/frontend/网页渲染机制/网页渲染过程.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/03/frontend/网页渲染机制/NavigationTiming.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/03/frontend/网页渲染机制/资源加载过程.png">
+<meta property="og:updated_time" content="2019-03-03T06:19:54.490Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="网页渲染机制">
+<meta name="twitter:description" content="网页渲染机制按特定的理解方式，当用户在浏览器地址栏输入 url 起，网页渲染过程包含页面加载和渲染两个过程。网页加载过程指从服务器端请求资源到构建 DOM 树的过程。网页渲染过程指从 DOM 树渲染除视图内容。这两个过程有所重合，因为异步加载的 js 脚本可能会修改 DOM 树的结构。 在 webkit 中，浏览器会构建多个加载类加载不同类型的资源，大体策略为：先从本地缓存池中查找资源；如果找不到">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/03/frontend/网页渲染机制/网页渲染过程.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/03/03/frontend/网页渲染机制/"/>
+
+
+  <title>网页渲染机制 | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/03/frontend/网页渲染机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">网页渲染机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-03T00:00:00+08:00">2019-03-03</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/03/03/frontend/网页渲染机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/03/03/frontend/网页渲染机制/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="网页渲染机制"><a href="#网页渲染机制" class="headerlink" title="网页渲染机制"></a>网页渲染机制</h2><p>按特定的理解方式，当用户在浏览器地址栏输入 url 起，网页渲染过程包含页面加载和渲染两个过程。网页加载过程指从服务器端请求资源到构建 DOM 树的过程。网页渲染过程指从 DOM 树渲染除视图内容。这两个过程有所重合，因为异步加载的 js 脚本可能会修改 DOM 树的结构。</p>
+<p>在 webkit 中，浏览器会构建多个加载类加载不同类型的资源，大体策略为：先从本地缓存池中查找资源；如果找不到，再从网络中获取资源。这些资源以 url 作为唯一标识符。浏览器中有两种缓存，内存缓存和磁盘缓存：刷新网页将使用内存缓存以提升速度；否则从磁盘读取。网页资源通常是同步加载；对于 javascript，采用异步加载的形式，且会打断 DOM 树的构建。</p>
+<p>浏览器首先加载网页内容，使用 html 解释器将网页转变成一系列的 token，再根据 token 构建 DOM 树。在一个可见的 DOM 节点（不包含 head 元素和 display 置为 none 的节点）插入到 DOM 树的同时，浏览器同时会构建 RenderObject 树，该树中包含节点的样式信息等内容，且使用布局模块（排版引擎）计算节点的大小位置等布局信息。在 css 2 中，RenderObject 节点都称为 box，包含的属性有：width, height, margin， padding, left, top, border 等。当网页中存在 css 样式时，首先将使用 css 解释器计算各元素的样式信息，然后将样式信息插入到 RenderObject 树中。当网页中存在 javascript 样式时，首先使用 javascript 引擎解释脚本，并通过 DOM 接口和 CSSOM 接口来修改网页内容和样式信息，最终也会影响 RenderObject 树。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RenderObject</span>&#123;</span></span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">layout</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">paint</span><span class="params">(PaintInfo)</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> rect <span class="title">repaintRect</span><span class="params">()</span></span>;</span><br><span class="line">  Node* node;  <span class="comment">//the DOM node</span></span><br><span class="line">  RenderStyle* style;  <span class="comment">// the computed style</span></span><br><span class="line">  RenderLayer* containgLayer; <span class="comment">//the containing z-index layer</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为处理 position 定位等，浏览器在 RenderObject 树之外，还会构建 RenderLayer 树。比如根节点从属于一个 RenderLayer 节点，绝对定位的节点从属于另一个 RenderLayer 节点，这样就能有效地处理视图元素的层次结构。如果某 DOM 节点没有对应的 RenderLayer，就从属于父节点的 RenderLayer。</p>
+<p>在有了 RenderObject 树和 RenderLayer 树的基础上，渲染引擎首先以一个布局信息不够明确的矩形绘制 RenderLayer 节点，再遍历其下的子 RenderLayer 节点并完成相关的 RenderObject 节点的绘制，再向上递归调整 RenderLayer 节点的布局（即回流）。因此，RenderObject 树决定网页的内容，RenderLayer 树决定网页的层次结构。</p>
+<p>网页整体的渲染过程如下：</p>
+<img src="/2019/03/03/frontend/网页渲染机制/网页渲染过程.png">
+<h3 id="Navigation-Timing"><a href="#Navigation-Timing" class="headerlink" title="Navigation Timing"></a>Navigation Timing</h3><img src="/2019/03/03/frontend/网页渲染机制/NavigationTiming.png">
+<p>上图简要地讲述了网页渲染过程中触发的事件，从查询 DNS 到建立 TCP 连接、到请求资源、到文档就绪、到所有资源加载完成等的一整个过程。各事件说明如下：</p>
+<ul>
+<li>navigationStart 前一份文档卸载完成的时间戳。如果没有前一份文档，则返回 fetchStart</li>
+<li>redirectStart 如果发生了 HTTP 重定向，且重定向和当前文档同域，则返回重定向的 fetchStart。否则，返回 0</li>
+<li>unloadEventStart 前一份文档的 unload 事件触发时间</li>
+<li>unloadEventEnd 前一份文档的 unload 事件执行完成时间</li>
+<li>redirectEnd 如果发生了 HTTP 重定向，且重定向和当前文档同域，则返回最后一次重定向接受完数据的时间。否则，返回 0</li>
+<li>fetchStart 浏览器发起资源请求时，如果有缓存，则返回读取缓存的开始时间。否则，返回获取资源的时间</li>
+<li>domainLookupStart 查询 DNS 的开始时间。如果请求没有发起 DNS 请求，如 keep-alive，缓存等，则返回 fetchStart</li>
+<li>domainLookupEnd 查询 DNS 的结束时间。如果没有发起 DNS 请求，同上</li>
+<li>connectStart 开始建立 TCP 连接的时间。如果请求是 keep-alive，缓存等，则返回 domainLookupEnd</li>
+<li>secureConnectionStart 如果是 https 请求，则返回握手时间。否则，返回 0</li>
+<li>connectEnd 完成 TCP 连接的时间。如果是 keep-alive，缓存等，同 connectStart</li>
+<li>requestStart 发起请求的时间，包含请求服务器资源、本地缓存等</li>
+<li>responseStart 服务器或本地缓存开始响应的时间</li>
+<li>responseEnd 服务器或本地缓存结束响应的时间</li>
+<li>domLoading 文档对象 document 已创建，文档状态被置为 ‘loading’ 前的时间</li>
+<li>domInteractive 文档状态被置为 ‘interactive’ 前的时间</li>
+<li>domContentLoadedEventStart 文档对象触发 ‘DOMContentLoaded’ 事件前的时间</li>
+<li>domContentLoadedEventEnd 文档对象触发 ‘DOMContentLoaded’ 事件后的时间</li>
+<li>domComplete 文档状态被置为 ‘complete’ 前的时间</li>
+<li>loadEventStart 文档的 load 事件触发时间，如没有则返回 0</li>
+<li>loadEventEnd 文档的 load 事件执行完成时间，如没有则返回 0</li>
+</ul>
+<h3 id="单资源加载过程"><a href="#单资源加载过程" class="headerlink" title="单资源加载过程"></a>单资源加载过程</h3><p>点开浏览器 Network 面板，鼠标悬浮在某资源的 waterfall 区域，可以查看该资源的加载过程。典型如下图：</p>
+<img src="/2019/03/03/frontend/网页渲染机制/资源加载过程.png">
+<p>各事件说明：</p>
+<ul>
+<li>Queuing 请求排队中。在 HTTP 1 上，浏览器仅允许每个源拥有六个 TCP 连接；若请求的资源为低优先级资源，将让位给高优先级的样式或脚本资源</li>
+<li>Stalled 请求等待发送所用的时间，包含代理协商所用的任何时间</li>
+<li>DNS Lookup 执行 DNS 查询所用的时间。页面上的每一个新域都需要完整的往返才能执行 DNS 查询</li>
+<li>Initial Connection 建立连接所用的时间，包括 TCP 握手/重试和协商 SSL 的时间</li>
+<li>SSL 完成 SSL 握手所用的时间</li>
+<li>Request Sent 发出网络请求所用的时间</li>
+<li>Waiting(TTFB) 等待初始响应所用的时间，也称为至第一字节的响应时间</li>
+<li>Content Download 接收响应数据所用的时间</li>
+</ul>
+<h3 id="performance"><a href="#performance" class="headerlink" title="performance"></a>performance</h3><p>使用 Performance API 可以分析网页的渲染性能以及某个方法的执行性能。</p>
+<p>performance.timing 属性可追踪的网页渲染性能如下：</p>
+<ul>
+<li>DNS 寻址时间：domainLookupEnd - domainLookupStart</li>
+<li>TCP 连接耗时：connectEnd - connectStart</li>
+<li>request 请求耗时：responseEnd - requestStart</li>
+<li>白屏时间：responseStart - navigationStart</li>
+<li>解析 dom 树耗时：domComplete - domInteractive</li>
+<li>domready 时间(用户可操作时间节点)：domContentLoadedEventEnd - navigationStart</li>
+<li>onload 时间(总下载时间)：loadEventEnd - navigationStart</li>
+</ul>
+<p>performance 接口包含的方法如下：</p>
+<ul>
+<li>performance.getEntries()：每个资源的请求时间</li>
+<li>performance.now()：获取从 navigationStart 到当前时间的毫秒，可用于计算方法的执行时间</li>
+<li>performance.mark()：给相应的视点做标记</li>
+<li>performance.measure(name, startMark, endMark)：计算方法的执行时间</li>
+<li>performance.getEntries(name)：获取资源的加载时间</li>
+</ul>
+<h2 id="回流、重绘机制"><a href="#回流、重绘机制" class="headerlink" title="回流、重绘机制"></a>回流、重绘机制</h2><p>回流指的是，当元素的布局或显示等信息改变时，引起 RenderObject 树部分或整体的重新构建，即网页布局的调整。重绘指的是，RenderObject 树中节点属性的更新。因此，回流必然会引起重绘，重绘不一定引起回流。与布局无关的元素属性操作将只引起重绘，否则将同时引起回流和重绘。可能引起回流、重绘的行为如下：</p>
+<ul>
+<li>添加、删除元素（回流+重绘）</li>
+<li>隐藏元素：display:none（回流+重绘）；visibility:hidden（只重绘，不回流）</li>
+<li>移动元素：改变 top,left（不一定引起回流）；将元素移动到另一个父元素中（回流+重绘）等</li>
+<li>改变 style：布局相关属性如 padding, border-width, font-size（回流+重绘）；布局无关属性（只重绘，不回流）</li>
+<li>用户操作：改变浏览器大小，改变浏览器的字体大小等（回流+重绘）</li>
+</ul>
+<p>回流的开销比重绘大。如果 body 顶部插入一个节点，将引起整个 body 的回流；如果尾部插入一个节点，将只引起部分内容的回流，因此开销较小。浏览器为提升回流、重绘的性能，会构建队列以执行批量处理。但是，访问节点的 offsetTop, scrollTop, clientTop, width, height 类属性或调用了 getComputedStyle 方法，将迫使浏览器提前执行队列以获得最新的样式。减少回流、重绘的方法如下：</p>
+<ol>
+<li>className 或 cssText 批量更新样式，避免单属性操作引起的频繁回流或重绘</li>
+<li>新创建的元素改完样式后，再插入文档；或者以 display 为 none 形式调整样式</li>
+<li>使用变量缓存元素的样式，避免频繁读取元素的样式，致使浏览器提前执行回流队列</li>
+</ol>
+<p>回流、重置可借助 dynaTrace(测试ie),Speed Tracer(测试Chrome) 测试。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/444f3b7fcc63" target="_blank" rel="noopener">WebKit之网络加载</a><br><a href="https://www.cnblogs.com/inJS/p/9709499.html" target="_blank" rel="noopener">聊聊浏览器（webkit）资源加载机制</a><br><a href="http://www.nowamagic.net/academy/detail/48110562" target="_blank" rel="noopener">Render树、RenderObject与RenderLayer</a><br><a href="https://segmentfault.com/a/1190000015808716" target="_blank" rel="noopener">webkit渲染机制浅析</a><br><a href="https://www.w3.org/TR/navigation-timing/#dom-performancetiming-navigationstart" target="_blank" rel="noopener">Navigation Timing</a><br><a href="https://developers.google.cn/web/tools/chrome-devtools/network-performance/understanding-resource-timing" target="_blank" rel="noopener">了解 Resource Timing</a><br><a href="https://www.cnblogs.com/bldxh/p/6857324.html" target="_blank" rel="noopener">Performance — 前端性能监控利器</a><br><a href="https://blog.csdn.net/xingsilong/article/details/80624765" target="_blank" rel="noopener">页面呈现、重绘、回流</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+            <a href="/tags/性能/" rel="tag"># 性能</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/27/frontend/首页性能优化/" rel="next" title="首页性能优化">
+                <i class="fa fa-chevron-left"></i> 首页性能优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="Alfred" />
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">55</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">20</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#网页渲染机制"><span class="nav-number">1.</span> <span class="nav-text">网页渲染机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Navigation-Timing"><span class="nav-number">1.1.</span> <span class="nav-text">Navigation Timing</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单资源加载过程"><span class="nav-number">1.2.</span> <span class="nav-text">单资源加载过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#performance"><span class="nav-number">1.3.</span> <span class="nav-text">performance</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#回流、重绘机制"><span class="nav-number">2.</span> <span class="nav-text">回流、重绘机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2019/03/03/frontend/网页渲染机制/';
+        this.page.identifier = '2019/03/03/frontend/网页渲染机制/';
+        this.page.title = '网页渲染机制';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script>
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

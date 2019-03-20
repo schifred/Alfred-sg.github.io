@@ -270,7 +270,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/07/backend/spring boot试水/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/20/backend/Servlet/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -289,7 +289,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/07/backend/spring boot试水/" itemprop="url">Spring Boot试水</a></h1>
+                <a class="post-title-link" href="/2019/03/20/backend/Servlet/" itemprop="url">Spring Boot试水</a></h1>
         
 
         <div class="post-meta">
@@ -301,7 +301,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-07T00:00:00+08:00">2019-03-07</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-20T00:00:00+08:00">2019-03-20</time>
             
 
             
@@ -337,9 +337,308 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/03/07/backend/spring boot试水/#comments" itemprop="discussionUrl">
+                <a href="/2019/03/20/backend/Servlet/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/03/07/backend/spring boot试水/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2019/03/20/backend/Servlet/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>我们先来看一下，作为 Servlet 容器的 Tomcat 工作机制：</p>
+<ol>
+<li>客户端首次发送请求，Tomcat 从磁盘中加载 Servlet 类并初始化执行 init 方法（依赖于 Servlet 配置）。</li>
+<li>Tomcat 将请求解析成 request，并将其转发给 Servlet。</li>
+<li>Servlet 调用 service 方法处理请求，获得 reponse 并发送回客户端。</li>
+<li>再次发送请求，重复 2, 3 步。</li>
+<li>当 Servlet 销毁时（卸载应用程序或关闭 Servlet 容器），调用 destory 方法。</li>
+</ol>
+<p>Servlet 是运行在 web 服务器上用于接受和处理请求、获得响应的程序。我们可以通过继承抽象类 GenericServlet 处理遵循不同协议的请求，通过继承 HttpServlet 处理遵循 http 协议的请求。当构建一个 web 应用时，针对不同的路由需要构建多个 Servlet 以处理请求。在一个 web 应用中，作为 Servlet 和容器通信桥梁的 ServletContext 上下文实例却是唯一的，其可用于访问已注册的 Servlet、Filter，动态添加 Servlet、Filter，访问资源等。当 Servlet 初始化后，容器会将 ServletContext 实例提供给 Servlet，Servlet 可通过 getServletConfig 获得 ServletContext 实例。在单机部署的环境下，ServletContext 实例可用于共享资源或缓存；在分布式部署的环境下，每台虚拟机都会有一个 ServletContext 实例与之对应，因此共享资源需要借助数据库等外部存储。</p>
+<p>和一般的容器技术相同，ServletContext 接口会由容器实现，并由容器在 web 应用启动时进行实例化，并维护 Servlet。同时作为容器顶层的操作工具，ServletContext 也会提供常用的操作，方便作全局处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ServletContext</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String TEMPDIR = <span class="string">"javax.servlet.context.tempdir"</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String ORDERED_LIBS = <span class="string">"javax.servlet.context.orderedLibs"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取主路径</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getContextPath</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取指定 url 的上下文对象</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ServletContext <span class="title">getContext</span><span class="params">(String uripath)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取 Servlet API 的版本</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getMajorVersion</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getMinorVersion</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getEffectiveMajorVersion</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getEffectiveMinorVersion</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取文件的媒体类型</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getMimeType</span><span class="params">(String file)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取目录下的资源路径列表</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Set&lt;String&gt; <span class="title">getResourcePaths</span><span class="params">(String path)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取资源</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> URL <span class="title">getResource</span><span class="params">(String path)</span> <span class="keyword">throws</span> MalformedURLException</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> InputStream <span class="title">getResourceAsStream</span><span class="params">(String path)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将请求交由另一个 Servlet 处理，即内部跳转</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RequestDispatcher <span class="title">getRequestDispatcher</span><span class="params">(String path)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> RequestDispatcher <span class="title">getNamedDispatcher</span><span class="params">(String name)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印日志，日志的名称和类型由容器决定</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">log</span><span class="params">(String msg)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">log</span><span class="params">(String message, Throwable throwable)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取资源的真实路径，可链接访问</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getRealPath</span><span class="params">(String path)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取容器信息</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getServerInfo</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取或设置初始参数。初始参数可以针对全局，也可以针对单个 Servlet</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getInitParameter</span><span class="params">(String name)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Enumeration&lt;String&gt; <span class="title">getInitParameterNames</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">setInitParameter</span><span class="params">(String name, String value)</span></span>;</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">    <span class="comment">// 缓存或获取全局状态，其值变更时将会通知 listener</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getAttribute</span><span class="params">(String name)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Enumeration&lt;String&gt; <span class="title">getAttributeNames</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAttribute</span><span class="params">(String name, Object object)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">removeAttribute</span><span class="params">(String name)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getServletContextName</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 动态添加 Servlet 实例或类</span></span><br><span class="line">    <span class="keyword">public</span> ServletRegistration.<span class="function">Dynamic <span class="title">addServlet</span><span class="params">(String servletName, String className)</span></span>;</span><br><span class="line">    <span class="keyword">public</span> ServletRegistration.<span class="function">Dynamic <span class="title">addServlet</span><span class="params">(String servletName, Servlet servlet)</span></span>;</span><br><span class="line">    <span class="keyword">public</span> ServletRegistration.<span class="function">Dynamic <span class="title">addServlet</span><span class="params">(String servletName,</span></span></span><br><span class="line"><span class="function"><span class="params">            Class&lt;? extends Servlet&gt; servletClass)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 动态添加 jsp</span></span><br><span class="line">    <span class="keyword">public</span> ServletRegistration.<span class="function">Dynamic <span class="title">addJspFile</span><span class="params">(String jspName, String jspFile)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建 Servlet 类</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T extends Servlet&gt; <span class="function">T <span class="title">createServlet</span><span class="params">(Class&lt;T&gt; c)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> ServletException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取已注册 Servlet</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ServletRegistration <span class="title">getServletRegistration</span><span class="params">(String servletName)</span></span>;</span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, ? extends ServletRegistration&gt; getServletRegistrations();</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 注册或获取过滤器</span></span><br><span class="line">    <span class="keyword">public</span> FilterRegistration.<span class="function">Dynamic <span class="title">addFilter</span><span class="params">(String filterName, String className)</span></span>;</span><br><span class="line">    <span class="keyword">public</span> FilterRegistration.<span class="function">Dynamic <span class="title">addFilter</span><span class="params">(String filterName, Filter filter)</span></span>;</span><br><span class="line">    <span class="keyword">public</span> FilterRegistration.<span class="function">Dynamic <span class="title">addFilter</span><span class="params">(String filterName,</span></span></span><br><span class="line"><span class="function"><span class="params">            Class&lt;? extends Filter&gt; filterClass)</span></span>;</span><br><span class="line">    <span class="keyword">public</span> &lt;T extends Filter&gt; <span class="function">T <span class="title">createFilter</span><span class="params">(Class&lt;T&gt; c)</span> <span class="keyword">throws</span> ServletException</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> FilterRegistration <span class="title">getFilterRegistration</span><span class="params">(String filterName)</span></span>;</span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, ? extends FilterRegistration&gt; getFilterRegistrations();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> SessionCookieConfig <span class="title">getSessionCookieConfig</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSessionTrackingModes</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">            Set&lt;SessionTrackingMode&gt; sessionTrackingModes)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Set&lt;SessionTrackingMode&gt; <span class="title">getDefaultSessionTrackingModes</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Set&lt;SessionTrackingMode&gt; <span class="title">getEffectiveSessionTrackingModes</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加 listener</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addListener</span><span class="params">(String className)</span></span>;</span><br><span class="line">    <span class="keyword">public</span> &lt;T extends EventListener&gt; <span class="function"><span class="keyword">void</span> <span class="title">addListener</span><span class="params">(T t)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addListener</span><span class="params">(Class&lt;? extends EventListener&gt; listenerClass)</span></span>;</span><br><span class="line">    <span class="keyword">public</span> &lt;T extends EventListener&gt; <span class="function">T <span class="title">createListener</span><span class="params">(Class&lt;T&gt; c)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> ServletException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> JspConfigDescriptor <span class="title">getJspConfigDescriptor</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ClassLoader <span class="title">getClassLoader</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 声明角色</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">declareRoles</span><span class="params">(String... roleNames)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取虚拟 host</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getVirtualServerName</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取、设置 session 超时时间</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getSessionTimeout</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSessionTimeout</span><span class="params">(<span class="keyword">int</span> sessionTimeout)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取、设置请求体 request body 编码</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getRequestCharacterEncoding</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setRequestCharacterEncoding</span><span class="params">(String encoding)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取、设置响应体 reponse body 编码</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getResponseCharacterEncoding</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setResponseCharacterEncoding</span><span class="params">(String encoding)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如上文，Servlet 接口包含三个生命周期方法：</p>
+<ul>
+<li>init(ServletConfig config) 初始化方法。通常当 Servlet 容器初次接受请求时，就会尝试实例化 Servlet 并将其放入容器中，这时就会调用 init 方法（如果将 Servlet 配置为 web 应用部署和启动时自动启动，那么 init 方法就会即时被调用）。init 方法执行成功后，ServletConfig 和 ServletContext 对象就可以被访问了。当 init 方法抛出 ServletException 错误，Servlet 将不会放入容器中，请求也得不到处理。</li>
+<li>service(ServletRequest req, ServletResponse res) 处理请求以获取响应。因为 Servlet 容器会以多进程的方式运行，共享的资源、缓存需要及时作同步。</li>
+<li>destroy() 当 Servlet 移出 Servlet 容器时将被调用，如杀死进程。实现 destory 方法一般用于销毁状态、及时同步资源或缓存。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Servlet</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(ServletConfig config)</span> <span class="keyword">throws</span> ServletException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">service</span><span class="params">(ServletRequest req, ServletResponse res)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> ServletException, IOException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 实现该方法可用于获取全局的 ServletConfig 实例</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ServletConfig <span class="title">getServletConfig</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 字符串形式获取 Servlet 信息</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getServletInfo</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ServletConfig</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getServletName</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取 ServletContext 对象，用于和 Servlet 容器通信</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ServletContext <span class="title">getServletContext</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取初始参数的值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getInitParameter</span><span class="params">(String name)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取初始参数名</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Enumeration&lt;String&gt; <span class="title">getInitParameterNames</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/qq_19782019/article/details/80292110" target="_blank" rel="noopener">JavaWeb——Servlet（全网最详细教程包括Servlet源码分析）</a><br><a href="https://blog.csdn.net/tangiwang/article/details/83149693" target="_blank" rel="noopener">ServletContext理解学习</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/19/backend/spring cloud试水/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/19/backend/spring cloud试水/" itemprop="url">未命名</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-19T22:59:25+08:00">2019-03-19</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/03/19/backend/spring cloud试水/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/03/19/backend/spring cloud试水/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/17/backend/spring boot试水/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/17/backend/spring boot试水/" itemprop="url">Spring Boot试水</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-17T00:00:00+08:00">2019-03-17</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring-Boot/" itemprop="url" rel="index"><span itemprop="name">Spring Boot</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/03/17/backend/spring boot试水/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/03/17/backend/spring boot试水/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -446,7 +745,7 @@
 <p>（3）制作 Aspect 类。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Order</span>(<span class="number">1</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LogAspect</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Logger log = Logger.getLogger(LogAspect.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//申明一个切点 里面是 execution表达式</span></span><br><span class="line">    <span class="meta">@Pointcut</span>(<span class="string">"@annotation(com.example.demo.aop.Log)"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">controllerAspect</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//请求method前打印内容</span></span><br><span class="line">    <span class="meta">@Before</span>(<span class="string">"execution(public * com.example.demo.controller..*.*(..))"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">methodBefore</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();</span><br><span class="line">        HttpServletRequest request = requestAttributes.getRequest();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//打印请求内容</span></span><br><span class="line">        log.info(<span class="string">"===============请求内容==============="</span>);</span><br><span class="line">        log.info(<span class="string">"请求地址:"</span>+request.getRequestURL().toString());</span><br><span class="line">        log.info(<span class="string">"请求方式:"</span>+request.getMethod());</span><br><span class="line">        log.info(<span class="string">"请求类方法:"</span>+joinPoint.getSignature());</span><br><span class="line">        log.info(<span class="string">"请求类方法参数:"</span>+ Arrays.toString(joinPoint.getArgs()));</span><br><span class="line">        log.info(<span class="string">"===============请求内容==============="</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//在方法执行完结后打印返回内容</span></span><br><span class="line">    <span class="meta">@AfterReturning</span>(returning = <span class="string">"o"</span>,pointcut = <span class="string">"controllerAspect()"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">methodAfterReturing</span><span class="params">(Object o)</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">"--------------返回内容----------------"</span>);</span><br><span class="line">        log.info(<span class="string">"Response内容:"</span> + JSON.toJSONString(o));</span><br><span class="line">        log.info(<span class="string">"--------------返回内容----------------"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>（4）声明辅助类。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(ElementType.METHOD)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Log &#123;</span><br><span class="line">    <span class="function">String <span class="title">log</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>（5）被拦截的处理过程。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"/aop"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AopController</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Log</span>(log = <span class="string">"注解式拦截的方法"</span>)</span><br><span class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/test"</span>, method = RequestMethod.GET)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">getTest</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResultUtil.success();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<img src="/2019/03/07/backend/spring%20boot试水/aop切面.png">
+<img src="/2019/03/17/backend/spring%20boot试水/aop切面.png">
 <h3 id="参考-3"><a href="#参考-3" class="headerlink" title="参考"></a>参考</h3><p><a href="https://blog.csdn.net/xiaoxiaoyusheng2012/article/details/79486784" target="_blank" rel="noopener">Spring Boot项目中使用log4j</a><br><a href="https://www.cnblogs.com/gmq-sh/p/4798194.html" target="_blank" rel="noopener">annotation(@Retention@Target)详解</a></p>
 <h2 id="mybaits"><a href="#mybaits" class="headerlink" title="mybaits"></a>mybaits</h2><p>Spring Boot 中整合 mybaits 有两种方式：基于注解或者基于 xml 配置。</p>
 <p>（1）pom.xml 添加 mysql, mybatis 依赖。<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- mysql 连接依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.spring.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.3.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
@@ -2337,315 +2636,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/01/antd/react-component/rc-align/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/01/antd/react-component/rc-align/" itemprop="url">rc-align</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-01T00:00:00+08:00">2019-02-01</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/02/01/antd/react-component/rc-align/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/02/01/antd/react-component/rc-align/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
-<li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
-</li>
-<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/01/antd/react-component/dom-align/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/01/antd/react-component/dom-align/" itemprop="url">dom-align</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-01T00:00:00+08:00">2019-02-01</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/02/01/antd/react-component/dom-align/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/02/01/antd/react-component/dom-align/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
-<li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2697,7 +2687,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">57</span>
+                    <span class="site-state-item-count">59</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

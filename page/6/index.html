@@ -270,6 +270,218 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/13/mocha使用指南/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/13/mocha使用指南/" itemprop="url">mocha使用指南</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-13T18:50:11+08:00">2018-02-13</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/13/mocha使用指南/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/02/13/mocha使用指南/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>mocha 是一款可运行在 node 环境或浏览器上的测试框架。</p>
+<p>mocha 本身没有实现断言库，可使用 chai, should.js, expect.js, better-assert, unexpected 等断言库或 node 内置的 assert 模块。断言库错误输出需有 actual, expected 属性。</p>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><h3 id="BDD"><a href="#BDD" class="headerlink" title="BDD"></a>BDD</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// BDD 风格，describe/context, it/specify, before, after, beforeEach, afterEach</span></span><br><span class="line"><span class="keyword">var</span> assert = <span class="built_in">require</span>(<span class="string">'assert'</span>);</span><br><span class="line">describe(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;<span class="comment">// 测试套件</span></span><br><span class="line">  describe(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    it(<span class="string">'should return -1 when the value is not present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;<span class="comment">// 测试单元</span></span><br><span class="line">      assert.equal([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>].indexOf(<span class="number">4</span>), <span class="number">-1</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="TDD"><a href="#TDD" class="headerlink" title="TDD"></a>TDD</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TDD 风格，suite, test, suiteSetup, suiteTeardown, setup, teardown</span></span><br><span class="line">suite(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  setup(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  suite(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    test(<span class="string">'should return -1 when not present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      assert.equal(<span class="number">-1</span>, [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>].indexOf(<span class="number">4</span>));</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="EXPORTS"><a href="#EXPORTS" class="headerlink" title="EXPORTS"></a>EXPORTS</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// EXPORTS 风格，before, after, beforeEach, afterEach</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  before: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="string">'Array'</span>: &#123;<span class="comment">// 对象作为测试套件</span></span><br><span class="line">    <span class="string">'#indexOf()'</span>: &#123;</span><br><span class="line">      <span class="string">'should return -1 when not present'</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;<span class="comment">// 函数为测试单元</span></span><br><span class="line">        [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>].indexOf(<span class="number">4</span>).should.equal(<span class="number">-1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="QUNIT"><a href="#QUNIT" class="headerlink" title="QUNIT"></a>QUNIT</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// QUNIT 风格，suite, test, before, after, beforeEach, afterEach</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ok</span>(<span class="params">expr, msg</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!expr) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(msg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">suite(<span class="string">'Array'</span>);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'#length'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> arr = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>];</span><br><span class="line">  ok(arr.length == <span class="number">3</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> arr = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>];</span><br><span class="line">  ok(arr.indexOf(<span class="number">1</span>) == <span class="number">0</span>);</span><br><span class="line">  ok(arr.indexOf(<span class="number">2</span>) == <span class="number">1</span>);</span><br><span class="line">  ok(arr.indexOf(<span class="number">3</span>) == <span class="number">2</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">suite(<span class="string">'String'</span>);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'#length'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  ok(<span class="string">'foo'</span>.length == <span class="number">3</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="REQUIRE"><a href="#REQUIRE" class="headerlink" title="REQUIRE"></a>REQUIRE</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// REQUIRE 风格，使用 require 注入</span></span><br><span class="line"><span class="keyword">var</span> testCase = <span class="built_in">require</span>(<span class="string">'mocha'</span>).describe;</span><br><span class="line"><span class="keyword">var</span> pre = <span class="built_in">require</span>(<span class="string">'mocha'</span>).before;</span><br><span class="line"><span class="keyword">var</span> assertions = <span class="built_in">require</span>(<span class="string">'mocha'</span>).it;</span><br><span class="line"><span class="keyword">var</span> assert = <span class="built_in">require</span>(<span class="string">'chai'</span>).assert;</span><br><span class="line"></span><br><span class="line">testCase(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  pre(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  testCase(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    assertions(<span class="string">'should return -1 when not present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      assert.equal([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>].indexOf(<span class="number">4</span>), <span class="number">-1</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>mocha 后跟测试文件名（可使用通配符），或将测试脚本放在 test 目录里，执行 mocha 命令测试 test 目录下的测试脚本（默认只执行第一层）。浏览器端使用 mocha.setup 方法配置 mocha。</p>
+<p>选项（可以将命令行参数放在 mocha.opts 文件里，也可以 mocha.opts 文件里指定测试目录）：</p>
+<ul>
+<li>-u, –ui <name> 测试脚本编码风格，可选值 bdd|tdd|qunit|exports。</name></li>
+<li>–recursive 使用 mocha 测试 test 目录下所有文件。</li>
+<li>-g, –grep <pattern> 只测试匹配正则的 it 。</pattern></li>
+<li>-f, –fgrep <string> 只测试包含字符串的 it。</string></li>
+<li>-i, –invert 反转 grep, fgrep 选项。</li>
+<li>–bail, -b 有一个测试脚本未通过时，就停止测试。</li>
+<li>-d, –debug 启动 debug 模式。</li>
+<li>–debug-brk enable node’s debugger breaking on the first line???</li>
+<li>-gc, –expose-gc expose gc extension???</li>
+<li>–harmony<_classes,_generators,...> all node –harmony* flags are available???</_classes,_generators,...></li>
+<li>–es_staging 启用所有 staged 特征???</li>
+<li>-S, –sort 排序测试文件。</li>
+<li>–compilers <ext>:<module>,… 指定测编译器，如 mocha –compilers js:babel-core/register。若需使用 Map、Set 等，须在测试脚本前 import ‘babel-polyfill’。</module></ext></li>
+<li>-r, –require <name> 加载特定的模块，如 ‘babel-polyfill’。</name></li>
+<li>–file <file> 测试时加载指定文件。</file></li>
+<li>–globals <names> 以 ‘,’ 分割形式注入全局变量。</names></li>
+<li>-A, –async-only 测试脚本只能使用异步编程，回调或 promise 形式。</li>
+<li>-w, –watch 监视文件变动，自动运行测试脚本。</li>
+<li>-t, –timeout <ms> 指定测试时的超时时间，默认为 2000 ms。</ms></li>
+<li>-s, –slow <ms> 高亮显示超过指定时间的测试报告，默认为 75 ms。</ms></li>
+<li>–check-leaks 检测全局变量泄漏。</li>
+<li>–growl, -G 将报告显示在桌面。</li>
+<li>-R, –reporter <name> 指定报告打印形式，默认是 spec 格式，可选值 tap, dot, nyan, mochawesome 网页报告（须先安装 npm install –dev mochawesome）。</name></li>
+<li>-O, –reporter-options <k=v,k2=v2,...>，打印选项。</k=v,k2=v2,...></li>
+<li>–reporters 显示所有报告格式。</li>
+<li>-c, –colors 显示颜色。</li>
+<li>-C, –no-colors 不显示颜色。</li>
+<li>–full-trace 显示完整的堆栈信息。</li>
+<li>生成规格文件，如 mocha –recursive -R markdown &gt; spec.md 或 mocha –recursive -R doc &gt; spec.html。<br>…</li>
+</ul>
+<h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><h3 id="钩子函数"><a href="#钩子函数" class="headerlink" title="钩子函数"></a>钩子函数</h3><ul>
+<li>before，在测试用例之前执行</li>
+<li>after，在测试用例之后执行</li>
+<li>beforeEach，在每个单元测试前执行</li>
+<li>afterEach，在每个单元测试后执行</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 钩子允许在 describe 外围，回调将在测试脚本之前或之后执行</span></span><br><span class="line">beforeEach(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'before every test in every file'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">describe(<span class="string">'hooks'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 钩子函数以匿名函数使用，允许携带描述；命名函数不能</span></span><br><span class="line">  before(<span class="string">'some description'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// runs before all tests in this block</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 钩子支持同步或异步编程</span></span><br><span class="line">  beforeEach(<span class="function"><span class="keyword">function</span>(<span class="params">done</span>) </span>&#123;</span><br><span class="line">    db.clear(<span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) <span class="keyword">return</span> done(err);</span><br><span class="line">      db.save([tobi, loki, jane], done);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// test cases</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="异步测试"><a href="#异步测试" class="headerlink" title="异步测试"></a>异步测试</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 回调函数形式</span></span><br><span class="line">describe(<span class="string">'User'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  describe(<span class="string">'#save()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    it(<span class="string">'should save without error'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">done</span>) </span>&#123;<span class="comment">// done 只能执行一次，两次及以上会报错</span></span><br><span class="line">      <span class="keyword">var</span> user = <span class="keyword">new</span> User(<span class="string">'Luna'</span>);</span><br><span class="line">      user.save(done);<span class="comment">// done 能自动识别并处理 err 错误</span></span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// promise 形式</span></span><br><span class="line">describe(<span class="string">'#find()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  it(<span class="string">'respond with matching records'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// db.find(&#123; type: 'User' &#125;) 返回 promise</span></span><br><span class="line">    <span class="keyword">return</span> db.find(&#123; <span class="attr">type</span>: <span class="string">'User'</span> &#125;).should.eventually.have.length(<span class="number">3</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// async 函数形式</span></span><br><span class="line">describe(<span class="string">'#find()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  it(<span class="string">'responds with matching records'</span>, <span class="keyword">async</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> users = <span class="keyword">await</span> db.find(&#123; <span class="attr">type</span>: <span class="string">'User'</span> &#125;);</span><br><span class="line">    users.should.have.length(<span class="number">3</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="延迟执行"><a href="#延迟执行" class="headerlink" title="延迟执行"></a>延迟执行</h3><p>命令行选项 –delay 用于延迟，相应测试脚本使用 setTimeout 包裹。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// do some setup</span></span><br><span class="line"></span><br><span class="line">  describe(<span class="string">'my suite'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  run();</span><br><span class="line">&#125;, <span class="number">5000</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="搁置测试"><a href="#搁置测试" class="headerlink" title="搁置测试"></a>搁置测试</h3><p>使测试处于 pending 状态，仍然会打印报告。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">describe(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  describe(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// pending test below</span></span><br><span class="line">    it(<span class="string">'should return -1 when the value is not present'</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="限制测试"><a href="#限制测试" class="headerlink" title="限制测试"></a>限制测试</h3><ul>
+<li>describe, it 调用 only 方法将只运行指定测试脚本，添加的钩子仍会执行。</li>
+<li>describe, it 调用 skip 方法将避免某些脚本的执行。skip 也可以在 mocha 运行过程中调用，或在钩子中调用，两者均使用 this.skip()。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// only 方法限制只执行某些测试脚本</span></span><br><span class="line">describe(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  describe.only(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    it.only(<span class="string">'should return -1 unless present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// this test will be run</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should return the index when present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// this test will not be run</span></span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// skip 方法跳过执行指定测试脚本</span></span><br><span class="line">describe(<span class="string">'Array'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  describe(<span class="string">'#indexOf()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    it.skip(<span class="string">'should return -1 unless present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// this test will not be run</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should return the index when present'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// this test will be run</span></span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// mocha 运行时 skip</span></span><br><span class="line">it(<span class="string">'should only test in the correct environment'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="comment">/* check test environment */</span>) &#123;</span><br><span class="line">    <span class="comment">// make assertions</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.skip();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 钩子 skip</span></span><br><span class="line">before(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="comment">/* check test environment */</span>) &#123;</span><br><span class="line">    <span class="comment">// setup code</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.skip();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="实例方法"><a href="#实例方法" class="headerlink" title="实例方法"></a>实例方法</h3><ul>
+<li>retries(num)，指定重复执行测试脚本 num 次，不推荐在单元测试中使用。</li>
+<li>slow(time)，高亮显示超过指定时间的测试报告，默认为 75 ms。</li>
+<li>timeout(time)，设定超时时间，可在 describe, it 或钩子 中调用。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// retries</span></span><br><span class="line">describe(<span class="string">'retries'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// Retry all tests in this suite up to 4 times</span></span><br><span class="line">  <span class="keyword">this</span>.retries(<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">  beforeEach(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    browser.get(<span class="string">'http://www.yahoo.com'</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  it(<span class="string">'should succeed on the 3rd try'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// Specify this test to only retry up to 2 times</span></span><br><span class="line">    <span class="keyword">this</span>.retries(<span class="number">2</span>);</span><br><span class="line">    expect($(<span class="string">'.foo'</span>).isDisplayed()).to.eventually.be.true;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// slow</span></span><br><span class="line">describe(<span class="string">'something slow'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.slow(<span class="number">10000</span>);</span><br><span class="line"></span><br><span class="line">  it(<span class="string">'should take long enough for me to go make a sandwich'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// timeout</span></span><br><span class="line">describe(<span class="string">'a suite of tests'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.timeout(<span class="number">500</span>);</span><br><span class="line"></span><br><span class="line">  it(<span class="string">'should take less than 500ms'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">done</span>)</span>&#123;</span><br><span class="line">    setTimeout(done, <span class="number">300</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  it(<span class="string">'should take less than 500ms as well'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">done</span>)</span>&#123;</span><br><span class="line">    setTimeout(done, <span class="number">250</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/12/chai使用指南/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2375,7 +2587,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">59</span>
+                    <span class="site-state-item-count">60</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

@@ -413,22 +413,22 @@
 <li>通过反向颜色转换 moveFlipColors 操作构建 4- 节点。</li>
 <li>若右侧为 3- 节点，将 3- 节点中的最小键左移到左节点下，使左节点变为 3- 节点。这时需要通过颜色转换 flipColors 拿掉 4- 节点。</li>
 </ol>
-<img src="/2019/04/07/算法/红黑树/moveRedLeft.webp">
+<img src="/2019/04/07/算法/红黑树/moveRedLeft.png">
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">moveRedLeft</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    moveFlipColors(h);<span class="comment">// 从父节点中借一个</span></span><br><span class="line">    <span class="keyword">if</span> (isRed(h.right.left))&#123;<span class="comment">// 兄弟节点不是 2- 节点，从兄弟节点中借一个</span></span><br><span class="line">        h.right = rotateRight(h.right);</span><br><span class="line">        h = rotateLeft(h);</span><br><span class="line">        flipColors(h);<span class="comment">// 从兄弟节点借了一个后，把从父节点中借来的还回去</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="右移"><a href="#右移" class="headerlink" title="右移"></a>右移</h3><p>右移操作适用于子树中的最大键，即右侧节点。同样包含两个步骤：</p>
 <ol>
 <li>通过反向颜色转换 moveFlipColors 操作构建 4- 节点。</li>
 <li>若左侧为 2- 节点，将该 2- 节点的父节点右移，使右节点变为 3- 节点。这时需要通过颜色转换 flipColors 拿掉 4- 节点。</li>
 </ol>
-<img src="/2019/04/07/算法/红黑树/moveRedRight.webp">
+<img src="/2019/04/07/算法/红黑树/moveRedRight.png">
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">moveRedRight</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    moveFlipColors(h);<span class="comment">// 从父节点中借一个</span></span><br><span class="line">    <span class="keyword">if</span> (!isRed(h.left.left))&#123;<span class="comment">// 兄弟节点是 2- 节点，从兄弟节点中借一个</span></span><br><span class="line">        h = rotateRight(h);</span><br><span class="line">        flipColors(h);<span class="comment">// 从兄弟节点借了一个后，把从父节点中借来的还回去</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="再平衡"><a href="#再平衡" class="headerlink" title="再平衡"></a>再平衡</h3><p>无论在删除左侧节点还是在删除右侧节点时，都可能会在右侧创建新的红链接，所以我们需要通过左旋操作移除该红链接。且删除操作会破坏红黑树的性质，使红黑树下拥有不合法的作为右链接的红链接，或者父节点和左子节点同时为红链接，或者两侧子节点同时为红链接，这时就需要借助节点插入时的左旋、右旋、颜色转换操作逐级向上调整了。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">balance</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    <span class="comment">// 删除左节点可能会创建 4- 节点，右链接为红链接</span></span><br><span class="line">    <span class="comment">// 删除右节点可能会使用左旋创建居于右侧的红链接</span></span><br><span class="line">    <span class="comment">// 两种情况均通过 rotateLeft 还原</span></span><br><span class="line">    <span class="keyword">if</span> (isRed(h.right)) h = rotateLeft(h);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 和节点插入时相同，通过[左旋]、[右旋，颜色转换]调整树的平衡性</span></span><br><span class="line">    <span class="keyword">if</span> (isRed(h.right) &amp;&amp; !isRed(h.left)) h = rotateLeft(h);</span><br><span class="line">    <span class="keyword">if</span> (isRed(h.left) &amp;&amp; isRed(h.left.left)) h = rotateRight(h);</span><br><span class="line">    <span class="keyword">if</span> (isRed(h.left) &amp;&amp; isRed(h.right)) flipColors(h);</span><br><span class="line"></span><br><span class="line">    h.N = size(h.left) + size(h.right) + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="删除最小键"><a href="#删除最小键" class="headerlink" title="删除最小键"></a>删除最小键</h3><img src="/2019/04/07/算法/红黑树/deleteMin.webp">
+<h3 id="删除最小键"><a href="#删除最小键" class="headerlink" title="删除最小键"></a>删除最小键</h3><img src="/2019/04/07/算法/红黑树/deleteMin.png">
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteMin</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 当 flipColors, moveFlipColors 由同一个函数实现时，需要将根节点置红，以便进行反向颜色转换</span></span><br><span class="line">    <span class="keyword">if</span>(!isRed(root.left) &amp;&amp; !isRed(root.right))&#123;</span><br><span class="line">        root.color = Red;</span><br><span class="line">    &#125;</span><br><span class="line">    root = deleteMin(root);</span><br><span class="line">    <span class="keyword">if</span> ( !isEmpty() ) root.color = Black;<span class="comment">// 根节点颜色复原</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">deleteMin</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    <span class="comment">// h 就是为最小键，置为 null 移除</span></span><br><span class="line">    <span class="keyword">if</span>(h.left == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向下递归构建 3- 节点和 4- 节点，并删除节点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 左子节点为 2- 节点，通过左移操作向右子节点或父节点中借一个</span></span><br><span class="line">    <span class="keyword">if</span>(!isRed(h.left) &amp;&amp; !isRed(h.left.left))</span><br><span class="line">        h = moveRedLeft(h);</span><br><span class="line">    h.left = deleteMin(h.left);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向上递归移除临时的 4- 节点，调整树的平衡性</span></span><br><span class="line">    <span class="keyword">return</span> balance(h);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="删除最大键"><a href="#删除最大键" class="headerlink" title="删除最大键"></a>删除最大键</h3><img src="/2019/04/07/算法/红黑树/deleteMax.webp">
+<h3 id="删除最大键"><a href="#删除最大键" class="headerlink" title="删除最大键"></a>删除最大键</h3><img src="/2019/04/07/算法/红黑树/deleteMax.png">
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteMax</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!isRed(root.left) &amp;&amp; isRed(root.right))&#123;</span><br><span class="line">        root.color = Red;</span><br><span class="line">    &#125;</span><br><span class="line">    root = deleteMax(root);</span><br><span class="line">    <span class="keyword">if</span> ( !isEmpty() ) root.color = Black;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">deleteMax</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    <span class="comment">// 左子节点为红链接时，通过右旋将其给到右侧，以构建 3- 节点</span></span><br><span class="line">    <span class="keyword">if</span>(isRed(h.left))&#123;                                     </span><br><span class="line">        h = rotateRight(h);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// h 就是为最大键，置为 null 移除</span></span><br><span class="line">    <span class="keyword">if</span>(h.right == <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向下递归构建 3- 节点和 4- 节点，并删除节点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 右子节点为 2- 节点，通过右移操作向左子节点或父节点中借一个</span></span><br><span class="line">    <span class="keyword">if</span>(!isRed(h.right) &amp;&amp; !isRed(h.right.left))&#123;</span><br><span class="line">        h = moveRedRight(h);</span><br><span class="line">    &#125;</span><br><span class="line">    h.right = deleteMax(h.right);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向上递归移除临时的 4- 节点，调整树的平衡性</span></span><br><span class="line">    <span class="keyword">return</span> balance(h);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="删除节点"><a href="#删除节点" class="headerlink" title="删除节点"></a>删除节点</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">(Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!isRed(root.left)&amp;&amp; !isRed(root.right))&#123;</span><br><span class="line">        root.color = Red;</span><br><span class="line">    &#125;</span><br><span class="line">    root = delete(root, key);</span><br><span class="line">    <span class="keyword">if</span> ( !isEmpty() ) root.color = Black;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">delete</span><span class="params">(Node h, Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (key.compareTo(h.key) &lt; <span class="number">0</span>)&#123; </span><br><span class="line">        <span class="comment">// 向下递归构建 3- 节点和 4- 节点，并删除节点</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 左子节点为 2- 节点，通过左移操作向右子节点或父节点中借一个       </span></span><br><span class="line">        <span class="keyword">if</span> (!isRed(h.left) &amp;&amp; !isRed(h.left.left)) </span><br><span class="line">            h = moveRedLeft(h);    </span><br><span class="line"></span><br><span class="line">        <span class="comment">// 递归删除</span></span><br><span class="line">        h.left = delete(h.left, key);         </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 左子节点为红链接时，通过右旋将其给到右侧，以构建 3- 节点</span></span><br><span class="line">        <span class="keyword">if</span> (isRed(h.left)) </span><br><span class="line">            h = rotateRight(h);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 无后继节点，意味待删除节点为底部节点，置为 null 删除</span></span><br><span class="line">        <span class="keyword">if</span> (key.compareTo(h.key) == <span class="number">0</span> &amp;&amp; (h.right == <span class="keyword">null</span>)) </span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 向下递归构建 3- 节点和 4- 节点，并删除节点</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 右子节点为 2- 节点，通过右移操作向左子节点或父节点中借一个</span></span><br><span class="line">        <span class="keyword">if</span> (!isRed(h.right) &amp;&amp; !isRed(h.right.left)) </span><br><span class="line">            h = moveRedRight(h);           </span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用后继节点替换</span></span><br><span class="line">        <span class="keyword">if</span> (key.compareTo(h.key) == <span class="number">0</span>)&#123;      </span><br><span class="line">            h.val = get(h.right, min(h.right).key);            </span><br><span class="line">            h.key = min(h.right).key;                   </span><br><span class="line">            h.right = deleteMin(h.right);             </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 递归删除</span></span><br><span class="line">        <span class="keyword">else</span> h.right = delete(h.right, key);  </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> balance(h);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="删除节点"><a href="#删除节点" class="headerlink" title="删除节点"></a>删除节点</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">(Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!isRed(root.left)&amp;&amp; !isRed(root.right))&#123;</span><br><span class="line">        root.color = Red;</span><br><span class="line">    &#125;</span><br><span class="line">    root = delete(root, key);</span><br><span class="line">    <span class="keyword">if</span> ( !isEmpty() ) root.color = Black;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">delete</span><span class="params">(Node h, Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (key.compareTo(h.key) &lt; <span class="number">0</span>)&#123; </span><br><span class="line">        <span class="comment">// 向下递归构建 3- 节点和 4- 节点，并删除节点</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 左子节点为 2- 节点，通过左移操作向右子节点或父节点中借一个       </span></span><br><span class="line">        <span class="keyword">if</span> (!isRed(h.left) &amp;&amp; !isRed(h.left.left)) </span><br><span class="line">            h = moveRedLeft(h);    </span><br><span class="line"></span><br><span class="line">        <span class="comment">// 递归删除</span></span><br><span class="line">        h.left = delete(h.left, key);         </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 左子节点为红链接时，通过右旋将其给到右侧，以构建 3- 节点</span></span><br><span class="line">        <span class="keyword">if</span> (isRed(h.left)) </span><br><span class="line">            h = rotateRight(h);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 无后继节点，意味待删除节点为底部节点，置为 null 删除</span></span><br><span class="line">        <span class="comment">// 怎么保证 h 是 3- 节点？</span></span><br><span class="line">        <span class="keyword">if</span> (key.compareTo(h.key) == <span class="number">0</span> &amp;&amp; (h.right == <span class="keyword">null</span>)) </span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 向下递归构建 3- 节点和 4- 节点，并删除节点</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 右子节点为 2- 节点，通过右移操作向左子节点或父节点中借一个</span></span><br><span class="line">        <span class="keyword">if</span> (!isRed(h.right) &amp;&amp; !isRed(h.right.left)) </span><br><span class="line">            h = moveRedRight(h);           </span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用后继节点替换</span></span><br><span class="line">        <span class="keyword">if</span> (key.compareTo(h.key) == <span class="number">0</span>)&#123;      </span><br><span class="line">            h.val = get(h.right, min(h.right).key);            </span><br><span class="line">            h.key = min(h.right).key;                   </span><br><span class="line">            h.right = deleteMin(h.right);             </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 递归删除</span></span><br><span class="line">        <span class="keyword">else</span> h.right = delete(h.right, key);  </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> balance(h);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="小记"><a href="#小记" class="headerlink" title="小记"></a>小记</h2><p>这篇文章是我在理解 HashMap 过程中的一阵整理。回头想想，仍觉得自己对红黑树的理解不是很透彻。留在网上暂作为一种记录，以便于渐进式修改。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.cnblogs.com/yangecnu/p/Introduce-Red-Black-Tree.html" target="_blank" rel="noopener">浅谈算法和数据结构: 九 平衡查找树之红黑树</a><br><a href="https://www.jianshu.com/p/37c845a5add6" target="_blank" rel="noopener">一篇文章搞懂红黑树的原理及实现</a></p>
 
@@ -1380,6 +1380,178 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/03/frontend/首页性能优化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/03/frontend/首页性能优化/" itemprop="url">首页性能优化</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-03T00:00:00+08:00">2019-03-03</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/03/03/frontend/首页性能优化/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/03/03/frontend/首页性能优化/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>提升网页加载性能的手段无非合并请求、减小资源体积、缓存资源这几种。借助于前端工程化能力，我们能合并压缩 js, css 代码；制作 base64 图片，合成雪碧图等。此外，我们可以借助<a href="https://www.iconfont.cn/" target="_blank" rel="noopener">阿里矢量图标库</a>制作字体图标；借助网上工具制作 WebP 图片。chrome 浏览器的 Page Speed 扩展工具能帮助我们查看网页加载性能，并给出有效的建议。</p>
+<p>在前端编码层面，我们可以通过减少回流重绘、避免内存泄漏的方式提升网页加载性能。减少回流、重置的方法可参考<a href="http://xzfyu.com/2019/03/03/frontend/%E7%BD%91%E9%A1%B5%E6%B8%B2%E6%9F%93%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">网页渲染机制</a>。关于内存泄漏，chrome 开发者工具 - more tools - Profile 面板可用于查看各函数的执行时间和 CPU 占用率。</p>
+<p>在服务端领域，我们可以将静态资源放在 cdn 服务器上；使用 nginx 或 nodejs 搭建前置服务器，并基于 nginx 缓存、压缩静态资源。当使用 nodejs 制作前置服务器时，基于 pm2 或 egg-cluster 可开启多进程。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">etag</span> <span class="string">on;</span> <span class="comment"># 开启etag验证</span></span><br><span class="line"><span class="string">expires</span> <span class="number">7</span><span class="string">d;</span> <span class="comment"># 设置缓存过期时间为7天</span></span><br><span class="line"><span class="string">gzip</span> <span class="string">on;</span> <span class="comment"># 压缩资源</span></span><br><span class="line"><span class="string">gzip_types</span> <span class="string">text/plain</span> <span class="string">application/javascriptapplication/x-javascripttext/css</span> <span class="string">application/xml</span> <span class="string">text/javascriptapplication/x-httpd-php</span> <span class="string">application/vnd.ms-fontobject</span> <span class="string">font/ttf</span> <span class="string">font/opentype</span> <span class="string">font/x-woff</span> <span class="string">image/svg+xml;</span> <span class="comment"># 压缩资源类型（压缩图片会占用后台资源，效果也不佳）</span></span><br></pre></td></tr></table></figure>
+<h2 id="雅虎优化军规"><a href="#雅虎优化军规" class="headerlink" title="雅虎优化军规"></a>雅虎优化军规</h2><ol>
+<li>减少 http 请求或优化资源：合并文件、使用雪碧图、使用 base64 图片、压缩混淆 js 脚本或 css 样式等</li>
+<li>减少 dns 查询：减少网页资源主机名的数量（同时会影响可并行请求数量），建议使用 2 到 4 个主机名</li>
+<li>避免重定向，重定向会一直等待到获取网页内容才渲染视图</li>
+<li>使用 ajax 缓存：针对 get 请求，消息头添加 Expires，可以缓存响应</li>
+<li>延迟加载：针对折叠的图片或者根据交互动作展示的内容等，可使用延迟加载的方式优化</li>
+<li>预加载：在浏览器空闲的时候，预加载资源，包含跳转页面的资源、新版本的资源</li>
+<li>减少 dom 节点的数量，可以提升 dom 树构建的速度，减少不必要的事件绑定</li>
+<li>避免使用 iframe，iframe 会阻塞页面加载</li>
+<li>杜绝 404，因其会占用服务端资源，浏览器还需要解析响应体</li>
+<li>外链 css 样式和 js 脚本，可以减轻 html 体积，缓存资源。css 样式放在 head 中，可以逐步渲染页面。js 脚本放在底部，避免阻塞</li>
+<li>js 编码中避免回流、重绘；使用事件委托绑定事件，避免多次绑定</li>
+<li>给 cookie 瘦身：cookie 尽可能小；设置合适的域级别和有效期</li>
+<li>通过 Content-Encoding: gzip 响应头压缩资源</li>
+<li>通过实体标签 ETags 响应头作为唯一标识，以判断浏览器缓存和服务端资源的更新状态，浏览器将传输 If-None-Match 查找资源</li>
+<li>通过 Expires 响应头设置缓存失效时间，Cache-Control 条件性控制缓存</li>
+<li>使用 CDN 内容分发网络</li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://imweb.io/topic/5b6fd3c13cb5a02f33c013bd" target="_blank" rel="noopener">网站性能优化实战——从12.67s到1.06s的故事</a><br><a href="https://www.cnblogs.com/xianyulaodi/p/5755079.html" target="_blank" rel="noopener">雅虎前端优化的35条军规</a><br><a href="http://www.barretlee.com/blog/2016/04/01/optimization-in-taobao-homepage/" target="_blank" rel="noopener">淘宝首页性能优化实践</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/03/frontend/网页渲染机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1562,178 +1734,6 @@
 </ol>
 <p>回流、重置可借助 dynaTrace(测试ie),Speed Tracer(测试Chrome) 测试。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/444f3b7fcc63" target="_blank" rel="noopener">WebKit之网络加载</a><br><a href="https://www.cnblogs.com/inJS/p/9709499.html" target="_blank" rel="noopener">聊聊浏览器（webkit）资源加载机制</a><br><a href="http://www.nowamagic.net/academy/detail/48110562" target="_blank" rel="noopener">Render树、RenderObject与RenderLayer</a><br><a href="https://segmentfault.com/a/1190000015808716" target="_blank" rel="noopener">webkit渲染机制浅析</a><br><a href="https://www.w3.org/TR/navigation-timing/#dom-performancetiming-navigationstart" target="_blank" rel="noopener">Navigation Timing</a><br><a href="https://developers.google.cn/web/tools/chrome-devtools/network-performance/understanding-resource-timing" target="_blank" rel="noopener">了解 Resource Timing</a><br><a href="https://www.cnblogs.com/bldxh/p/6857324.html" target="_blank" rel="noopener">Performance — 前端性能监控利器</a><br><a href="https://blog.csdn.net/xingsilong/article/details/80624765" target="_blank" rel="noopener">页面呈现、重绘、回流</a><br><a href="https://blog.csdn.net/qq_40128367/article/details/82920370" target="_blank" rel="noopener">首屏时间从12.67s到1.06s，我是如何做到的？</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/03/frontend/首页性能优化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/03/frontend/首页性能优化/" itemprop="url">首页性能优化</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-03T00:00:00+08:00">2019-03-03</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/03/03/frontend/首页性能优化/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/03/03/frontend/首页性能优化/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>提升网页加载性能的手段无非合并请求、减小资源体积、缓存资源这几种。借助于前端工程化能力，我们能合并压缩 js, css 代码；制作 base64 图片，合成雪碧图等。此外，我们可以借助<a href="https://www.iconfont.cn/" target="_blank" rel="noopener">阿里矢量图标库</a>制作字体图标；借助网上工具制作 WebP 图片。chrome 浏览器的 Page Speed 扩展工具能帮助我们查看网页加载性能，并给出有效的建议。</p>
-<p>在前端编码层面，我们可以通过减少回流重绘、避免内存泄漏的方式提升网页加载性能。减少回流、重置的方法可参考<a href="http://xzfyu.com/2019/03/03/frontend/%E7%BD%91%E9%A1%B5%E6%B8%B2%E6%9F%93%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">网页渲染机制</a>。关于内存泄漏，chrome 开发者工具 - more tools - Profile 面板可用于查看各函数的执行时间和 CPU 占用率。</p>
-<p>在服务端领域，我们可以将静态资源放在 cdn 服务器上；使用 nginx 或 nodejs 搭建前置服务器，并基于 nginx 缓存、压缩静态资源。当使用 nodejs 制作前置服务器时，基于 pm2 或 egg-cluster 可开启多进程。</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">etag</span> <span class="string">on;</span> <span class="comment"># 开启etag验证</span></span><br><span class="line"><span class="string">expires</span> <span class="number">7</span><span class="string">d;</span> <span class="comment"># 设置缓存过期时间为7天</span></span><br><span class="line"><span class="string">gzip</span> <span class="string">on;</span> <span class="comment"># 压缩资源</span></span><br><span class="line"><span class="string">gzip_types</span> <span class="string">text/plain</span> <span class="string">application/javascriptapplication/x-javascripttext/css</span> <span class="string">application/xml</span> <span class="string">text/javascriptapplication/x-httpd-php</span> <span class="string">application/vnd.ms-fontobject</span> <span class="string">font/ttf</span> <span class="string">font/opentype</span> <span class="string">font/x-woff</span> <span class="string">image/svg+xml;</span> <span class="comment"># 压缩资源类型（压缩图片会占用后台资源，效果也不佳）</span></span><br></pre></td></tr></table></figure>
-<h2 id="雅虎优化军规"><a href="#雅虎优化军规" class="headerlink" title="雅虎优化军规"></a>雅虎优化军规</h2><ol>
-<li>减少 http 请求或优化资源：合并文件、使用雪碧图、使用 base64 图片、压缩混淆 js 脚本或 css 样式等</li>
-<li>减少 dns 查询：减少网页资源主机名的数量（同时会影响可并行请求数量），建议使用 2 到 4 个主机名</li>
-<li>避免重定向，重定向会一直等待到获取网页内容才渲染视图</li>
-<li>使用 ajax 缓存：针对 get 请求，消息头添加 Expires，可以缓存响应</li>
-<li>延迟加载：针对折叠的图片或者根据交互动作展示的内容等，可使用延迟加载的方式优化</li>
-<li>预加载：在浏览器空闲的时候，预加载资源，包含跳转页面的资源、新版本的资源</li>
-<li>减少 dom 节点的数量，可以提升 dom 树构建的速度，减少不必要的事件绑定</li>
-<li>避免使用 iframe，iframe 会阻塞页面加载</li>
-<li>杜绝 404，因其会占用服务端资源，浏览器还需要解析响应体</li>
-<li>外链 css 样式和 js 脚本，可以减轻 html 体积，缓存资源。css 样式放在 head 中，可以逐步渲染页面。js 脚本放在底部，避免阻塞</li>
-<li>js 编码中避免回流、重绘；使用事件委托绑定事件，避免多次绑定</li>
-<li>给 cookie 瘦身：cookie 尽可能小；设置合适的域级别和有效期</li>
-<li>通过 Content-Encoding: gzip 响应头压缩资源</li>
-<li>通过实体标签 ETags 响应头作为唯一标识，以判断浏览器缓存和服务端资源的更新状态，浏览器将传输 If-None-Match 查找资源</li>
-<li>通过 Expires 响应头设置缓存失效时间，Cache-Control 条件性控制缓存</li>
-<li>使用 CDN 内容分发网络</li>
-</ol>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://imweb.io/topic/5b6fd3c13cb5a02f33c013bd" target="_blank" rel="noopener">网站性能优化实战——从12.67s到1.06s的故事</a><br><a href="https://www.cnblogs.com/xianyulaodi/p/5755079.html" target="_blank" rel="noopener">雅虎前端优化的35条军规</a><br><a href="http://www.barretlee.com/blog/2016/04/01/optimization-in-taobao-homepage/" target="_blank" rel="noopener">淘宝首页性能优化实践</a></p>
 
           
         

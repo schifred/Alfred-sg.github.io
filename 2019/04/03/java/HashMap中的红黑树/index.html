@@ -103,18 +103,18 @@
   <meta name="keywords" content="analyst,java," />
 
 
-<meta name="description" content="HashMap 预期以链表数组的形式存储数据，即以 key 键的散列码计算索引，然后将元素插入到作为数组项的链表中（每个数组项称为桶）。与数组相比，链表提升了插入元素的效率。因为数组在插入元素时，需要移动后续元素的位置；而链表只需要改变后一个元素的 prev 属性。然而在查询元素时，链表需要遍历所有元素，因此并不高效。借助于红黑树，有助于提升查询的效率。因此，HashMap 中存在一个阈值，当桶中">
+<meta name="description" content="HashMap 预期以链表数组的形式存储数据，即以 key 键的散列码计算索引，然后将元素插入到作为数组项的链表中（每个数组项称为桶）。因此，HashMap 中存在一个阈值，当桶中的元素数目超过这个阈值时，其数据结构就会从链表转变成红黑树。">
 <meta name="keywords" content="analyst,java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HashMap中的红黑树">
 <meta property="og:url" content="http://yoursite.com/2019/04/03/java/HashMap中的红黑树/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="HashMap 预期以链表数组的形式存储数据，即以 key 键的散列码计算索引，然后将元素插入到作为数组项的链表中（每个数组项称为桶）。与数组相比，链表提升了插入元素的效率。因为数组在插入元素时，需要移动后续元素的位置；而链表只需要改变后一个元素的 prev 属性。然而在查询元素时，链表需要遍历所有元素，因此并不高效。借助于红黑树，有助于提升查询的效率。因此，HashMap 中存在一个阈值，当桶中">
+<meta property="og:description" content="HashMap 预期以链表数组的形式存储数据，即以 key 键的散列码计算索引，然后将元素插入到作为数组项的链表中（每个数组项称为桶）。因此，HashMap 中存在一个阈值，当桶中的元素数目超过这个阈值时，其数据结构就会从链表转变成红黑树。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-04-03T14:38:48.498Z">
+<meta property="og:updated_time" content="2019-04-07T11:43:43.982Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HashMap中的红黑树">
-<meta name="twitter:description" content="HashMap 预期以链表数组的形式存储数据，即以 key 键的散列码计算索引，然后将元素插入到作为数组项的链表中（每个数组项称为桶）。与数组相比，链表提升了插入元素的效率。因为数组在插入元素时，需要移动后续元素的位置；而链表只需要改变后一个元素的 prev 属性。然而在查询元素时，链表需要遍历所有元素，因此并不高效。借助于红黑树，有助于提升查询的效率。因此，HashMap 中存在一个阈值，当桶中">
+<meta name="twitter:description" content="HashMap 预期以链表数组的形式存储数据，即以 key 键的散列码计算索引，然后将元素插入到作为数组项的链表中（每个数组项称为桶）。因此，HashMap 中存在一个阈值，当桶中的元素数目超过这个阈值时，其数据结构就会从链表转变成红黑树。">
 
 
 
@@ -366,10 +366,8 @@
       
 
       
-        <p>HashMap 预期以链表数组的形式存储数据，即以 key 键的散列码计算索引，然后将元素插入到作为数组项的链表中（每个数组项称为桶）。与数组相比，链表提升了插入元素的效率。因为数组在插入元素时，需要移动后续元素的位置；而链表只需要改变后一个元素的 prev 属性。然而在查询元素时，链表需要遍历所有元素，因此并不高效。借助于红黑树，有助于提升查询的效率。因此，HashMap 中存在一个阈值，当桶中的元素数目超过这个阈值时，其数据结构就会从链表转变成红黑树。</p>
-<p>为什么说红黑树有助于提升查询的效率呢？因为红黑树本质上是一棵完美平衡的二叉树，查询操作时间复杂度就是树的高度 O(lgn)，自然比链表的 O(n) 高效很多。红黑树有如下两个特征：有序性、平衡性。我们讲一棵红黑树是有序的，指的是节点在树中以有序的方式进行排列；通常，树中的节点会遵照 key 键自小到大或自大到小的顺序。节点有序排列是实现二叉树完美平衡的一种条件。完美平衡指的是树从根节点到每个底部节点的高度大致相当，这样才能保证查询操作的时间复杂度为 O(lgn)。设想当二叉树出现了单边有值的极端情况时，其查询效率就和链表一样同为 O(n)。因此，完美平衡的二叉树便于查询节点，而红黑树是完美平衡二叉树的一种实现方式。</p>
-<p>红黑树中存在两种保障平衡性的手段：左旋操作和右旋操作。</p>
-<h2 id="基于-2-3-树"><a href="#基于-2-3-树" class="headerlink" title="基于 2-3 树"></a>基于 2-3 树</h2><h2 id="基于子树重排"><a href="#基于子树重排" class="headerlink" title="基于子树重排"></a>基于子树重排</h2>
+        <p>HashMap 预期以链表数组的形式存储数据，即以 key 键的散列码计算索引，然后将元素插入到作为数组项的链表中（每个数组项称为桶）。因此，HashMap 中存在一个阈值，当桶中的元素数目超过这个阈值时，其数据结构就会从链表转变成红黑树。</p>
+
       
     </div>
     
@@ -410,6 +408,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/07/算法/红黑树/" rel="prev" title="红黑树">
+                红黑树 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -468,17 +470,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -497,7 +490,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">60</span>
+                    <span class="site-state-item-count">61</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -508,7 +501,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-count">25</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -519,7 +512,7 @@
                 
                 <div class="site-state-item site-state-tags">
                   <a href="/tags/index.html">
-                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-count">23</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -561,22 +554,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基于-2-3-树"><span class="nav-number">1.</span> <span class="nav-text">基于 2-3 树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于子树重排"><span class="nav-number">2.</span> <span class="nav-text">基于子树重排</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       

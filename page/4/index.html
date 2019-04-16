@@ -270,6 +270,193 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/06/设计模式/代理模式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/06/设计模式/代理模式/" itemprop="url">代理模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-06T00:00:00+08:00">2018-11-06</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/06/设计模式/代理模式/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/06/设计模式/代理模式/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>代理模式(proxy pattern) 的主要处理逻辑为，构建代理对象以桥接对实际对象的访问。因此，可以在访问过程中构建附加的间接性操作如请求处理、权限校验、内务处理(housekeeping task)等，也可以为多种实际对象提供统一的接口。</p>
+<p>《设计模式:可复用面向对象软件的基础》中的说法是：</p>
+<blockquote class="blockquote-center"><p>Provide a surrogate or placeholder for another object to control access to it.</p>
+</blockquote>
+<p>维基百科的说法是：</p>
+<blockquote class="blockquote-center"><p>A proxy, in its most general form, is a class functioning as an interface to something else. A proxy is a wrapper or agent object that is being called by the client to access the real serving object behind the scenes. Use of the proxy can simply be forwarding to the real object, or can provide additional logic. In the proxy extra functionality can be provided, for example caching when operations on the real object are resource intensive, or checking preconditions before operations on the real object are invoked.</p>
+</blockquote>
+<p>使用代理模式的场景：</p>
+<ol>
+<li>远程代理(remote proxy): 为一个远程服务对象提供本地表现，通过本地方法调用远程服务。</li>
+<li>虚代理(virtual proxy): 在代理中延迟创建一个开销很大的对象。如在图片代理对象的实现过程中，draw 方法执行前才创建实际所需的图片对象。</li>
+<li>保护代理(protection proxy): 访问对象前执行权限校验。</li>
+<li>智能指引(smart reference): 访问实际的对象时执行附加操作，如对引用计数，当没被引用时，释放内存；首次引用时，将持久对象装入内存等。</li>
+</ol>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><img src="/2018/11/06/设计模式/代理模式/proxy.png">
+<ul>
+<li>Proxy: 以引用形式持有实体，接口与 Subject 相同，以便于使用代理对象替代实体，并控制对实体的访问。必要时，可以在代理对象中创建或删除实体。<ul>
+<li>remote proxy 负责对请求及其参数进行编码，并向远程服务器发送请求。</li>
+<li>virtual proxy 负责缓存实体的附加信息，以便延迟创建实体。</li>
+<li>protection proxy 负责校验请求是否有特定的访问权限。</li>
+</ul>
+</li>
+<li>Subject 定义 RealSubject, Proxy 的公共接口，因此在需要使用 RealSubject 的场景中都可以使用 Proxy 代替。</li>
+<li>RealSubject 定义 Proxy 所代表的实体。</li>
+</ul>
+<h2 id="经典实现"><a href="#经典实现" class="headerlink" title="经典实现"></a>经典实现</h2><p>使用代理模式为多种类型的字段提供统一的接口，在 FieldProxy 实例 setValue 方法执行过程中，我们也能添加诸如数据校验等处理函数。这里只展示代理模式实现的一种方式，而不推敲代理模式在字段处理上的意义。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Field</span> </span>&#123;</span><br><span class="line">  type;<span class="comment">// 字段类型</span></span><br><span class="line">  name;<span class="comment">// 字段 code</span></span><br><span class="line">  title;<span class="comment">// 字段名</span></span><br><span class="line">  required;<span class="comment">// 字段是否必填</span></span><br><span class="line">  value;<span class="comment">// 字段的值</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(props)&#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; name, title, required &#125; = props;</span><br><span class="line">    <span class="keyword">this</span>.name = name;</span><br><span class="line">    <span class="keyword">this</span>.title = title;</span><br><span class="line">    <span class="keyword">this</span>.required = required;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setValue(value)&#123;</span><br><span class="line">    <span class="keyword">this</span>.value = value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// input</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Input</span> <span class="keyword">extends</span> <span class="title">Field</span> </span>&#123;</span><br><span class="line">  type = <span class="string">'input'</span>;</span><br><span class="line">  placeholder;</span><br><span class="line">  maxLength;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(props)&#123;</span><br><span class="line">    <span class="keyword">super</span>(props);</span><br><span class="line">    <span class="keyword">const</span> &#123; placeholder, maxLength &#125; = props;</span><br><span class="line">    <span class="keyword">this</span>.placeholder = placeholder;</span><br><span class="line">    <span class="keyword">this</span>.maxLength = maxLength;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// textarea</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Textarea</span> <span class="keyword">extends</span> <span class="title">Field</span> </span>&#123;</span><br><span class="line">  type = <span class="string">'textarea'</span>;</span><br><span class="line">  placeholder;</span><br><span class="line">  maxLength;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(props)&#123;</span><br><span class="line">    <span class="keyword">super</span>(props);</span><br><span class="line">    <span class="keyword">const</span> &#123; placeholder, maxLength &#125; = props;</span><br><span class="line">    <span class="keyword">this</span>.placeholder = placeholder;</span><br><span class="line">    <span class="keyword">this</span>.maxLength = maxLength;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// radio</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Radio</span> <span class="keyword">extends</span> <span class="title">Field</span> </span>&#123;</span><br><span class="line">  type = <span class="string">'radio'</span>;</span><br><span class="line">  options;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(props)&#123;</span><br><span class="line">    <span class="keyword">super</span>(props);</span><br><span class="line">    <span class="keyword">const</span> &#123; options &#125; = props;</span><br><span class="line">    <span class="keyword">this</span>.options = options;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// checkbox</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Checkbox</span> <span class="keyword">extends</span> <span class="title">Field</span> </span>&#123;</span><br><span class="line">  type = <span class="string">'checkbox'</span>;</span><br><span class="line">  options;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(props)&#123;</span><br><span class="line">    <span class="keyword">super</span>(props);</span><br><span class="line">    <span class="keyword">const</span> &#123; options &#125; = props;</span><br><span class="line">    <span class="keyword">this</span>.options = options;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// select</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Select</span> <span class="keyword">extends</span> <span class="title">Field</span> </span>&#123;</span><br><span class="line">  type = <span class="string">'select'</span>;</span><br><span class="line">  placeholder;</span><br><span class="line">  options;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(props)&#123;</span><br><span class="line">    <span class="keyword">super</span>(props);</span><br><span class="line">    <span class="keyword">const</span> &#123; options &#125; = props;</span><br><span class="line">    <span class="keyword">this</span>.placeholder = placeholder;</span><br><span class="line">    <span class="keyword">this</span>.options = options;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Fields = &#123;</span><br><span class="line">  <span class="string">'input'</span>: Input,</span><br><span class="line">  <span class="string">'textarea'</span>: Textarea,</span><br><span class="line">  <span class="string">'radio'</span>: Radio,</span><br><span class="line">  <span class="string">'checkbox'</span>: Checkbox,</span><br><span class="line">  <span class="string">'select'</span>: Select,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FieldProxy</span> </span>&#123;</span><br><span class="line">  field;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(props)&#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; type, ...others &#125; = props;</span><br><span class="line">    <span class="keyword">this</span>.field = <span class="keyword">new</span> Fields[type](others);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setValue(value)&#123;</span><br><span class="line">    <span class="keyword">this</span>.field.setValue(value);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="js中的代理模式"><a href="#js中的代理模式" class="headerlink" title="js中的代理模式"></a>js中的代理模式</h2><h3 id="图片缓存"><a href="#图片缓存" class="headerlink" title="图片缓存"></a>图片缓存</h3><p>图片缓存的目的是在远程图片加载的时延过程中，预先以本地图片或占位符代替；在远程图片加载完成之后，再使用 img 节点展示实际的图片。</p>
+<p>备注：RealSubject 和 Proxy 使用相同的接口这种情况，在 js 中，可以在自调用匿名函数实现，实例属性可使用闭包缓存。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实际加载图片</span></span><br><span class="line"><span class="keyword">const</span> loadImage = (<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> imgNode = <span class="built_in">document</span>.createElement(<span class="string">'img'</span>);</span><br><span class="line">  <span class="built_in">document</span>.body.appendChild(imgNode);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">src</span>)</span>&#123;</span><br><span class="line">    imgNode.src = src;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> handler = &#123;</span><br><span class="line">  apply: <span class="function"><span class="keyword">function</span>(<span class="params">target, thisBinding, args</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> src = args[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">let</span> img = <span class="keyword">new</span> Image;</span><br><span class="line">    img.src = src;</span><br><span class="line">    img.onLoad = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      target(src);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    target(<span class="string">'local_image.gif'</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 代理加载图片</span></span><br><span class="line"><span class="keyword">const</span> loadImageProxy = <span class="keyword">new</span> <span class="built_in">Proxy</span>(loadImage, handler);</span><br><span class="line"></span><br><span class="line">loadImageProxy(<span class="string">'remote_image.png'</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="惰性加载"><a href="#惰性加载" class="headerlink" title="惰性加载"></a>惰性加载</h3><p>跟代理图片类似，加载 js 脚本也会有一定的时延，这就会造成使用某个类库前，js 脚本还未加载完成，所使用的方法也是 undefined。这时，可使用虚拟代理模拟类库，缓存执行方法，等到 js 脚本加载完成之后，再使用缓存执行实际的方法。</p>
+<p>曾探在《Javascript 设计模式与开发实践》一书中，以 minConsole 类库为例，按下 F2 键加载所需的 js 脚本，在此之前，使用代理。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> miniConsole = (<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> cache = [];</span><br><span class="line">  <span class="keyword">let</span> handler = <span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ( e.keyCode === <span class="number">113</span> )&#123;</span><br><span class="line">      <span class="keyword">let</span> script = <span class="built_in">document</span>.createElement(<span class="string">'script'</span>);</span><br><span class="line">      script.onLoad = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="comment">// 加载完成后，执行缓存的待执行函数</span></span><br><span class="line">        cache.forEach(<span class="function"><span class="params">fn</span> =&gt;</span> fn());</span><br><span class="line">      &#125;</span><br><span class="line">      script.src = <span class="string">'miniConsole.js'</span>;</span><br><span class="line">      <span class="built_in">document</span>.getElementByTagName(<span class="string">'head'</span>)[<span class="number">0</span>].appendChild(imgNode);</span><br><span class="line">      <span class="built_in">document</span>.body.removeEventListener(<span class="string">'keydown'</span>, handler);<span class="comment">// 单次加载</span></span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">document</span>.body.addEventListener(<span class="string">'keydown'</span>, handler, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 代理对象，缓存待执行函数</span></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    log(...args)&#123;</span><br><span class="line">      cache.push(miniConsole.bind(miniConsole, ...args));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<h3 id="合并http请求"><a href="#合并http请求" class="headerlink" title="合并http请求"></a>合并http请求</h3><p>搜索组件每次改变值时都会调用远程接口，使用代理模式可延迟调用远程接口，以使交互请求不至频繁。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">doSearch</span>(<span class="params">content</span>)</span>&#123;</span><br><span class="line">  get(content);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> cache;</span><br><span class="line"><span class="keyword">let</span> timer = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> handler = &#123;</span><br><span class="line">  apply: <span class="function"><span class="keyword">function</span>(<span class="params">target, thisBinding, args</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> content = args[<span class="number">0</span>];</span><br><span class="line">    cache = content;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( timer ) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    timer = setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      doSearch(cache);</span><br><span class="line">      cache = <span class="literal">null</span>;</span><br><span class="line">      timer = <span class="literal">null</span>;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> doSearchProxy = <span class="keyword">new</span> <span class="built_in">Proxy</span>(doSearch, handler);</span><br></pre></td></tr></table></figure>
+<h3 id="缓存代理"><a href="#缓存代理" class="headerlink" title="缓存代理"></a>缓存代理</h3><p>前端缓存代理包含：对于计算复杂的过程，在入参相同的情况下，可使用缓存的计算结果代替实际的执行计算；对于频繁的 ajax 调用，也可以使用缓存，避免远程调用。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> cache;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">complexCompute</span>(<span class="params">...args</span>)</span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> handler = &#123;</span><br><span class="line">  apply: <span class="function"><span class="keyword">function</span>(<span class="params">target, thisBinding, args</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> cacheKey = args.join(<span class="string">','</span>);</span><br><span class="line">    <span class="keyword">if</span> ( cache[cacheKey] ) <span class="keyword">return</span> cache[cacheKey];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">const</span> result = complexCompute(...args);</span><br><span class="line">    cache[cacheKey] = result;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> complexComputeProxy = <span class="keyword">new</span> <span class="built_in">Proxy</span>(complexCompute, handler);</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>[设计模式:可复用面向对象软件的基础]<br>[Javascript 设计模式和开发实践 - 曾探]<br><a href="https://java-design-patterns.com/patterns/proxy/" target="_blank" rel="noopener">java-design-patterns: proxy</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/04/antd/Form/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2556,181 +2743,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/24/设计模式/职责链模式/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/06/24/设计模式/职责链模式/" itemprop="url">职责链模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-24T00:00:00+08:00">2018-06-24</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/06/24/设计模式/职责链模式/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/06/24/设计模式/职责链模式/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>职责链模式(Chain of Responsibility)的主要实现逻辑为，将请求的处理对象构造为链式结构，然后在这条链上依序传递请求，直到请求被某个对象处理，或者最终得不到处理。</p>
-<p>《设计模式:可复用面向对象软件的基础》一书将职责链模式描述为：</p>
-<p>Avoid coupling the sender of a request to its receiver by giving morethan one object a chance to handle the request. Chain the receiving objects and pass the request along the chain until an object handles it.</p>
-<h2 id="经典实现"><a href="#经典实现" class="headerlink" title="经典实现"></a>经典实现</h2><p>职责链模式包含下列组件：</p>
-<ul>
-<li>Handler: 处理请求对象的抽象接口，包含 handle 抽象方法，用于处理请求或调用下一个处理对象处理请求；setNextHandler 方法（可选），用于设定下一个处理对象；nextHandler 属性为下一个处理对象。</li>
-<li>ConcerteHandler: 处理请求的具体类，包含 handle, setNextHandler 方法的实现，nextHandler 属性访问下一个处理对象。</li>
-<li>Client: 用于向链上的具体处理者传递请求。</li>
-</ul>
-<p>以下代码使用职责链模式揣测浏览器事件冒泡机制的简要实现。与浏览器不同的是，示例代码只演示父子层级关系中，子节点如何将事件对象转交给父节点，并触发绑定在父节点上的事件处理函数。不过，通过这段简要的代码实现，可以猜想事件对象 stopPropagation 方法的实现。事件对象可在鼠标或键盘点击时构造；在浏览器中，指定下一个处理对象这一过程，也可以在解析 dom 树的时候实现，使父节点自然成为子节点的下一个处理对象。关于事件捕获的实现，疑似通过事件对象的坐标属性和元素的位置属性比对实现：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">abstract <span class="class"><span class="keyword">class</span> <span class="title">Handler</span></span>&#123;</span><br><span class="line">  nextHandler;</span><br><span class="line"></span><br><span class="line">  handle()&#123;&#125;</span><br><span class="line">  setNextHandler(nextHandler)&#123;</span><br><span class="line">    <span class="keyword">this</span>.nextHandler = nextHandler;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span> <span class="keyword">extends</span> <span class="title">Handler</span></span>&#123;</span><br><span class="line">  clickHandlers = [];</span><br><span class="line"></span><br><span class="line">  handle(event)&#123;</span><br><span class="line">    <span class="keyword">switch</span>(event.type)&#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">'onClick'</span>:</span><br><span class="line">        <span class="keyword">for</span> ( <span class="keyword">const</span> handler <span class="keyword">of</span> <span class="keyword">this</span>.clickHandlers )&#123;</span><br><span class="line">          handler();</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        <span class="keyword">if</span> ( <span class="keyword">this</span>.nextHandler ) <span class="keyword">this</span>.nextHandler.handle(event);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  onClick(handler)&#123;</span><br><span class="line">    <span class="keyword">this</span>.clickHandlers.push(handler);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ParentNode</span> <span class="keyword">extends</span> <span class="title">Node</span></span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ChildNode</span> <span class="keyword">extends</span> <span class="title">Node</span></span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> parentNode = <span class="keyword">new</span> ParentNode();</span><br><span class="line"><span class="keyword">const</span> childNode = <span class="keyword">new</span> ChildNode();</span><br><span class="line">childNode.setNextHandler(parentNode);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> mouseEvent = <span class="keyword">new</span> MouseEvent();</span><br><span class="line">childNode.handle(mouseEvent);</span><br></pre></td></tr></table></figure>
-<p>通过上述代码示例，我们也可以猜想 JavaScript 语言中原型链的实现。</p>
-<p>职责链模式具有如下特点：</p>
-<ol>
-<li>处理对象呈链式结构，因此，天然可以用来处理流程。在实现上，可以使用 setNextHandler 方法指定下一个处理对象，也可以使用一条已有的链，如父子结构形成的层级关系，或者队列形式（队列内若存储函数，当函数返回值为 false 时，表示不再将请求转交给下一个处理对象）。通常情况下，职责链模式表现为，根据请求的不同，再唤醒链上的某个处理对象加以操作，效果等同于策略模式。介于其链式处理的特征，职责链模式有一个变种，即请求经由前一个处理对象封装后，再交由下一个处理对象，这和浏览器的事件冒泡机制相仿（这样的链式操作，也可以通过函数队列或者迭代器模式实现）。</li>
-<li>当链未明确指定时，可在链中灵活地添加处理对象、并指定下一个处理对象，跳过不必要的处理逻辑。</li>
-<li>请求对象可以采用最简单的硬编码形式，也可以采用复杂的对象形式、或者使用特定的 Request 类加以构造，甚至使用转换函数从标识符中获取到传入处理对象的数据。这里要指出职责链模式的另一个变种，即可通过处理对象对请求进行特定包装后，再唤醒下一个处理对象。如第一点指出的，对于简单的请求对象，我们可以换用策略模式实现多样的处理机制；甚至对于复杂的请求对象，我们也可以制定规则转换引擎将其转换为简单的标识符形式，再通过策略模式加以处理。但是策略模式只能选中一种算法，且没有呈现出链式结构，因此策略模式不能像职责链模式那样不能用于控制流程，如审批流。</li>
-<li>职责链模式可用于降低请求发送者和接受者的耦合度，处理对象也不需要知道链的结构。</li>
-<li>过长的职责链影响程序的性能，同时也占用内存开销。在某些情况下，传入的请求会得不到处理，这时可以在链的尾端添加一个兜底函数处理请求。</li>
-</ol>
-<h2 id="js-中的职责链模式"><a href="#js-中的职责链模式" class="headerlink" title="js 中的职责链模式"></a>js 中的职责链模式</h2><p>在 js 中，可借助 AOP 切面实现职责链模式，在实现上呈现出函数式特征。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handler1</span>(<span class="params"></span>)</span>&#123; &#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handler2</span>(<span class="params"></span>)</span>&#123; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">Function</span>.property.after = <span class="function"><span class="params">nextHandler</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> ret = <span class="keyword">this</span>.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line">    <span class="keyword">if</span> ( !!ret ) <span class="keyword">return</span> nextHandler.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">handler1.after(handler2);</span><br></pre></td></tr></table></figure>
-<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p>如前文所说，职责链模式可应用于呈现出父子结构的图形界面上，以实现事件处理或者其他图形效果。</p>
-<p>职责链也可用于流程控制，如审批流等。</p>
-<p>在已知的应用中，职责链模式见于 servelt 过滤器的实现，redux、koa 中间件的实现，koa-router 路由的实现。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>[设计模式:可复用面向对象软件的基础]<br>[Javascript 设计模式和开发实践 - 曾探]</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2782,7 +2794,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">61</span>
+                    <span class="site-state-item-count">62</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

@@ -103,18 +103,18 @@
   <meta name="keywords" content="analyst,java," />
 
 
-<meta name="description" content="散列表用于存储键值对。先举两个例子：如果使用有序数组存储键值对，当存在某个较大的键时，整个数组占用的内存空间就会很大；如果使用无序数组存储键值对，在查找元素时就需要遍历数组项，造成性能的低效。在权衡时间、空间复杂度后，散列表应用而生了。创建散列表的流程为：使用哈希函数计算散列码；">
+<meta name="description" content="散列表用于存储键值对。先举两个例子：如果使用有序数组存储键值对，那么当存在某个较大的键时，整个数组所占用的内存空间就会很大；如果使用无序数组存储键值对，那么在查找元素时就需要遍历数组项，造成了性能的低效。与这两个例子不同的是，散列表有效地平衡了时间和空间复杂度。创建散列表的流程分为：  通过散列函数将键转化为散列码，以作为数组的索引。 通过碰撞处理解决两个或多个散列码等值的情况。  散列函数制作散">
 <meta name="keywords" content="analyst,java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从散列表到HashMap">
 <meta property="og:url" content="http://yoursite.com/2019/04/16/java/从散列表到HashMap/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="散列表用于存储键值对。先举两个例子：如果使用有序数组存储键值对，当存在某个较大的键时，整个数组占用的内存空间就会很大；如果使用无序数组存储键值对，在查找元素时就需要遍历数组项，造成性能的低效。在权衡时间、空间复杂度后，散列表应用而生了。创建散列表的流程为：使用哈希函数计算散列码；">
+<meta property="og:description" content="散列表用于存储键值对。先举两个例子：如果使用有序数组存储键值对，那么当存在某个较大的键时，整个数组所占用的内存空间就会很大；如果使用无序数组存储键值对，那么在查找元素时就需要遍历数组项，造成了性能的低效。与这两个例子不同的是，散列表有效地平衡了时间和空间复杂度。创建散列表的流程分为：  通过散列函数将键转化为散列码，以作为数组的索引。 通过碰撞处理解决两个或多个散列码等值的情况。  散列函数制作散">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-04-16T15:09:53.095Z">
+<meta property="og:updated_time" content="2019-04-17T14:42:31.812Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从散列表到HashMap">
-<meta name="twitter:description" content="散列表用于存储键值对。先举两个例子：如果使用有序数组存储键值对，当存在某个较大的键时，整个数组占用的内存空间就会很大；如果使用无序数组存储键值对，在查找元素时就需要遍历数组项，造成性能的低效。在权衡时间、空间复杂度后，散列表应用而生了。创建散列表的流程为：使用哈希函数计算散列码；">
+<meta name="twitter:description" content="散列表用于存储键值对。先举两个例子：如果使用有序数组存储键值对，那么当存在某个较大的键时，整个数组所占用的内存空间就会很大；如果使用无序数组存储键值对，那么在查找元素时就需要遍历数组项，造成了性能的低效。与这两个例子不同的是，散列表有效地平衡了时间和空间复杂度。创建散列表的流程分为：  通过散列函数将键转化为散列码，以作为数组的索引。 通过碰撞处理解决两个或多个散列码等值的情况。  散列函数制作散">
 
 
 
@@ -366,7 +366,18 @@
       
 
       
-        <p>散列表用于存储键值对。先举两个例子：如果使用有序数组存储键值对，当存在某个较大的键时，整个数组占用的内存空间就会很大；如果使用无序数组存储键值对，在查找元素时就需要遍历数组项，造成性能的低效。在权衡时间、空间复杂度后，散列表应用而生了。创建散列表的流程为：使用哈希函数计算散列码；</p>
+        <p>散列表用于存储键值对。先举两个例子：如果使用有序数组存储键值对，那么当存在某个较大的键时，整个数组所占用的内存空间就会很大；如果使用无序数组存储键值对，那么在查找元素时就需要遍历数组项，造成了性能的低效。与这两个例子不同的是，散列表有效地平衡了时间和空间复杂度。创建散列表的流程分为：</p>
+<ol>
+<li>通过散列函数将键转化为散列码，以作为数组的索引。</li>
+<li>通过碰撞处理解决两个或多个散列码等值的情况。</li>
+</ol>
+<h2 id="散列函数"><a href="#散列函数" class="headerlink" title="散列函数"></a>散列函数</h2><p>制作散列函数时需要面对的问题是：对于任意数据类型的键，都需要将其转化为可接受的数组索引；计算过程应尽可能的简便，计算结果应尽可能地均匀分布。可针对如下情形实现不同的散列策略：</p>
+<ol>
+<li>正整数 k：可采用除留余数法，即当数组长度为 M 时，散列码就是 k%M。当 M 是素数时，得到的散列码会均匀分布。</li>
+<li>浮点数 k：可采用 k*M 再四舍五入的方式计算码；也可采用将 k 表示为二进制数，然后再使用除留余数法。后一种方式更均匀，因为在使用前一种方式时，浮点数高位起到的作用会更大。</li>
+<li>字符串 k：可采用 <a href="https://blog.csdn.net/liyuanbhu/article/details/38678515" target="_blank" rel="noopener">horner 算法</a>获取散列码，即  $c = \sqrt{a^{2}+b_{xy}^{2} +e^{x}}$</li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/wireless_com/article/details/70596155" target="_blank" rel="noopener">markdown中的数学公式简要</a><br><a href="https://www.jianshu.com/p/68e6f82d88b7" target="_blank" rel="noopener">使用LaTex添加公式到Hexo博客里</a></p>
 
       
     </div>
@@ -466,8 +477,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -550,6 +570,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#散列函数"><span class="nav-number">1.</span> <span class="nav-text">散列函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">2.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

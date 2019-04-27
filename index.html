@@ -389,7 +389,7 @@
 <li>PriorityQueue 允许高效删除最小元素的集合</li>
 <li>ArrayDeque 用循环数组实现的双端队列</li>
 </ul>
-<h2 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h2><p>迭代器可用于遍历元素。元素被访问的顺序取决于集合的实现类，如 ArrayList 支持从索引 0 位置的有序访问；HashSet 支持无序访问。在 Java 中，查找操作与位置变更紧密关联，只能调用 next 方法逐个访问元素；C++ 中，迭代器根据数组索引建模，通过变更索引就可以访问特定的元素。</p>
+<h2 id="基础支撑"><a href="#基础支撑" class="headerlink" title="基础支撑"></a>基础支撑</h2><h3 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h3><p>迭代器可用于遍历元素。元素被访问的顺序取决于集合的实现类，如 ArrayList 支持从索引 0 位置的有序访问；HashSet 支持无序访问。在 Java 中，查找操作与位置变更紧密关联，只能调用 next 方法逐个访问元素；C++ 中，迭代器根据数组索引建模，通过变更索引就可以访问特定的元素。</p>
 <ul>
 <li>hasNext 判断集合中是否还有剩余的元素</li>
 <li>next 逐个访问元素</li>
@@ -408,9 +408,9 @@
 <li>set(e) 修改当前访问的元素</li>
 <li>add(e) 基于当前访问的元素位置插入元素</li>
 </ul>
-<h3 id="Spliterator"><a href="#Spliterator" class="headerlink" title="Spliterator"></a>Spliterator</h3><p>Spliterator 分割迭代器用于分割遍历数据，可分割的数据包含数组、集合、IO 通道、生成器函数。Spliterator.OfPrimitive, Spliterator.OfInt, Spliterator.OfLong, Spliterator.OfDouble 是半指定或全指定类型的分割迭代器。</p>
+<h2 id="Spliterator"><a href="#Spliterator" class="headerlink" title="Spliterator"></a>Spliterator</h2><p>Spliterator 分割迭代器用于分割遍历数据，可分割的数据包含数组、集合、IO 通道、生成器函数。Spliterator.OfPrimitive, Spliterator.OfInt, Spliterator.OfLong, Spliterator.OfDouble 是半指定或全指定类型的分割迭代器。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Spliterator</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">// 使用 lambda 表达式逐个处理元素</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">tryAdvance</span><span class="params">(Consumer&lt;? <span class="keyword">super</span> T&gt; action)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">forEachRemaining</span><span class="params">(Consumer&lt;? <span class="keyword">super</span> T&gt; action)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">do</span> &#123; &#125; <span class="keyword">while</span> (tryAdvance(action));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 估算剩余元素</span></span><br><span class="line">    <span class="function"><span class="keyword">long</span> <span class="title">estimateSize</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 Spliterator 分割成小的 Spliterator，原始 Spliterator 的大小相应改变，分割的方式取决于实现类</span></span><br><span class="line">    <span class="function">Spliterator&lt;T&gt; <span class="title">trySplit</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当迭代器拥有 SIZED 特征时，返回剩余元素个数；否则返回-1</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">long</span> <span class="title">getExactSizeIfKnown</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (characteristics() &amp; SIZED) == <span class="number">0</span> ? -<span class="number">1L</span> : estimateSize();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 包含哪些特征</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">characteristics</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 是否具有某特征</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">boolean</span> <span class="title">hasCharacteristics</span><span class="params">(<span class="keyword">int</span> characteristics)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (characteristics() &amp; characteristics) == characteristics;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 特征</span></span><br><span class="line">    <span class="comment">// 元素是否有序，可以用索引访问元素，如 List</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> ORDERED    = <span class="number">0x00000010</span>;</span><br><span class="line">    <span class="comment">// 元素是否唯一，如 Set</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DISTINCT   = <span class="number">0x00000001</span>;</span><br><span class="line">    <span class="comment">// 元素是否有序排列，如 SortedSet</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SORTED     = <span class="number">0x00000004</span>;</span><br><span class="line">    <span class="comment">// 是否有大小，大多数集合都可以计算大小，HashSet 不能？</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SIZED      = <span class="number">0x00000040</span></span><br><span class="line">    <span class="comment">// 元素不能为 null</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> NONNULL    = <span class="number">0x00000100</span>;</span><br><span class="line">    <span class="comment">// 元素是否可修改</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> IMMUTABLE  = <span class="number">0x00000400</span>;</span><br><span class="line">    <span class="comment">// 可否并行处理。可并行处理不具备线程安全，其大小在另一个线程中可能被修改，因此也不具备 SIZED 特征</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CONCURRENT = <span class="number">0x00001000</span>;</span><br><span class="line">    <span class="comment">// 使用 trySplit 分割出来的子迭代器都具有 SIZED, SUBSIZED 特征</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SUBSIZED = <span class="number">0x00004000</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回 Comparator 排序方式；自然排序返回 null；不支持排序报错</span></span><br><span class="line">    <span class="keyword">default</span> Comparator&lt;? <span class="keyword">super</span> T&gt; getComparator() &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Collection"><a href="#Collection" class="headerlink" title="Collection"></a>Collection</h2><p>Collection 和 Iterator 都是泛型接口，内含操作任意集合的实用方法。为了实现 Collection 接口的方便，java.util 提供了 AbstractCollection 抽象类，以抽象常见的处理逻辑。</p>
+<h2 id="Serializable"><a href="#Serializable" class="headerlink" title="Serializable"></a>Serializable</h2><h2 id="Collection"><a href="#Collection" class="headerlink" title="Collection"></a>Collection</h2><p>Collection 和 Iterator 都是泛型接口，内含操作任意集合的实用方法。为了实现 Collection 接口的方便，java.util 提供了 AbstractCollection 抽象类，以抽象常见的处理逻辑。</p>
 <ul>
 <li>size 集合的大小</li>
 <li>isEmpty 集合是否为空</li>
@@ -459,12 +459,53 @@
 <p>IdentityHashMap 完全通过数组存储键值对，而不是数组链表。首先通过基于哈希函数计算数组的索引（该哈希函数通过 System.identityHashCode 计算内存地址的散列码，因此允许 key 键重复），然后将键值对先后存入数组的相邻索引位中。当哈希函数算得的索引相同时，IdentityHashMap 首先会比较 key 键，如果 key 键的内存地址相同，就替换为新值；如果不同，在其后插入键值对。因此，在查找键值对时，极限情况下 IdentityHashMap 会遍历整个数组。</p>
 <p>LinkedHashMap 继承了 HashMap，它会额外使用双向链表保存每个插入的节点，且新修改的节点始终在链表的尾部。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LinkedHashMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">HashMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; head;<span class="comment">// 链表中的首节点</span></span><br><span class="line">    <span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; tail;<span class="comment">// 链表中的尾节点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在 hashMap.removeNode 方法中执行，用于移除双向链表中的节点</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">afterNodeRemoval</span><span class="params">(Node&lt;K,V&gt; e)</span> </span>&#123; <span class="comment">// unlink</span></span><br><span class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</span><br><span class="line">            (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</span><br><span class="line">        p.before = p.after = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (b == <span class="keyword">null</span>)</span><br><span class="line">            head = a;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            b.after = a;</span><br><span class="line">        <span class="keyword">if</span> (a == <span class="keyword">null</span>)</span><br><span class="line">            tail = b;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            a.before = b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">afterNodeInsertion</span><span class="params">(<span class="keyword">boolean</span> evict)</span> </span>&#123; <span class="comment">// possibly remove eldest</span></span><br><span class="line">        LinkedHashMap.Entry&lt;K,V&gt; first;</span><br><span class="line">        <span class="comment">// 订制的 removeEldestEntry 可在链表超过指定长度，移除顶部的节点</span></span><br><span class="line">        <span class="keyword">if</span> (evict &amp;&amp; (first = head) != <span class="keyword">null</span> &amp;&amp; removeEldestEntry(first)) &#123;</span><br><span class="line">            K key = first.key;</span><br><span class="line">            removeNode(hash(key), key, <span class="keyword">null</span>, <span class="keyword">false</span>, <span class="keyword">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在 hashMap.putVal 等方法中执行，将新插入或新修改的节点插入到双向链表的尾部</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">afterNodeAccess</span><span class="params">(Node&lt;K,V&gt; e)</span> </span>&#123; <span class="comment">// move node to last</span></span><br><span class="line">        LinkedHashMap.Entry&lt;K,V&gt; last;</span><br><span class="line">        <span class="keyword">if</span> (accessOrder &amp;&amp; (last = tail) != e) &#123;</span><br><span class="line">            LinkedHashMap.Entry&lt;K,V&gt; p =</span><br><span class="line">                (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</span><br><span class="line">            p.after = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">if</span> (b == <span class="keyword">null</span>)</span><br><span class="line">                head = a;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                b.after = a;</span><br><span class="line">            <span class="keyword">if</span> (a != <span class="keyword">null</span>)</span><br><span class="line">                a.before = b;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                last = b;</span><br><span class="line">            <span class="keyword">if</span> (last == <span class="keyword">null</span>)</span><br><span class="line">                head = p;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                p.before = last;</span><br><span class="line">                last.after = p;</span><br><span class="line">            &#125;</span><br><span class="line">            tail = p;</span><br><span class="line">            ++modCount;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h2><p>与 List 接口相仿，Set 接口声明了实现类的方法规范。Set 接口包含的方法也大致与 List 相同。SortedSet 接口包含 comparator 方法可用于元素的排序。</p>
-<p>HashSet 实现了 Set 接口，且使用 HashMap 存储元素。因为 hashSet.add 方法将添加的数据作为 hashMap 的 key 键，所以 HashSet 实例中不存在重复的元素。</p>
+<h2 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h2><p>Set 接口继承了 Collection 接口，定义了如下方法：</p>
+<ul>
+<li>size()：元素的数量。</li>
+<li>isEmpty()：是否为空。</li>
+<li>add(E e)：添加元素。</li>
+<li>addAll(Collection&lt;? extends E&gt; c)：添加集合中的元素。</li>
+<li>remove(Object o)：移除元素。</li>
+<li>removeAll(Collection&lt;?&gt; c)：移除集合中的元素。</li>
+<li>retainAll(Collection&lt;?&gt; c)：保留交集中的元素。</li>
+<li>contains(Object o)：是否包含某元素。</li>
+<li>containsAll(Collection&lt;?&gt; c)：是否包含某集合。</li>
+<li>clear()：清空集合。</li>
+<li>toArray(), toArray(T[] a)：将集合转换为数组。</li>
+<li>equals(Object o)：判断是否等值。</li>
+<li>hashCode()：求散列码。</li>
+<li>iterator()：获取迭代器。</li>
+<li>spliterator()：获取分割迭代器。</li>
+</ul>
+<p>在 Set 接口的基础上，SortedSet 接口包含 comparator 方法可用于元素的排序。在元素顺序排列的基础上，SortedSet 额外约定了如下方法：</p>
+<ul>
+<li>subSet(E fromElement, E toElement)：获取指定区间的子集。</li>
+<li>headSet(E toElement)：获取到指定元素止的子集。</li>
+<li>tailSet(E fromElement)：获取从指定元素起的子集。</li>
+</ul>
+<p>NavigableSet 接口在 SortedSet 的基础上，约定了如下方法：</p>
+<ul>
+<li>lower(E e)：查找比指定元素小的最大元素。</li>
+<li>floor(E e)：查找比指定元素小的最大或等值元素。</li>
+<li>ceiling(E e)：查找比指定元素大的最小元素。</li>
+<li>higher(E e)：查找比指定元素大的最小或等值元素。</li>
+<li>pollFirst()：移除并返回首个元素。</li>
+<li>pollLast()：移除并返回最后一个元素。</li>
+<li>descendingSet()：返回倒序排列的集合。</li>
+<li>descendingIterator()：返回倒序迭代器。</li>
+<li>subSet(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive)：获取子集，可能包含两端元素。</li>
+<li>subSet(E fromElement, E toElement)：获取子集。</li>
+<li>headSet(E toElement, boolean inclusive)：获取子集，可能包含一端元素。</li>
+<li>headSet(E toElement)：获取子集。</li>
+<li>tailSet(E fromElement, boolean inclusive)：获取子集，可能包含一端元素。</li>
+<li>tailSet(E fromElement)：获取子集。</li>
+</ul>
+<p>AbstractSet 抽象类继承了 AbstractCollection 抽象类，并实现了 Set 接口。在 AbstractSet 中，equals 方法通过逐次比较内存地址、是否继承 Set 接口、元素数量、是否包含参数集合的方式，判断两个集合是否等值；hashCode 方法通过累加元素散列码的方式计算集合的散列码；removeAll 方法通过迭代器遍历的方式参数集合的元素；first, last 方法用于获取首个或最后一个元素。</p>
+<p>HashSet 实现了 Set 接口，并使用 HashMap 存储元素，因此其所存储的元素是无序的。因为 HashSet 将元素作为 HashMap 中元素的 key 键，所以就不会存在重复的元素。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashSet</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractSet</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Set</span>&lt;<span class="title">E</span>&gt;, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">transient</span> HashMap&lt;E,Object&gt; map;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object PRESENT = <span class="keyword">new</span> Object();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> map.put(e, PRESENT)==<span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Iterator&lt;E&gt; <span class="title">iterator</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> map.keySet().iterator();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>TreeSet</p>
-<p>EnumSet</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/ioriogami/article/details/12782141" target="_blank" rel="noopener">Lambda表达式</a><br><a href="https://www.jianshu.com/p/8f4f58b4b8ab" target="_blank" rel="noopener">图解LinkedHashMap原理</a></p>
+<p>TreeSet 实现了 NavigableSet 接口，并使用 TreeMap 存储元素，因此 TreeSet 保证了元素的有序性。借助于 TreeMap，TreeSet 可以对元素进行分组提取。TreeSet 同样不会存在重复的元素。</p>
+<p>EnumSet 作为了抽象类，它继承了 AbstractSet 抽象类。</p>
+<h2 id="数据转换"><a href="#数据转换" class="headerlink" title="数据转换"></a>数据转换</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/ioriogami/article/details/12782141" target="_blank" rel="noopener">Lambda表达式</a><br><a href="https://www.jianshu.com/p/8f4f58b4b8ab" target="_blank" rel="noopener">图解LinkedHashMap原理</a></p>
 
           
         
@@ -1827,6 +1868,177 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/03/frontend/首页性能优化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/03/frontend/首页性能优化/" itemprop="url">首页性能优化</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-03T00:00:00+08:00">2019-03-03</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/03/03/frontend/首页性能优化/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/03/03/frontend/首页性能优化/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>提升网页加载性能的手段无非合并请求、减小资源体积、缓存资源这几种。借助于前端工程化能力，我们能合并压缩 js, css 代码；制作 base64 图片，合成雪碧图等。此外，我们可以借助<a href="https://www.iconfont.cn/" target="_blank" rel="noopener">阿里矢量图标库</a>制作字体图标；借助网上工具制作 WebP 图片。chrome 浏览器的 Page Speed 扩展工具能帮助我们查看网页加载性能，并给出有效的建议。</p>
+<p>在前端编码层面，我们可以通过减少回流重绘、避免内存泄漏的方式提升网页加载性能。减少回流、重置的方法可参考<a href="http://xzfyu.com/2019/03/03/frontend/%E7%BD%91%E9%A1%B5%E6%B8%B2%E6%9F%93%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">网页渲染机制</a>。关于内存泄漏，chrome 开发者工具 - more tools - Profile 面板可用于查看各函数的执行时间和 CPU 占用率。</p>
+<p>在服务端领域，我们可以将静态资源放在 cdn 服务器上；使用 nginx 或 nodejs 搭建前置服务器，并基于 nginx 缓存、压缩静态资源。当使用 nodejs 制作前置服务器时，基于 pm2 或 egg-cluster 可开启多进程。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">etag</span> <span class="string">on;</span> <span class="comment"># 开启etag验证</span></span><br><span class="line"><span class="string">expires</span> <span class="number">7</span><span class="string">d;</span> <span class="comment"># 设置缓存过期时间为7天</span></span><br><span class="line"><span class="string">gzip</span> <span class="string">on;</span> <span class="comment"># 压缩资源</span></span><br><span class="line"><span class="string">gzip_types</span> <span class="string">text/plain</span> <span class="string">application/javascriptapplication/x-javascripttext/css</span> <span class="string">application/xml</span> <span class="string">text/javascriptapplication/x-httpd-php</span> <span class="string">application/vnd.ms-fontobject</span> <span class="string">font/ttf</span> <span class="string">font/opentype</span> <span class="string">font/x-woff</span> <span class="string">image/svg+xml;</span> <span class="comment"># 压缩资源类型（压缩图片会占用后台资源，效果也不佳）</span></span><br></pre></td></tr></table></figure>
+<h2 id="雅虎优化军规"><a href="#雅虎优化军规" class="headerlink" title="雅虎优化军规"></a>雅虎优化军规</h2><ol>
+<li>减少 http 请求或优化资源：合并文件、使用雪碧图、使用 base64 图片、压缩混淆 js 脚本或 css 样式等</li>
+<li>减少 dns 查询：减少网页资源主机名的数量（同时会影响可并行请求数量），建议使用 2 到 4 个主机名</li>
+<li>避免重定向，重定向会一直等待到获取网页内容才渲染视图</li>
+<li>使用 ajax 缓存：针对 get 请求，消息头添加 Expires，可以缓存响应</li>
+<li>延迟加载：针对折叠的图片或者根据交互动作展示的内容等，可使用延迟加载的方式优化</li>
+<li>预加载：在浏览器空闲的时候，预加载资源，包含跳转页面的资源、新版本的资源</li>
+<li>减少 dom 节点的数量，可以提升 dom 树构建的速度，减少不必要的事件绑定</li>
+<li>避免使用 iframe，iframe 会阻塞页面加载</li>
+<li>杜绝 404，因其会占用服务端资源，浏览器还需要解析响应体</li>
+<li>外链 css 样式和 js 脚本，可以减轻 html 体积，缓存资源。css 样式放在 head 中，可以逐步渲染页面。js 脚本放在底部，避免阻塞</li>
+<li>js 编码中避免回流、重绘；使用事件委托绑定事件，避免多次绑定</li>
+<li>给 cookie 瘦身：cookie 尽可能小；设置合适的域级别和有效期</li>
+<li>通过 Content-Encoding: gzip 响应头压缩资源</li>
+<li>通过实体标签 ETags 响应头作为唯一标识，以判断浏览器缓存和服务端资源的更新状态，浏览器将传输 If-None-Match 查找资源</li>
+<li>通过 Expires 响应头设置缓存失效时间，Cache-Control 条件性控制缓存</li>
+<li>使用 CDN 内容分发网络</li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://imweb.io/topic/5b6fd3c13cb5a02f33c013bd" target="_blank" rel="noopener">网站性能优化实战——从12.67s到1.06s的故事</a><br><a href="https://www.cnblogs.com/xianyulaodi/p/5755079.html" target="_blank" rel="noopener">雅虎前端优化的35条军规</a><br><a href="http://www.barretlee.com/blog/2016/04/01/optimization-in-taobao-homepage/" target="_blank" rel="noopener">淘宝首页性能优化实践</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/03/frontend/网页渲染机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2008,177 +2220,6 @@
 </ol>
 <p>回流、重置可借助 dynaTrace(测试ie),Speed Tracer(测试Chrome) 测试。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/444f3b7fcc63" target="_blank" rel="noopener">WebKit之网络加载</a><br><a href="https://www.cnblogs.com/inJS/p/9709499.html" target="_blank" rel="noopener">聊聊浏览器（webkit）资源加载机制</a><br><a href="http://www.nowamagic.net/academy/detail/48110562" target="_blank" rel="noopener">Render树、RenderObject与RenderLayer</a><br><a href="https://segmentfault.com/a/1190000015808716" target="_blank" rel="noopener">webkit渲染机制浅析</a><br><a href="https://www.w3.org/TR/navigation-timing/#dom-performancetiming-navigationstart" target="_blank" rel="noopener">Navigation Timing</a><br><a href="https://developers.google.cn/web/tools/chrome-devtools/network-performance/understanding-resource-timing" target="_blank" rel="noopener">了解 Resource Timing</a><br><a href="https://www.cnblogs.com/bldxh/p/6857324.html" target="_blank" rel="noopener">Performance — 前端性能监控利器</a><br><a href="https://blog.csdn.net/xingsilong/article/details/80624765" target="_blank" rel="noopener">页面呈现、重绘、回流</a><br><a href="https://blog.csdn.net/qq_40128367/article/details/82920370" target="_blank" rel="noopener">首屏时间从12.67s到1.06s，我是如何做到的？</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/03/frontend/首页性能优化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/03/frontend/首页性能优化/" itemprop="url">首页性能优化</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-03T00:00:00+08:00">2019-03-03</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/03/03/frontend/首页性能优化/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/03/03/frontend/首页性能优化/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>提升网页加载性能的手段无非合并请求、减小资源体积、缓存资源这几种。借助于前端工程化能力，我们能合并压缩 js, css 代码；制作 base64 图片，合成雪碧图等。此外，我们可以借助<a href="https://www.iconfont.cn/" target="_blank" rel="noopener">阿里矢量图标库</a>制作字体图标；借助网上工具制作 WebP 图片。chrome 浏览器的 Page Speed 扩展工具能帮助我们查看网页加载性能，并给出有效的建议。</p>
-<p>在前端编码层面，我们可以通过减少回流重绘、避免内存泄漏的方式提升网页加载性能。减少回流、重置的方法可参考<a href="http://xzfyu.com/2019/03/03/frontend/%E7%BD%91%E9%A1%B5%E6%B8%B2%E6%9F%93%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">网页渲染机制</a>。关于内存泄漏，chrome 开发者工具 - more tools - Profile 面板可用于查看各函数的执行时间和 CPU 占用率。</p>
-<p>在服务端领域，我们可以将静态资源放在 cdn 服务器上；使用 nginx 或 nodejs 搭建前置服务器，并基于 nginx 缓存、压缩静态资源。当使用 nodejs 制作前置服务器时，基于 pm2 或 egg-cluster 可开启多进程。</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">etag</span> <span class="string">on;</span> <span class="comment"># 开启etag验证</span></span><br><span class="line"><span class="string">expires</span> <span class="number">7</span><span class="string">d;</span> <span class="comment"># 设置缓存过期时间为7天</span></span><br><span class="line"><span class="string">gzip</span> <span class="string">on;</span> <span class="comment"># 压缩资源</span></span><br><span class="line"><span class="string">gzip_types</span> <span class="string">text/plain</span> <span class="string">application/javascriptapplication/x-javascripttext/css</span> <span class="string">application/xml</span> <span class="string">text/javascriptapplication/x-httpd-php</span> <span class="string">application/vnd.ms-fontobject</span> <span class="string">font/ttf</span> <span class="string">font/opentype</span> <span class="string">font/x-woff</span> <span class="string">image/svg+xml;</span> <span class="comment"># 压缩资源类型（压缩图片会占用后台资源，效果也不佳）</span></span><br></pre></td></tr></table></figure>
-<h2 id="雅虎优化军规"><a href="#雅虎优化军规" class="headerlink" title="雅虎优化军规"></a>雅虎优化军规</h2><ol>
-<li>减少 http 请求或优化资源：合并文件、使用雪碧图、使用 base64 图片、压缩混淆 js 脚本或 css 样式等</li>
-<li>减少 dns 查询：减少网页资源主机名的数量（同时会影响可并行请求数量），建议使用 2 到 4 个主机名</li>
-<li>避免重定向，重定向会一直等待到获取网页内容才渲染视图</li>
-<li>使用 ajax 缓存：针对 get 请求，消息头添加 Expires，可以缓存响应</li>
-<li>延迟加载：针对折叠的图片或者根据交互动作展示的内容等，可使用延迟加载的方式优化</li>
-<li>预加载：在浏览器空闲的时候，预加载资源，包含跳转页面的资源、新版本的资源</li>
-<li>减少 dom 节点的数量，可以提升 dom 树构建的速度，减少不必要的事件绑定</li>
-<li>避免使用 iframe，iframe 会阻塞页面加载</li>
-<li>杜绝 404，因其会占用服务端资源，浏览器还需要解析响应体</li>
-<li>外链 css 样式和 js 脚本，可以减轻 html 体积，缓存资源。css 样式放在 head 中，可以逐步渲染页面。js 脚本放在底部，避免阻塞</li>
-<li>js 编码中避免回流、重绘；使用事件委托绑定事件，避免多次绑定</li>
-<li>给 cookie 瘦身：cookie 尽可能小；设置合适的域级别和有效期</li>
-<li>通过 Content-Encoding: gzip 响应头压缩资源</li>
-<li>通过实体标签 ETags 响应头作为唯一标识，以判断浏览器缓存和服务端资源的更新状态，浏览器将传输 If-None-Match 查找资源</li>
-<li>通过 Expires 响应头设置缓存失效时间，Cache-Control 条件性控制缓存</li>
-<li>使用 CDN 内容分发网络</li>
-</ol>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://imweb.io/topic/5b6fd3c13cb5a02f33c013bd" target="_blank" rel="noopener">网站性能优化实战——从12.67s到1.06s的故事</a><br><a href="https://www.cnblogs.com/xianyulaodi/p/5755079.html" target="_blank" rel="noopener">雅虎前端优化的35条军规</a><br><a href="http://www.barretlee.com/blog/2016/04/01/optimization-in-taobao-homepage/" target="_blank" rel="noopener">淘宝首页性能优化实践</a></p>
 
           
         

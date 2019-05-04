@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="analyst,java,">
+
+
+<meta name="description" content="基本概念枚举使用 enum 关键字声明。枚举不能使用 abstract, final 修饰。除非枚举至少包含一个以类构造的枚举常量，否则枚举都是隐式 final 的。嵌套的枚举类型是隐式 static 的，这就使得枚举类型不能在类中使用 static 声明。典型的枚举声明如下（即包含类修饰符，enum 关键字，枚举标识符，由枚举常量或类语句构成的枚举体）： 123public enum EnumT">
+<meta name="keywords" content="analyst,java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="枚举">
+<meta property="og:url" content="http://yoursite.com/2019/05/04/java/枚举/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="基本概念枚举使用 enum 关键字声明。枚举不能使用 abstract, final 修饰。除非枚举至少包含一个以类构造的枚举常量，否则枚举都是隐式 final 的。嵌套的枚举类型是隐式 static 的，这就使得枚举类型不能在类中使用 static 声明。典型的枚举声明如下（即包含类修饰符，enum 关键字，枚举标识符，由枚举常量或类语句构成的枚举体）： 123public enum EnumT">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-05-04T12:57:13.332Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="枚举">
+<meta name="twitter:description" content="基本概念枚举使用 enum 关键字声明。枚举不能使用 abstract, final 修饰。除非枚举至少包含一个以类构造的枚举常量，否则枚举都是隐式 final 的。嵌套的枚举类型是隐式 static 的，这就使得枚举类型不能在类中使用 static 声明。典型的枚举声明如下（即包含类修饰符，enum 关键字，枚举标识符，由枚举常量或类语句构成的枚举体）： 123public enum EnumT">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/05/04/java/枚举/">
+
+
+  <title>枚举 | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/04/java/枚举/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">枚举</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-04T00:00:00+08:00">2019-05-04</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/04/java/枚举/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/05/04/java/枚举/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>枚举使用 enum 关键字声明。枚举不能使用 abstract, final 修饰。除非枚举至少包含一个以类构造的枚举常量，否则枚举都是隐式 final 的。嵌套的枚举类型是隐式 static 的，这就使得枚举类型不能在类中使用 static 声明。典型的枚举声明如下（即包含类修饰符，enum 关键字，枚举标识符，由枚举常量或类语句构成的枚举体）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> EnumTest &#123;</span><br><span class="line">    MON, TUE, WED, THU, FRI, SAT, SUN;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在编译阶段，这个声明会被转换成类。它会有七个实例，且不能构造新的实例（即不能通过 clone 方法创建枚举实例；不能通过反射实例化；不能通过反序列化构建实例）。EnumTest 经反编译的结果为（可以看出，EnumTest.MON 静态属性会指向 EnumTest 实例）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 所有枚举类型都是 Enum 的子类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Enum</span>&lt;<span class="title">E</span> <span class="keyword">extends</span> <span class="title">Enum</span>&lt;<span class="title">E</span>&gt;&gt;</span></span><br><span class="line"><span class="class">        <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">E</span>&gt;, <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 枚举常量名</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String name;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> String <span class="title">name</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 枚举常量的序号</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> ordinal;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">ordinal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ordinal;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="title">Enum</span><span class="params">(String name, <span class="keyword">int</span> ordinal)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.ordinal = ordinal;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回用户友好的枚举常量名</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object other)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>==other;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.hashCode();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> Object <span class="title">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> CloneNotSupportedException();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(E o)</span> </span>&#123;</span><br><span class="line">        Enum&lt;?&gt; other = (Enum&lt;?&gt;)o;</span><br><span class="line">        Enum&lt;E&gt; self = <span class="keyword">this</span>;</span><br><span class="line">        <span class="keyword">if</span> (self.getClass() != other.getClass() &amp;&amp; <span class="comment">// optimization</span></span><br><span class="line">            self.getDeclaringClass() != other.getDeclaringClass())</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ClassCastException();</span><br><span class="line">        <span class="keyword">return</span> self.ordinal - other.ordinal;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Class&lt;E&gt; <span class="title">getDeclaringClass</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Class&lt;?&gt; clazz = getClass();</span><br><span class="line">        Class&lt;?&gt; zuper = clazz.getSuperclass();</span><br><span class="line">        <span class="keyword">return</span> (zuper == Enum.class) ? (Class&lt;E&gt;)clazz : (Class&lt;E&gt;)zuper;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取指定的枚举常量</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T extends Enum&lt;T&gt;&gt; <span class="function">T <span class="title">valueOf</span><span class="params">(Class&lt;T&gt; enumType,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                String name)</span> </span>&#123;</span><br><span class="line">        T result = enumType.enumConstantDirectory().get(name);</span><br><span class="line">        <span class="keyword">if</span> (result != <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        <span class="keyword">if</span> (name == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"Name is null"</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(</span><br><span class="line">            <span class="string">"No enum constant "</span> + enumType.getCanonicalName() + <span class="string">"."</span> + name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">finalize</span><span class="params">()</span> </span>&#123; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readObject</span><span class="params">(ObjectInputStream in)</span> <span class="keyword">throws</span> IOException,</span></span><br><span class="line"><span class="function">        ClassNotFoundException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidObjectException(<span class="string">"can't deserialize enum"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readObjectNoData</span><span class="params">()</span> <span class="keyword">throws</span> ObjectStreamException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidObjectException(<span class="string">"can't deserialize enum"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">com</span>.<span class="title">hmw</span>.<span class="title">test</span>.<span class="title">EnumTest</span> <span class="keyword">extends</span> <span class="title">java</span>.<span class="title">lang</span>.<span class="title">Enum</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> com.hmw.test.EnumTest MON;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> com.hmw.test.EnumTest TUE;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> com.hmw.test.EnumTest WED;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> com.hmw.test.EnumTest THU;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> com.hmw.test.EnumTest FRI;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> com.hmw.test.EnumTest SAT;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> com.hmw.test.EnumTest SUN;</span><br><span class="line">    <span class="keyword">static</span> &#123;&#125;;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getValue</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isRest</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> com.hmw.test.EnumTest[] values();</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> com.hmw.test.<span class="function">EnumTest <span class="title">valueOf</span><span class="params">(java.lang.String)</span></span>;</span><br><span class="line">    com.hmw.test.EnumTest(java.lang.String, <span class="keyword">int</span>, <span class="keyword">int</span>, com.hmw.test.EnumTest);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>枚举常量可以基于类构造，即允许在枚举体内添加构造器、方法和域。这些构造器不能使用 public, protected 修饰，也不允许有父类。其实，在没有构造器的枚举声明中，枚举将使用默认的构造器；编译器可能通过在默认构造函数中声明 String 和 Int 参数来镜像枚举类型。基于构造器的枚举典型如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Size &#123; SMALL, MEDUIM, LARGE, EXTRA_LARGE &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Size &#123; </span><br><span class="line">    SMALL(<span class="string">"S"</span>), MEDUIM(<span class="string">"M"</span>), LARGE(<span class="string">"L"</span>), EXTRA_LARGE(<span class="string">"XL"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String abbreviation;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Size</span><span class="params">(String abbreviation)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.abbreviation = abbreviation;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getAbbreviation</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> abbreviation;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>枚举成员包含：在枚举体中声明的成员；继承自 Enum 的成员；values 方法获取所有枚举常量；valueOf(name) 获取指定的枚举常量；以枚举常量名构成的静态属性（即 EnumTest.MON 等）。</p>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><h3 id="作为常量"><a href="#作为常量" class="headerlink" title="作为常量"></a>作为常量</h3><p>基于枚举，我们无需使用 public static fianl 语句定义常量，倒可以使用枚举分组定义常量。</p>
+<h3 id="switch"><a href="#switch" class="headerlink" title="switch"></a>switch</h3><p>枚举可以打破 switch 语句只能针对 int, char, enum 类型的藩篱。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> Coin &#123;</span><br><span class="line">    PENNY(<span class="number">1</span>), NICKEL(<span class="number">5</span>), DIME(<span class="number">10</span>), QUARTER(<span class="number">25</span>);</span><br><span class="line">    Coin(<span class="keyword">int</span> value) &#123; </span><br><span class="line">        <span class="keyword">this</span>.value = value; </span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> value;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">value</span><span class="params">()</span> </span>&#123; </span><br><span class="line">        <span class="keyword">return</span> value; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">enum</span> CoinColor &#123; COPPER, NICKEL, SILVER &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> CoinColor <span class="title">color</span><span class="params">(Coin c)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (c) &#123;</span><br><span class="line">            <span class="keyword">case</span> PENNY:</span><br><span class="line">                <span class="keyword">return</span> CoinColor.COPPER;</span><br><span class="line">            <span class="keyword">case</span> NICKEL:</span><br><span class="line">                <span class="keyword">return</span> CoinColor.NICKEL;</span><br><span class="line">            <span class="keyword">case</span> DIME: <span class="keyword">case</span> QUARTER:</span><br><span class="line">                <span class="keyword">return</span> CoinColor.SILVER;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError(<span class="string">"Unknown coin: "</span> + c);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (Coin c : Coin.values())</span><br><span class="line">            System.out.println(c + <span class="string">"\t\t"</span> +</span><br><span class="line">                               c.value() + <span class="string">"\t"</span> + color(c));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="枚举方法"><a href="#枚举方法" class="headerlink" title="枚举方法"></a>枚举方法</h3><p>因为枚举已经继承了 Enum，而 Java 又不支持多重继承，所以只能通过接口约定枚举包含的方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Behaviour</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">()</span></span>;  </span><br><span class="line">    <span class="function">String <span class="title">getInfo</span><span class="params">()</span></span>;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Color implements Behaviour &#123;  </span><br><span class="line">    RED(<span class="string">"红色"</span>, <span class="number">1</span>), GREEN(<span class="string">"绿色"</span>, <span class="number">2</span>), BLANK(<span class="string">"白色"</span>, <span class="number">3</span>), YELLO(<span class="string">"黄色"</span>, <span class="number">4</span>);</span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> index;  </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Color</span><span class="params">(String name, <span class="keyword">int</span> index)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.name = name;  </span><br><span class="line">        <span class="keyword">this</span>.index = index;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getName</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">for</span> (Color c : Color.values()) &#123;  </span><br><span class="line">            <span class="keyword">if</span> (c.getIndex() == index) &#123;  </span><br><span class="line">                <span class="keyword">return</span> c.name;  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;  </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> name;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.name = name;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getIndex</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> index;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setIndex</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.index = index;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getInfo</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.name;  </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        System.out.println(<span class="keyword">this</span>.index+<span class="string">":"</span>+<span class="keyword">this</span>.name);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="类语法常量"><a href="#类语法常量" class="headerlink" title="类语法常量"></a>类语法常量</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> Operation &#123;</span><br><span class="line">    PLUS &#123;</span><br><span class="line">        <span class="function"><span class="keyword">double</span> <span class="title">eval</span><span class="params">(<span class="keyword">double</span> x, <span class="keyword">double</span> y)</span> </span>&#123; <span class="keyword">return</span> x + y; &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    MINUS &#123;</span><br><span class="line">        <span class="function"><span class="keyword">double</span> <span class="title">eval</span><span class="params">(<span class="keyword">double</span> x, <span class="keyword">double</span> y)</span> </span>&#123; <span class="keyword">return</span> x - y; &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    TIMES &#123;</span><br><span class="line">        <span class="function"><span class="keyword">double</span> <span class="title">eval</span><span class="params">(<span class="keyword">double</span> x, <span class="keyword">double</span> y)</span> </span>&#123; <span class="keyword">return</span> x * y; &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    DIVIDED_BY &#123;</span><br><span class="line">        <span class="function"><span class="keyword">double</span> <span class="title">eval</span><span class="params">(<span class="keyword">double</span> x, <span class="keyword">double</span> y)</span> </span>&#123; <span class="keyword">return</span> x / y; &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Each constant supports an arithmetic operation</span></span><br><span class="line">    <span class="function"><span class="keyword">abstract</span> <span class="keyword">double</span> <span class="title">eval</span><span class="params">(<span class="keyword">double</span> x, <span class="keyword">double</span> y)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> </span>&#123;</span><br><span class="line">        <span class="keyword">double</span> x = Double.parseDouble(args[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">double</span> y = Double.parseDouble(args[<span class="number">1</span>]);</span><br><span class="line">        <span class="keyword">for</span> (Operation op : Operation.values())</span><br><span class="line">            System.out.println(x + <span class="string">" "</span> + op + <span class="string">" "</span> + y +</span><br><span class="line">                               <span class="string">" = "</span> + op.eval(x, y));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="多重枚举"><a href="#多重枚举" class="headerlink" title="多重枚举"></a>多重枚举</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Card</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Card</span>&gt;,</span></span><br><span class="line"><span class="class">                      <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">enum</span> Rank &#123; DEUCE, THREE, FOUR, FIVE, SIX, SEVEN,</span><br><span class="line">                       EIGHT, NINE, TEN,JACK, QUEEN, KING, ACE &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">enum</span> Suit &#123; CLUBS, DIAMONDS, HEARTS, SPADES &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Rank rank;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Suit suit;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Rank <span class="title">rank</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> rank; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Suit <span class="title">suit</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> suit; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Card</span><span class="params">(Rank rank, Suit suit)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (rank == <span class="keyword">null</span> || suit == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(rank + <span class="string">", "</span> + suit);</span><br><span class="line">        <span class="keyword">this</span>.rank = rank;</span><br><span class="line">        <span class="keyword">this</span>.suit = suit;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> rank + <span class="string">" of "</span> + suit; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Primary sort on suit, secondary sort on rank</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Card c)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> suitCompare = suit.compareTo(c.suit);</span><br><span class="line">        <span class="keyword">return</span> (suitCompare != <span class="number">0</span> ?</span><br><span class="line">                    suitCompare :</span><br><span class="line">                    rank.compareTo(c.rank));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> List&lt;Card&gt; prototypeDeck =</span><br><span class="line">        <span class="keyword">new</span> ArrayList&lt;Card&gt;(<span class="number">52</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (Suit suit : Suit.values())</span><br><span class="line">            <span class="keyword">for</span> (Rank rank : Rank.values())</span><br><span class="line">                prototypeDeck.add(<span class="keyword">new</span> Card(rank, suit));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Returns a new deck</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Card&gt; <span class="title">newDeck</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;Card&gt;(prototypeDeck);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="EnumSet"><a href="#EnumSet" class="headerlink" title="EnumSet"></a>EnumSet</h2><p>EnumSet 作为了抽象类，它继承了 AbstractSet 抽象类，并保证了枚举实例的有序性。EnumSet 的子类均通过 elementType 属性存储枚举类；universe 属性存储或添加枚举实例。EnumSet 抽象了如下方法：</p>
+<ul>
+<li>noneOf(Class<e> elementType)：通过指定的枚举类创建空的枚举集合。</e></li>
+<li>allOf(Class<e> elementType)：创建一个包含所有枚举实例的集合。</e></li>
+<li>copyOf(EnumSet<e> s)：拷贝枚举集合。</e></li>
+<li>copyOf(Collection<e> c)：拷贝集合，包含枚举集合。</e></li>
+<li>complementOf(EnumSet<e> s)：基于相同的枚举类创建集合，该集合内包含 s 所未曾有的枚举实例。</e></li>
+<li>of(E e), of(E e1, E e2), of(E e1, E e2, E e3), of(E e1, E e2, E e3, E e4), of(E e1, E e2, E e3, E e4, E e5), of(E first, E… rest)：创建包含指定枚举实例的集合。</li>
+<li>range(E from, E to)：从指定区间中抽出枚举实例创建集合。</li>
+<li>clone()：拷贝集合。</li>
+<li>addAll()：将指定枚举类下的枚举实例加入集合中。</li>
+<li>addRange(E from, E to)：将指定区间的枚举实例加入集合中。</li>
+<li>complement()：以指定枚举类下的枚举实例求差集。</li>
+<li>getUniverse(Class<e> elementType)：获取指定枚举类下的枚举实例，数组形式。</e></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">EnumSet</span>&lt;<span class="title">E</span> <span class="keyword">extends</span> <span class="title">Enum</span>&lt;<span class="title">E</span>&gt;&gt; <span class="keyword">extends</span> <span class="title">AbstractSet</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Class&lt;E&gt; elementType;</span><br><span class="line">    <span class="keyword">final</span> Enum&lt;?&gt;[] universe;</span><br><span class="line"></span><br><span class="line">    EnumSet(Class&lt;E&gt;elementType, Enum&lt;?&gt;[] universe) &#123;</span><br><span class="line">        <span class="keyword">this</span>.elementType = elementType;</span><br><span class="line">        <span class="keyword">this</span>.universe    = universe;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;E extends Enum&lt;E&gt;&gt; <span class="function">EnumSet&lt;E&gt; <span class="title">noneOf</span><span class="params">(Class&lt;E&gt; elementType)</span> </span>&#123;</span><br><span class="line">        Enum&lt;?&gt;[] universe = getUniverse(elementType);</span><br><span class="line">        <span class="keyword">if</span> (universe == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ClassCastException(elementType + <span class="string">" not an enum"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (universe.length &lt;= <span class="number">64</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> RegularEnumSet&lt;&gt;(elementType, universe);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> JumboEnumSet&lt;&gt;(elementType, universe);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取所有枚举实例</span></span><br><span class="line">    <span class="comment">// 通过 SharedSecrets.getJavaLangAccess().getEnumConstantsShared 找出 JVM 栈帧中的所有类实例</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> &lt;E extends Enum&lt;E&gt;&gt; E[] getUniverse(Class&lt;E&gt; elementType) &#123;</span><br><span class="line">        <span class="keyword">return</span> SharedSecrets.getJavaLangAccess()</span><br><span class="line">                                        .getEnumConstantsShared(elementType);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 用于辅助序列化操作</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SerializationProxy</span> &lt;<span class="title">E</span> <span class="keyword">extends</span> <span class="title">Enum</span>&lt;<span class="title">E</span>&gt;&gt;</span></span><br><span class="line"><span class="class">        <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 枚举类</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;E&gt; elementType;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 包含的枚举实例</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> Enum&lt;?&gt;[] elements;</span><br><span class="line"></span><br><span class="line">        SerializationProxy(EnumSet&lt;E&gt; set) &#123;</span><br><span class="line">            elementType = set.elementType;</span><br><span class="line">            elements = set.toArray(ZERO_LENGTH_ENUM_ARRAY);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">        <span class="function"><span class="keyword">private</span> Object <span class="title">readResolve</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            EnumSet&lt;E&gt; result = EnumSet.noneOf(elementType);</span><br><span class="line">            <span class="keyword">for</span> (Enum&lt;?&gt; e : elements)</span><br><span class="line">                result.add((E)e);</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">362491234563181265L</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">Object <span class="title">writeReplace</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SerializationProxy&lt;&gt;(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readObject</span><span class="params">(java.io.ObjectInputStream stream)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> java.io.InvalidObjectException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> java.io.InvalidObjectException(<span class="string">"Proxy required"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>EnumSet 有两个子类 RegularEnumSet, JumboEnumSet。</p>
+<h3 id="RegularEnumSet"><a href="#RegularEnumSet" class="headerlink" title="RegularEnumSet"></a>RegularEnumSet</h3><p>RegularEnumSet 限制枚举实例上限为 64。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.9" target="_blank" rel="noopener">Java SE 规范</a><br><a href="https://blog.csdn.net/testcs_dn/article/details/78604547" target="_blank" rel="noopener">Java 枚举(enum) 详解7种常见的用法</a><br><a href="https://www.cnblogs.com/hyl8218/p/5088287.html" target="_blank" rel="noopener">java enum(枚举)使用详解 + 总结</a><br><a href="https://blog.csdn.net/java_4_ever/article/details/42263297" target="_blank" rel="noopener">JDK源码解读之RegularEnumSet</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/22/java/集合/" rel="next" title="集合">
+                <i class="fa fa-chevron-left"></i> 集合
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpeg" alt="Alfred">
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">64</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">23</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用场景"><span class="nav-number">2.</span> <span class="nav-text">使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#作为常量"><span class="nav-number">2.1.</span> <span class="nav-text">作为常量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#switch"><span class="nav-number">2.2.</span> <span class="nav-text">switch</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#枚举方法"><span class="nav-number">2.3.</span> <span class="nav-text">枚举方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类语法常量"><span class="nav-number">2.4.</span> <span class="nav-text">类语法常量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多重枚举"><span class="nav-number">2.5.</span> <span class="nav-text">多重枚举</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EnumSet"><span class="nav-number">3.</span> <span class="nav-text">EnumSet</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RegularEnumSet"><span class="nav-number">3.1.</span> <span class="nav-text">RegularEnumSet</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2019/05/04/java/枚举/';
+        this.page.identifier = '2019/05/04/java/枚举/';
+        this.page.title = '枚举';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

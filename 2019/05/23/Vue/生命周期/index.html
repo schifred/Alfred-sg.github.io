@@ -106,15 +106,15 @@
 <meta name="description" content="对应上图前半部分，当执行 new Vue(options) 语句时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 initEvents 绑定父组件传入的事">
 <meta name="keywords" content="analyst,vue">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Vue 生命周期">
+<meta property="og:title" content="Vue 生命周期 - 组件挂载">
 <meta property="og:url" content="http://yoursite.com/2019/05/23/Vue/生命周期/index.html">
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="对应上图前半部分，当执行 new Vue(options) 语句时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 initEvents 绑定父组件传入的事">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/05/23/Vue/生命周期/lifecycle.png">
-<meta property="og:updated_time" content="2019-05-13T14:57:43.724Z">
+<meta property="og:updated_time" content="2019-05-14T14:12:26.739Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Vue 生命周期">
+<meta name="twitter:title" content="Vue 生命周期 - 组件挂载">
 <meta name="twitter:description" content="对应上图前半部分，当执行 new Vue(options) 语句时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 initEvents 绑定父组件传入的事">
 <meta name="twitter:image" content="http://yoursite.com/2019/05/23/Vue/生命周期/lifecycle.png">
 
@@ -126,7 +126,7 @@
   <link rel="canonical" href="http://yoursite.com/2019/05/23/Vue/生命周期/">
 
 
-  <title>Vue 生命周期 | 修子范语</title>
+  <title>Vue 生命周期 - 组件挂载 | 修子范语</title>
   
 
 
@@ -290,7 +290,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Vue 生命周期</h1>
+          <h1 class="post-title" itemprop="name headline">Vue 生命周期 - 组件挂载</h1>
         
 
         <div class="post-meta">
@@ -380,9 +380,11 @@
 <li>通过 initState 初始化 props, methods, data, computed, watch。</li>
 <li>通过 initProvide 解析 provide。</li>
 <li>执行 created 生命周期方法。</li>
+<li>在 1-10 步骤执行过程中，使用 performance 接口记录耗时。</li>
 <li>若 options.el 为真值，通过 vm.$mount 方法挂载组件。</li>
 </ol>
-
+<p>下面，我们将以上步骤拆解了看。</p>
+<h2 id="解析选项"><a href="#解析选项" class="headerlink" title="解析选项"></a>解析选项</h2>
       
     </div>
     
@@ -481,8 +483,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -563,6 +574,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#解析选项"><span class="nav-number">1.</span> <span class="nav-text">解析选项</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -719,7 +746,7 @@
       var disqus_config = function () {
         this.page.url = 'http://yoursite.com/2019/05/23/Vue/生命周期/';
         this.page.identifier = '2019/05/23/Vue/生命周期/';
-        this.page.title = 'Vue 生命周期';
+        this.page.title = 'Vue 生命周期 - 组件挂载';
       };
       function loadComments () {
         var d = document, s = d.createElement('script');

@@ -103,19 +103,19 @@
   <meta name="keywords" content="analyst,vue,">
 
 
-<meta name="description" content="对应上图前半部分，当执行 new Vue(options) 语句时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 initEvents 绑定父组件传入的事">
+<meta name="description" content="对应上图前半部分，当执行 new Vue(options) 语句创建 vm 实例（即 Vue 实例）时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 in">
 <meta name="keywords" content="analyst,vue">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Vue 生命周期 - 组件挂载">
 <meta property="og:url" content="http://yoursite.com/2019/05/23/Vue/生命周期/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="对应上图前半部分，当执行 new Vue(options) 语句时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 initEvents 绑定父组件传入的事">
+<meta property="og:description" content="对应上图前半部分，当执行 new Vue(options) 语句创建 vm 实例（即 Vue 实例）时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 in">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/05/23/Vue/生命周期/lifecycle.png">
-<meta property="og:updated_time" content="2019-05-14T14:12:26.739Z">
+<meta property="og:updated_time" content="2019-05-16T14:26:27.512Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Vue 生命周期 - 组件挂载">
-<meta name="twitter:description" content="对应上图前半部分，当执行 new Vue(options) 语句时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 initEvents 绑定父组件传入的事">
+<meta name="twitter:description" content="对应上图前半部分，当执行 new Vue(options) 语句创建 vm 实例（即 Vue 实例）时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 in">
 <meta name="twitter:image" content="http://yoursite.com/2019/05/23/Vue/生命周期/lifecycle.png">
 
 
@@ -368,7 +368,7 @@
 
       
         <img src="/2019/05/23/Vue/生命周期/lifecycle.png">
-<p>对应上图前半部分，当执行 new Vue(options) 语句时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：</p>
+<p>对应上图前半部分，当执行 new Vue(options) 语句创建 vm 实例（即 Vue 实例）时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：</p>
 <ol>
 <li>解析 options 配置项。</li>
 <li>通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。</li>
@@ -384,7 +384,9 @@
 <li>若 options.el 为真值，通过 vm.$mount 方法挂载组件。</li>
 </ol>
 <p>下面，我们将以上步骤拆解了看。</p>
-<h2 id="解析选项"><a href="#解析选项" class="headerlink" title="解析选项"></a>解析选项</h2>
+<h2 id="解析选项"><a href="#解析选项" class="headerlink" title="解析选项"></a>解析选项</h2><p>创建 vm 实例有两种方式：显式调用 new Vue(options) 语句或者解析模板中组件形式的自定义元素。我们将这两部分内容分为如下两个小节：显式构建组件、解析模板组件。</p>
+<h3 id="显式构建组件"><a href="#显式构建组件" class="headerlink" title="显式构建组件"></a>显式构建组件</h3><p>Vue 构造函数：静态方法</p>
+<h3 id="解析模板组件"><a href="#解析模板组件" class="headerlink" title="解析模板组件"></a>解析模板组件</h3>
       
     </div>
     
@@ -584,7 +586,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#解析选项"><span class="nav-number">1.</span> <span class="nav-text">解析选项</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#解析选项"><span class="nav-number">1.</span> <span class="nav-text">解析选项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#显式构建组件"><span class="nav-number">1.1.</span> <span class="nav-text">显式构建组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解析模板组件"><span class="nav-number">1.2.</span> <span class="nav-text">解析模板组件</span></a></li></ol></li></ol></div>
             
 
           </div>

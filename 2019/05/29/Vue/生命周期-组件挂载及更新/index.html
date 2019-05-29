@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="analyst,vue,">
+
+
+<meta name="description" content="挂载组件在 生命周期-创建实例 一文中，我们了解到，vm.$mount 方法可用于挂载组件。vm.$mount 有两种使用场景：当开发者显式调用 new Vue(options) 语句构建 vm 实例时，vm.$mount 方法将在实例化过程的尾部得到调用；当从父模板解析并渲染出子组件时，vm.$mount 方法将在 createComponent 函数阶段由 Vue 框架内部调用。 vm.$mo">
+<meta name="keywords" content="analyst,vue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue 生命周期 - 组件挂载及更新">
+<meta property="og:url" content="http://yoursite.com/2019/05/29/Vue/生命周期-组件挂载及更新/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="挂载组件在 生命周期-创建实例 一文中，我们了解到，vm.$mount 方法可用于挂载组件。vm.$mount 有两种使用场景：当开发者显式调用 new Vue(options) 语句构建 vm 实例时，vm.$mount 方法将在实例化过程的尾部得到调用；当从父模板解析并渲染出子组件时，vm.$mount 方法将在 createComponent 函数阶段由 Vue 框架内部调用。 vm.$mo">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-05-29T16:27:13.711Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vue 生命周期 - 组件挂载及更新">
+<meta name="twitter:description" content="挂载组件在 生命周期-创建实例 一文中，我们了解到，vm.$mount 方法可用于挂载组件。vm.$mount 有两种使用场景：当开发者显式调用 new Vue(options) 语句构建 vm 实例时，vm.$mount 方法将在实例化过程的尾部得到调用；当从父模板解析并渲染出子组件时，vm.$mount 方法将在 createComponent 函数阶段由 Vue 框架内部调用。 vm.$mo">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/05/29/Vue/生命周期-组件挂载及更新/">
+
+
+  <title>Vue 生命周期 - 组件挂载及更新 | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/29/Vue/生命周期-组件挂载及更新/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Vue 生命周期 - 组件挂载及更新</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-29T00:00:00+08:00">2019-05-29</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/vue/" itemprop="url" rel="index"><span itemprop="name">vue</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/29/Vue/生命周期-组件挂载及更新/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/05/29/Vue/生命周期-组件挂载及更新/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="挂载组件"><a href="#挂载组件" class="headerlink" title="挂载组件"></a>挂载组件</h2><p>在 <a href="http://xzfyu.com/2019/05/26/Vue/%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-%E5%88%9B%E5%BB%BA%E5%AE%9E%E4%BE%8B/" target="_blank" rel="noopener">生命周期-创建实例</a> 一文中，我们了解到，vm.$mount 方法可用于挂载组件。vm.$mount 有两种使用场景：当开发者显式调用 new Vue(options) 语句构建 vm 实例时，vm.$mount 方法将在实例化过程的尾部得到调用；当从父模板解析并渲染出子组件时，vm.$mount 方法将在 createComponent 函数阶段由 Vue 框架内部调用。</p>
+<p>vm.$mount 方法的实现按环境的不同有所差异，比如浏览器环境和 weex 环境。这里只描述浏览器环境中的组件挂载、卸载机制，至于 weex 环境下的组件挂载、卸载机制，笔者将在后续的文章加以展开。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Vue.prototype.$mount = <span class="function"><span class="keyword">function</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  el?: string | Element,</span></span></span><br><span class="line"><span class="function"><span class="params">  hydrating?: boolean</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Component</span> </span>&#123;</span><br><span class="line">  el = el &amp;&amp; inBrowser ? query(el) : <span class="literal">undefined</span></span><br><span class="line">  <span class="keyword">return</span> mountComponent(<span class="keyword">this</span>, el, hydrating)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="mountComponent"><a href="#mountComponent" class="headerlink" title="mountComponent"></a>mountComponent</h3><p>mountComponent 函数往前承接 vm.$mount 方法；在其实现中会构建 updateComponent 函数，用以约定 Watcher 实例将以何种方式监听 vm 实例的数据变化。初始化渲染阶段，直接使用 vm.<strong>patch</strong> 方法将 vnode 挂载到 vm.$el 父元素下，并构建新的 vm.$el；更新阶段，使用 vm.<strong>patch</strong> 方法追加补丁。vm.<strong>patch</strong> 方法取决于环境。整体过程如下：</p>
+<ol>
+<li>vm.$mount 根据客户端环境挂载组件。</li>
+<li>mountComponent 构建 updateComponent 函数，初始化渲染和更新节点均通过 vm._update 将 vnode 装载到 vm.$el 文档父元素或模板父元素上。</li>
+<li>绑定 vm.$el 和 vm 实例的相关关联。</li>
+</ol>
+<p>在这个过程中，Vue 会调用组件的 beforeMount, mounted, beforeCreate 生命周期钩子。</p>
+<p>关于 vm.<strong>patch</strong> 方法的实现原理，笔者将在后续的文章加以介绍。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">lifecycleMixin</span> (<span class="params">Vue: Class&lt;Component&gt;</span>) </span>&#123;</span><br><span class="line">  Vue.prototype._update = <span class="function"><span class="keyword">function</span> (<span class="params">vnode: VNode, hydrating?: boolean</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> vm: Component = <span class="keyword">this</span></span><br><span class="line">    <span class="keyword">const</span> prevEl = vm.$el</span><br><span class="line">    <span class="keyword">const</span> prevVnode = vm._vnode</span><br><span class="line">    <span class="keyword">const</span> restoreActiveInstance = setActiveInstance(vm)<span class="comment">// 记录当前实例</span></span><br><span class="line">    vm._vnode = vnode</span><br><span class="line">    <span class="keyword">if</span> (!prevVnode) &#123;</span><br><span class="line">      <span class="comment">// 初始化渲染，挂载到父元素 vm.$el 下，父元素相应改变</span></span><br><span class="line">      vm.$el = vm.__patch__(vm.$el, vnode, hydrating, <span class="literal">false</span> <span class="comment">/* removeOnly */</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 更新节点，追加补丁</span></span><br><span class="line">      vm.$el = vm.__patch__(prevVnode, vnode)</span><br><span class="line">    &#125;</span><br><span class="line">    restoreActiveInstance()<span class="comment">// 恢复前一个实例，即父实例</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (prevEl) &#123;</span><br><span class="line">      prevEl.__vue__ = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (vm.$el) &#123;</span><br><span class="line">      vm.$el.__vue__ = vm</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// HOC 组件通过子组件渲染内容，父组件渲染内容和子组件相等</span></span><br><span class="line">    <span class="keyword">if</span> (vm.$vnode &amp;&amp; vm.$parent &amp;&amp; vm.$vnode === vm.$parent._vnode) &#123;</span><br><span class="line">      vm.$parent.$el = vm.$el</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">mountComponent</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  vm: Component,</span></span></span><br><span class="line"><span class="function"><span class="params">  el: ?Element,</span></span></span><br><span class="line"><span class="function"><span class="params">  hydrating?: boolean</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Component</span> </span>&#123;</span><br><span class="line">  vm.$el = el<span class="comment">// 父节点元素</span></span><br><span class="line">  <span class="comment">// 渲染根节点或模板节点时，如 render 方法未解析到，报错处理</span></span><br><span class="line">  <span class="keyword">if</span> (!vm.$options.render) &#123;</span><br><span class="line">    vm.$options.render = createEmptyVNode</span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> ((vm.$options.template &amp;&amp; vm.$options.template.charAt(<span class="number">0</span>) !== <span class="string">'#'</span>) ||</span><br><span class="line">        vm.$options.el || el) &#123;</span><br><span class="line">        warn(</span><br><span class="line">          <span class="string">'You are using the runtime-only build of Vue where the template '</span> +</span><br><span class="line">          <span class="string">'compiler is not available. Either pre-compile the templates into '</span> +</span><br><span class="line">          <span class="string">'render functions, or use the compiler-included build.'</span>,</span><br><span class="line">          vm</span><br><span class="line">        )</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        warn(</span><br><span class="line">          <span class="string">'Failed to mount component: template or render function not defined.'</span>,</span><br><span class="line">          vm</span><br><span class="line">        )</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  callHook(vm, <span class="string">'beforeMount'</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 构架 updateComponent 函数，用于实际调用 vm._render 渲染函数</span></span><br><span class="line">  <span class="keyword">let</span> updateComponent</span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; config.performance &amp;&amp; mark) &#123;</span><br><span class="line">    updateComponent = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> name = vm._name</span><br><span class="line">      <span class="keyword">const</span> id = vm._uid</span><br><span class="line">      <span class="keyword">const</span> startTag = <span class="string">`vue-perf-start:<span class="subst">$&#123;id&#125;</span>`</span></span><br><span class="line">      <span class="keyword">const</span> endTag = <span class="string">`vue-perf-end:<span class="subst">$&#123;id&#125;</span>`</span></span><br><span class="line"></span><br><span class="line">      mark(startTag)</span><br><span class="line">      <span class="comment">// vm._render 在 [生命周期-创建实例](http://xzfyu.com/2019/05/26/Vue/%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-%E5%88%9B%E5%BB%BA%E5%AE%9E%E4%BE%8B/) 一文中有所描述</span></span><br><span class="line">      <span class="comment">// 主要用于解析插槽，调用 vm.$options.render 渲染出 vnode</span></span><br><span class="line">      <span class="keyword">const</span> vnode = vm._render()</span><br><span class="line">      mark(endTag)</span><br><span class="line">      measure(<span class="string">`vue <span class="subst">$&#123;name&#125;</span> render`</span>, startTag, endTag)</span><br><span class="line"></span><br><span class="line">      mark(startTag)</span><br><span class="line">      <span class="comment">// 通过 vm._update 完成初始化渲染和更新</span></span><br><span class="line">      vm._update(vnode, hydrating)</span><br><span class="line">      mark(endTag)</span><br><span class="line">      measure(<span class="string">`vue <span class="subst">$&#123;name&#125;</span> patch`</span>, startTag, endTag)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    updateComponent = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      vm._update(vm._render(), hydrating)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 第一个参数表示 Watcher 实例关联的 vm 实例</span></span><br><span class="line">  <span class="comment">// 第二个参数 updateComponent 表示通过何种方式监听数据变动</span></span><br><span class="line">  <span class="comment">// 第三个参数 cb 作为回调，这里是空函数</span></span><br><span class="line">  <span class="comment">// 第四个参数 options 在 Watcher 实例执行前调用 options.before 方法</span></span><br><span class="line">  <span class="comment">// 第五个参数 isRenderWatcher 将 Watcher 实例赋值给 vm._watcher</span></span><br><span class="line">  <span class="keyword">new</span> Watcher(vm, updateComponent, noop, &#123;</span><br><span class="line">    before () &#123;</span><br><span class="line">      <span class="keyword">if</span> (vm._isMounted &amp;&amp; !vm._isDestroyed) &#123;</span><br><span class="line">        callHook(vm, <span class="string">'beforeUpdate'</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, <span class="literal">true</span> <span class="comment">/* isRenderWatcher */</span>)</span><br><span class="line">  hydrating = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 针对手动创建的 Vue 实例，在父模板中占位节点 vm.$vnode 为空</span></span><br><span class="line">  <span class="comment">// 对于由父模板创建的实例，mounted 生命周期钩子在 insert 阶段调用，参考 create-component.js</span></span><br><span class="line">  <span class="keyword">if</span> (vm.$vnode == <span class="literal">null</span>) &#123;</span><br><span class="line">    vm._isMounted = <span class="literal">true</span></span><br><span class="line">    callHook(vm, <span class="string">'mounted'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> vm</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="更新组件"><a href="#更新组件" class="headerlink" title="更新组件"></a>更新组件</h2><h3 id="vm-数据变更"><a href="#vm-数据变更" class="headerlink" title="vm 数据变更"></a>vm 数据变更</h3><p>mountComponent 一小节已表明，当 vm 实例数据发生改变时，通过 Watcher 会驱动 updateComponent 方法执行，以追加补丁的方式更新 vm.$el 挂载节点。</p>
+<p>除此之外，Vue 像 React 那样提供了 vm.$forceUpdate 方法，该方法仍借助 Watcher 实例实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Vue.prototype.$forceUpdate = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> vm: Component = <span class="keyword">this</span></span><br><span class="line">  <span class="keyword">if</span> (vm._watcher) &#123;</span><br><span class="line">    vm._watcher.update()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="父组件注入数据变更"><a href="#父组件注入数据变更" class="headerlink" title="父组件注入数据变更"></a>父组件注入数据变更</h3><p>上一小节中的 vm 实例数据变更并不包含父组件注入子组件的数据发生变更。那么，当父组件注入子组件的数据发生变更时，Vue 会怎样处理呢？为此，Vue 提供了 updateChildComponent 函数用于刷新 vm 实例。这一 vm 实例刷新操作包含插槽数据发生变更、props 注入数据变更、或绑定事件发生变更等。至于更新 vm 实例后发生的事情，笔者也将在后续的文章中加以分析。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">updateChildComponent</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  vm: Component,</span></span></span><br><span class="line"><span class="function"><span class="params">  propsData: ?Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  listeners: ?Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  parentVnode: MountedComponentVNode,</span></span></span><br><span class="line"><span class="function"><span class="params">  renderChildren: ?Array&lt;VNode&gt;</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">    isUpdatingChildComponent = <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 插槽的名称动态改变，采用强制重绘</span></span><br><span class="line">  <span class="keyword">const</span> newScopedSlots = parentVnode.data.scopedSlots</span><br><span class="line">  <span class="keyword">const</span> oldScopedSlots = vm.$scopedSlots</span><br><span class="line">  <span class="keyword">const</span> hasDynamicScopedSlot = !!(</span><br><span class="line">    (newScopedSlots &amp;&amp; !newScopedSlots.$stable) ||</span><br><span class="line">    (oldScopedSlots !== emptyObject &amp;&amp; !oldScopedSlots.$stable) ||</span><br><span class="line">    (newScopedSlots &amp;&amp; vm.$scopedSlots.$key !== newScopedSlots.$key)</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> needsForceUpdate = !!(</span><br><span class="line">    renderChildren ||               <span class="comment">// has new static slots</span></span><br><span class="line">    vm.$options._renderChildren ||  <span class="comment">// has old static slots</span></span><br><span class="line">    hasDynamicScopedSlot</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  vm.$options._parentVnode = parentVnode</span><br><span class="line">  vm.$vnode = parentVnode <span class="comment">// update vm's placeholder node without re-render</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (vm._vnode) &#123; <span class="comment">// update child tree's parent</span></span><br><span class="line">    vm._vnode.parent = parentVnode</span><br><span class="line">  &#125;</span><br><span class="line">  vm.$options._renderChildren = renderChildren</span><br><span class="line"></span><br><span class="line">  vm.$attrs = parentVnode.data.attrs || emptyObject</span><br><span class="line">  vm.$listeners = listeners || emptyObject</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 更新 props</span></span><br><span class="line">  <span class="keyword">if</span> (propsData &amp;&amp; vm.$options.props) &#123;</span><br><span class="line">    toggleObserving(<span class="literal">false</span>)</span><br><span class="line">    <span class="keyword">const</span> props = vm._props</span><br><span class="line">    <span class="keyword">const</span> propKeys = vm.$options._propKeys || []</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; propKeys.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> key = propKeys[i]</span><br><span class="line">      <span class="keyword">const</span> propOptions: any = vm.$options.props <span class="comment">// wtf flow?</span></span><br><span class="line">      props[key] = validateProp(key, propOptions, propsData, vm)</span><br><span class="line">    &#125;</span><br><span class="line">    toggleObserving(<span class="literal">true</span>)</span><br><span class="line">    vm.$options.propsData = propsData</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 更新绑定事件</span></span><br><span class="line">  listeners = listeners || emptyObject</span><br><span class="line">  <span class="keyword">const</span> oldListeners = vm.$options._parentListeners</span><br><span class="line">  vm.$options._parentListeners = listeners</span><br><span class="line">  updateComponentListeners(vm, listeners, oldListeners)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (needsForceUpdate) &#123;</span><br><span class="line">    vm.$slots = resolveSlots(renderChildren, parentVnode.context)</span><br><span class="line">    vm.$forceUpdate()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">    isUpdatingChildComponent = <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="卸载组件"><a href="#卸载组件" class="headerlink" title="卸载组件"></a>卸载组件</h2><p>vm.$destroy 方法主要用于重置状态数据、清除数据、解绑事件，以及将渲染内容从父节点中移除等。至于 vm.$destroy 方法由哪一方发起调用，笔者也将在后续的文章中加以分析。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">Vue.prototype.$destroy = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> vm: Component = <span class="keyword">this</span></span><br><span class="line">    <span class="keyword">if</span> (vm._isBeingDestroyed) &#123;</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    callHook(vm, <span class="string">'beforeDestroy'</span>)</span><br><span class="line">    vm._isBeingDestroyed = <span class="literal">true</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">const</span> parent = vm.$parent</span><br><span class="line">    <span class="keyword">if</span> (parent &amp;&amp; !parent._isBeingDestroyed &amp;&amp; !vm.$options.abstract) &#123;</span><br><span class="line">      remove(parent.$children, vm)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (vm._watcher) &#123;</span><br><span class="line">      vm._watcher.teardown()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> i = vm._watchers.length</span><br><span class="line">    <span class="keyword">while</span> (i--) &#123;</span><br><span class="line">      vm._watchers[i].teardown()</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (vm._data.__ob__) &#123;</span><br><span class="line">      vm._data.__ob__.vmCount--</span><br><span class="line">    &#125;</span><br><span class="line">    vm._isDestroyed = <span class="literal">true</span></span><br><span class="line">    <span class="comment">// invoke destroy hooks on current rendered tree</span></span><br><span class="line">    vm.__patch__(vm._vnode, <span class="literal">null</span>)</span><br><span class="line">    callHook(vm, <span class="string">'destroyed'</span>)</span><br><span class="line">    vm.$off()</span><br><span class="line">    <span class="keyword">if</span> (vm.$el) &#123;</span><br><span class="line">      vm.$el.__vue__ = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (vm.$vnode) &#123;</span><br><span class="line">      vm.$vnode.parent = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+            <a href="/tags/vue/" rel="tag"># vue</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/26/Vue/生命周期-创建实例/" rel="next" title="Vue 生命周期 - 创建实例">
+                <i class="fa fa-chevron-left"></i> Vue 生命周期 - 创建实例
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpeg" alt="Alfred">
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">23</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#挂载组件"><span class="nav-number">1.</span> <span class="nav-text">挂载组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mountComponent"><span class="nav-number">1.1.</span> <span class="nav-text">mountComponent</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更新组件"><span class="nav-number">2.</span> <span class="nav-text">更新组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#vm-数据变更"><span class="nav-number">2.1.</span> <span class="nav-text">vm 数据变更</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#父组件注入数据变更"><span class="nav-number">2.2.</span> <span class="nav-text">父组件注入数据变更</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#卸载组件"><span class="nav-number">3.</span> <span class="nav-text">卸载组件</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2019/05/29/Vue/生命周期-组件挂载及更新/';
+        this.page.identifier = '2019/05/29/Vue/生命周期-组件挂载及更新/';
+        this.page.title = 'Vue 生命周期 - 组件挂载及更新';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

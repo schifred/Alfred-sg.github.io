@@ -829,6 +829,163 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Grid/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/25/antd/Grid/" itemprop="url">Grid 栅格</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-25T00:00:00+08:00">2018-11-25</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/25/antd/Grid/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/25/antd/Grid/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>antd 提供的 24 栅格系统由 Row, Col 组件实现。</p>
+<h2 id="Row"><a href="#Row" class="headerlink" title="Row"></a>Row</h2><p>栅格布局组件 Row 用于设定整行 row 内各组 col 的布局风格。当 props.type 为 ‘flex’ 时，意味着整行采用 flex 布局。在 flex 布局的基础上，props.justify 通过 justify-content 样式影响各 col 元素的水平排列方式；props.align 通过 align-items 样式影响各 col 元素的垂直对齐方式。props.gutter 用于设定各 col 元素的间隔，间隔单位可以是 ‘px’ 或 ‘rem’。Row 支持以对象形式配置 props.gutter，如 { xs, sm, md, lg, xl, xxl }。其中，xs 为 576 px 以下屏幕；sm 为 576 - 768 px 尺寸屏幕；md 为 768 - 992 px 尺寸屏幕；lg 为 992 - 1200 px 尺寸屏幕；xl 为 1200 - 1600 px 尺寸屏幕；xxl 为 1600 px 以上屏幕；</p>
+<p>在响应式处理上，Row 组件借助 <a href="https://github.com/WickyNilliams/enquire.js" target="_blank" rel="noopener">enquire.js</a> 库实现。其场景如以 { md: 8, lg: 16 } 对象配置 props.gutter，那么，当屏幕尺寸小于 768px 时，就需要将各 col 元素的间隔从 16 px 调整为 8px。Row 组件对这一场景的实现机制为，在 componentDidMount 生命周期使用 enquire.js 库绑定监听函数，以使得当屏幕尺寸变更时，state.screen 当前屏幕状态也会相应得到更新；随后在 render 阶段，由 getGutter 方法获得当前屏幕尺寸下的 col 元素间隔 gutter，并借助 <a href="https://github.com/jamiebuilds/create-react-context" target="_blank" rel="noopener">create-react-context</a> 库将 gutter 注入到 Col 组件中。以下是该机制实现的源码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">componentDidMount() &#123;</span><br><span class="line">  <span class="built_in">Object</span>.keys(responsiveMap)</span><br><span class="line">    .map(<span class="function">(<span class="params">screen: Breakpoint</span>) =&gt;</span> enquire.register(responsiveMap[screen], &#123;</span><br><span class="line">        match: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">true</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        unmatch: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">false</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">// Keep a empty destory to avoid triggering unmatch when unregister</span></span><br><span class="line">        destroy() &#123;&#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getGutter(): number | <span class="literal">undefined</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; gutter &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> gutter === <span class="string">'object'</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt;= responsiveArray.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> breakpoint: Breakpoint = responsiveArray[i];</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.state.screens[breakpoint] &amp;&amp; gutter[breakpoint] !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> gutter[breakpoint];</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> gutter <span class="keyword">as</span> number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在样式处理方面，整行 row 采用 border-box 盒模型，相对定位，并嵌套使用 .clearfix 样式规则以清除浮动以及 :before, :after 伪类的内容。其余均较为简单，可参见<a href="https://github.com/ant-design/ant-design/blob/master/components/form/style/index.less" target="_blank" rel="noopener">源码</a>。</p>
+<h2 id="Col"><a href="#Col" class="headerlink" title="Col"></a>Col</h2><p>Col 组件主要通过样式类以设定 col 元素的大小和偏移情况。如当配置了 props.offset 属性为 4 时，将相应添加 ant-col-xs-offset-4, ant-col-sm-offset-4, ant-col-md-offset-4, ant-col-lg-offset-4, ant-col-xl-offset-4, ant-col-xll-offset-4 样式类。因此，Col 组件的逻辑主要是将 props 转化成样式类，其实现的重点仍在于 less 样式文件。</p>
+<p>当然，各 col 元素的间隔 gutter 由 Row 组件传入。以下是其源码实现，RowContext 通过 create-react-context 库创建，即通过 context 属性传递数据，但只有 Col 组件能加以访问。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Row</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Provider value=&#123;&#123; gutter &#125;&#125;&gt;</span><br><span class="line">      &lt;div &#123;...otherProps&#125; className=&#123;classes&#125; style=&#123;rowStyle&#125;&gt;</span><br><span class="line">        &#123;children&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>RowContext.Provider&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Col</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Consumer&gt;</span><br><span class="line">      &#123;(&#123; gutter &#125;) =&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> style = others.style;</span><br><span class="line">        <span class="keyword">if</span> (gutter <span class="keyword">as</span> number &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          style = &#123;</span><br><span class="line">            paddingLeft: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            paddingRight: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            ...style,</span><br><span class="line">          &#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span> &#123;<span class="attr">...others</span>&#125; <span class="attr">style</span>=<span class="string">&#123;style&#125;</span> <span class="attr">className</span>=<span class="string">&#123;classes&#125;</span>&gt;</span>&#123;children&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;</span><br><span class="line">      &#125;&#125;</span><br><span class="line">    &lt;<span class="regexp">/RowContext.Consumer&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>在 less 文件中，antd 使用自调用的混合函数创建从 .ant-col-1 到 .ant-col-24 的样式规则。以下是相关源码。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// style/theme/default.less</span></span><br><span class="line"><span class="variable">@grid-columns:</span> <span class="number">24</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// mixin.less</span></span><br><span class="line"><span class="comment">// index 由 1 到 24，构建样式规则</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>() &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">position</span>: relative;</span><br><span class="line">      <span class="comment">// Prevent columns from collapsing when empty</span></span><br><span class="line">      <span class="attribute">min-height</span>: <span class="number">1px</span>;</span><br><span class="line">      <span class="attribute">padding-left</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">      <span class="attribute">padding-right</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>) &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123; <span class="comment">// initial</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// general</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// terminal</span></span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">float</span>: left;</span><br><span class="line">      <span class="attribute">flex</span>: <span class="number">0</span> <span class="number">0</span> auto;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>); <span class="comment">// kickstart it</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index 由 24 到 1，构建样式规则</span></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">box-sizing</span>: border-box;</span><br><span class="line">    <span class="attribute">width</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="variable">@index</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>((<span class="variable">@index</span> - <span class="number">1</span>), <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> = <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: none;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(<span class="variable">@class</span>: <span class="string">~''</span>) &#123;</span><br><span class="line">  <span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>);</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>(<span class="variable">@grid-columns</span>, <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index.less</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>();</span><br><span class="line"><span class="selector-class">.make-grid</span>();</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(-xs);</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-sm-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-sm);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-md-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-md);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-lg-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-lg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xl);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xxl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xxl);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Layout/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -938,163 +1095,6 @@
 <p>侧边栏的主题样式通过设置样式类实现，如 ant-layout-sider-light。</p>
 <p>侧边栏组件使用 <a href="https://github.com/reactjs/react-lifecycles-compat" target="_blank" rel="noopener">react-lifecycles-compat</a> 封装，以在低版本的 react 中书写 static getDerivedStateFromProps, getSnapshotBeforeUpdate 生命周期方法。</p>
 
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Grid/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/25/antd/Grid/" itemprop="url">Grid 栅格</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-25T00:00:00+08:00">2018-11-25</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/25/antd/Grid/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/25/antd/Grid/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>antd 提供的 24 栅格系统由 Row, Col 组件实现。</p>
-<h2 id="Row"><a href="#Row" class="headerlink" title="Row"></a>Row</h2><p>栅格布局组件 Row 用于设定整行 row 内各组 col 的布局风格。当 props.type 为 ‘flex’ 时，意味着整行采用 flex 布局。在 flex 布局的基础上，props.justify 通过 justify-content 样式影响各 col 元素的水平排列方式；props.align 通过 align-items 样式影响各 col 元素的垂直对齐方式。props.gutter 用于设定各 col 元素的间隔，间隔单位可以是 ‘px’ 或 ‘rem’。Row 支持以对象形式配置 props.gutter，如 { xs, sm, md, lg, xl, xxl }。其中，xs 为 576 px 以下屏幕；sm 为 576 - 768 px 尺寸屏幕；md 为 768 - 992 px 尺寸屏幕；lg 为 992 - 1200 px 尺寸屏幕；xl 为 1200 - 1600 px 尺寸屏幕；xxl 为 1600 px 以上屏幕；</p>
-<p>在响应式处理上，Row 组件借助 <a href="https://github.com/WickyNilliams/enquire.js" target="_blank" rel="noopener">enquire.js</a> 库实现。其场景如以 { md: 8, lg: 16 } 对象配置 props.gutter，那么，当屏幕尺寸小于 768px 时，就需要将各 col 元素的间隔从 16 px 调整为 8px。Row 组件对这一场景的实现机制为，在 componentDidMount 生命周期使用 enquire.js 库绑定监听函数，以使得当屏幕尺寸变更时，state.screen 当前屏幕状态也会相应得到更新；随后在 render 阶段，由 getGutter 方法获得当前屏幕尺寸下的 col 元素间隔 gutter，并借助 <a href="https://github.com/jamiebuilds/create-react-context" target="_blank" rel="noopener">create-react-context</a> 库将 gutter 注入到 Col 组件中。以下是该机制实现的源码。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">componentDidMount() &#123;</span><br><span class="line">  <span class="built_in">Object</span>.keys(responsiveMap)</span><br><span class="line">    .map(<span class="function">(<span class="params">screen: Breakpoint</span>) =&gt;</span> enquire.register(responsiveMap[screen], &#123;</span><br><span class="line">        match: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">true</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        unmatch: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">false</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">// Keep a empty destory to avoid triggering unmatch when unregister</span></span><br><span class="line">        destroy() &#123;&#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getGutter(): number | <span class="literal">undefined</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; gutter &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> gutter === <span class="string">'object'</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt;= responsiveArray.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> breakpoint: Breakpoint = responsiveArray[i];</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.state.screens[breakpoint] &amp;&amp; gutter[breakpoint] !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> gutter[breakpoint];</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> gutter <span class="keyword">as</span> number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在样式处理方面，整行 row 采用 border-box 盒模型，相对定位，并嵌套使用 .clearfix 样式规则以清除浮动以及 :before, :after 伪类的内容。其余均较为简单，可参见<a href="https://github.com/ant-design/ant-design/blob/master/components/form/style/index.less" target="_blank" rel="noopener">源码</a>。</p>
-<h2 id="Col"><a href="#Col" class="headerlink" title="Col"></a>Col</h2><p>Col 组件主要通过样式类以设定 col 元素的大小和偏移情况。如当配置了 props.offset 属性为 4 时，将相应添加 ant-col-xs-offset-4, ant-col-sm-offset-4, ant-col-md-offset-4, ant-col-lg-offset-4, ant-col-xl-offset-4, ant-col-xll-offset-4 样式类。因此，Col 组件的逻辑主要是将 props 转化成样式类，其实现的重点仍在于 less 样式文件。</p>
-<p>当然，各 col 元素的间隔 gutter 由 Row 组件传入。以下是其源码实现，RowContext 通过 create-react-context 库创建，即通过 context 属性传递数据，但只有 Col 组件能加以访问。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Row</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Provider value=&#123;&#123; gutter &#125;&#125;&gt;</span><br><span class="line">      &lt;div &#123;...otherProps&#125; className=&#123;classes&#125; style=&#123;rowStyle&#125;&gt;</span><br><span class="line">        &#123;children&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>RowContext.Provider&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Col</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Consumer&gt;</span><br><span class="line">      &#123;(&#123; gutter &#125;) =&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> style = others.style;</span><br><span class="line">        <span class="keyword">if</span> (gutter <span class="keyword">as</span> number &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          style = &#123;</span><br><span class="line">            paddingLeft: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            paddingRight: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            ...style,</span><br><span class="line">          &#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span> &#123;<span class="attr">...others</span>&#125; <span class="attr">style</span>=<span class="string">&#123;style&#125;</span> <span class="attr">className</span>=<span class="string">&#123;classes&#125;</span>&gt;</span>&#123;children&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;</span><br><span class="line">      &#125;&#125;</span><br><span class="line">    &lt;<span class="regexp">/RowContext.Consumer&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>在 less 文件中，antd 使用自调用的混合函数创建从 .ant-col-1 到 .ant-col-24 的样式规则。以下是相关源码。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// style/theme/default.less</span></span><br><span class="line"><span class="variable">@grid-columns:</span> <span class="number">24</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// mixin.less</span></span><br><span class="line"><span class="comment">// index 由 1 到 24，构建样式规则</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>() &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">position</span>: relative;</span><br><span class="line">      <span class="comment">// Prevent columns from collapsing when empty</span></span><br><span class="line">      <span class="attribute">min-height</span>: <span class="number">1px</span>;</span><br><span class="line">      <span class="attribute">padding-left</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">      <span class="attribute">padding-right</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>) &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123; <span class="comment">// initial</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// general</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// terminal</span></span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">float</span>: left;</span><br><span class="line">      <span class="attribute">flex</span>: <span class="number">0</span> <span class="number">0</span> auto;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>); <span class="comment">// kickstart it</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index 由 24 到 1，构建样式规则</span></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">box-sizing</span>: border-box;</span><br><span class="line">    <span class="attribute">width</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="variable">@index</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>((<span class="variable">@index</span> - <span class="number">1</span>), <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> = <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: none;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(<span class="variable">@class</span>: <span class="string">~''</span>) &#123;</span><br><span class="line">  <span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>);</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>(<span class="variable">@grid-columns</span>, <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index.less</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>();</span><br><span class="line"><span class="selector-class">.make-grid</span>();</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(-xs);</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-sm-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-sm);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-md-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-md);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-lg-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-lg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xl);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xxl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xxl);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           
         
       
@@ -1467,6 +1467,154 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/设计模式/适配器模式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/11/设计模式/适配器模式/" itemprop="url">适配器模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/11/设计模式/适配器模式/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/11/设计模式/适配器模式/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/工程化/http-proxy-middleware源码解读/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1757,154 +1905,6 @@
 <h2 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h2><p>Search 组件基于 Input 组件制作，其特殊处理是在 inputInstance.onPressEnter 方法执行过程中调用 props.onSearch 方法，适用于远程搜索之类的场景；Search 组件还提供 props.enterButton 属性用于配置输入框的后缀图标，默认使用 search 图标，可渲染文本或按钮。实现请参考 ant design 源码。</p>
 <h2 id="Group"><a href="#Group" class="headerlink" title="Group"></a>Group</h2><p>Group 组件主要以样式控制多个表单项组件 props.children 的成组渲染。实现请参考 ant design 源码。</p>
 
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/设计模式/适配器模式/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/11/设计模式/适配器模式/" itemprop="url">适配器模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/11/设计模式/适配器模式/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/11/设计模式/适配器模式/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
           
         
       

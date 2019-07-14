@@ -111,7 +111,7 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="代码分割webpack 官方文档 动态导入 部分已指示我们，可使用 es 提案中的 import() 或 webpack 提供的 require.ensure 语法懒加载代码。我们按下 require.ensure 不表，只介绍 import()。webpack 官方所提供的示例如下： 1234567891011async function getComponent() &amp;#123;  var e">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-07-14T05:52:27.267Z">
+<meta property="og:updated_time" content="2019-07-14T06:06:15.127Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="webpack动态导入">
 <meta name="twitter:description" content="代码分割webpack 官方文档 动态导入 部分已指示我们，可使用 es 提案中的 import() 或 webpack 提供的 require.ensure 语法懒加载代码。我们按下 require.ensure 不表，只介绍 import()。webpack 官方所提供的示例如下： 1234567891011async function getComponent() &amp;#123;  var e">
@@ -370,7 +370,9 @@
 <p>使用 import() 语法首先需要添加 @babel/plugin-syntax-dynamic-import 插件。同时，import() 返回值是 promise，因此需要添加 ployfill 垫片或者借助 @babel/plugin-transform-runtime 插件自动添加垫片。需要注意的是，@babel/preset-env 的选项 modules 不能置为 ‘commonjs’，免得将 es6 模块转换成 commonjs 模块，造成通过 import() 加载的模块没法独立打包出来。</p>
 <p>output.chunkFilename 选项用于设置运行时 chunk 文件的名称，默认为 ‘[id].js’。webpackChunkName 可以指定该 chunk 文件的 [name] 占位符内容。详情可参看 <a href="https://www.webpackjs.com/api/module-methods/#import-" target="_blank" rel="noopener">模块方法 import()</a>。</p>
 <h2 id="结合路由"><a href="#结合路由" class="headerlink" title="结合路由"></a>结合路由</h2><p>以 react-router 为例，Route 组件下的 component 属性可用于设置渲染内容。因此，我们可以制作一个 AsyncComponent 公共组件，在该组件中通过 import() 动态导入待渲染的组件，在 promise.then 方法变更 AsyncComponent 的状态值：等动态组件加载完成后，渲染动态组件内容；否则渲染占位元素。react-async-component, react-loadable, @loadable/component 无不基于此种思路实现。</p>
-<p>在设计上，react-loadable 不只提供了 webpack, babel 插件，还允许同时懒加载多个模块，预加载等功能，详情可参见<a href="https://github.com/jamiebuilds/react-loadable/blob/master/src/index.js" target="_blank" rel="noopener">源码</a>。</p>
+<p>上述三个类库无不提供了 webpack, babel 插件。在设计上，react-loadable 使用 props.render 渲染导出的模块。与此同时，react-loadable 还允许同时懒加载多个模块，预加载等功能，详情可参见<a href="https://github.com/jamiebuilds/react-loadable/blob/master/src/index.js" target="_blank" rel="noopener">源码</a>。next.js, umi 的 <a href="https://github.com/zeit/next.js/blob/canary/lib/dynamic.js" target="_blank" rel="noopener">dynamic 函数</a> 对 react-loadable 作了进一步封装。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Loadable <span class="keyword">from</span> <span class="string">'react-loadable'</span>;</span><br><span class="line"><span class="keyword">import</span> Loading <span class="keyword">from</span> <span class="string">'./my-loading-component'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> LoadableComponent = Loadable(&#123;</span><br><span class="line">  loader: <span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./my-component'</span>),</span><br><span class="line">  loading: Loading,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">&lt;Route path=<span class="string">"/xx"</span> component=&#123;LoadableComponent&#125; /&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/dashnowords/p/9545482.html" target="_blank" rel="noopener">webpack4.0各个击破（4）—— Javascript &amp; splitChunk</a><br><a href="https://segmentfault.com/a/1190000013654180" target="_blank" rel="noopener">基于Webpack4使用懒加载分离打包React代码</a></p>
 
       
     </div>
@@ -571,7 +573,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#代码分割"><span class="nav-number">1.</span> <span class="nav-text">代码分割</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结合路由"><span class="nav-number">2.</span> <span class="nav-text">结合路由</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#代码分割"><span class="nav-number">1.</span> <span class="nav-text">代码分割</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结合路由"><span class="nav-number">2.</span> <span class="nav-text">结合路由</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>

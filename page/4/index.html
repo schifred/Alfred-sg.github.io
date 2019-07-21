@@ -270,6 +270,254 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/14/react/react16源码/React/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/14/react/react16源码/React/" itemprop="url">react api 整理</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-14T00:00:00+08:00">2019-01-14</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/01/14/react/react16源码/React/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/01/14/react/react16源码/React/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>本文档意在整理 react 顶层 api 的内容和实现，可参阅<a href="https://reactjs.org/docs/react-api.html" target="_blank" rel="noopener">react 官方文档</a>。React 包主要提供 api 接口，功能上的核心逻辑点通常由 react-dom 等包实现。</p>
+<h2 id="组件"><a href="#组件" class="headerlink" title="组件"></a>组件</h2><p>React 组件可将视图内容拆分为独立的、可复用的单元，以便在组件的模块制作过程中独立实现视图逻辑和业务逻辑。在 es6 语法背景下，React 组件可基于 React.Component, React.PureComponent 类加以制作。如果没有使用 es6 语法，可以使用 <a href="https://reactjs.org/docs/react-without-es6.html" target="_blank" rel="noopener">create-react-class</a> 库。除此以外，也可以编写函数式组件。该函数式组件能用 React.memo 加以包裹。</p>
+<p>在源码中，React.Component, React.PureComponent 类由 ReactBaseClasses 模块提供。</p>
+<h3 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h3><p>Component(props, context, updater) 基类在构造函数中初始化 props, context, refs, updater 实例属性，并包含 isReactComponent, setState, forceUpdate 原型方法。其中，updater 属性在实例化阶段将赋值为默认的 ReactNoopUpdateQueue，渲染阶段在注入实际的 updater。setState, forceUpdate 原型方法基于 updater.enqueueSetState, updater.enqueueForceUpdate 构建。</p>
+<h3 id="PureComponent"><a href="#PureComponent" class="headerlink" title="PureComponent"></a>PureComponent</h3><p>PureComponent(props, context, updater) 与 Component 基类拥有相同的实例属性，其原型对象也通过桥接函数赋值的形式重新构造、且混入了 Component 基类的原型方法，除此之外，PureComponent 还具有 isPureReactComponent 原型方法。</p>
+<h3 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h3><p>可参考 <a href="http://projects.wojtekmaj.pl/react-lifecycle-methods-diagram/" target="_blank" rel="noopener">React 组件生命周期</a></p>
+<ol>
+<li>挂载阶段：<ul>
+<li>constructor(props): 实例化。</li>
+<li>static getDeriverdStateFromProps 从 props 中获取 state。</li>
+<li>render 渲染。</li>
+<li>componentDidMount: 完成挂载。</li>
+</ul>
+</li>
+<li>更新阶段：<ul>
+<li>static getDeriverdStateFromProps 从 props 中获取 state。</li>
+<li>shouldComponentUpdate 判断是否需要重绘。</li>
+<li>rendere 渲染。</li>
+<li>getShapshotBeforeUpdate 获取快照。</li>
+<li>componentDidUpdate 渲染完成后回调。</li>
+</ul>
+</li>
+<li>卸载阶段：<ul>
+<li>componentWillUnmount 即将卸载。</li>
+</ul>
+</li>
+<li>错误处理：<ul>
+<li>static getDerivedStateFromError 从错误中获取 state。</li>
+<li>componentDidCatch 捕获错误并进行处理。</li>
+</ul>
+</li>
+</ol>
+<h3 id="React-memo"><a href="#React-memo" class="headerlink" title="React.memo"></a>React.memo</h3><p>React.memo(funcComponent, compare) 用于创建高阶组件，使函数式组件具有如 PureComponent 的效果。在默认情况下，它会浅比较接受到的 props，当然，在提供 compare(prevProps, nextProps) 参数的场景中，你也可以定制重绘时机。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">MyComponent</span>(<span class="params">props</span>)</span>&#123;&#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">areEqual</span>(<span class="params">prevProps, nextProps</span>)</span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> React.memo(MyComponent, areEqual);</span><br></pre></td></tr></table></figure>
+<p>实现上，memo 函数会构建类 React 元素数据如 { $$typeof, type, compare }。其中，$$typeof 为来自 shared/ReactSymbols 包下的常量 REACT_MEMO_TYPE；type 为首参函数式组件；compare 即次参对比函数。</p>
+<h2 id="元素"><a href="#元素" class="headerlink" title="元素"></a>元素</h2><p>React 元素可使用 JSX 语法书写，也可以使用 createElement, createFactory 方法构建。<a href="https://github.com/mlmorg/react-hyperscript" target="_blank" rel="noopener">react-hyperscript</a>, <a href="https://github.com/ohanhi/hyperscript-helpers" target="_blank" rel="noopener">hyperscript-helpers</a> 这两个类库也提供了创建 React 元素的便捷语法糖。</p>
+<p>除了 createElement, createFactory 方法以外，React 还提供 cloneElementAndReplaceKey, cloneElement, isValidElement 用于克隆元素或者校验元素。这些方法均由 ReactElement 模块输出。而 React.children 用于处理对子元素的操作。</p>
+<h3 id="Element"><a href="#Element" class="headerlink" title="Element"></a>Element</h3><p>ReactElement(type, key, ref, self, source, owner, props) 作为创建元素的工厂函数，将构建 element 常量并返回。其中，element 包含可枚举可赋值的 $$typeof, type, key, ref, props, _owner 属性，$$typeof 属性为特定常量 REACT_ELEMENT_TYPE。在开发环境中，element 又包含 _store 存储校验标识（_store.validated），不可枚举不可赋值的 _self, _source 属性；且 element, element.props 均使用 Object.freeze 冻结。</p>
+<p>createElement(type, config, children) 使用特定的自定义或内置组件 type 创建元素。参数 config 通过 key, ref, <strong>self, </strong>source 配置元素的 key, ref, self, source 属性，其余属性将作为元素的 props。children 用于配置元素下割的子元素。在创建元素时，ReactCurrentOwner.current 将作为元素的 _owner 属性。ReactCurrentOwner.current 值为渲染过程中的 Fiber 实例。</p>
+<p>createFactory(type) 为特定的组件创建工厂函数。</p>
+<p>cloneAndReplaceKey(oldElement, newKey) 使用 oldElement 组件构造器 oldElement.type 以及 ref, props, _owner, _self, _source 属性构建新的元素，该元素的 key 属性指定为 newKey。</p>
+<p>cloneElement(element, config, children) 与 cloneAndReplaceKey 不同的是，该方法在克隆元素时可以重新配置 key, ref, props, children 属性。如果重置 ref 属性时，克隆元素的 _owner 属性也将同步更新为渲染过程中的 ReactCurrentOwner.current。</p>
+<p>isValidElement(object) 通过校验参数 object 是否为对象且其 $$typeof 属性为 REACT_ELEMENT_TYPE，以判断是否 React 元素。</p>
+<h3 id="Children"><a href="#Children" class="headerlink" title="Children"></a>Children</h3><p>forEach(children, forEachFunc, forEachContext) 遍历子元素，执行 forEachFunc 函数。</p>
+<p>map(children, func, context) 遍历子元素，执行 func 函数。功能点同 forEach 方法，但是返回数组。</p>
+<p>toArray(children) 将子元素转化为数组。</p>
+<p>count(children) 计算子元素的数目。</p>
+<p>only((children)) 校验参数 children 是否单一的 React 元素，并返回。</p>
+<p>实现上，React 以 traverseAllChildren(children, callback, traverseContext) 函数作为遍历子元素的 api。traverseAllChildren 函数通过递归调用 traverseAllChildrenImpl(children, nameSoFar, callback, traverseContext) 遍历子元素，并校验子元素集合不能由 Map, Object 对象构建。对于回调的执行机制，React 会先使用 getPooledTraverseContext(mapResult, keyPrefix, mapFunction, mapContext) 将 forEach 方法的参数 forEachFunc, forEachContext 或者 map 方法的参数 func, context 组装成 traverseContext 对象（该对象还包含用于收集子元素的数组 mapResult 和元素 key 键的公共前缀 keyPrefix 属性）。在 traverseContext 对象的基础上，React 对 forEach, map 构建了单独的回调包装函数 forEachSingleChild, mapSingleChildIntoContext，以处理特定的逻辑。具体实现可参阅源码。</p>
+<p>多个元素在渲染时可使用 React.Fragment 组件包裹，那样就不必创建额外的 dom 节点。React 输出的 Fragment 组件直接来自于 shared/ReactSymbols 包下的常量 REACT_FRAGMENT_TYPE。 </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;React.Fragment&gt;</span><br><span class="line">  Some text.</span><br><span class="line">  &lt;h2&gt;A heading&lt;<span class="regexp">/h2&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>React.Fragment&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="Refs"><a href="#Refs" class="headerlink" title="Refs"></a>Refs</h2><h3 id="createRef"><a href="#createRef" class="headerlink" title="createRef"></a>createRef</h3><p>React.createRef 创建 refObject 对象，该对象可以作为 React 元素的 ref 属性，以此引用指定的 React 元素。React 包下只创建 refObject 对象并使用 Object.seal 加以密封，核心逻辑由其他包提供。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyComponent</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(props)&#123;</span><br><span class="line">    <span class="keyword">super</span>(props);</span><br><span class="line">    <span class="keyword">this</span>.input = React.createRef();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount()&#123;</span><br><span class="line">    <span class="keyword">this</span>.input.current.focus();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render()&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">'text'</span> <span class="attr">ref</span>=<span class="string">&#123;this.input&#125;</span> /&gt;</span></span></span><br><span class="line"><span class="xml">  &#125;</span></span><br><span class="line"><span class="xml">&#125;</span></span><br></pre></td></tr></table></figure>
+<h3 id="forwardRef"><a href="#forwardRef" class="headerlink" title="forwardRef"></a>forwardRef</h3><p>React.forwardRef 通过创建组件的方式将其所接受的 ref 引用配置长传给其子孙组件。forwardRef 有两个应用场景：为函数式组件指定引用；为高阶组件指定引用。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cosnt FancyButton = React.forwardRef(<span class="function">(<span class="params">props, ref</span>) =&gt;</span> (</span><br><span class="line">  &lt;button ref=&#123;ref&#125; className=<span class="string">'FancyButton'</span>&gt;</span><br><span class="line">    &#123;props.children&#125;</span><br><span class="line">  &lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">));</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">const ref = React.createRef();</span></span><br><span class="line"><span class="regexp">&lt;FancyButton ref=&#123;ref&#125;&gt;Click me!&lt;/</span>FancyButton&gt;;</span><br></pre></td></tr></table></figure>
+<p>上述代码可将创建的 refObject 对象通过 forwardRef 的次参传入函数式组件，以便引用原生 dom 组件。虽然这样创建 ref 引用会增加 FancyButton 与其父元素的层级关联，造成一定的复杂度，但是当 FancyButton 组件被多个应用级组件所使用时，且这些应用级组件都要细微地操作 button 节点，通过 forwardRef 长传 ref 引用就必不可少了。</p>
+<p>在制作高阶组件时，同样可以使用 React.forwardRef 将 ref 引用转变为特定的 props 属性并传入高阶组件中，那样被包裹的组件就可以使用该 props 属性设置 ref 引用了。代码实现如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">logProps</span>(<span class="params">Component</span>)</span>&#123;</span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">LogProps</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">    componentDidUpdate(prevProps)&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'old props:'</span>, prevProps);</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'new props:'</span>, <span class="keyword">this</span>.props);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    render()&#123;</span><br><span class="line">      <span class="keyword">const</span> &#123;forwardedRef, ...rest&#125; = <span class="keyword">this</span>.props;</span><br><span class="line">      <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">Component</span> <span class="attr">ref</span>=<span class="string">&#123;forwardedRef&#125;</span> &#123;<span class="attr">...rest</span>&#125; /&gt;</span></span></span><br><span class="line"><span class="xml">    &#125;</span></span><br><span class="line"><span class="xml">  &#125;</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">  return React.forwardRef((props, ref) =&gt; &#123;</span></span><br><span class="line">    return &lt;LogProps &#123;...props&#125; forwaredRef=&#123;ref&#125; /&gt;;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在实现中，forwardRef 将校验参数是否为函数且包含两个参数（通过 length 属性校验）等，最终返回类 React 元素结构如 { $$typeof, render }。其中，$$typeof 为常量 REACT_FORWARD_REF_TYPE，render 即 forwardRef 的参数。</p>
+<h2 id="Suspense"><a href="#Suspense" class="headerlink" title="Suspense"></a>Suspense</h2><p>React.Suspense 支持在某事件执行完成后渲染组件。目前只支持一种应用场景：通过 React.lazy 动态加载组件，在组件加载完成后，再行渲染。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> LazyComponent  = React.lazy(<span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./OtherComponent.js'</span>));</span><br><span class="line"></span><br><span class="line">&lt;Suspense fallback=&#123;&lt;div&gt;loading...&lt;<span class="regexp">/div&gt;&#125;&gt;</span></span><br><span class="line"><span class="regexp">  &lt;LazyComponent&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>Suspense&gt;</span><br></pre></td></tr></table></figure>
+<p>在 OtherComponent 组件加载过程中，React 将使用 fallback 渲染元素；当 OtherComponent 加载完成后，视图将显示 OtherComponent 组件。Suspense 组件内允许渲染多个懒加载组件。在组件加载失败的场景中，可以构建实现了 getDerivedStateFromError(error) 静态方法以及 componentDidCatch(error, info) 生命周期方法的 ErrorBoundary 组件捕获错误并加以处理。</p>
+<p>使用 React.lazy 动态加载的组件，不止可以作为 Suspense 组件的子元素，还可以作为 Route 组件的 component，以在路由层面实现动态加载。</p>
+<p>在实现上，React.lazy 方法将构建类 React 元素的数据结构如 { $$typeof, _ctor, _status, _result }。其中，$$typeof 为常量 REACT_LAZY_TYPE，_ctor 为 React.lazy 接受的参数。React 输出的 Suspense 组件直接来自于 shared/ReactSymbols 包下的常量 REACT_SUSPENSE_TYPE。 </p>
+<h2 id="createContext"><a href="#createContext" class="headerlink" title="createContext"></a>createContext</h2><p>Context 可视为 React 组件树的全局数据（比如验权后的用户信息、网页的主题风格、显示的语言），用于向子孙组件透传数据，而不必通过 props 属性逐层传递、或者将在顶层组件中将实际消费数据的子组件作为 children 传入中介组件。</p>
+<p>Context 使用的方式为：</p>
+<ol>
+<li>使用 React.createContext(defaultValue) 创建 Context 对象。当 React 组件订阅了该 Context 对象时，该组件将从就近且匹配的 Provider 中读取 Context 对象。如果没有匹配的 Provider，那就会使用 defaultValue。</li>
+<li>Context.Provider 以父组件的形式作为 Context 对象的提供者，当其重绘时，将迫使订阅数据的组件相应重绘。</li>
+<li>在自定义组件中添加 contextType 静态属性，当其值为 Context 对象时，就可以通过组件实例的 context.value 访问实际透传的数据。</li>
+<li>第 3 步也可以替代为第 4 步，使用 Context.Consumer 作为数据的消费者，其下可以用 value =&gt; ReactNode 的形式编写函数式组件。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ThemeContext = React.createContext(<span class="string">'light'</span>);</span><br><span class="line"><span class="keyword">const</span> UserContext = React.createContext(&#123; <span class="attr">name</span>: <span class="string">'Guest'</span> &#125;);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  render()&#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; signedInUser, theme &#125; = <span class="keyword">this</span>.props;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;ThemeContext.Provider value=&#123;theme&#125;&gt;</span><br><span class="line">        &lt;UserContext.Provider value=&#123;signedInUser&#125;&gt;</span><br><span class="line">          &lt;Layout /&gt;</span><br><span class="line">        &lt;<span class="regexp">/UserContext.Provider&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>ThemeContext.Provider&gt;</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Layout</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;Sidebar /&gt;</span><br><span class="line">      &lt;Context /&gt;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">function Context()&#123;</span></span><br><span class="line"><span class="regexp">  return (</span></span><br><span class="line"><span class="regexp">    &lt;ThemeContext.Consumer&gt;</span></span><br><span class="line"><span class="regexp">      &#123;theme =&gt; (</span></span><br><span class="line"><span class="regexp">        &lt;UserContext.Consumer&gt;</span></span><br><span class="line"><span class="regexp">          &#123;user =&gt; (</span></span><br><span class="line"><span class="regexp">            &lt;ProfilePage user=&#123;user&#125; theme=&#123;theme&#125; /</span>&gt;</span><br><span class="line">          )&#125;</span><br><span class="line">        &lt;<span class="regexp">/UserContext.Consumer&gt;</span></span><br><span class="line"><span class="regexp">      )&#125;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>ThemeContext.Consumer&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实现上，createContext(defaultValue, calculateChangeBits) 方法会创建类 React 元素数据如 { $$typeof, _calculateChangedBits, _currentValue, _currentValue2, _threadCount, Provider, Consumer }。其中，$$typeof 为常量 REACT_CONTEXT_TYPE。Context.Provider 创建类 React 元素数据如 { $$typeof, _context }。其中，$$typeof 为常量 REACT_PROVIDER_TYPE；_context 即引用 Context 对象。Context.Consumer 在生产环境中就是Context 引用对象，开发环境将校验不能使用嵌套形式编码如 Context.Consumer.Provider, Context.Consumer.Consumer。</p>
+<h2 id="ReactHooks"><a href="#ReactHooks" class="headerlink" title="ReactHooks"></a>ReactHooks</h2><p>借助于 <a href="https://reactjs.org/docs/high-order-components.html" target="_blank" rel="noopener">HOC</a> 或者 <a href="https://reactjs.org/docs/render-props.html" target="_blank" rel="noopener">render props</a>，你可以整合组件内的可重用逻辑。比如当弹窗 Modal 组件内包含多个可切换的表单组件时，可以使用 render props 将表单的渲染函数传入 Modal 中。但是这样处理却会破坏组件的结构，容易造成 wrapper 装饰器层叠套用较深，在层叠组件中维护组件的状态。使用 ReactHooks 后，我们可以提取状态处理逻辑，这样可以对状态处理逻辑进行独立测试和复用，且不会改变组件的层级。在多个组件中，共用钩子也是较为方便的。</p>
+<p>在编写组件时，随着项目的逐步发展，组件的逻辑将变得极为复杂，比如 componentDidMount 方法内既会包含数据获取的操作，又会包含事件绑定，同时，相同功能点的处理逻辑（事件绑定和解绑）会散落在多个生命周期中。这样就会包含多个执行逻辑，也使代码不易测试、容易出错。借助状态管理器，我们可以将部分执行逻辑写入 store 中，然而这样会引入过多的抽象，执行逻辑也分散在多个模块中，也使组件不便于重用。使用 ReactHooks 后，我们可以基于功能点将彼此相关的处理逻辑拆分为多个小函数，而不是割裂性地分布在组件的多个生命周期中。</p>
+<p>如同 Svelte, Angular, Glimer 所展示的，提前预编译组件在未来拥有极高的潜力。React 最近在尝试使用 <a href="https://prepack.io" target="_blank" rel="noopener">Prepack</a> 在编译时预处理组件，并且已经看见了一些眉目。然而类组件会使这些优化进展缓慢，同时，类也不能很好的压缩，并使热加载变得不可靠。使用 ReactHooks 后，我们可以使用更多的 React 特性，且不必借助类组件的形式。</p>
+<p>从效果上看，ReactHooks 为函数式组件提供状态管理以及相关生命周期特性。</p>
+<p>在 React 包中，除却必要的校验外，ReactHooks 提供的 api 都将间接调用 ReactCurrentOwner.currentDispatcher 的同名方法。</p>
+<h3 id="State-Hook"><a href="#State-Hook" class="headerlink" title="State Hook"></a>State Hook</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; useState &#125; <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Example</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [count, setCount] = useState(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;p&gt;You clicked &#123;count&#125; times&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">      &lt;button onClick=&#123;() =&gt; setCount(count + 1)&#125;&gt;</span></span><br><span class="line"><span class="regexp">        Click me</span></span><br><span class="line"><span class="regexp">      &lt;/</span>button&gt;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>useState 将声明一个状态变量，作为返回数组的首项，该状态变量受到 React 机制的保护，只能通过第二个数组项 setCount 进行修改（其功能点一如类组件中使用的 setState 方法）。useState 的参数为状态的初始值，不限于对象形式。如果要使用两个状态，可调用 useState 两次达成。如前所述，useState 以数组形式返回一对值，前一个是当前的状态，后一个是用于变更状态的函数。</p>
+<p>useState 的首参也可以是函数，初始状态由函数的返回值提供。</p>
+<h3 id="Effect-Hook"><a href="#Effect-Hook" class="headerlink" title="Effect Hook"></a>Effect Hook</h3><p>Effect Hook 用于组织副作用逻辑，包含远程数据获取、事件绑定、节点操作、日志打印等。假设有针对组件状态的处理逻辑，在类组件的编程形式中，我们需要在 componentDidMount, componentDidUpdate 生命周期中两次组织同一个处理逻辑。当使用 Effect Hook 时，我们只需要组织一次这个处理逻辑。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; useState, useEffect &#125; <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">FriendStatus</span>(<span class="params">props</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [isOnline, setIsOnline] = useState(<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handleStatusChange</span>(<span class="params">status</span>)</span>&#123;</span><br><span class="line">    setIsOnline(status.isOnline);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      ChatAPI.unsubscribeToFriendStatus(props.friend.id, handleStatusChange);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isOnline === <span class="literal">null</span>)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'Loading...'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> isOnline ? <span class="string">'Online'</span> : <span class="string">'Offline'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>效果上，useEffect(effect, inputs) 等同于告知 React 在组件渲染完成后需要执行 effect 副作用（React 会记录这个副作用函数，并在组件渲染完成后调用）；参数 inputs 以数组形式告知 React 当某些数据变更时，才执行副作用（可以是函数式组件内的任何变量或属性，并在 effect 中有所使用）。在函数式组件中使用 useEffect，其意义在于便捷地通过 useState 访问状态；同时，每次重绘将会构建新的 effect，其效果等同于每次渲染都会调度不同的副作用，属于一次性消费。与 componentDidMount, componentDidUpdate 不同的是，useEffect 副作用不会阻塞视图更新。useLayoutEffect 方法与 useEffect 类似，可用于测算布局。</p>
+<p>当所需执行的副作用为事件订阅类时，在组件卸载时，我们需要解绑事件，以防内存溢出。当 effect 返回函数（比如用于解绑事件）时，React 会在组件即将更新时执行这个函数。以下是</p>
+<p>基于 useEffect，我们可以将相同功能点的处理逻辑写在一个 effect 中，组件内使用多个 effect 涵盖不同的功能点，而不是像类组件那样使相同功能点的处理逻辑散落在不同生命周期中。同时，我们也不需要在 componentDidUpdate 编写一套 props 变更的处理逻辑，因为 useEffect 在组件重置后均会得到调用。</p>
+<h3 id="Custom-Hook"><a href="#Custom-Hook" class="headerlink" title="Custom Hook"></a>Custom Hook</h3><p>自定义 hook 允许在不同组件重用状态处理逻辑</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; useState, useEffect &#125; <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">useFriendStatus</span>(<span class="params">friendID</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [isOnline, setIsOnline] = useState(<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handleStatusChange</span>(<span class="params">status</span>) </span>&#123;</span><br><span class="line">    setIsOnline(status.isOnline);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    ChatAPI.subscribeToFriendStatus(friendID, handleStatusChange);</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      ChatAPI.unsubscribeFromFriendStatus(friendID, handleStatusChange);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> isOnline;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">FriendStatus</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> isOnline = useFriendStatus(props.friend.id);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isOnline === <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'Loading...'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> isOnline ? <span class="string">'Online'</span> : <span class="string">'Offline'</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">FriendListItem</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> isOnline = useFriendStatus(props.friend.id);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;li style=&#123;&#123; <span class="attr">color</span>: isOnline ? <span class="string">'green'</span> : <span class="string">'black'</span> &#125;&#125;&gt;</span><br><span class="line">      &#123;props.friend.name&#125;</span><br><span class="line">    &lt;<span class="regexp">/li&gt;</span></span><br><span class="line"><span class="regexp">  );</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>自定义 hook 名需要使用 ‘use’ 起始，这样才能满足 <a href="https://www.npmjs.com/package/eslint-plugin-react-hooks" target="_blank" rel="noopener">eslint-plugin-react-hooks</a>，React 也能侦测出这是一个 hook。其次，在不同组件中使用的自定义 hook，会构建不同的 state。</p>
+<h3 id="useReducer"><a href="#useReducer" class="headerlink" title="useReducer"></a>useReducer</h3><p>当组件的状态管理略显复杂时，React 提供 useReducer 钩子以 Redux 风格管理状态。</p>
+<p>useReducer 方法的首参为 reducer，次参为 initialState，尾参为 initialAction 如 {type: ‘reset’, payload: initialCount}。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">todosReducer</span>(<span class="params">state, action</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span> (action.type) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">'add'</span>:</span><br><span class="line">      <span class="keyword">return</span> [...state, &#123;</span><br><span class="line">        text: action.text,</span><br><span class="line">        completed: <span class="literal">false</span></span><br><span class="line">      &#125;];</span><br><span class="line">    <span class="comment">// ... other actions ...</span></span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="keyword">return</span> state;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">useReducer</span>(<span class="params">reducer, initialState</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [state, setState] = useState(initialState);</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">dispatch</span>(<span class="params">action</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> nextState = reducer(state, action);</span><br><span class="line">    setState(nextState);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> [state, dispatch];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Todos</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [todos, dispatch] = useReducer(todosReducer, []);</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handleAddClick</span>(<span class="params">text</span>) </span>&#123;</span><br><span class="line">    dispatch(&#123; <span class="attr">type</span>: <span class="string">'add'</span>, text &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li>useContext(context): 使用 React.createContext 创建的 context 对象作为参数，从就近的 Provider 中获取 context 对象。当 context 对象在 Provider 中更新时，组件将重绘。</li>
+<li>useCallback(() =&gt; { doSomething(realInputs) }, inputs): 当 inputs 数组数据变更时，执行 doSomething 回调。useCallback(fn, inputs) 等价于 useMemo(() =&gt; fn, inputs)。</li>
+<li>useMemo(() =&gt; { computeExpensiveValue(realInputs) }, inputs): 当 inputs 数组数据变更时，执行 computeExpensiveValue 函数，重新计算新值。</li>
+<li>useRef(initialValue): 将使用接受的首参构建引用，通过 current 属性访问。该 ref 引用将在组件的生命周期中得到维持。</li>
+<li>useImperativeMethods(ref, createInstance, [inputs]): 用于对外导出操纵子元素的 ref 引用方法，只能配合 forwardRef 方法使用。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// useRef</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">TextInputWithFocusButton</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> inputEl = useRef(<span class="literal">null</span>);</span><br><span class="line">  <span class="keyword">const</span> onButtonClick = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// `current` points to the mounted text input element</span></span><br><span class="line">    inputEl.current.focus();</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &lt;input ref=&#123;inputEl&#125; type=<span class="string">"text"</span> /&gt;</span><br><span class="line">      &lt;button onClick=&#123;onButtonClick&#125;&gt;Focus the input&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// useImperativeMethods</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">FancyInput</span>(<span class="params">props, ref</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> inputRef = useRef();</span><br><span class="line">  useImperativeMethods(ref, () =&gt; (&#123;</span><br><span class="line">    focus: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      inputRef.current.focus();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;));</span><br><span class="line">  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">input</span> <span class="attr">ref</span>=<span class="string">&#123;inputRef&#125;</span> <span class="attr">...</span> /&gt;</span>;</span></span><br><span class="line"><span class="xml">&#125;</span></span><br><span class="line"><span class="xml">FancyInput = forwardRef(FancyInput);</span></span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/08/antd/react-component/rc-utils/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2086,172 +2334,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/antd/Input/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/11/antd/Input/" itemprop="url">antd-Input 组件</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/11/antd/Input/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/11/antd/Input/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Input-组件"><a href="#Input-组件" class="headerlink" title="Input 组件"></a>Input 组件</h2><p>Input 组件只关乎布局，其余均为常规处理。props.addonBefore 为前置标签，props.addonAfter 为后置标签，props.prefix 前缀图标，props.suffix 后缀图标。参看官方图例：</p>
-<img src="/2018/11/11/antd/Input/Input组件布局.png">
-<p>Input 组件在 render 方法执行阶段将绘制出 input 原生组件。鉴于 react 的实现机制，对于 input 原生组件的处理，有受控组件和非手空组件的区别。受控组件即根据组件的 state 变化渲染 input 节点的值，非受控组件只允许组件渲染出 input 节点的默认值，而其实时值将根据用户的操作行为加以改变。ant design 中的 Input 组件对于受控组件和非受控组件的处理，即是当开发者同时传入 props.value 和 props.defaultValue，props.value 的优先级高于 props.defaultValue，且当 props.value 为 undefined 或 null，均会以空字符串渲染 input 节点的值。</p>
-<p>在事件的绑定函数方面，常规的绑定函数均会透传到 input 原生组件上，而 props.onPressEnter, props.onKeyDown 两个绑定函数均会以 inputInstance.handleKeyDown 方法的形式挂载为 input 原生组件的 onKeyDown 绑定函数（inputInstance 为 Input 组件的实例）。</p>
-<p>此外，inputInstance 实例内置 focus, blur, select 方法，其功用如 inputInstance.focus 可以在校验表单时使校验失败的输入框组件获得焦点。inputInstance.input 属性用于访问 input 原生节点。</p>
-<p>在样式处理方面，笔者将作专文加以阐述。</p>
-<h2 id="TextArea-组件"><a href="#TextArea-组件" class="headerlink" title="TextArea 组件"></a>TextArea 组件</h2><p>TextArea 组件用于绘制 textarea 原生节点。不同于使用前后标签、前后图标影响渲染输入框组件的布局，TextArea 组件只包含 textarea 节点，没有其他布局元素。</p>
-<p>TextArea 组件的特殊处理逻辑是，textarea 节点的高度随用户输入内容而改变，受控于 props.autosize = { minRows?, maxRows? } 属性。其实现原理为：</p>
-<ol>
-<li>使用插入文档的隐藏文本框节点计算单行文本的高度，再由 minRows, maxRows 计算文本框的最大最小高度，并计算文本框的高度。计算获得的文本框即 textareaStyles 变量。</li>
-<li>调用组件实例的 setState 方法，更新 state.textareaStyles，最终构成组件实例的 resizeTextarea 方法。对于受控组件，将在componentWillReceiveProps 生命周期中判断组件获得的 props.value 是否更新，再使用 window.requestAnimationFrame 方式调用 resizeTextarea 方法，以调整文本框的高度。对于非受控组件，在 onChange 事件发生时调用 resizeTextarea 方法。</li>
-</ol>
-<p>calculateNodeHeight 函数计算文本框高度源码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> HIDDEN_TEXTAREA_STYLE = <span class="string">`</span></span><br><span class="line"><span class="string">  min-height:0 !important;</span></span><br><span class="line"><span class="string">  max-height:none !important;</span></span><br><span class="line"><span class="string">  height:0 !important;</span></span><br><span class="line"><span class="string">  visibility:hidden !important;</span></span><br><span class="line"><span class="string">  overflow:hidden !important;</span></span><br><span class="line"><span class="string">  position:absolute !important;</span></span><br><span class="line"><span class="string">  z-index:-1000 !important;</span></span><br><span class="line"><span class="string">  top:0 !important;</span></span><br><span class="line"><span class="string">  right:0 !important</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> SIZING_STYLE = [</span><br><span class="line">  <span class="string">'letter-spacing'</span>,</span><br><span class="line">  <span class="string">'line-height'</span>,</span><br><span class="line">  <span class="string">'padding-top'</span>,</span><br><span class="line">  <span class="string">'padding-bottom'</span>,</span><br><span class="line">  <span class="string">'font-family'</span>,</span><br><span class="line">  <span class="string">'font-weight'</span>,</span><br><span class="line">  <span class="string">'font-size'</span>,</span><br><span class="line">  <span class="string">'text-rendering'</span>,</span><br><span class="line">  <span class="string">'text-transform'</span>,</span><br><span class="line">  <span class="string">'width'</span>,</span><br><span class="line">  <span class="string">'text-indent'</span>,</span><br><span class="line">  <span class="string">'padding-left'</span>,</span><br><span class="line">  <span class="string">'padding-right'</span>,</span><br><span class="line">  <span class="string">'border-width'</span>,</span><br><span class="line">  <span class="string">'box-sizing'</span>,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> computedStyleCache: &#123;[key: string]: NodeType&#125; = &#123;&#125;;</span><br><span class="line"><span class="keyword">let</span> hiddenTextarea: HTMLTextAreaElement;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">calculateNodeStyling</span>(<span class="params">node: HTMLElement, useCache = false</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> nodeRef = (</span><br><span class="line">    node.getAttribute(<span class="string">'id'</span>) ||</span><br><span class="line">    node.getAttribute(<span class="string">'data-reactid'</span>) ||</span><br><span class="line">    node.getAttribute(<span class="string">'name'</span>)</span><br><span class="line">  ) <span class="keyword">as</span> string;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (useCache &amp;&amp; computedStyleCache[nodeRef]) &#123;</span><br><span class="line">    <span class="keyword">return</span> computedStyleCache[nodeRef];</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> style = <span class="built_in">window</span>.getComputedStyle(node);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> boxSizing = (</span><br><span class="line">    style.getPropertyValue(<span class="string">'box-sizing'</span>) ||</span><br><span class="line">    style.getPropertyValue(<span class="string">'-moz-box-sizing'</span>) ||</span><br><span class="line">    style.getPropertyValue(<span class="string">'-webkit-box-sizing'</span>)</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> paddingSize = (</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'padding-bottom'</span>)) +</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'padding-top'</span>))</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> borderSize = (</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'border-bottom-width'</span>)) +</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'border-top-width'</span>))</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> sizingStyle = SIZING_STYLE</span><br><span class="line">    .map(<span class="function"><span class="params">name</span> =&gt;</span> <span class="string">`<span class="subst">$&#123;name&#125;</span>:<span class="subst">$&#123;style.getPropertyValue(name)&#125;</span>`</span>)</span><br><span class="line">    .join(<span class="string">';'</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> nodeInfo: NodeType = &#123;</span><br><span class="line">    sizingStyle,</span><br><span class="line">    paddingSize,</span><br><span class="line">    borderSize,</span><br><span class="line">    boxSizing,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (useCache &amp;&amp; nodeRef) &#123;</span><br><span class="line">    computedStyleCache[nodeRef] = nodeInfo;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> nodeInfo;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">calculateNodeHeight</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  uiTextNode: HTMLTextAreaElement,</span></span></span><br><span class="line"><span class="function"><span class="params">  useCache = false,</span></span></span><br><span class="line"><span class="function"><span class="params">  minRows: number | null = null,</span></span></span><br><span class="line"><span class="function"><span class="params">  maxRows: number | null = null,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!hiddenTextarea) &#123;</span><br><span class="line">    hiddenTextarea = <span class="built_in">document</span>.createElement(<span class="string">'textarea'</span>);</span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(hiddenTextarea);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Fix wrap="off" issue</span></span><br><span class="line">  <span class="comment">// https://github.com/ant-design/ant-design/issues/6577</span></span><br><span class="line">  <span class="keyword">if</span> (uiTextNode.getAttribute(<span class="string">'wrap'</span>)) &#123;</span><br><span class="line">    hiddenTextarea.setAttribute(<span class="string">'wrap'</span>, uiTextNode.getAttribute(<span class="string">'wrap'</span>) <span class="keyword">as</span> string);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    hiddenTextarea.removeAttribute(<span class="string">'wrap'</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将影响文本框节点高度的样式属性拷贝给隐藏节点</span></span><br><span class="line">  <span class="comment">// overflow 样式属性置为 hidden，以此将滚动条排除在外</span></span><br><span class="line">  <span class="keyword">let</span> &#123;</span><br><span class="line">    paddingSize, borderSize,</span><br><span class="line">    boxSizing, sizingStyle,</span><br><span class="line">  &#125; = calculateNodeStyling(uiTextNode, useCache);</span><br><span class="line">  hiddenTextarea.setAttribute(<span class="string">'style'</span>, <span class="string">`<span class="subst">$&#123;sizingStyle&#125;</span>;<span class="subst">$&#123;HIDDEN_TEXTAREA_STYLE&#125;</span>`</span>);</span><br><span class="line">  hiddenTextarea.value = uiTextNode.value || uiTextNode.placeholder || <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> minHeight = <span class="built_in">Number</span>.MIN_SAFE_INTEGER;</span><br><span class="line">  <span class="keyword">let</span> maxHeight = <span class="built_in">Number</span>.MAX_SAFE_INTEGER;</span><br><span class="line">  <span class="keyword">let</span> height = hiddenTextarea.scrollHeight;<span class="comment">// 以隐藏节点计算文本框高度</span></span><br><span class="line">  <span class="keyword">let</span> overflowY: any;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 根据盒模式调整高度</span></span><br><span class="line">  <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">    height = height + borderSize;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (boxSizing === <span class="string">'content-box'</span>) &#123;</span><br><span class="line">    height = height - paddingSize;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (minRows !== <span class="literal">null</span> || maxRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// 计算文本框单行高度</span></span><br><span class="line">    hiddenTextarea.value = <span class="string">' '</span>;</span><br><span class="line">    <span class="keyword">let</span> singleRowHeight = hiddenTextarea.scrollHeight - paddingSize;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (minRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">      minHeight = singleRowHeight * minRows;</span><br><span class="line">      <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">        minHeight = minHeight + paddingSize + borderSize;</span><br><span class="line">      &#125;</span><br><span class="line">      height = <span class="built_in">Math</span>.max(minHeight, height);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (maxRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">      maxHeight = singleRowHeight * maxRows;</span><br><span class="line">      <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">        maxHeight = maxHeight + paddingSize + borderSize;</span><br><span class="line">      &#125;</span><br><span class="line">      overflowY = height &gt; maxHeight ? <span class="string">''</span> : <span class="string">'hidden'</span>;</span><br><span class="line">      height = <span class="built_in">Math</span>.min(maxHeight, height);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!maxRows) &#123;</span><br><span class="line">    overflowY = <span class="string">'hidden'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> &#123; height, minHeight, maxHeight, overflowY &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>setState 更新文本框高度源码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不打断本次渲染，在下一次渲染调整文本框的样式</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">onNextFrame</span>(<span class="params">cb: (</span>) =&gt; <span class="title">void</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">window</span>.requestAnimationFrame) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">window</span>.requestAnimationFrame(cb);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">window</span>.setTimeout(cb, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">clearNextFrameAction</span>(<span class="params">nextFrameId: number</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">window</span>.cancelAnimationFrame) &#123;</span><br><span class="line">    <span class="built_in">window</span>.cancelAnimationFrame(nextFrameId);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">window</span>.clearTimeout(nextFrameId);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextArea</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span>&lt;<span class="title">TextAreaProps</span>, <span class="title">TextAreaState</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> defaultProps = &#123;</span><br><span class="line">    prefixCls: <span class="string">'ant-input'</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  nextFrameActionId: number;</span><br><span class="line"></span><br><span class="line">  state = &#123;</span><br><span class="line">    textareaStyles: &#123;&#125;,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.resizeTextarea();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillReceiveProps(nextProps: TextAreaProps) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.props.value !== nextProps.value) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.nextFrameActionId) &#123;</span><br><span class="line">        clearNextFrameAction(<span class="keyword">this</span>.nextFrameActionId);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.nextFrameActionId = onNextFrame(<span class="keyword">this</span>.resizeTextarea);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  resizeTextarea = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; autosize &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (!autosize || !<span class="keyword">this</span>.textAreaRef) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> minRows = autosize ? (autosize <span class="keyword">as</span> AutoSizeType).minRows : <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">const</span> maxRows = autosize ? (autosize <span class="keyword">as</span> AutoSizeType).maxRows : <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">const</span> textareaStyles = calculateNodeHeight(<span class="keyword">this</span>.textAreaRef, <span class="literal">false</span>, minRows, maxRows);</span><br><span class="line">    <span class="keyword">this</span>.setState(&#123; textareaStyles &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  handleTextareaChange = <span class="function">(<span class="params">e: React.ChangeEvent&lt;HTMLTextAreaElement&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!(<span class="string">'value'</span> <span class="keyword">in</span> <span class="keyword">this</span>.props)) &#123;</span><br><span class="line">      <span class="keyword">this</span>.resizeTextarea();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> &#123; onChange &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (onChange) &#123;</span><br><span class="line">      onChange(e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 余略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h2><p>Search 组件基于 Input 组件制作，其特殊处理是在 inputInstance.onPressEnter 方法执行过程中调用 props.onSearch 方法，适用于远程搜索之类的场景；Search 组件还提供 props.enterButton 属性用于配置输入框的后缀图标，默认使用 search 图标，可渲染文本或按钮。实现请参考 ant design 源码。</p>
-<h2 id="Group"><a href="#Group" class="headerlink" title="Group"></a>Group</h2><p>Group 组件主要以样式控制多个表单项组件 props.children 的成组渲染。实现请参考 ant design 源码。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2301,7 +2383,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">73</span>
+                    <span class="site-state-item-count">74</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2323,7 +2405,7 @@
                 
                 <div class="site-state-item site-state-tags">
                   <a href="/tags/index.html">
-                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="carrier,test,">
+
+
+<meta name="description" content="mac 环境变量命令一旦添加到环境变量中，系统就知道从哪个路径中取出文件并执行。mac 有多个环境变量文件，不同的环境变量文件的作用域和加载时间也不同。在 mac 中，不同的 shell 所对应的配置文件也不同：bash 命令对应的配置文件是 .bash_profile；zsh 命令对应的配置文件是 .zshrc。 rc 即为 run command，一般为脚本类文件的后缀，这些脚本通常在程序启动">
+<meta name="keywords" content="carrier,test">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开发环境相关：mac 环境变量、nvm、npm、lerna">
+<meta property="og:url" content="http://yoursite.com/2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="mac 环境变量命令一旦添加到环境变量中，系统就知道从哪个路径中取出文件并执行。mac 有多个环境变量文件，不同的环境变量文件的作用域和加载时间也不同。在 mac 中，不同的 shell 所对应的配置文件也不同：bash 命令对应的配置文件是 .bash_profile；zsh 命令对应的配置文件是 .zshrc。 rc 即为 run command，一般为脚本类文件的后缀，这些脚本通常在程序启动">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-28T12:15:04.932Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="开发环境相关：mac 环境变量、nvm、npm、lerna">
+<meta name="twitter:description" content="mac 环境变量命令一旦添加到环境变量中，系统就知道从哪个路径中取出文件并执行。mac 有多个环境变量文件，不同的环境变量文件的作用域和加载时间也不同。在 mac 中，不同的 shell 所对应的配置文件也不同：bash 命令对应的配置文件是 .bash_profile；zsh 命令对应的配置文件是 .zshrc。 rc 即为 run command，一般为脚本类文件的后缀，这些脚本通常在程序启动">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/">
+
+
+  <title>开发环境相关：mac 环境变量、nvm、npm、lerna | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">开发环境相关：mac 环境变量、nvm、npm、lerna</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-27T00:00:00+08:00">2019-07-27</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/手册/" itemprop="url" rel="index"><span itemprop="name">手册</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="mac-环境变量"><a href="#mac-环境变量" class="headerlink" title="mac 环境变量"></a>mac 环境变量</h2><p>命令一旦添加到环境变量中，系统就知道从哪个路径中取出文件并执行。mac 有多个环境变量文件，不同的环境变量文件的作用域和加载时间也不同。在 mac 中，不同的 shell 所对应的配置文件也不同：bash 命令对应的配置文件是 .bash_profile；zsh 命令对应的配置文件是 .zshrc。</p>
+<p>rc 即为 run command，一般为脚本类文件的后缀，这些脚本通常在程序启动的时候被调用，比如 .bashrc 就会在 bash shell 启动时调用。</p>
+<p>mac 中环境变量配置文件的默认加载顺序如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/etc/profile <span class="comment"># 系统级环境变量，任何用户登陆时都会读取该文件</span></span><br><span class="line">/etc/bashrc <span class="comment"># 系统级环境变量，bash shell执行时，不管是何种方式，读取该文件</span></span><br><span class="line">/etc/paths <span class="comment"># 系统级环境变量，任何用户登陆时都会读取该文件</span></span><br><span class="line">~/.bash_profile <span class="comment"># 包含用户专有的 bash 信息，当登录时以及每次打开新的 shell 时，该文件被读取；文件存在时，后面的几个文件都会被忽略</span></span><br><span class="line">~/.bash_login <span class="comment"># 系统级环境变量，任何用户登陆时都会读取该文件</span></span><br><span class="line">~/.profile <span class="comment"># 为系统的每个用户设置环境信息，当用户第一次登录时，该文件被执行；重启后生效</span></span><br><span class="line">~/.bashrc <span class="comment"># 每一个运行 bash shell 的用户执行该文件</span></span><br></pre></td></tr></table></figure>
+<p>添加或修改环境变量可使用如下语法（$PATH 即原始的环境变量）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=<span class="string">"<span class="variable">$PATH</span>:&lt;PATH 1&gt;:&lt;PATH 2&gt;:&lt;PATH 3&gt;:...:&lt;PATH N&gt;"</span> <span class="comment"># 修改环境变量的一般语法</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">'/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/alfred/apache-maven-3.5.0/bin'</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span> <span class="comment"># 查看环境变量</span></span><br></pre></td></tr></table></figure>
+<h2 id="nvm"><a href="#nvm" class="headerlink" title="nvm"></a>nvm</h2><p><a href="https://github.com/nvm-sh/nvm" target="_blank" rel="noopener">nvm</a> 是 Mac 环境下 node 版本管理工具。Windows 平台下推荐 nvmw 或 <a href="https://github.com/coreybutler/nvm-windows" target="_blank" rel="noopener">nvm-windows</a>。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># .bash_profile 添加以下代码，须重启终端</span></span><br><span class="line"><span class="built_in">export</span> NVM_DIR=<span class="string">"<span class="variable">$HOME</span>/.nvm"</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span>  <span class="comment"># This loads nvm</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span>  <span class="comment"># This loads nvm</span></span><br></pre></td></tr></table></figure>
+<h3 id="更新"><a href="#更新" class="headerlink" title="更新"></a>更新</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(</span><br><span class="line">  <span class="built_in">cd</span> <span class="string">"<span class="variable">$NVM_DIR</span>"</span></span><br><span class="line">  git fetch --tags origin</span><br><span class="line">  git checkout `git describe --abbrev=0 --tags --match <span class="string">"v[0-9]*"</span> $(git rev-list --tags --max-count=1)`</span><br><span class="line">) &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span></span><br></pre></td></tr></table></figure>
+<h3 id="卸载"><a href="#卸载" class="headerlink" title="卸载"></a>卸载</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo rm -rf ~/.nvm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移除 .bash_profile 中以下代码，卸载后须重启电脑</span></span><br><span class="line"><span class="built_in">export</span> NVM_DIR=<span class="string">"<span class="variable">$HOME</span>/.nvm"</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span>  <span class="comment"># This loads nvm</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span>  <span class="comment"># This loads nvm bash_completion</span></span><br></pre></td></tr></table></figure>
+<h3 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">nvm debug <span class="comment"># 查看 nvm 及 node 信息</span></span><br><span class="line"></span><br><span class="line">nvm ls <span class="comment"># 展示本地安装的所有 node 版本</span></span><br><span class="line">nvm ls-remote <span class="comment"># 展示所有可用的 node 版本；windows 环境下使用 nvm ls available</span></span><br><span class="line">nvm install node <span class="comment"># 安装 node 最新版本；'node' 是最新版本的别名</span></span><br><span class="line">nvm install 6.14.4 <span class="comment"># 安装 node 指定版本</span></span><br><span class="line">nvm uninstall 6.14.4 <span class="comment"># 卸载 node 指定版本</span></span><br><span class="line">nvm use node <span class="comment"># node 命令使用指定版本</span></span><br><span class="line">nvm current <span class="comment"># 查看正在使用的 node 版本</span></span><br><span class="line">nvm run node --version <span class="comment"># 使用指定版本执行指定命令</span></span><br><span class="line">nvm <span class="built_in">exec</span> 4.2 node --version <span class="comment"># 使用指定版本执行指定命令</span></span><br><span class="line">nvm <span class="built_in">which</span> 5.0 <span class="comment"># 查看指定版本的安装位置</span></span><br><span class="line">nvm install 6 --reinstall-packages-from=5 <span class="comment"># 将 5 版本中安装的全局模块安装到 6 版本中</span></span><br><span class="line"></span><br><span class="line">nvm <span class="built_in">alias</span> awesome-version 4.2.2 <span class="comment"># 为指定版本的 node 起别名</span></span><br><span class="line">nvm <span class="built_in">unalias</span> awesome-version <span class="comment"># 移除别名</span></span><br></pre></td></tr></table></figure>
+<h2 id="npm"><a href="#npm" class="headerlink" title="npm"></a>npm</h2><h3 id="命令-1"><a href="#命令-1" class="headerlink" title="命令"></a>命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">npm install -g npm@3 <span class="comment"># npm 升级到 v3 版本</span></span><br><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org <span class="comment"># 安装 cnpm</span></span><br><span class="line"></span><br><span class="line">npm publish <span class="comment"># 发布包</span></span><br><span class="line">npm unpublish <span class="comment"># 撤销发布</span></span><br><span class="line"></span><br><span class="line">npm home <span class="variable">$package</span> <span class="comment"># npm home loadsh 访问 lodash 主页</span></span><br><span class="line">npm repo <span class="variable">$package</span> <span class="comment"># 访问 github 仓库</span></span><br><span class="line"></span><br><span class="line">npm outdate <span class="comment"># 检索过时的依赖</span></span><br><span class="line">npm prune <span class="comment"># 剔除未在 package.json 中注明的 node_modules 依赖</span></span><br><span class="line">npm version &lt;update_type&gt; <span class="comment"># npm version patch,minor,major 自动升级版本号；patch 小改动或bug修复，minor 添加新特性，major 大改动且无法向后兼容</span></span><br><span class="line">npm shrinkwrap <span class="comment"># 生成 npm-shrinkwrap.json 文件，锁定依赖版本号</span></span><br><span class="line"></span><br><span class="line">npm config <span class="built_in">set</span> prefix <span class="variable">$dir</span> <span class="comment"># 变更安装目录为$dir；chown -R $USER $dir改变$dir目录的操作权限；再将$dir/bin加入环境变量，可以不用 sudo</span></span><br><span class="line">npm config <span class="built_in">set</span> save-prefix=“~” <span class="comment"># 改变默认保存前缀；波浪号~，表示当信赖的副版本号有更新时，允许使用npm update进行安装；脱字符^，表示当依赖的主版本号有更新时，允许使用 npm update 进行安装</span></span><br><span class="line">npm config <span class="built_in">set</span> init.author.name <span class="variable">$name</span>，npm config <span class="built_in">set</span> init.author.email <span class="variable">$email</span> <span class="comment"># npm init初始化项目时启用特定值配置 package.json</span></span><br><span class="line">npm config <span class="built_in">set</span> init-module ~/.npm-init.js <span class="comment"># 以特定脚本配置 package.json</span></span><br></pre></td></tr></table></figure>
+<h3 id="备忘"><a href="#备忘" class="headerlink" title="备忘"></a>备忘</h3><ol>
+<li>安装依赖包时携带 –production 参数，将不予安装devDependencies依赖；若设置N ODE_ENV 环境变量为production，devDependencies 依赖也不会被安装。</li>
+<li>项目中若不存在 .npmignore 文件，将取用 .gitignore 设定以及一些默认配置。</li>
+</ol>
+<h3 id="QA"><a href="#QA" class="headerlink" title="QA"></a>QA</h3><p>Q: 在执行 npm link 命令时，遇到 Unhandled rejection RangeError: Maximum call stack size exceededill install loadIdealTree 报错，该如何处理？<br>A: 尝试清空工程目录中的 node_modules 依赖，再次执行 npm link，参考 <a href="https://stackoverflow.com/questions/40566348/maximum-call-stack-size-exceeded-on-npm-install" target="_blank" rel="noopener">Maximum call stack size exceeded on npm install</a>。</p>
+<h2 id="lerna"><a href="#lerna" class="headerlink" title="lerna"></a>lerna</h2><p><a href="https://github.com/lerna/lerna#getting-started" target="_blank" rel="noopener">lerna</a> 是面向 js 的多包管理器。</p>
+<h3 id="安装-1"><a href="#安装-1" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cnpm install lerna -g</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.clloz.com/programming/assorted/2019/04/07/mac-pathnvm/" target="_blank" rel="noopener">Mac的环境变量和nvm的使用</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/carrier/" rel="tag"># carrier</a>
+          
+            <a href="/tags/test/" rel="tag"># test</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/25/工程化/babel/babel types/" rel="next" title="babel types">
+                <i class="fa fa-chevron-left"></i> babel types
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpeg" alt="Alfred">
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">78</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">27</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#mac-环境变量"><span class="nav-number">1.</span> <span class="nav-text">mac 环境变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nvm"><span class="nav-number">2.</span> <span class="nav-text">nvm</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">2.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新"><span class="nav-number">2.2.</span> <span class="nav-text">更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#卸载"><span class="nav-number">2.3.</span> <span class="nav-text">卸载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#命令"><span class="nav-number">2.4.</span> <span class="nav-text">命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#npm"><span class="nav-number">3.</span> <span class="nav-text">npm</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#命令-1"><span class="nav-number">3.1.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#备忘"><span class="nav-number">3.2.</span> <span class="nav-text">备忘</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QA"><span class="nav-number">3.3.</span> <span class="nav-text">QA</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lerna"><span class="nav-number">4.</span> <span class="nav-text">lerna</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装-1"><span class="nav-number">4.1.</span> <span class="nav-text">安装</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/';
+        this.page.identifier = '2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/';
+        this.page.title = '开发环境相关：mac 环境变量、nvm、npm、lerna';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

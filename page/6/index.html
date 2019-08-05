@@ -270,6 +270,255 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/09/es6/Reflect, Proxy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/09/es6/Reflect, Proxy/" itemprop="url">Reflect, Proxy</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-09T00:00:00+08:00">2018-10-09</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/es6/" itemprop="url" rel="index"><span itemprop="name">es6</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/10/09/es6/Reflect, Proxy/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/10/09/es6/Reflect, Proxy/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Reflect"><a href="#Reflect" class="headerlink" title="Reflect"></a>Reflect</h2><p>ES6 提供的 API，集成语言层面的对象操作（操作与 Proxy 一一对应，且为函数形式）。</p>
+<ul>
+<li>Reflect.get(target, name, receiver): 获取属性。</li>
+<li>Reflect.set(target, name, value, receiver): 对属性赋值。</li>
+<li>Reflect.defineProperty(target, name, desc): 修改属性的描述符。</li>
+<li>Reflect.deleteProperty(target, name): 删除属性。</li>
+<li>Reflect.has(target, name): propKey in proxy 判断。</li>
+<li>Reflect.ownKeys(target): 返回对象的自有属性。</li>
+<li>Reflect.enumerate(target): 以迭代器形式获取对象的可枚举属性。</li>
+<li>Reflect.isExtensible(target): 判断对象是否可扩展。</li>
+<li>Reflect.preventExtensions(target): 使对象不可扩展。</li>
+<li>Reflect.getOwnPropertyDescriptor(target, name): 获取属性的描述符。</li>
+<li>Reflect.getPrototypeOf(target): 获取对象的 <strong>proto</strong> 属性。</li>
+<li>Reflect.setPrototypeOf(target, prototype): 设置对象的原型。</li>
+<li>Reflect.apply(target, thisArg, args): 以 thisArg 为上下文执行 target 函数。</li>
+<li>Reflect.construct(target, args): 创建 target 实例。</li>
+</ul>
+<h2 id="Proxy"><a href="#Proxy" class="headerlink" title="Proxy"></a>Proxy</h2><p>Proxy 在语言层面，拦截针对对象的操作。ES6 原生提供 Proxy 构造函数，用来生成 Proxy 实例。</p>
+<p>使用 let proxy = new Proxy(target, handler); 创建 Proxy 实例。参数 target 可以是对象，也可以是函数。handler 为设定拦截操作的集合。操作 proxy，将同时影响 target。</p>
+<p>Proxy.revocable 方法返回一个可取消的 Proxy 实例。返回值中，proxy 属性即为 Proxy 实例，revoke 方法用于取消 Proxy 实例。</p>
+<p>在 Proxy 代理的情况下，目标对象内的 this 关键字将指向 Proxy 实例。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> proto = <span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">  <span class="keyword">get</span>(target, propertyKey, receiver) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'GET '</span> + propertyKey);</span><br><span class="line">    <span class="keyword">return</span> target[propertyKey];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> obj = <span class="built_in">Object</span>.create(proto);</span><br><span class="line">obj.foo <span class="comment">// "GET foo"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> target = &#123;&#125;;</span><br><span class="line"><span class="keyword">let</span> handler = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> &#123;proxy, revoke&#125; = <span class="built_in">Proxy</span>.revocable(target, handler);</span><br><span class="line"></span><br><span class="line">proxy.foo = <span class="number">123</span>;</span><br><span class="line">proxy.foo <span class="comment">// 123</span></span><br><span class="line"></span><br><span class="line">revoke();</span><br><span class="line">proxy.foo <span class="comment">// TypeError: Revoked</span></span><br></pre></td></tr></table></figure>
+<p>可拦截的操作包含：</p>
+<ul>
+<li>get(target, propKey, receiver): 拦截对象属性的读取。参数 reveiver 为操作行为所针对的对象，通常是 proxy 实例。</li>
+<li>set(target, propKey, value): 拦截对象属性的设置，返回布尔值。</li>
+<li>has(target, propKey): 拦截 propKey in proxy 操作，返回布尔值。</li>
+<li>delete(target, propKey): 拦截 delete proxy[propKey] 的操作，返回布尔值。</li>
+<li>ownKeys(target): 拦截 Object.getOwnPropertyNames(proxy)、Object.getOwnPropertySymbols(proxy)、Object.keys(proxy)、for…in 循环，返回目标对象自身所有的属性，Object.keys() 返回仅包括目标对象自身的可遍历属性。</li>
+<li>getOwnPropertyDescriptor(target, propKey): 拦截 Object.getOwnPropertyDescriptor(proxy, propKey)，返回属性的描述对象。</li>
+<li>defineProperty(target, propKey, propDesc): 拦截 Object.defineProperty(proxy, propKey, propDesc）、Object.defineProperties(proxy, propDescs)，返回布尔值。</li>
+<li>preventExtensions(target): 拦截 Object.preventExtensions(proxy)，返回布尔值。</li>
+<li>getPrototypeOf(target): 拦截 Object.getPrototypeOf(proxy)，返回对象。</li>
+<li>isExtensible(target): 拦截 Object.isExtensible(proxy)，返回布尔值。</li>
+<li>setPrototypeOf(target, proto): 拦截 Object.setPrototypeOf(proxy, proto)，返回布尔值。</li>
+<li>apply(target, object, args): 拦截 Proxy 实例作为函数调用的操作，比如 proxy(…args)、proxy.call(object, …args)、proxy.apply(…)。</li>
+<li>construct(target, args): 拦截 Proxy 实例作为构造函数调用的操作，比如 new proxy(…args)。</li>
+</ul>
+<h2 id="harmony-reflect"><a href="#harmony-reflect" class="headerlink" title="harmony-reflect"></a>harmony-reflect</h2><p>作为垫片，提供 Reflect 全局对象，扩展 Object 及 Proxy。</p>
+<h3 id="Reflect-1"><a href="#Reflect-1" class="headerlink" title="Reflect"></a>Reflect</h3><p>扩展或提供平台提供的 Reflect 对象。</p>
+<ul>
+<li>Reflect.get(target, name, receiver) 方法实现: 首先，若 target 为 Proxy 实例，获取并调用 handler.get 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取属性描述符，若属性描述符为 undefined，尝试通过 Object.getPrototypeOf 方法获取原型的 name 属性；其次，若属性描述符不是 undefined，尝试获取属性描述符中的 value 属性或执行 get 方法。</li>
+<li>Reflect.set(target, name, value, receiver) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.set 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取属性描述符，若属性描述符为 undefined，尝试通过 Object.getPrototypeOf 方法调用原型的 set 方法；其次，若属性描述符不是 undefined，且访问器属性 set 为真值，尝试以 receiver 为上下文调用属性描述符中的 set 方法；其次，通过 Object.getOwnPropertyDescriptor 获取 receiver 对象的属性描述符，若属性描述符为 undefined，调用 Object.defineProperty 重新设置属性描述符，更新 value 值；其次，若 receiver 对象的属性描述符不是 undefined，校验 receiver 是否可扩展，若可扩展，调用 Object.defineProperty 重新设置属性描述符。</li>
+<li>Reflect.defineProperty(target, name, desc) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.defineProperty 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取当前的属性描述符，当属性描述符的 configurable 属性为 false 时，运行原有的 Object.defineProperty 将报错，实现上将引起报错的情形全部以 return false 形式剔除，随后再调用 Object.defineProperty，重新设定属性描述符。</li>
+<li>Reflect.deleteProperty(target, name) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.deleteProperty 方法；其次，通过 Object.getOwnPropertyDescriptor 获取当前的属性描述符并判断其 configurable 属性，若属性为真，调用 delete target[name] 语句，否则返回 false。</li>
+<li>Reflect.has(target, name) 方法: 执行 name in target 语句。</li>
+<li>Reflect.ownKeys(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.ownKeys 方法；其次，调用 Object.getOwnPropertyNames 方法。</li>
+<li>Reflect.enumerate(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.enumerate 方法；其次，通过 for…in 语句获取目标的可枚举属性集合，以迭代器形式输出。</li>
+<li>Reflect.isExtensible(target) 方法: 直接调用 Object.isExtensible 方法。</li>
+<li>Reflect.preventExtensions(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.preventExtensions 方法；其次，调用 Object.preventExtensions 方法。</li>
+<li>Reflect.getOwnPropertyDescriptor(target, name) 方法: 直接调用 Object.getOwnPropertyDescriptor 方法。</li>
+<li>Reflect.getPrototypeOf(target) 方法: 直接调用 Object.getPrototypeOf 方法。</li>
+<li>Reflect.setPrototypeOf(target, prototype): 首先，若 target 为 Proxy 实例，获取并调用 handler.setPrototypeOf 方法；其次，判断目标的可扩展性，若其可扩展，以 try-catch 语句执行 Object.setPrototypeOf 方法，以捕获错误。</li>
+<li>Reflect.apply(target, thisArg, args): 调用 Function.prototype.apply.call(target, thisArg, args)。</li>
+<li>Reflect.construct(target, args, newTarget): 首先，若 target 为 Proxy 实例，获取并调用 handler.construct 方法；其次，在 newTarget 为 undefined 或与 target 等值的基础上，基于 target 并以 null 为上下文生成构造函数；否则，Object.create(newTarget.prototype) 为上文生成构造函数。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> <span class="built_in">Reflect</span> = &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  enumerate: <span class="function"><span class="keyword">function</span>(<span class="params">target</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> handler = directProxies.get(target);</span><br><span class="line">    <span class="keyword">var</span> result;</span><br><span class="line">    <span class="keyword">if</span> (handler !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      result = handler.enumerate(handler.target);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      result = [];</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">var</span> name <span class="keyword">in</span> target) &#123; result.push(name); &#125;;      </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> l = +result.length;</span><br><span class="line">    <span class="keyword">var</span> idx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      next: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (idx === l) <span class="keyword">return</span> &#123; <span class="attr">done</span>: <span class="literal">true</span> &#125;;</span><br><span class="line">        <span class="keyword">return</span> &#123; <span class="attr">done</span>: <span class="literal">false</span>, <span class="attr">value</span>: result[idx++] &#125;;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  construct: <span class="function"><span class="keyword">function</span>(<span class="params">target, args, newTarget</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> handler = directProxies.get(target);</span><br><span class="line">    <span class="keyword">if</span> (handler !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> handler.construct(handler.target, args, newTarget);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> target !== <span class="string">"function"</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">"target is not a function: "</span> + target);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (newTarget === <span class="literal">undefined</span> || newTarget === target) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> (<span class="built_in">Function</span>.prototype.bind.apply(target, [<span class="literal">null</span>].concat(args)));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> newTarget !== <span class="string">"function"</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">"newTarget is not a function: "</span> + target);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">var</span> proto = newTarget.prototype;</span><br><span class="line">      <span class="keyword">var</span> instance = (<span class="built_in">Object</span>(proto) === proto) ? <span class="built_in">Object</span>.create(proto) : &#123;&#125;;</span><br><span class="line">      <span class="keyword">var</span> result = <span class="built_in">Function</span>.prototype.apply.call(target, instance, args);</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">Object</span>(result) === result ? result : instance;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="proxy"><a href="#proxy" class="headerlink" title="proxy"></a>proxy</h3><p>构建 const vHandler = function Validator(target, handler){} 构造函数，用于对象操作并作校验。当平台提供 Proxy api 时，vHandler 将作为 Proxy.create, Proxy.createFunction 的参数，以改写 global.Proxy(target, handler) 构造函数。生成的 proxy 实例将以 { [proxy]: vHandler } 的形式存入 WeakMap 实例 directProxies 中，用于使 Object 的部分原型方法先作代理处理，再作常规处理。</p>
+<p>Validator 实例方法（proxy 为 new Proxy(target, handler) 实例）：</p>
+<ul>
+<li>proxy.get(receiver, propKey, receiver): 若没有设置 handler.get，调用 Reflect.get 方法；若设置，以 handler 为上下文调用 handler.get，并校验 target[propKey] 的 configurable, writable, get 属性或方法，特定条件下作报错处理。</li>
+<li>proxy.set(receiver, propKey, value): 若没有设置 handler.set，调用 Reflect.set 方法；若设置，以 handler 为上下文调用 handler.set，并校验 target[propKey] 的 configurable, writable, get 属性或方法，特定条件下作报错处理。</li>
+<li>proxy.has(propKey): 若没有设置 handler.has，调用 Reflect.has 方法；若设置，以 handler 为上下文调用 handler.has，当返回结果为 false 时，并校验 target[propKey] 的 configurable 属性, 及可扩展性，特定条件下作报错处理。</li>
+<li>proxy.delete(propKey): 若没有设置 handler.deleteProperty，调用 Reflect.deleteProperty 方法；若设置，以 handler 为上下文调用 handler.deleteProperty，校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.ownKeys(): 若没有设置 handler.ownKeys，调用 Reflect.ownKeys 方法；若设置，以 handler 为上下文调用 handler.ownKeys，并校验 target 各属性的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.enumate(), proxy.iterate(): 若没有设置 handler.enumate，调用 Reflect.enumate 方法；若设置，以 handler 为上下文调用 handler.enumate，并校验 target 各属性的可扩展性，特定条件下作报错处理。返回迭代器。</li>
+<li>proxy.getPropertyDescriptor(propKey): 若 proxy.has 返回否值，返回 undefined；否则以包装 proxy.set, proxy.get 形式返回属性描述符，且 enumerable, configurable 属性均为真值。</li>
+<li>proxy.getOwnPropertyDescriptor(propKey): 若没有设置 handler.getOwnPropertyDescriptor，调用 Reflect.getOwnPropertyDescriptor 方法；若设置，以 handler 为上下文调用 handler.getOwnPropertyDescriptor，校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.defineProperty(propKey, propDesc): 若没有设置 handler.defineProperty，调用 Reflect.defineProperty 方法；若设置，以 handler 为上下文调用 handler.defineProperty，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.preventExtensions(): 若没有设置 handler.preventExtensions，调用 Reflect.preventExtensions 方法；若设置，以 handler 为上下文调用 handler.preventExtensions，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.getPrototypeOf(): 若没有设置 handler.getPrototypeOf，调用 Reflect.getPrototypeOf 方法；若设置，以 handler 为上下文调用 handler.getPrototypeOf，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.isExtensible(): 若没有设置 handler.isExtensible，调用 Reflect.isExtensible 方法；若设置，以 handler 为上下文调用 handler.isExtensible，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.setPrototypeOf(proto): 若没有设置 handler.setPrototypeOf，调用 Reflect.setPrototypeOf 方法；若设置，以 handler 为上下文调用 handler.setPrototypeOf，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.apply(target, thisBinding, args): 若没有设置 handler.apply，调用 Reflect.apply 方法；若设置，以 handler 为上下文调用 handler.apply。</li>
+<li>proxy.construct(target, args, newTarget): 若没有设置 handler.construct，调用 Reflect.construct 方法；若设置，以 handler 为上下文调用 handler.construct。</li>
+</ul>
+<h3 id="Object-扩展"><a href="#Object-扩展" class="headerlink" title="Object 扩展"></a>Object 扩展</h3><ul>
+<li>Object.preventExtensions(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 preventExtensions 方法；其次尝试调用 Object.preventExtensions 原始方法。</li>
+<li>Object.seal(subject): 密封对象，可改变现有属性，即将所有属性描述符的 configurable 置为否。</li>
+<li>Object.freeze(subject): 冻结对象，即将所有属性描述符的 configurable, writable 置为否（访问器属性的状况下仅需处理 configurable 属性）。</li>
+<li>Object.isExtensible(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 isExtensible 方法；其次尝试调用 Object.isExtensible 原始方法。</li>
+<li>Object.isSealed(subject): 判断是否密封。</li>
+<li>Object.isFrozen(subject): 判断是否冻结。</li>
+<li>Object.getOwnPropertyDescriptor(subject, name): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 getOwnPropertyDescriptor 方法；其次尝试调用 Object.getOwnPropertyDescriptor 原始方法。</li>
+<li>Object.defineProperty(subject, name, desc): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 defineProperty 方法；其次尝试调用 Object.defineProperty 原始方法。</li>
+<li>Object.defineProperties(subject, descs): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，针对属性逐个调用代理对象的 defineProperty 方法；其次尝试调用 Object.defineProperties 原始方法。</li>
+<li>Object.keys(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 ownKeys 方法，剔除其中的不可枚举项；其次尝试调用 Object.keys 原始方法。</li>
+<li>Object.getOwnPropertyNames(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 ownKeys 方法；其次尝试调用 Object.getOwnPropertyNames 原始方法。</li>
+<li>Object.getOwnPropertySymbols(subject): 平台提供 Object.getOwnPropertySymbols 原始方法的基础下封装。若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，返回空数组；其次尝试调用 Object.getOwnPropertySymbols 原始方法。</li>
+<li>Object.assign(target, …source): 平台提供 Object.assign 原始方法的基础下封装。若各参数均为代理对象，直接调用 Object.assign 原始方法；否则，遍历属性以拷贝。</li>
+<li>Object.setPrototypeOf(target, proto): 若 target 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 setPrototypeOf 方法；其次尝试调用 Object.setPrototypeOf 原始方法；其次通过 Object.defineProperty 设置target 的 <strong>proto</strong> 属性。</li>
+<li>Object.prototype.isPrototypeOf(arg): 若 arg 为代理实例，通过 vHandler.getPrototypeOf 方法向上逐层获取 arg 的原型，原型同 this 作等值比较；否则直接调用 Object.prototype.isPrototypeOf 作判断。</li>
+<li>Object.prototype.valueOf(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Object.prototype.valueOf；否则，直接执行 Object.prototype.valueOf。</li>
+<li>Object.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Object.prototype.toString；否则，直接执行 Object.prototype.toString。</li>
+<li>Function.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Function.prototype.toString；否则，直接执行 Function.prototype.toString。</li>
+<li>Date.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Date.prototype.toString；否则，直接执行 Date.prototype.toString。</li>
+<li>Object.prototype.hasOwnProperty(propKey): 若 this 为代理实例，从 directProxies 中获取代理对象的 vHandler，调动 vHandler.getOwnPropertyDescriptor，并判断返回值是否为 undefined；否则，直接执行 Object.prototype.hasOwnProperty。</li>
+<li>Array.isArray(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 target，并调用 Array.isArray 原始方法判断 target 是否为数组；其次尝试调用 Array.isArray 原始方法。</li>
+<li>Array.prototype.concat(…args): 使用 Array.prototype.slice 方法将 args 数组项中的代理实例数组拆解为普通数组，随后使用 Array.prototype.concat 原始方法拼接数组。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/11/工程化/前端构建工具dawn/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2484,211 +2733,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/24/设计模式/状态模式/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/24/设计模式/状态模式/" itemprop="url">状态模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-24T00:00:00+08:00">2018-03-24</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/03/24/设计模式/状态模式/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/03/24/设计模式/状态模式/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>状态模式(State pattern) 的主要处理逻辑为，构建多个状态对象(state object)以维护特定状态下的行为集，和一个上下文对象(context)以引用形式维护与当前状态对应的状态对象，并将与状态相关的行为委托给这个状态对象加以处理；当状态更新时，上下文对象将重设其实际引用的状态对象，而其行为也将得到变更。通常，状态以标识符形式（有时候表现为内部数据值，即除了标识符以外，还有额外的数据）存储，在编写上下文对象的行为时，会使用大量的条件语句，通过当前的状态值判断实际需要执行的动作；对于新添加的状态，上下文对象的行为也需要相应改变其处理逻辑。当状态以引用对象的形式存储后，状态对象的行为可直接调用其引用的状态对象的方法；对于新添加的状态，只需要构建新的状态对象，即可加以实现。</p>
-<p>状态模式的表现即如《设计模式:可复用面向对象软件的基础》一书中所说的：</p>
-<blockquote class="blockquote-center"><p>Allow an object to alter its behavior when its internal state changes.The object will appear to change its class. </p>
-</blockquote>
-<h2 id="经典实现"><a href="#经典实现" class="headerlink" title="经典实现"></a>经典实现</h2><p>状态模式包含下列组件：</p>
-<ul>
-<li>Context: 定义交互接口，以引用对象形式持有某个 ConcreteState，其行为通过委托给 ConcreteState 实现；当状态更新时，其持有的 ConcreteState 引用也将得到更新。</li>
-<li>State: 状态对象，定义行为的抽象类。</li>
-<li>ConcreteState: 具体状态子类，实现 State 抽象类中定义的行为。</li>
-</ul>
-<p>使用状态模式的效果：</p>
-<ol>
-<li>使用特定的类维护特定状态的行为，该类可以共享，且不同状态的类之间相互没有耦合。</li>
-<li>状态转换更加显式化。从 Context 的角度看，状态转换只需更新其下引用的状态对象，其过程是原子的。而以内部数据值存储状态时，更新状态时，需要同时更新多个内部数据值。</li>
-</ol>
-<p>以下载状态为例，其简单实现为：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// typescript 编码</span></span><br><span class="line">abstract <span class="class"><span class="keyword">class</span> <span class="title">State</span></span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(context)&#123;</span><br><span class="line">    <span class="keyword">super</span>(context);</span><br><span class="line">    <span class="keyword">this</span>.context = context;<span class="comment">// 通过引用属性访问 Context 实例，可访问实例属性，以处理状态切换操作；可改为传参实现</span></span><br><span class="line">  &#125;</span><br><span class="line">  download()&#123;&#125;</span><br><span class="line">  pause()&#123;&#125;</span><br><span class="line">  fail()&#123;&#125;</span><br><span class="line">  finish()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReadyState</span> <span class="keyword">extends</span> <span class="title">State</span> </span>&#123;</span><br><span class="line">  @override</span><br><span class="line">  download()&#123;</span><br><span class="line">    <span class="keyword">this</span>.context.setState(<span class="keyword">this</span>.context.downloadingState());</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  pause()&#123;&#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  fail()&#123;&#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  finish()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// DownLoadState, PauseState, FailState, FinishState 实现</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.readyState = <span class="keyword">new</span> ReadyState(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.downLoadState = <span class="keyword">new</span> DownLoadState(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.pauseState = <span class="keyword">new</span> PauseState(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.failState = <span class="keyword">new</span> FailState(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.finishState = <span class="keyword">new</span> FinishState(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.state = <span class="keyword">this</span>.readyState;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  download()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.download();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  pause()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.pause();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fail()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.fail();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  finish()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.finish();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setState(State)&#123;</span><br><span class="line">    <span class="keyword">this</span>.state = State;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>上述实现存在的问题：</p>
-<ol>
-<li>状态转换在 ConcreteState 具体状态子类中实现，这样 ConcreteState 就存在相互依赖关系，其中一个必须知道后继状态是哪一个。同时对于状态转换策略不同的业务场景，也不能共享状态对象。状态转换也可以放在 Context 中完成，这样做不利于状态转换的扩展，同时，状态转换较为复杂时（如开叉后再汇合，就像 git 的提交记录），其中的处理逻辑就会显得繁复。</li>
-<li>状态对象在 Context 初始化过程中即予创建，且始终不销毁，而不是在需要使用的时候再行创建，使用完以后即予销毁。状态变更较为频繁的场景推荐在 Context 初始化过程中一次性创建所有状态对象；状态变更不频繁且初始状态未知的场景推荐使用即时创建状态对象。</li>
-</ol>
-<p>因此，实现可以改写为：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用时创建状态对象，状态切换仍由状态对象完成</span></span><br><span class="line">abstract <span class="class"><span class="keyword">class</span> <span class="title">State</span></span>&#123;</span><br><span class="line">  download(context)&#123;&#125;</span><br><span class="line">  pause(context)&#123;&#125;</span><br><span class="line">  fail(context)&#123;&#125;</span><br><span class="line">  finish(context)&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReadyState</span> <span class="keyword">extends</span> <span class="title">State</span> </span>&#123;</span><br><span class="line">  @override</span><br><span class="line">  download(context)&#123;</span><br><span class="line">    context.setState(<span class="keyword">new</span> DownLoadState());</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  pause(context)&#123;&#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  fail(context)&#123;&#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  finish(context)&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// DownLoadState, PauseState, FailState, FinishState 实现</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state = <span class="keyword">new</span> ReadyState(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  download()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.download(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  pause()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.pause(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fail()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.fail(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  finish()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.finish(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setState(State)&#123;</span><br><span class="line">    <span class="keyword">this</span>.state = State;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="js-中的状态模式"><a href="#js-中的状态模式" class="headerlink" title="js 中的状态模式"></a>js 中的状态模式</h2><p>在 js 中，可直接使用对象字面量声明状态对象，同时，借助于 Function.prototype.call 方法可以将上下文对象的行为委托给状态对象加以处理。实现代码如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> FSM = &#123;</span><br><span class="line">  ready: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = FSM.download;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  download: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = FSM.pause;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is paused!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = FSM.fail;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is failed!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = FSM.finish;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is finished!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// pause, fail, success 状态实现</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state = FSM.ready;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  download()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.download.call(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  pause()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.pause.call(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fail()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.fail.call(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  finish()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.finish.call(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>将上述代码中 Function.prototype.call 方法作进一步封装，可实现为：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> delegate = <span class="function">(<span class="params">context, delegation</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    download: <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">return</span> delegation.download.call(context, ...args);</span><br><span class="line">    &#125;,</span><br><span class="line">    pause: <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">return</span> delegation.pause.call(context, ...args);</span><br><span class="line">    &#125;,</span><br><span class="line">    fail: <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">return</span> delegation.fail.call(context, ...args);</span><br><span class="line">    &#125;,</span><br><span class="line">    finish: <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">return</span> delegation.finish.call(context, ...args);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> FSM = &#123;</span><br><span class="line">  ready: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = <span class="keyword">this</span>.download;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  download: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = <span class="keyword">this</span>.pause;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is paused!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = <span class="keyword">this</span>.fail;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is failed!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = <span class="keyword">this</span>.finish;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is finished!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// pause, fail, success 状态实现</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.ready = delegate(<span class="keyword">this</span>, FSM.ready);</span><br><span class="line">    <span class="keyword">this</span>.download = delegate(<span class="keyword">this</span>, FSM.download);</span><br><span class="line">    <span class="keyword">this</span>.pause = delegate(<span class="keyword">this</span>, FSM.pause);</span><br><span class="line">    <span class="keyword">this</span>.fail = delegate(<span class="keyword">this</span>, FSM.fail);</span><br><span class="line">    <span class="keyword">this</span>.success = delegate(<span class="keyword">this</span>, FSM.success);</span><br><span class="line">    <span class="keyword">this</span>.state = <span class="keyword">this</span>.ready;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  download()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.download();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  pause()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.pause();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fail()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.fail(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  finish()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.finish(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>通过 Proxy 代理实现：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> FSM = &#123;</span><br><span class="line">  ready: &#123;</span><br><span class="line">    download: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; </span><br><span class="line">      context.state = FSM.download;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    pause: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; &#125;,</span><br><span class="line">    fail: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; &#125;,</span><br><span class="line">    finish: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  download: &#123;</span><br><span class="line">    download: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; &#125;,</span><br><span class="line">    pause: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; </span><br><span class="line">      context.state = FSM.pause;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is paused!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    fail: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; </span><br><span class="line">      context.state = <span class="keyword">this</span>.fail;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is failed!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    finish: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; </span><br><span class="line">      context.state = <span class="keyword">this</span>.finish;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is finished!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// pause, fail, success 状态实现</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state = FSM.ready;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> download = <span class="keyword">new</span> <span class="built_in">Proxy</span>(<span class="keyword">new</span> Download(), &#123;</span><br><span class="line">  <span class="keyword">get</span>(target, propKey, receiver)&#123;</span><br><span class="line">    <span class="keyword">if</span> ( <span class="built_in">Object</span>.keys(target.state).indexOf(propKey) !== <span class="number">-1</span> )&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123;</span><br><span class="line">        target.state[propKey](target, ...args);</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> target[propKey];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="表驱动的状态模式"><a href="#表驱动的状态模式" class="headerlink" title="表驱动的状态模式"></a>表驱动的状态模式</h2><p>表驱动的状态模式，其处理逻辑为使用表结构约定每种状态在特定条件下（该条件也可以是执行状态转换逻辑的函数名）的后继状态为谁，就此实现状态转换。</p>
-<p>借助于 Proxy 代理，实现表驱动的简易代码为：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> FSM = &#123;</span><br><span class="line">  ready: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  download: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is paused!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is failed!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is finished!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// pause, fail, success 状态实现</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="comment">// 状态转换规则</span></span><br><span class="line">    <span class="keyword">this</span>.rules = &#123;</span><br><span class="line">      ready: [&#123; <span class="attr">transition</span>: <span class="string">'download'</span>, <span class="attr">to</span>: <span class="string">'downloading'</span> &#125;],</span><br><span class="line">      download: [&#123; </span><br><span class="line">        transition: <span class="string">'pause'</span>, <span class="attr">to</span>: <span class="string">'paused'</span> </span><br><span class="line">      &#125;,&#123;</span><br><span class="line">        transition: <span class="string">'fail'</span>, <span class="attr">to</span>: <span class="string">'failed'</span> </span><br><span class="line">      &#125;,&#123;</span><br><span class="line">        transition: <span class="string">'finish'</span>, <span class="attr">to</span>: <span class="string">'finished'</span> </span><br><span class="line">      &#125;],</span><br><span class="line">      pause: [&#123; <span class="attr">transition</span>: <span class="string">'download'</span>, <span class="attr">to</span>: <span class="string">'downloading'</span> &#125;]</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">this</span>.state = <span class="string">'ready'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> download = <span class="keyword">new</span> <span class="built_in">Proxy</span>(<span class="keyword">new</span> Download(), &#123;</span><br><span class="line">  <span class="keyword">get</span>(target, propKey, receiver)&#123;</span><br><span class="line">    <span class="keyword">const</span> state = target.state;</span><br><span class="line">    <span class="keyword">const</span> stateObject = FSM[state];</span><br><span class="line">    <span class="keyword">const</span> rules = target.rules[state];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( <span class="built_in">Object</span>.keys(stateObject).indexOf(propKey) !== <span class="number">-1</span> )&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123;</span><br><span class="line">        stateObject[propKey](target, rules, ...args);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 状态装换</span></span><br><span class="line">        <span class="keyword">const</span> rule = rules.filter(<span class="function"><span class="params">rl</span> =&gt;</span> rl.transition === propKey)[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">if</span> ( rule ) target.state = rule.to;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> target[propKey];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<p>通过上述代码可以发现，基于表结构实现的状态转换需要从表中查询后继状态，没有函数调用直观便捷，同时，状态转换过程需要扩展的动作也难以添加。</p>
-<h3 id="javascript-state-machine"><a href="#javascript-state-machine" class="headerlink" title="javascript-state-machine"></a>javascript-state-machine</h3><p><a href="https://github.com/jakesgordon/javascript-state-machine" target="_blank" rel="noopener">javascript-state-machine</a> 是基于表结构实现的状态转换管理器。相较于状态模式使用状态对象管理状态，并借此改变上下文对象的行为，其重心在于不同状态下行为的不同，换句话说，就是不同模式下不同的业务表现。因此，《设计模式:可复用面向对象软件的基础》书中描述了 GUI 编程使用状态模式协调不同的绘图控件。而 javascript-state-machine 模块的重心在于状态转换的流程，由此种状态进入另一种状态，通过事件执行钩子函数。</p>
-<p>javascript-state-machine 模块有如下几个概念：</p>
-<ul>
-<li>transition: 事务，设定状态切换的方法名，并制定该方法状态切换的规则，从 [from] 状态转变为 [to] 状态。当切换前的 [from] 状态不同时，可使用同一个事务定制多种状态切换规则。由 transitions = [{ name, from, to }] 选项注入。</li>
-<li>state: 状态。通过 transitions 选项转换得来。特别的，transition.to 状态可以用函数形式设定，在状态转换过程中注入 states 状态集中。</li>
-<li>lifecycle events: 生命周期事件，即执行钩子，分为两类，以 onBefore, onAfter 为前缀的事务执行前后的生命周期钩子，以 onEnter, onLeave 为前缀的状态变更前后的生命周期钩子。特殊的，onBeforeTransition, onLeaveState, onTransition, onEnterState, onAfterTransition 为全局声明周期钩子。事件名由 transitions 选项注入，绑定函数由 methods = { eventName: () =&gt; {} } 选项注入，或者通过调用 fsm.observer({ eventName: () =&gt; {} }) 方法注入。</li>
-<li>observer: 观察者，即绑定函数。可以通过 methods 选项添加，或者通过 StateMachine 实例的 observe 方法添加，以数组形式存储对象 { event: ({ transition, from, to, fsm, event }) =&gt; {} }。当事件发生时，再取出串行执行，通过 promise 实现了异步执行机制。</li>
-</ul>
-<p>在 javascript-state-machine 模块的构造中，整体架构：</p>
-<ul>
-<li>config 模块提供 Config 类，用于管理 states, transitions, lifecycle, data, methods, plugins 等实例属性。其中 state 以 this.states 数组形式存储，transitions 以 this.transitions 数组形式存储方法名，this.map = { [from]:{ [name]: transition } } 存储转换规则（其中，transition 为 transitions 选项中的数组项，from 为 transition.from，name 为 transition.name）,this.lifecycle = { onBefore: { transition, …customTransitionName }, onAfter, on, onEnter: { state, …customStateName }, onLeave } 形式存储事件名（其中，this.lifecycle.onBefore.transition 等为全局事件名 ）。Config 还提供 transitionFor(state, transition) 用于查找切换后的状态。</li>
-<li>jsm 模式提供 JSM 类，用于组织状态切换及触发钩子函数的逻辑。通过 this.config 访问 Config 实例，this.context 访问 StateMachine 实例，其 init 方法将 config.data 注入为 StateMachine 实例的属性；在 JSM 实例化过程中，又将注入到 StateMachine 实例方法的config.methods 绑定函数注入为 jsm.observers 属性中，通过 observersForEvent(event) 方法取出绑定函数，再交由 observeEvents 方法统筹一次状态变更过程中执行依序执行的事件、并执行绑定函数（以取出的 observer = { eventName: ({ transition, from, to, fsm, event }) =&gt; {} } 作为上下文，特别的，首个 observer 的就是 StateMachine 实例），最终提供 jsm.fire(transition, args) 方法将当前状态更改为 transition 事务下指定的后继状态（并导出为 stateMachine 实例的 transition 同名方法）、以及 jsm.transit(transition, from, to, args) 方法将状态转换到 to，并指定状态时的 transition, from。事件触发、执行绑定函数过程，绑定函数中的异步逻辑通过返回 promise 处理；状态变更期间，jsm.pending 属性置为真，直到状态变更完毕或报错。</li>
-<li>app 模块提供 StateMachine 类，暴露用户接口。StateMachine 类实例化过程中会将 config 实例的 methods, data 属性转变为其实例属性，同时添加以 transition.name 标识的实例方法，因此三者的命名不能冲突。以 config, jsm, app 三个模块实现 StateMachine 类的好处是尽量少地暴露出交互接口。可通过 StateMachine 实例访问当前的状态 stateMachine.state，公共方法 is(state), can(transition), cannot(transition), observe({ event: () =&gt; {} }), transitions(), allTransitions(), allStates(), onInvalidTransition(transition, from, to), onPendingTransition(transition, from, to)，以及通过选线注入的实例属性或方法如 data, transitions, methods 选项。</li>
-</ul>
-<p>需要留意的特性包含：</p>
-<ul>
-<li>data 选项依赖注入。当 data 选项包含方法时，其参数依赖注入的机制通过工厂函数 StateMachine.factory 实现，创建并返回 StateMachine 的另一种构造函数，该构造函数只将参数注入为 data 方法的参数；选项由 StateMachine.factory 注入。其目的是让多个 StateMachine 实例握有不同的 data 数据，但在不同状态中定制 data 数据需要借助于常规的状态模式。</li>
-<li>to 状态转换的条件性。javascript-state-machine 模块没有设置 condition 条件（在匹配 condition 条件下，才从 from 状态转换到 to 状态），而是可以用函数形式设置 to，以使切换后的状态可以在转换阶段获得。</li>
-<li>插件机制。如同 Vue, mocha 的插件机制，javascript-state-machine 模块的插件在 StateMachine 实例化过程中就会执行 plugin 函数或 plugin.configure 方法，其返回值中的 methods, properties 属性注入为 StateMachine 实例的方法或属性、init, lifecycle 方法将在状态初始化及变更期间被唤起执行。插件通过 plugins 选项或者 StateMachine.plugin 静态属性注入。</li>
-<li>内置 history 插件，通过 require(‘javascipt-state-machine/lib/history’) 引用，记录状态变更历史，通过 fsm.transit 方法实现回撤、前进功能。</li>
-<li>内置 visualize 工具，通过 require(‘javascipt-state-machine/lib/visualize’) 引用，将状态转变为 .dot 语句，借助于 <a href="http://www.graphviz.org/" target="_blank" rel="noopener">GraphViz</a> 类库表现为图形。</li>
-</ul>
-<p>具体请参考 javascript-state-machine 类库文档及源码。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2738,7 +2782,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">78</span>
+                    <span class="site-state-item-count">79</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

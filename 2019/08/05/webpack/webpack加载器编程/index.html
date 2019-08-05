@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="analyst,webpack,">
+
+
+<meta name="description" content="原理loader 是导出为函数的 js 模块，它支持同步模式、异步模式。同步模式有两种编程方式，其一使用 return 返回结果作为下一个加载器的资源，其二使用 this.callback 传入结果。异步模式使用 this.async 开启，在 this.async 执行过程中再调用 this.callback 语句，以启用下一个加载器的执行逻辑。官方推荐使用异步模式，这样可以提升 webpack">
+<meta name="keywords" content="analyst,webpack">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webpack加载器编程">
+<meta property="og:url" content="http://yoursite.com/2019/08/05/webpack/webpack加载器编程/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="原理loader 是导出为函数的 js 模块，它支持同步模式、异步模式。同步模式有两种编程方式，其一使用 return 返回结果作为下一个加载器的资源，其二使用 this.callback 传入结果。异步模式使用 this.async 开启，在 this.async 执行过程中再调用 this.callback 语句，以启用下一个加载器的执行逻辑。官方推荐使用异步模式，这样可以提升 webpack">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-08-05T14:09:05.292Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="webpack加载器编程">
+<meta name="twitter:description" content="原理loader 是导出为函数的 js 模块，它支持同步模式、异步模式。同步模式有两种编程方式，其一使用 return 返回结果作为下一个加载器的资源，其二使用 this.callback 传入结果。异步模式使用 this.async 开启，在 this.async 执行过程中再调用 this.callback 语句，以启用下一个加载器的执行逻辑。官方推荐使用异步模式，这样可以提升 webpack">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/08/05/webpack/webpack加载器编程/">
+
+
+  <title>webpack加载器编程 | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/05/webpack/webpack加载器编程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">webpack加载器编程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-05T00:00:00+08:00">2019-08-05</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/05/webpack/webpack加载器编程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/08/05/webpack/webpack加载器编程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>loader 是导出为函数的 js 模块，它支持同步模式、异步模式。同步模式有两种编程方式，其一使用 return 返回结果作为下一个加载器的资源，其二使用 this.callback 传入结果。异步模式使用 this.async 开启，在 this.async 执行过程中再调用 this.callback 语句，以启用下一个加载器的执行逻辑。官方推荐使用异步模式，这样可以提升 webpack 在 node 单线程环境中的执行性能。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 同步模式一</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">content, map, meta</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> someSyncOperation(content);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 同步模式二</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">content, map, meta</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.callback(<span class="literal">null</span>, someSyncOperation(content), map, meta);</span><br><span class="line">  <span class="keyword">return</span>; <span class="comment">// 当调用 callback() 时总是返回 undefined</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步模式</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">content, map, meta</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> callback = <span class="keyword">this</span>.async();</span><br><span class="line">  someAsyncOperation(content, <span class="function"><span class="keyword">function</span>(<span class="params">err, result, sourceMaps, meta</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) <span class="keyword">return</span> callback(err);</span><br><span class="line">    callback(<span class="literal">null</span>, result, sourceMaps, meta);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>加载器在 loader runner 环境中被调用，参数包含错误 err，资源 content，source-map，以及任何数据（可以是元数据 meta）。当 module.exports.raw 被赋值为 true 时，参数 content 可以是 buffer。loader runner 提供了如下上下文：</p>
+<ul>
+<li>this.version：loader API 的版本号。</li>
+<li>this.context：资源文件所在的目录。</li>
+<li>this.request：解析后的查询字符串。</li>
+<li>this.query：options 选项或查询字符串。</li>
+<li>this.callback(err, content, sourceMap?, meta?: any)：调用下一个加载器。</li>
+<li>this.async：启用异步模式。</li>
+<li>this.data：在 pitch 阶段和正常阶段之间共享的 data 对象。</li>
+<li>this.cacheable(flag)：是否可缓存。一个可缓存的 loader 在输入和相关依赖没有变化时，必须返回相同的结果。这意味着 loader 除了 this.addDependency 里指定的以外，不应该有其它任何外部依赖。</li>
+<li>this.loaders：所有 loader 组成的数组。它在 pitch 阶段的时候是可以写入的。</li>
+<li>this.loaderIndex：loader 的索引。</li>
+<li>this.resource：包括查询字符串的资源路径。</li>
+<li>this.resourcePath：不包括查询字符串的资源路径。</li>
+<li>this.resourceQuery：查询字符串。</li>
+<li>this.target：编译目标，从配置选项中传递过来的。</li>
+<li>this.webpack：是否由 webpack 编译。loader 最初被设计为可以同时当 Babel transform 用。</li>
+<li>this.sourceMap：是否生成 source-map。</li>
+<li>this.emitWarning：发出警告。</li>
+<li>this.emitError：发出错误。</li>
+<li>this.loadModule：解析给定的 request 到一个模块，应用所有配置的 loader ，并且在回调函数中传入生成的 source 、sourceMap 和 模块实例（通常是 NormalModule 的一个实例）。</li>
+<li>this.resolve(context, request, callback)：像 require 表达式一样解析一个 request。</li>
+<li>this.addDependency(directory)：加入一个文件作为产生 loader 结果的依赖，使它们的任何变化都可以被监听到。</li>
+<li>this.addContextDependency：把文件夹作为 loader 结果的依赖加入。</li>
+<li>this.clearDependencies：移除 loader 结果的所有依赖。甚至自己和其它 loader 的初始依赖。考虑使用 pitch。</li>
+<li>this.emitFile(name, content)：产生一个文件。</li>
+<li>this.fs：用于访问 compilation 的 inputFileSystem 属性。</li>
+</ul>
+<p>pitch 阶段指 webpack 预先自左向右调用加载器的 pitch 方法，然后再自右向左调用加载器本身。pitch 阶段可用于跳过部分 loader，其如果有返回值，就将跳过余下的 loader。其次 pitch 方法的参数 data 可以在 loader 本体中通过 this.data 共享访问。</p>
+<h2 id="svgr"><a href="#svgr" class="headerlink" title="svgr"></a>svgr</h2><p>svgr 是 umi/af-webpack 中的一个模块，用于解析 svg 模块。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; getOptions &#125; <span class="keyword">from</span> <span class="string">'loader-utils'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; transform <span class="keyword">as</span> babelTransform &#125; <span class="keyword">from</span> <span class="string">'@babel/core'</span>;</span><br><span class="line"><span class="keyword">import</span> convert <span class="keyword">from</span> <span class="string">'@svgr/core'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">svgrLoader</span>(<span class="params">source</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> callback = <span class="keyword">this</span>.async();</span><br><span class="line">  <span class="keyword">const</span> &#123; babel = <span class="literal">true</span>, ...options &#125; = getOptions(<span class="keyword">this</span>) || &#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> readSvg = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.fs.readFile(<span class="keyword">this</span>.resourcePath, (err, result) =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (err) reject(err);</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> exportMatches = source</span><br><span class="line">    .toString(<span class="string">'utf-8'</span>)</span><br><span class="line">    .match(<span class="regexp">/^module.exports\s*=\s*(.*)/</span>);</span><br><span class="line">  <span class="keyword">const</span> previousExport = exportMatches ? exportMatches[<span class="number">1</span>] : <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> pBabelTransform = <span class="keyword">async</span> jsCode =&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      babelTransform(</span><br><span class="line">        jsCode,</span><br><span class="line">        &#123;</span><br><span class="line">          babelrc: <span class="literal">false</span>,</span><br><span class="line">          <span class="comment">// Unless having this, babel will merge the config with global 'babel.config.js' which may causes some problems such as using react-hot-loader/babel in babel.config.js</span></span><br><span class="line">          configFile: <span class="literal">false</span>,</span><br><span class="line">          presets: [</span><br><span class="line">            <span class="built_in">require</span>.resolve(<span class="string">'@babel/preset-react'</span>),</span><br><span class="line">            [<span class="built_in">require</span>.resolve(<span class="string">'@babel/preset-env'</span>), &#123; <span class="attr">modules</span>: <span class="literal">false</span> &#125;],</span><br><span class="line">          ],</span><br><span class="line">          plugins: [</span><br><span class="line">            <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-transform-react-constant-elements'</span>),</span><br><span class="line">          ],</span><br><span class="line">        &#125;,</span><br><span class="line">        (err, result) =&gt; &#123;</span><br><span class="line">          <span class="keyword">if</span> (err) reject(err);</span><br><span class="line">          <span class="keyword">else</span> resolve(result.code);</span><br><span class="line">        &#125;,</span><br><span class="line">      );</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> tranformSvg = <span class="function"><span class="params">svg</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> convert(svg, options, &#123;</span><br><span class="line">      webpack: &#123; previousExport &#125;,</span><br><span class="line">      filePath: <span class="keyword">this</span>.resourcePath,</span><br><span class="line">    &#125;)</span><br><span class="line">      .then(<span class="function"><span class="params">jsCode</span> =&gt;</span> (babel ? pBabelTransform(jsCode) : jsCode))</span><br><span class="line">      .then(<span class="function"><span class="params">result</span> =&gt;</span> callback(<span class="literal">null</span>, result))</span><br><span class="line">      .catch(<span class="function"><span class="params">err</span> =&gt;</span> callback(err));</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (exportMatches) &#123;</span><br><span class="line">    readSvg().then(tranformSvg);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    tranformSvg(source);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+            <a href="/tags/webpack/" rel="tag"># webpack</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/04/工程化/jest测试/" rel="next" title="jest测试">
+                <i class="fa fa-chevron-left"></i> jest测试
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpeg" alt="Alfred">
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">79</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">27</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#svgr"><span class="nav-number">2.</span> <span class="nav-text">svgr</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2019/08/05/webpack/webpack加载器编程/';
+        this.page.identifier = '2019/08/05/webpack/webpack加载器编程/';
+        this.page.title = 'webpack加载器编程';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

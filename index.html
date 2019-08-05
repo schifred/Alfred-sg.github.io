@@ -270,7 +270,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/05/webpack/webpack加载器编程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -289,7 +289,336 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/" itemprop="url">开发环境相关：mac 环境变量、nvm、npm、lerna</a></h1>
+                <a class="post-title-link" href="/2019/08/05/webpack/webpack加载器编程/" itemprop="url">webpack加载器编程</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-05T00:00:00+08:00">2019-08-05</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/05/webpack/webpack加载器编程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/08/05/webpack/webpack加载器编程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>loader 是导出为函数的 js 模块，它支持同步模式、异步模式。同步模式有两种编程方式，其一使用 return 返回结果作为下一个加载器的资源，其二使用 this.callback 传入结果。异步模式使用 this.async 开启，在 this.async 执行过程中再调用 this.callback 语句，以启用下一个加载器的执行逻辑。官方推荐使用异步模式，这样可以提升 webpack 在 node 单线程环境中的执行性能。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 同步模式一</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">content, map, meta</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> someSyncOperation(content);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 同步模式二</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">content, map, meta</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.callback(<span class="literal">null</span>, someSyncOperation(content), map, meta);</span><br><span class="line">  <span class="keyword">return</span>; <span class="comment">// 当调用 callback() 时总是返回 undefined</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步模式</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">content, map, meta</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> callback = <span class="keyword">this</span>.async();</span><br><span class="line">  someAsyncOperation(content, <span class="function"><span class="keyword">function</span>(<span class="params">err, result, sourceMaps, meta</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) <span class="keyword">return</span> callback(err);</span><br><span class="line">    callback(<span class="literal">null</span>, result, sourceMaps, meta);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>加载器在 loader runner 环境中被调用，参数包含错误 err，资源 content，source-map，以及任何数据（可以是元数据 meta）。当 module.exports.raw 被赋值为 true 时，参数 content 可以是 buffer。loader runner 提供了如下上下文：</p>
+<ul>
+<li>this.version：loader API 的版本号。</li>
+<li>this.context：资源文件所在的目录。</li>
+<li>this.request：解析后的查询字符串。</li>
+<li>this.query：options 选项或查询字符串。</li>
+<li>this.callback(err, content, sourceMap?, meta?: any)：调用下一个加载器。</li>
+<li>this.async：启用异步模式。</li>
+<li>this.data：在 pitch 阶段和正常阶段之间共享的 data 对象。</li>
+<li>this.cacheable(flag)：是否可缓存。一个可缓存的 loader 在输入和相关依赖没有变化时，必须返回相同的结果。这意味着 loader 除了 this.addDependency 里指定的以外，不应该有其它任何外部依赖。</li>
+<li>this.loaders：所有 loader 组成的数组。它在 pitch 阶段的时候是可以写入的。</li>
+<li>this.loaderIndex：loader 的索引。</li>
+<li>this.resource：包括查询字符串的资源路径。</li>
+<li>this.resourcePath：不包括查询字符串的资源路径。</li>
+<li>this.resourceQuery：查询字符串。</li>
+<li>this.target：编译目标，从配置选项中传递过来的。</li>
+<li>this.webpack：是否由 webpack 编译。loader 最初被设计为可以同时当 Babel transform 用。</li>
+<li>this.sourceMap：是否生成 source-map。</li>
+<li>this.emitWarning：发出警告。</li>
+<li>this.emitError：发出错误。</li>
+<li>this.loadModule：解析给定的 request 到一个模块，应用所有配置的 loader ，并且在回调函数中传入生成的 source 、sourceMap 和 模块实例（通常是 NormalModule 的一个实例）。</li>
+<li>this.resolve(context, request, callback)：像 require 表达式一样解析一个 request。</li>
+<li>this.addDependency(directory)：加入一个文件作为产生 loader 结果的依赖，使它们的任何变化都可以被监听到。</li>
+<li>this.addContextDependency：把文件夹作为 loader 结果的依赖加入。</li>
+<li>this.clearDependencies：移除 loader 结果的所有依赖。甚至自己和其它 loader 的初始依赖。考虑使用 pitch。</li>
+<li>this.emitFile(name, content)：产生一个文件。</li>
+<li>this.fs：用于访问 compilation 的 inputFileSystem 属性。</li>
+</ul>
+<p>pitch 阶段指 webpack 预先自左向右调用加载器的 pitch 方法，然后再自右向左调用加载器本身。pitch 阶段可用于跳过部分 loader，其如果有返回值，就将跳过余下的 loader。其次 pitch 方法的参数 data 可以在 loader 本体中通过 this.data 共享访问。</p>
+<h2 id="svgr"><a href="#svgr" class="headerlink" title="svgr"></a>svgr</h2><p>svgr 是 umi/af-webpack 中的一个模块，用于解析 svg 模块。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; getOptions &#125; <span class="keyword">from</span> <span class="string">'loader-utils'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; transform <span class="keyword">as</span> babelTransform &#125; <span class="keyword">from</span> <span class="string">'@babel/core'</span>;</span><br><span class="line"><span class="keyword">import</span> convert <span class="keyword">from</span> <span class="string">'@svgr/core'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">svgrLoader</span>(<span class="params">source</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> callback = <span class="keyword">this</span>.async();</span><br><span class="line">  <span class="keyword">const</span> &#123; babel = <span class="literal">true</span>, ...options &#125; = getOptions(<span class="keyword">this</span>) || &#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> readSvg = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.fs.readFile(<span class="keyword">this</span>.resourcePath, (err, result) =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (err) reject(err);</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> exportMatches = source</span><br><span class="line">    .toString(<span class="string">'utf-8'</span>)</span><br><span class="line">    .match(<span class="regexp">/^module.exports\s*=\s*(.*)/</span>);</span><br><span class="line">  <span class="keyword">const</span> previousExport = exportMatches ? exportMatches[<span class="number">1</span>] : <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> pBabelTransform = <span class="keyword">async</span> jsCode =&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      babelTransform(</span><br><span class="line">        jsCode,</span><br><span class="line">        &#123;</span><br><span class="line">          babelrc: <span class="literal">false</span>,</span><br><span class="line">          <span class="comment">// Unless having this, babel will merge the config with global 'babel.config.js' which may causes some problems such as using react-hot-loader/babel in babel.config.js</span></span><br><span class="line">          configFile: <span class="literal">false</span>,</span><br><span class="line">          presets: [</span><br><span class="line">            <span class="built_in">require</span>.resolve(<span class="string">'@babel/preset-react'</span>),</span><br><span class="line">            [<span class="built_in">require</span>.resolve(<span class="string">'@babel/preset-env'</span>), &#123; <span class="attr">modules</span>: <span class="literal">false</span> &#125;],</span><br><span class="line">          ],</span><br><span class="line">          plugins: [</span><br><span class="line">            <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-transform-react-constant-elements'</span>),</span><br><span class="line">          ],</span><br><span class="line">        &#125;,</span><br><span class="line">        (err, result) =&gt; &#123;</span><br><span class="line">          <span class="keyword">if</span> (err) reject(err);</span><br><span class="line">          <span class="keyword">else</span> resolve(result.code);</span><br><span class="line">        &#125;,</span><br><span class="line">      );</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> tranformSvg = <span class="function"><span class="params">svg</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> convert(svg, options, &#123;</span><br><span class="line">      webpack: &#123; previousExport &#125;,</span><br><span class="line">      filePath: <span class="keyword">this</span>.resourcePath,</span><br><span class="line">    &#125;)</span><br><span class="line">      .then(<span class="function"><span class="params">jsCode</span> =&gt;</span> (babel ? pBabelTransform(jsCode) : jsCode))</span><br><span class="line">      .then(<span class="function"><span class="params">result</span> =&gt;</span> callback(<span class="literal">null</span>, result))</span><br><span class="line">      .catch(<span class="function"><span class="params">err</span> =&gt;</span> callback(err));</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (exportMatches) &#123;</span><br><span class="line">    readSvg().then(tranformSvg);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    tranformSvg(source);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/04/工程化/jest测试/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/04/工程化/jest测试/" itemprop="url">jest测试</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-04T00:00:00+08:00">2019-08-04</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/04/工程化/jest测试/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/08/04/工程化/jest测试/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><a href="http://www.aliued.com/?p=4095" target="_blank" rel="noopener">React应用下的单元测试</a><br><a href="http://www.voidcn.com/article/p-ftetcszg-btt.html" target="_blank" rel="noopener">JavaScript – 使用Jest和Webpack别名进行测试</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/27/手册/$PATH, nvm, npm, lerna/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/27/手册/$PATH, nvm, npm, lerna/" itemprop="url">$PATH, nvm, npm, lerna</a></h1>
         
 
         <div class="post-meta">
@@ -337,8 +666,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/07/27/手册/开发环境相关：mac 环境变量、nvm、npm、lerna/" itemprop="commentCount"></span>
+                <a href="/2019/07/27/手册/$PATH, nvm, npm, lerna/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/07/27/手册/$PATH, nvm, npm, lerna/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -374,17 +703,20 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/etc/profile <span class="comment"># 系统级环境变量，任何用户登陆时都会读取该文件</span></span><br><span class="line">/etc/bashrc <span class="comment"># 系统级环境变量，bash shell执行时，不管是何种方式，读取该文件</span></span><br><span class="line">/etc/paths <span class="comment"># 系统级环境变量，任何用户登陆时都会读取该文件</span></span><br><span class="line">~/.bash_profile <span class="comment"># 包含用户专有的 bash 信息，当登录时以及每次打开新的 shell 时，该文件被读取；文件存在时，后面的几个文件都会被忽略</span></span><br><span class="line">~/.bash_login <span class="comment"># 系统级环境变量，任何用户登陆时都会读取该文件</span></span><br><span class="line">~/.profile <span class="comment"># 为系统的每个用户设置环境信息，当用户第一次登录时，该文件被执行；重启后生效</span></span><br><span class="line">~/.bashrc <span class="comment"># 每一个运行 bash shell 的用户执行该文件</span></span><br></pre></td></tr></table></figure>
 <p>添加或修改环境变量可使用如下语法（$PATH 即原始的环境变量）：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=<span class="string">"<span class="variable">$PATH</span>:&lt;PATH 1&gt;:&lt;PATH 2&gt;:&lt;PATH 3&gt;:...:&lt;PATH N&gt;"</span> <span class="comment"># 修改环境变量的一般语法</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">'/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/alfred/apache-maven-3.5.0/bin'</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span> <span class="comment"># 查看环境变量</span></span><br></pre></td></tr></table></figure>
+<h3 id="QA"><a href="#QA" class="headerlink" title="QA"></a>QA</h3><p>Q: spawnSync npm ENOENT 报错问题？<br>A: 导致该问题有两个原因：其一是在 windows 环境下，实际制定的命令为 ‘npm.cmd’，当遇到这种情况时，可借助于 cross-spawn 库加以解决；其二是深度嵌套的子进程在执行 require(‘child_process’).spawn 脚本时，如果父进程重写了 process.env，那么该子进程就会丢失 process.env.path 配置，导致 npm 命令无法找到，这时可以拷贝根进程下的 process.env 配置。</p>
+<h2 id="brew"><a href="#brew" class="headerlink" title="brew"></a>brew</h2><p><a href="https://brew.sh/" target="_blank" rel="noopener">homebrew</a> 是 linux 环境下的包管理工具。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 brew</span></span><br><span class="line">/usr/bin/ruby -e <span class="string">"<span class="variable">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新 brew，先卸载，再安装</span></span><br><span class="line">/usr/bin/ruby -e <span class="string">"<span class="variable">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)</span>"</span></span><br><span class="line">/usr/bin/ruby -e <span class="string">"<span class="variable">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新</span></span><br><span class="line">sudo brew update</span><br><span class="line"></span><br><span class="line">brew install nodejs</span><br><span class="line">brew uninstall nodejs</span><br><span class="line">brew upgrade nodejs</span><br><span class="line">brew search nodejs</span><br><span class="line">brew remove nodejs</span><br><span class="line">brew list <span class="comment"># 列出当前安装的软件</span></span><br><span class="line">brew search nodejs <span class="comment"># 查询与 nodejs 相关的可用软件</span></span><br><span class="line">brew info nodejs <span class="comment"># 查询 nodejs 的安装信息</span></span><br></pre></td></tr></table></figure>
 <h2 id="nvm"><a href="#nvm" class="headerlink" title="nvm"></a>nvm</h2><p><a href="https://github.com/nvm-sh/nvm" target="_blank" rel="noopener">nvm</a> 是 Mac 环境下 node 版本管理工具。Windows 平台下推荐 nvmw 或 <a href="https://github.com/coreybutler/nvm-windows" target="_blank" rel="noopener">nvm-windows</a>。</p>
 <h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># .bash_profile 添加以下代码，须重启终端</span></span><br><span class="line"><span class="built_in">export</span> NVM_DIR=<span class="string">"<span class="variable">$HOME</span>/.nvm"</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span>  <span class="comment"># This loads nvm</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span>  <span class="comment"># This loads nvm</span></span><br></pre></td></tr></table></figure>
 <h3 id="更新"><a href="#更新" class="headerlink" title="更新"></a>更新</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(</span><br><span class="line">  <span class="built_in">cd</span> <span class="string">"<span class="variable">$NVM_DIR</span>"</span></span><br><span class="line">  git fetch --tags origin</span><br><span class="line">  git checkout `git describe --abbrev=0 --tags --match <span class="string">"v[0-9]*"</span> $(git rev-list --tags --max-count=1)`</span><br><span class="line">) &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span></span><br></pre></td></tr></table></figure>
 <h3 id="卸载"><a href="#卸载" class="headerlink" title="卸载"></a>卸载</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo rm -rf ~/.nvm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移除 .bash_profile 中以下代码，卸载后须重启电脑</span></span><br><span class="line"><span class="built_in">export</span> NVM_DIR=<span class="string">"<span class="variable">$HOME</span>/.nvm"</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span>  <span class="comment"># This loads nvm</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span>  <span class="comment"># This loads nvm bash_completion</span></span><br></pre></td></tr></table></figure>
 <h3 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">nvm debug <span class="comment"># 查看 nvm 及 node 信息</span></span><br><span class="line"></span><br><span class="line">nvm ls <span class="comment"># 展示本地安装的所有 node 版本</span></span><br><span class="line">nvm ls-remote <span class="comment"># 展示所有可用的 node 版本；windows 环境下使用 nvm ls available</span></span><br><span class="line">nvm install node <span class="comment"># 安装 node 最新版本；'node' 是最新版本的别名</span></span><br><span class="line">nvm install 6.14.4 <span class="comment"># 安装 node 指定版本</span></span><br><span class="line">nvm uninstall 6.14.4 <span class="comment"># 卸载 node 指定版本</span></span><br><span class="line">nvm use node <span class="comment"># node 命令使用指定版本</span></span><br><span class="line">nvm current <span class="comment"># 查看正在使用的 node 版本</span></span><br><span class="line">nvm run node --version <span class="comment"># 使用指定版本执行指定命令</span></span><br><span class="line">nvm <span class="built_in">exec</span> 4.2 node --version <span class="comment"># 使用指定版本执行指定命令</span></span><br><span class="line">nvm <span class="built_in">which</span> 5.0 <span class="comment"># 查看指定版本的安装位置</span></span><br><span class="line">nvm install 6 --reinstall-packages-from=5 <span class="comment"># 将 5 版本中安装的全局模块安装到 6 版本中</span></span><br><span class="line"></span><br><span class="line">nvm <span class="built_in">alias</span> awesome-version 4.2.2 <span class="comment"># 为指定版本的 node 起别名</span></span><br><span class="line">nvm <span class="built_in">unalias</span> awesome-version <span class="comment"># 移除别名</span></span><br></pre></td></tr></table></figure>
-<h2 id="npm"><a href="#npm" class="headerlink" title="npm"></a>npm</h2><h3 id="命令-1"><a href="#命令-1" class="headerlink" title="命令"></a>命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">npm install -g npm@3 <span class="comment"># npm 升级到 v3 版本</span></span><br><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org <span class="comment"># 安装 cnpm</span></span><br><span class="line"></span><br><span class="line">npm publish <span class="comment"># 发布包</span></span><br><span class="line">npm unpublish <span class="comment"># 撤销发布</span></span><br><span class="line"></span><br><span class="line">npm home <span class="variable">$package</span> <span class="comment"># npm home loadsh 访问 lodash 主页</span></span><br><span class="line">npm repo <span class="variable">$package</span> <span class="comment"># 访问 github 仓库</span></span><br><span class="line"></span><br><span class="line">npm outdate <span class="comment"># 检索过时的依赖</span></span><br><span class="line">npm prune <span class="comment"># 剔除未在 package.json 中注明的 node_modules 依赖</span></span><br><span class="line">npm version &lt;update_type&gt; <span class="comment"># npm version patch,minor,major 自动升级版本号；patch 小改动或bug修复，minor 添加新特性，major 大改动且无法向后兼容</span></span><br><span class="line">npm shrinkwrap <span class="comment"># 生成 npm-shrinkwrap.json 文件，锁定依赖版本号</span></span><br><span class="line"></span><br><span class="line">npm config <span class="built_in">set</span> prefix <span class="variable">$dir</span> <span class="comment"># 变更安装目录为$dir；chown -R $USER $dir改变$dir目录的操作权限；再将$dir/bin加入环境变量，可以不用 sudo</span></span><br><span class="line">npm config <span class="built_in">set</span> save-prefix=“~” <span class="comment"># 改变默认保存前缀；波浪号~，表示当信赖的副版本号有更新时，允许使用npm update进行安装；脱字符^，表示当依赖的主版本号有更新时，允许使用 npm update 进行安装</span></span><br><span class="line">npm config <span class="built_in">set</span> init.author.name <span class="variable">$name</span>，npm config <span class="built_in">set</span> init.author.email <span class="variable">$email</span> <span class="comment"># npm init初始化项目时启用特定值配置 package.json</span></span><br><span class="line">npm config <span class="built_in">set</span> init-module ~/.npm-init.js <span class="comment"># 以特定脚本配置 package.json</span></span><br></pre></td></tr></table></figure>
+<h2 id="npm"><a href="#npm" class="headerlink" title="npm"></a>npm</h2><h3 id="命令-1"><a href="#命令-1" class="headerlink" title="命令"></a>命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">npm install -g npm@3 <span class="comment"># npm 升级到 v3 版本</span></span><br><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org <span class="comment"># 安装 cnpm</span></span><br><span class="line"></span><br><span class="line">npm publish <span class="comment"># 发布包；npm 发布内容优先级为 package.json 中 files 选项，.npmignore, .gitignore</span></span><br><span class="line">npm unpublish <span class="comment"># 撤销发布</span></span><br><span class="line"></span><br><span class="line">npm home <span class="variable">$package</span> <span class="comment"># npm home loadsh 访问 lodash 主页</span></span><br><span class="line">npm repo <span class="variable">$package</span> <span class="comment"># 访问 github 仓库</span></span><br><span class="line"></span><br><span class="line">npm outdate <span class="comment"># 检索过时的依赖</span></span><br><span class="line">npm prune <span class="comment"># 剔除未在 package.json 中注明的 node_modules 依赖</span></span><br><span class="line">npm version &lt;update_type&gt; <span class="comment"># npm version patch,minor,major 自动升级版本号；patch 小改动或bug修复，minor 添加新特性，major 大改动且无法向后兼容</span></span><br><span class="line">npm shrinkwrap <span class="comment"># 生成 npm-shrinkwrap.json 文件，锁定依赖版本号</span></span><br><span class="line"></span><br><span class="line">npm config <span class="built_in">set</span> prefix <span class="variable">$dir</span> <span class="comment"># 变更安装目录为$dir；chown -R $USER $dir改变$dir目录的操作权限；再将$dir/bin加入环境变量，可以不用 sudo</span></span><br><span class="line">npm config <span class="built_in">set</span> save-prefix=“~” <span class="comment"># 改变默认保存前缀；波浪号~，表示当信赖的副版本号有更新时，允许使用npm update进行安装；脱字符^，表示当依赖的主版本号有更新时，允许使用 npm update 进行安装</span></span><br><span class="line">npm config <span class="built_in">set</span> init.author.name <span class="variable">$name</span>，npm config <span class="built_in">set</span> init.author.email <span class="variable">$email</span> <span class="comment"># npm init初始化项目时启用特定值配置 package.json</span></span><br><span class="line">npm config <span class="built_in">set</span> init-module ~/.npm-init.js <span class="comment"># 以特定脚本配置 package.json</span></span><br></pre></td></tr></table></figure>
 <h3 id="备忘"><a href="#备忘" class="headerlink" title="备忘"></a>备忘</h3><ol>
 <li>安装依赖包时携带 –production 参数，将不予安装devDependencies依赖；若设置N ODE_ENV 环境变量为production，devDependencies 依赖也不会被安装。</li>
 <li>项目中若不存在 .npmignore 文件，将取用 .gitignore 设定以及一些默认配置。</li>
 </ol>
-<h3 id="QA"><a href="#QA" class="headerlink" title="QA"></a>QA</h3><p>Q: 在执行 npm link 命令时，遇到 Unhandled rejection RangeError: Maximum call stack size exceededill install loadIdealTree 报错，该如何处理？<br>A: 尝试清空工程目录中的 node_modules 依赖，再次执行 npm link，参考 <a href="https://stackoverflow.com/questions/40566348/maximum-call-stack-size-exceeded-on-npm-install" target="_blank" rel="noopener">Maximum call stack size exceeded on npm install</a>。</p>
+<h3 id="QA-1"><a href="#QA-1" class="headerlink" title="QA"></a>QA</h3><p>Q: 在执行 npm link 命令时，遇到 Unhandled rejection RangeError: Maximum call stack size exceededill install loadIdealTree 报错，该如何处理？<br>A: 尝试清空工程目录中的 node_modules 依赖，再次执行 npm link，参考 <a href="https://stackoverflow.com/questions/40566348/maximum-call-stack-size-exceeded-on-npm-install" target="_blank" rel="noopener">Maximum call stack size exceeded on npm install</a>。</p>
 <h2 id="lerna"><a href="#lerna" class="headerlink" title="lerna"></a>lerna</h2><p><a href="https://github.com/lerna/lerna#getting-started" target="_blank" rel="noopener">lerna</a> 是面向 js 的多包管理器。</p>
 <h3 id="安装-1"><a href="#安装-1" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cnpm install lerna -g</span><br></pre></td></tr></table></figure>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.clloz.com/programming/assorted/2019/04/07/mac-pathnvm/" target="_blank" rel="noopener">Mac的环境变量和nvm的使用</a></p>
@@ -1063,7 +1395,7 @@
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"format"</span>: <span class="string">"onchange 'src/**/*.js' -- prettier --write &#123;&#123;changed&#125;&#125;"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>在实现上，onchange 使用了 <a href="https://github.com/blakeembrey/deque" target="_blank" rel="noopener">@blakeembrey/deque</a> 双端队列。</p>
 <h2 id="editorConfig"><a href="#editorConfig" class="headerlink" title="editorConfig"></a>editorConfig</h2><p>EditorConfig 可以帮助开发者在不同的编辑器和IDE之间定义和维护一致的代码风格。典型的 .editorconfig 配置文件如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">root = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">[*]</span><br><span class="line">charset = utf-8</span><br><span class="line">indent_style = space</span><br><span class="line">indent_size = 2</span><br><span class="line">end_of_line = lf</span><br><span class="line">insert_final_newline = <span class="literal">true</span></span><br><span class="line">trim_trailing_whitespace = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">root = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">[*]</span><br><span class="line">end_of_line = lf</span><br><span class="line">insert_final_newline = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">[*.(js,jsx,ts,tsx,css,scss,less)]</span><br><span class="line">charset = utf-8</span><br><span class="line">indent_style = space</span><br><span class="line">indent_size = 2</span><br><span class="line">trim_trailing_whitespace = <span class="literal">true</span> <span class="comment"># 自动删除行尾空格</span></span><br></pre></td></tr></table></figure>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/d38e7e3b80cb?utm_campaign=maleskine&amp;utm_content=note&amp;utm_medium=seo_notes&amp;utm_source=recommendation" target="_blank" rel="noopener">更新版-梳理前端开发使用eslint和prettier来检查和格式化代码问题</a><br><a href="https://segmentfault.com/a/1190000015315545" target="_blank" rel="noopener">使用ESlint+Prettier统一前端代码风格</a><br><a href="https://www.jianshu.com/p/963e279ad88b" target="_blank" rel="noopener">npm package.json scripts</a><br><a href="https://segmentfault.com/a/1190000017790711" target="_blank" rel="noopener">前端代码风格自动化系列（三）之Lint-staged</a></p>
 
           
@@ -1618,304 +1950,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/20/webpack/webpack插件编程/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/20/webpack/webpack插件编程/" itemprop="url">webpack插件编程</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-20T00:00:00+08:00">2019-06-20</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/20/webpack/webpack插件编程/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/06/20/webpack/webpack插件编程/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="babel-preset-umi"><a href="#babel-preset-umi" class="headerlink" title="babel-preset-umi"></a>babel-preset-umi</h2><p>babel-preset-umi 是 umi 中的一个模块。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span>(<span class="params">context, opts = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> nodeEnv = process.env.NODE_ENV;</span><br><span class="line">  <span class="keyword">const</span> &#123;</span><br><span class="line">    useBuiltIns = <span class="literal">false</span>,</span><br><span class="line">    loose = <span class="literal">false</span>,</span><br><span class="line">    targets = &#123; <span class="attr">browsers</span>: [<span class="string">'last 2 versions'</span>] &#125;,</span><br><span class="line">    env = &#123;&#125;,</span><br><span class="line">  &#125; = opts;</span><br><span class="line">  <span class="keyword">const</span> transformRuntime =</span><br><span class="line">    <span class="string">'transformRuntime'</span> <span class="keyword">in</span> opts</span><br><span class="line">      ? opts.transformRuntime</span><br><span class="line">      : &#123;</span><br><span class="line">          absoluteRuntime: dirname(<span class="built_in">require</span>.resolve(<span class="string">'../package'</span>)),</span><br><span class="line">        &#125;;</span><br><span class="line">  <span class="keyword">const</span> exclude = [</span><br><span class="line">    <span class="string">'transform-typeof-symbol'</span>,</span><br><span class="line">    <span class="string">'transform-unicode-regex'</span>,</span><br><span class="line">    <span class="string">'transform-sticky-regex'</span>,</span><br><span class="line">    <span class="string">'transform-new-target'</span>,</span><br><span class="line">    <span class="string">'transform-modules-umd'</span>,</span><br><span class="line">    <span class="string">'transform-modules-systemjs'</span>,</span><br><span class="line">    <span class="string">'transform-modules-amd'</span>,</span><br><span class="line">    <span class="string">'transform-literals'</span>,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> plugins = [</span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'babel-plugin-react-require'</span>),</span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-syntax-dynamic-import'</span>),</span><br><span class="line">    [</span><br><span class="line">      <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-object-rest-spread'</span>),</span><br><span class="line">      &#123; loose, useBuiltIns &#125;,</span><br><span class="line">    ],</span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-optional-catch-binding'</span>),</span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-async-generator-functions'</span>),</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 下面两个的顺序的配置都不能动</span></span><br><span class="line">    [<span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-decorators'</span>), &#123; <span class="attr">legacy</span>: <span class="literal">true</span> &#125;],</span><br><span class="line">    [</span><br><span class="line">      <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-class-properties'</span>),</span><br><span class="line">      &#123; <span class="attr">loose</span>: <span class="literal">true</span> &#125;,</span><br><span class="line">    ],</span><br><span class="line"></span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-export-namespace-from'</span>),</span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-export-default-from'</span>),</span><br><span class="line">    [</span><br><span class="line">      <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-nullish-coalescing-operator'</span>),</span><br><span class="line">      &#123; loose &#125;,</span><br><span class="line">    ],</span><br><span class="line">    [<span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-optional-chaining'</span>), &#123; loose &#125;],</span><br><span class="line">    [</span><br><span class="line">      <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-pipeline-operator'</span>),</span><br><span class="line">      &#123;</span><br><span class="line">        proposal: <span class="string">'minimal'</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-do-expressions'</span>),</span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-proposal-function-bind'</span>),</span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'babel-plugin-macros'</span>),</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (nodeEnv !== <span class="string">'test'</span> &amp;&amp; transformRuntime) &#123;</span><br><span class="line">    plugins.push([</span><br><span class="line">      <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-transform-runtime'</span>),</span><br><span class="line">      transformRuntime,</span><br><span class="line">    ]);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (nodeEnv === <span class="string">'production'</span>) &#123;</span><br><span class="line">    plugins.push(</span><br><span class="line">      <span class="built_in">require</span>.resolve(<span class="string">'babel-plugin-transform-react-remove-prop-types'</span>),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    presets: [</span><br><span class="line">      [</span><br><span class="line">        <span class="built_in">require</span>.resolve(<span class="string">'@babel/preset-env'</span>),</span><br><span class="line">        &#123;</span><br><span class="line">          targets,</span><br><span class="line">          loose,</span><br><span class="line">          modules: <span class="string">'commonjs'</span>,</span><br><span class="line">          exclude,</span><br><span class="line">          ...env,</span><br><span class="line">        &#125;,</span><br><span class="line">      ],</span><br><span class="line">      <span class="built_in">require</span>.resolve(<span class="string">'@babel/preset-react'</span>),</span><br><span class="line">    ],</span><br><span class="line">    plugins,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/18/webpack/webpack加载器编程/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/18/webpack/webpack加载器编程/" itemprop="url">webpack加载器编程</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-18T00:00:00+08:00">2019-06-18</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/18/webpack/webpack加载器编程/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/06/18/webpack/webpack加载器编程/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="svgr"><a href="#svgr" class="headerlink" title="svgr"></a>svgr</h2><p>svgr 是 umi/af-webpack 中的一个模块，用于解析 svg 模块。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; getOptions &#125; <span class="keyword">from</span> <span class="string">'loader-utils'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; transform <span class="keyword">as</span> babelTransform &#125; <span class="keyword">from</span> <span class="string">'@babel/core'</span>;</span><br><span class="line"><span class="keyword">import</span> convert <span class="keyword">from</span> <span class="string">'@svgr/core'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">svgrLoader</span>(<span class="params">source</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> callback = <span class="keyword">this</span>.async();</span><br><span class="line">  <span class="keyword">const</span> &#123; babel = <span class="literal">true</span>, ...options &#125; = getOptions(<span class="keyword">this</span>) || &#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> readSvg = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.fs.readFile(<span class="keyword">this</span>.resourcePath, (err, result) =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (err) reject(err);</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> exportMatches = source</span><br><span class="line">    .toString(<span class="string">'utf-8'</span>)</span><br><span class="line">    .match(<span class="regexp">/^module.exports\s*=\s*(.*)/</span>);</span><br><span class="line">  <span class="keyword">const</span> previousExport = exportMatches ? exportMatches[<span class="number">1</span>] : <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> pBabelTransform = <span class="keyword">async</span> jsCode =&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      babelTransform(</span><br><span class="line">        jsCode,</span><br><span class="line">        &#123;</span><br><span class="line">          babelrc: <span class="literal">false</span>,</span><br><span class="line">          <span class="comment">// Unless having this, babel will merge the config with global 'babel.config.js' which may causes some problems such as using react-hot-loader/babel in babel.config.js</span></span><br><span class="line">          configFile: <span class="literal">false</span>,</span><br><span class="line">          presets: [</span><br><span class="line">            <span class="built_in">require</span>.resolve(<span class="string">'@babel/preset-react'</span>),</span><br><span class="line">            [<span class="built_in">require</span>.resolve(<span class="string">'@babel/preset-env'</span>), &#123; <span class="attr">modules</span>: <span class="literal">false</span> &#125;],</span><br><span class="line">          ],</span><br><span class="line">          plugins: [</span><br><span class="line">            <span class="built_in">require</span>.resolve(<span class="string">'@babel/plugin-transform-react-constant-elements'</span>),</span><br><span class="line">          ],</span><br><span class="line">        &#125;,</span><br><span class="line">        (err, result) =&gt; &#123;</span><br><span class="line">          <span class="keyword">if</span> (err) reject(err);</span><br><span class="line">          <span class="keyword">else</span> resolve(result.code);</span><br><span class="line">        &#125;,</span><br><span class="line">      );</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> tranformSvg = <span class="function"><span class="params">svg</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> convert(svg, options, &#123;</span><br><span class="line">      webpack: &#123; previousExport &#125;,</span><br><span class="line">      filePath: <span class="keyword">this</span>.resourcePath,</span><br><span class="line">    &#125;)</span><br><span class="line">      .then(<span class="function"><span class="params">jsCode</span> =&gt;</span> (babel ? pBabelTransform(jsCode) : jsCode))</span><br><span class="line">      .then(<span class="function"><span class="params">result</span> =&gt;</span> callback(<span class="literal">null</span>, result))</span><br><span class="line">      .catch(<span class="function"><span class="params">err</span> =&gt;</span> callback(err));</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (exportMatches) &#123;</span><br><span class="line">    readSvg().then(tranformSvg);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    tranformSvg(source);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1965,7 +1999,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">78</span>
+                    <span class="site-state-item-count">79</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

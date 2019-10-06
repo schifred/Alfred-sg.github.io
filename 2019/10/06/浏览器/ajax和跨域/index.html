@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="analyst,">
+
+
+<meta name="description" content="ajaxajax 全称 “Asynchronous Javascript + XML”，它利用浏览器原生的通信能力，能实现页面的局部更新。ajax 请求可以通过 XMLHttpRequest 对象发送；在兼容性上，IE7+, Firefox, Opera, Chrome 和 Safari 均支持原生的 XHR 对象。以下是 XHR 对象的基本使用样例： 1234567891011121314151">
+<meta name="keywords" content="analyst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ajax、web sockets 及跨域">
+<meta property="og:url" content="http://yoursite.com/2019/10/06/浏览器/ajax和跨域/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="ajaxajax 全称 “Asynchronous Javascript + XML”，它利用浏览器原生的通信能力，能实现页面的局部更新。ajax 请求可以通过 XMLHttpRequest 对象发送；在兼容性上，IE7+, Firefox, Opera, Chrome 和 Safari 均支持原生的 XHR 对象。以下是 XHR 对象的基本使用样例： 1234567891011121314151">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/10/06/浏览器/ajax和跨域/axios.png">
+<meta property="og:updated_time" content="2019-10-06T08:48:19.724Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ajax、web sockets 及跨域">
+<meta name="twitter:description" content="ajaxajax 全称 “Asynchronous Javascript + XML”，它利用浏览器原生的通信能力，能实现页面的局部更新。ajax 请求可以通过 XMLHttpRequest 对象发送；在兼容性上，IE7+, Firefox, Opera, Chrome 和 Safari 均支持原生的 XHR 对象。以下是 XHR 对象的基本使用样例： 1234567891011121314151">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/06/浏览器/ajax和跨域/axios.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/10/06/浏览器/ajax和跨域/">
+
+
+  <title>ajax、web sockets 及跨域 | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/浏览器/ajax和跨域/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ajax、web sockets 及跨域</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T00:00:00+08:00">2019-10-06</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/实践/" itemprop="url" rel="index"><span itemprop="name">实践</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/10/06/浏览器/ajax和跨域/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/06/浏览器/ajax和跨域/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="ajax"><a href="#ajax" class="headerlink" title="ajax"></a>ajax</h2><p>ajax 全称 “Asynchronous Javascript + XML”，它利用浏览器原生的通信能力，能实现页面的局部更新。ajax 请求可以通过 XMLHttpRequest 对象发送；在兼容性上，IE7+, Firefox, Opera, Chrome 和 Safari 均支持原生的 XHR 对象。以下是 XHR 对象的基本使用样例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line"></span><br><span class="line"><span class="comment">// readyState 四种状态</span></span><br><span class="line"><span class="comment">// 0: 未初始化，即尚未调用 xhr.open 方法</span></span><br><span class="line"><span class="comment">// 1: 启动，已调用 xhr.open 方法，但未调用 xhr.send 方法</span></span><br><span class="line"><span class="comment">// 2: 发送，已调用 xhr.send 方法，但未接收到响应</span></span><br><span class="line"><span class="comment">// 3: 接收，已接收到部分响应数据</span></span><br><span class="line"><span class="comment">// 4: 完成，接收到全部响应数据，且可以在客户端使用了</span></span><br><span class="line">xhr.onreadystatechange = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 响应数据自动填充到 xhr 对象上</span></span><br><span class="line">  <span class="comment">// responseText 响应主体返回的文本</span></span><br><span class="line">  <span class="comment">// responseXML 如果响应的内容类型为 "text/xml" 或 "application/xml"。responseXML 会保存响应数据的 XML DOM 文档</span></span><br><span class="line">  <span class="comment">// status 响应的 HTTP 状态</span></span><br><span class="line">  <span class="comment">// statusText HTTP 状态的说明</span></span><br><span class="line">  <span class="keyword">if</span> (xhr.readyState == <span class="number">4</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> ((xhr.status &gt;= <span class="number">200</span> &amp;&amp; xhr.status &lt; <span class="number">300</span>) || xhr.status == <span class="number">304</span>) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(xhr.responseText);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Request was unsuccessful: "</span>+ xhr.status);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 准备发送请求</span></span><br><span class="line"><span class="comment">// 第三个参数表示是否发送异步请求</span></span><br><span class="line">xhr.open(<span class="string">"get"</span>, <span class="string">"test.json"</span>, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 发送请求</span></span><br><span class="line">xhr.send(<span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="Comet"><a href="#Comet" class="headerlink" title="Comet"></a>Comet</h2><p>Comet 指服务器推送，促使浏览器持续不断地接受服务端响应。基本的 Comet 实现可借助 XHR 对象长轮询：服务端每发回一波响应，xhr.readyState 状态值都会被置为 3；直到服务端发送完响应内容后，xhr.readyState 才会被置为 4。使用 XHR 对象实现长轮询的样例代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 通过 progress, finished 回调处理接受到的内容</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createStreamingClient</span>(<span class="params">url, progress, finished</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line">  <span class="keyword">let</span> received = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  xhr.open(<span class="string">"get"</span>, url, <span class="literal">true</span>);</span><br><span class="line">  xhr.onreadystatechange = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> result;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (xhr.readyState == <span class="number">3</span>) &#123;</span><br><span class="line">      result = xhr.responseText.substring(received);</span><br><span class="line">      received += result.length;</span><br><span class="line"></span><br><span class="line">      progress(result);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (xhr.readyState == <span class="number">4</span>) &#123;</span><br><span class="line">      finished(xhr.responseText);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  xhr.send(<span class="literal">null</span>);</span><br><span class="line">  <span class="keyword">return</span> xhr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="SSE"><a href="#SSE" class="headerlink" title="SSE"></a>SSE</h3><p>SSE 全称 Server-Sent Event，服务器发送事件。SSE 适用于处理只读 Comet 交互。在兼容性上，Firefox 6+, Safari 5+, Opera 11+, Chrome 和 iOS 4+ 版 Safari 支持 SSE。SSE 的基本使用样例如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 参数 url 必须与页面同源</span></span><br><span class="line"><span class="keyword">const</span> source = <span class="keyword">new</span> EventSource(<span class="string">"test.json"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过 onmessage 事件持续不断的接受数据</span></span><br><span class="line">source.onmessage = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(event.data);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Web-Sockets"><a href="#Web-Sockets" class="headerlink" title="Web Sockets"></a>Web Sockets</h2><p>Web Sockets 可用于实现浏览器和服务端的全双工、双向通信。创建 WebSocket 对象后，首先会发送 http 请求到服务端；取得响应后，建立的连接会从 http 协议升级成 Web Sockets 协议，以支持双向通信。Web Sockets 没有同源策略，因此可以跨域通信。支持 Web Sockets 的浏览器有：Firefox 6+, Safari 5+, Chrome 和 iOS 4+ 版 Safari。Web Sockets 的使用样例如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> socket = <span class="keyword">new</span> WebSocket(<span class="string">"ws://www.example.com/socket"</span>);<span class="comment">// 必须是绝对路径</span></span><br><span class="line">socket.send(data);</span><br><span class="line">socket.onmessage = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(event.data);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="跨域"><a href="#跨域" class="headerlink" title="跨域"></a>跨域</h2><h3 id="CORS"><a href="#CORS" class="headerlink" title="CORS"></a>CORS</h3><p>CORS 全称 Cross-Origin Resource Sharing，跨域资源共享。服务器通过设置 Access-Control-Allow-Origin 头，开启跨域访问资源的可能。此时浏览器若想跨域访问资源，需要设置 Origin 请求头为许可的请求页面地址信息。在跨域请求的过程中，当浏览器接受到响应时，会根据 Access-Control-Allow-Origin 判断这次请求是不是有效的。注意，请求和响应都不包含 cookie 信息。</p>
+<p>IE 8~9 需要使用 XDomainRequest 对象发送跨域请求。</p>
+<p>Firefox 3.5+, Safari 4+, Chrome, iOS 版 Safari 和 Android 平台中的 Webkit 都可以通过 XHR 对象发送跨域请求，而不需要其他处理。该跨域请求默认不会携带 cookie 和 http 认证信息，此时可以将 xhr.withCredentials 置为 true，这样就会携带 cookie 和 http 认证信息。有些浏览器默认会发送 cookie，此时通过设置 xhr.withCredentials = false，可以禁止携带 cookie 信息。</p>
+<p>非简单请求的跨域，会执行一次预检请求，详情可参看<a href="http://www.ruanyifeng.com/blog/2016/04/cors.html" target="_blank" rel="noopener">跨域资源共享 CORS 详解</a>。</p>
+<p>检测浏览器是否支持 XHR 对象的跨域请求，可以通过判断 XHR 对象是否包含 withCredentials 属性。在此基础上，再判断 XDomainRequest 对象是否存在，就可以覆盖所有浏览器。</p>
+<h3 id="图像-Ping"><a href="#图像-Ping" class="headerlink" title="图像 Ping"></a>图像 Ping</h3><p>鉴于加载图像不存在跨域问题，图像 Ping 技术通过动态的 Image 实例进行跨域通信。它只能将请求通知给服务器，不能接受响应，最常用于收集点击信息。</p>
+<h3 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h3><p>与图像 Ping 技术相仿，JSONP 通过插入动态的 script 节点进行跨域通信，因此也只适用于 get 请求。在 JSONP 中，服务端返回的脚本信息会被执行，因此可用于处理响应。为了处理上的灵活性，JSONP 请求会携带回调函数的名称作为请求参数，以便服务器拼接响应，约束浏览器在执行脚本时调用特定的函数处理响应。</p>
+<h2 id="axios"><a href="#axios" class="headerlink" title="axios"></a>axios</h2><p>在设计上，axios 采用适配器模式切换发送请求的模块（分别为浏览器端的 XHR 对象、服务器端的 http, https 模块），该发送请求的模块作为 axios 的主流程。在主流程之外，axios 借助 Promise 对象装配拦截器（包含在主流程前的请求拦截器、在主流程后的响应拦截器），其实现等同一条链式处理的中间件机制。其核心流程如下图，首先由请求拦截器处理请求，然后通过选用特定的适配器发送请求，最后由响应拦截器处理响应。</p>
+<img src="/2019/10/06/浏览器/ajax和跨域/axios.png">
+<p>在代码中的表现为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">Axios.prototype.request = <span class="function"><span class="keyword">function</span> <span class="title">request</span>(<span class="params">config</span>) </span>&#123;</span><br><span class="line">  <span class="comment">/*eslint no-param-reassign:0*/</span></span><br><span class="line">  <span class="comment">// Allow for axios('example/url'[, config]) a la fetch API</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> config === <span class="string">'string'</span>) &#123;</span><br><span class="line">    config = <span class="built_in">arguments</span>[<span class="number">1</span>] || &#123;&#125;;</span><br><span class="line">    config.url = <span class="built_in">arguments</span>[<span class="number">0</span>];</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    config = config || &#123;&#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  config = mergeConfig(<span class="keyword">this</span>.defaults, config);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Set config.method</span></span><br><span class="line">  <span class="keyword">if</span> (config.method) &#123;</span><br><span class="line">    config.method = config.method.toLowerCase();</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.defaults.method) &#123;</span><br><span class="line">    config.method = <span class="keyword">this</span>.defaults.method.toLowerCase();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    config.method = <span class="string">'get'</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Hook up interceptors middleware</span></span><br><span class="line">  <span class="comment">// dispatchRequest 本质使用特定的适配器发送请求</span></span><br><span class="line">  <span class="keyword">var</span> chain = [dispatchRequest, <span class="literal">undefined</span>];</span><br><span class="line">  <span class="keyword">var</span> promise = <span class="built_in">Promise</span>.resolve(config);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.interceptors.request.forEach(<span class="function"><span class="keyword">function</span> <span class="title">unshiftRequestInterceptors</span>(<span class="params">interceptor</span>) </span>&#123;</span><br><span class="line">    chain.unshift(interceptor.fulfilled, interceptor.rejected);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.interceptors.response.forEach(<span class="function"><span class="keyword">function</span> <span class="title">pushResponseInterceptors</span>(<span class="params">interceptor</span>) </span>&#123;</span><br><span class="line">    chain.push(interceptor.fulfilled, interceptor.rejected);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (chain.length) &#123;</span><br><span class="line">    promise = promise.then(chain.shift(), chain.shift());</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> promise;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>在这条链式的处理流程中，随处流动的实体是 config 对象。对于 get 和 post 请求，在适配器 xhr 以及 http 模块中，config.url, config.params 将被转化成实际请求路径，config.data 将作为请求数据。config.params 也能在 post 请求中使用。此外，get 和 post 请求中不同的头部信息通过策略模式处理；传输数据和头部 content-type 值的联动关系则通过 config.transformRequest 方法处理。</p>
+<p>xhr 模块对请求头的处理包含防 csrf 攻击的机制：同源或 request.withCredentials 为真值时，将 cookie 中 xsrf 相关内容写入请求头中。</p>
+<p>http 模块包含代理机制的实现，即使用 config.proxy 配置项制作实际的请求地址等值。</p>
+<p>此外，axios 使用 Promise 实现了撤销请求的机制。cancel 操作会为 token 令牌注入标识，同时通过 resolvePromise 方法间接调用 xhr.abort 或 req.abort，从而取消请求。详情可参看源码。</p>
+<h2 id="umi-request"><a href="#umi-request" class="headerlink" title="umi-request"></a>umi-request</h2><p>umi-request 与 axios 不同的是：采用如 koa 的中间件机制应用拦截器；使用 isomorphic-fetch 库切换客服端、服务端的请求模块；对 get 请求实现缓存机制。因为 isomorphic-fetch 没有实现超时、撤销请求这两个功能，umi-request 使用 Promise.race 权衡正常请求、超时请求、撤销请求的优先级，最终实现这两个功能。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.ruanyifeng.com/blog/2016/04/cors.html" target="_blank" rel="noopener">跨域资源共享 CORS 详解</a><br><a href="https://github.com/camsong/blog/issues/2" target="_blank" rel="noopener">传统 Ajax 已死，Fetch 永生</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/27/library一句话/" rel="next" title="library一句话">
+                <i class="fa fa-chevron-left"></i> library一句话
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpeg" alt="Alfred">
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">83</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ajax"><span class="nav-number">1.</span> <span class="nav-text">ajax</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Comet"><span class="nav-number">2.</span> <span class="nav-text">Comet</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SSE"><span class="nav-number">2.1.</span> <span class="nav-text">SSE</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web-Sockets"><span class="nav-number">3.</span> <span class="nav-text">Web Sockets</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#跨域"><span class="nav-number">4.</span> <span class="nav-text">跨域</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CORS"><span class="nav-number">4.1.</span> <span class="nav-text">CORS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#图像-Ping"><span class="nav-number">4.2.</span> <span class="nav-text">图像 Ping</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JSONP"><span class="nav-number">4.3.</span> <span class="nav-text">JSONP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#axios"><span class="nav-number">5.</span> <span class="nav-text">axios</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#umi-request"><span class="nav-number">6.</span> <span class="nav-text">umi-request</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2019/10/06/浏览器/ajax和跨域/';
+        this.page.identifier = '2019/10/06/浏览器/ajax和跨域/';
+        this.page.title = 'ajax、web sockets 及跨域';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

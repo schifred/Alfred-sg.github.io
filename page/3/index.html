@@ -270,6 +270,413 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/26/Vue/生命周期-创建实例/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/26/Vue/生命周期-创建实例/" itemprop="url">Vue 生命周期 - 创建实例</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-26T00:00:00+08:00">2019-05-26</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/vue/" itemprop="url" rel="index"><span itemprop="name">vue</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/26/Vue/生命周期-创建实例/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/05/26/Vue/生命周期-创建实例/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <img src="/2019/05/26/Vue/生命周期-创建实例/lifecycle.png">
+<p>对应上图前半部分，当执行 new Vue(options) 语句创建 vm 实例（即 Vue 实例）时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：</p>
+<ol>
+<li>解析 options 配置项。</li>
+<li>通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。</li>
+<li>通过 initLifecycle 函数初始化设置生命周期相关实例属性。</li>
+<li>通过 initEvents 绑定父组件传入的事件。</li>
+<li>通过 initRender 解析插槽，父组件传入的数据，创建 createElement 方法等。</li>
+<li>执行 beforeCreate 生命周期方法。</li>
+<li>通过 initInjections 解析 inject。</li>
+<li>通过 initState 初始化 props, methods, data, computed, watch。</li>
+<li>通过 initProvide 解析 provide。</li>
+<li>执行 created 生命周期方法。</li>
+<li>在 1-10 步骤执行过程中，使用 performance 接口记录耗时。</li>
+<li>若 options.el 为真值，通过 vm.$mount 方法挂载组件。</li>
+</ol>
+<p>下面，我们将以上步骤拆解了看。</p>
+<h2 id="解析选项"><a href="#解析选项" class="headerlink" title="解析选项"></a>解析选项</h2><p>创建 vm 实例有两种方式：显式调用 new Vue(options) 语句或者解析模板中组件形式的自定义元素。解析选项按这两种方式分为两种可能。我们将这两种方式分为如下两个小节：显式构建组件、解析模板组件。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 解析模板组件</span></span><br><span class="line"><span class="keyword">if</span> (options &amp;&amp; options._isComponent) &#123;</span><br><span class="line">  initInternalComponent(vm, options)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 显式构建组件</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  vm.$options = mergeOptions(</span><br><span class="line">    resolveConstructorOptions(vm.constructor),</span><br><span class="line">    options || &#123;&#125;,</span><br><span class="line">    vm</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如 mergeOptions 函数所展示的那样，options 包含 props, methods, inject, computed, data, provider, watch, el, propsData，以及 beforeCreate 等生命周期钩子函数，以及 components 组件, directives 指令, filters 过滤器。props 声明父子组件通信的 key 键；methods 组件中所使用的方法；inject 用于组件跨级通信接值；computed 为计算属性。data 响应式数据；provider 用于组件跨级通信传值，响应式；watch 以键作为观察的数据 key，监听数据变化；el 与 propsData 等同，等价于父组件传入子组件的 prop 值。beforeCreate 等生命周期钩子函数可以使用数组形式或构造函数预先声明的方式声明多个。</p>
+<h3 id="显式构建组件"><a href="#显式构建组件" class="headerlink" title="显式构建组件"></a>显式构建组件</h3><img src="/2019/05/26/Vue/生命周期-创建实例/new_Vue.png">
+<p>new Vue(options) 语句处理 options 选项的大致逻辑如上图：即把 Vue 或自定义构造函数的 options 静态属性混入实例的显式 options 配置中，以此获得实例最终的 options 属性。有两个过程需要加以说明：Vue 或自定义构造函数的 options 因何而来？实例最终的 options 属性怎样产生？</p>
+<p>对于第一个过程，Vue 会通过 initAssetRegisters 函数生成 Vue.component, Vue.directive, Vue.filter 方法，这些方法可用于注册全局组件、指令和过滤器。而全局组件、指令或过滤器正是通过 Vue.options.components 等属性存储的。这样就可以把这些全局组件、指令和过滤器作为某个特定组件的依赖项。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ASSET_TYPES = [</span><br><span class="line">  <span class="string">'component'</span>,</span><br><span class="line">  <span class="string">'directive'</span>,</span><br><span class="line">  <span class="string">'filter'</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment">// 生成 Vue.component, Vue.directive, Vue.filter 注册方法</span></span><br><span class="line">initAssetRegisters (Vue: GlobalAPI) &#123;</span><br><span class="line">  ASSET_TYPES.forEach(<span class="function"><span class="params">type</span> =&gt;</span> &#123;</span><br><span class="line">    Vue[type] = <span class="function"><span class="keyword">function</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">      id: string,</span></span></span><br><span class="line"><span class="function"><span class="params">      definition: Function | Object</span></span></span><br><span class="line"><span class="function"><span class="params">    </span>): <span class="title">Function</span> | <span class="title">Object</span> | <span class="title">void</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (!definition) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.options[type + <span class="string">'s'</span>][id]</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* istanbul ignore if */</span></span><br><span class="line">        <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; type === <span class="string">'component'</span>) &#123;</span><br><span class="line">          validateComponentName(id)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (type === <span class="string">'component'</span> &amp;&amp; isPlainObject(definition)) &#123;</span><br><span class="line">          definition.name = definition.name || id</span><br><span class="line">          definition = <span class="keyword">this</span>.options._base.extend(definition)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (type === <span class="string">'directive'</span> &amp;&amp; <span class="keyword">typeof</span> definition === <span class="string">'function'</span>) &#123;</span><br><span class="line">          definition = &#123; <span class="attr">bind</span>: definition, <span class="attr">update</span>: definition &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.options[type + <span class="string">'s'</span>][id] = definition</span><br><span class="line">        <span class="keyword">return</span> definition</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>除此而外，Vue.mixin 方法用于扩展 Vue.options 属性，这样就便于一次性注册全局组件、指令或过滤器。Vue.extend(extendOptions) 方法用于构造子类，该子类犹如工厂，可以批量生产含有特定 options 的组件；extendOptions 可包含 prop 和计算属性等。特别的，当 extendOptions 为对象变量时，Vue 会将子类工厂缓存到该对象变量的 _Ctor 属性中，方便下次直接获取。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 扩展 Vue.options</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initMixin</span> (<span class="params">Vue: GlobalAPI</span>) </span>&#123;</span><br><span class="line">  Vue.mixin = <span class="function"><span class="keyword">function</span> (<span class="params">mixin: Object</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.options = mergeOptions(<span class="keyword">this</span>.options, mixin)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initExtend</span> (<span class="params">Vue: GlobalAPI</span>) </span>&#123;</span><br><span class="line">  Vue.cid = <span class="number">0</span></span><br><span class="line">  <span class="keyword">let</span> cid = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">  Vue.extend = <span class="function"><span class="keyword">function</span> (<span class="params">extendOptions: Object</span>): <span class="title">Function</span> </span>&#123;</span><br><span class="line">    extendOptions = extendOptions || &#123;&#125;</span><br><span class="line">    <span class="keyword">const</span> Super = <span class="keyword">this</span></span><br><span class="line">    <span class="keyword">const</span> SuperId = Super.cid</span><br><span class="line">    <span class="keyword">const</span> cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = &#123;&#125;)</span><br><span class="line">    <span class="keyword">if</span> (cachedCtors[SuperId]) &#123;</span><br><span class="line">      <span class="keyword">return</span> cachedCtors[SuperId]</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> name = extendOptions.name || Super.options.name</span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; name) &#123;</span><br><span class="line">      validateComponentName(name)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> Sub = <span class="function"><span class="keyword">function</span> <span class="title">VueComponent</span> (<span class="params">options</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>._init(options)</span><br><span class="line">    &#125;</span><br><span class="line">    Sub.prototype = <span class="built_in">Object</span>.create(Super.prototype)</span><br><span class="line">    Sub.prototype.constructor = Sub</span><br><span class="line">    Sub.cid = cid++</span><br><span class="line">    Sub.options = mergeOptions(</span><br><span class="line">      Super.options,</span><br><span class="line">      extendOptions</span><br><span class="line">    )</span><br><span class="line">    Sub[<span class="string">'super'</span>] = Super</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化 props、计算属性</span></span><br><span class="line">    <span class="keyword">if</span> (Sub.options.props) &#123;</span><br><span class="line">      initProps(Sub)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (Sub.options.computed) &#123;</span><br><span class="line">      initComputed(Sub)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Sub.extend = Super.extend</span><br><span class="line">    Sub.mixin = Super.mixin</span><br><span class="line">    Sub.use = Super.use</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成 Sub.component, Sub.directive, Sub.filter 注册方法</span></span><br><span class="line">    ASSET_TYPES.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">type</span>) </span>&#123;</span><br><span class="line">      Sub[type] = Super[type]</span><br><span class="line">    &#125;)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (name) &#123;</span><br><span class="line">      Sub.options.components[name] = Sub</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Sub.superOptions = Super.options<span class="comment">// 父类 options</span></span><br><span class="line">    Sub.extendOptions = extendOptions<span class="comment">// 自定义 options</span></span><br><span class="line">    Sub.sealedOptions = extend(&#123;&#125;, Sub.options)<span class="comment">// 综合 options 备份</span></span><br><span class="line"></span><br><span class="line">    cachedCtors[SuperId] = Sub</span><br><span class="line">    <span class="keyword">return</span> Sub</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initProps</span> (<span class="params">Comp</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> props = Comp.options.props</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> props) &#123;</span><br><span class="line">    proxy(Comp.prototype, <span class="string">`_props`</span>, key)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initComputed</span> (<span class="params">Comp</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> computed = Comp.options.computed</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> computed) &#123;</span><br><span class="line">    defineComputed(Comp.prototype, key, computed[key])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于第二个过程，Vue 提供 resolveConstructorOptions 函数，用于向上递归获取构造函数携带的 options 属性，并将其与构造实例时获得的 options 选项混合，最终生成 vm 实例的 options 属性。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">resolveConstructorOptions</span> (<span class="params">Ctor: Class&lt;Component&gt;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> options = Ctor.options</span><br><span class="line">  <span class="keyword">if</span> (Ctor.super) &#123;</span><br><span class="line">    <span class="comment">// 递归获取父级构造函数的 options，这里考虑了父级构造函数的 options 变更的情况</span></span><br><span class="line">    <span class="keyword">const</span> superOptions = resolveConstructorOptions(Ctor.super)</span><br><span class="line">    <span class="keyword">const</span> cachedSuperOptions = Ctor.superOptions</span><br><span class="line">    <span class="keyword">if</span> (superOptions !== cachedSuperOptions) &#123;</span><br><span class="line">      Ctor.superOptions = superOptions</span><br><span class="line"></span><br><span class="line">      <span class="comment">// https://github.com/vuejs/vue/issues/4976</span></span><br><span class="line">      <span class="comment">// 避免延迟注入构造函数的 options 引发 bug？？？</span></span><br><span class="line">      <span class="keyword">const</span> modifiedOptions = resolveModifiedOptions(Ctor)</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> (modifiedOptions) &#123;</span><br><span class="line">        extend(Ctor.extendOptions, modifiedOptions)</span><br><span class="line">      &#125;</span><br><span class="line">      options = Ctor.options = mergeOptions(superOptions, Ctor.extendOptions)</span><br><span class="line">      <span class="keyword">if</span> (options.name) &#123;</span><br><span class="line">        options.components[options.name] = Ctor</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> options</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolveModifiedOptions</span> (<span class="params">Ctor: Class&lt;Component&gt;</span>): ?<span class="title">Object</span> </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> modified</span><br><span class="line">  <span class="keyword">const</span> latest = Ctor.options</span><br><span class="line">  <span class="keyword">const</span> sealed = Ctor.sealedOptions</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> latest) &#123;</span><br><span class="line">    <span class="keyword">if</span> (latest[key] !== sealed[key]) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!modified) modified = &#123;&#125;</span><br><span class="line">      modified[key] = latest[key]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> modified</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="解析模板组件"><a href="#解析模板组件" class="headerlink" title="解析模板组件"></a>解析模板组件</h3><p>在 Vue 中，父组件模板会被解析成虚拟 dom（即 vNode）。该 vNode 包含当前组件的构造函数、以及通过模板注入的数据和绑定函数等信息。在此基础上，Vue 就可以对子组件进行实例化了。这一过程可以称为 Vue 组建的内部实例化过程。区别于显式实例化，Vue 会把 options._isComponent 置为真值，以此标明这是内部实例化过程。同时，在内部实例化的过程中，Vue 会把从模板中解析到的配置信息传入 vm.$options 终极选项中，如 options._parentVnode 当前组件在父组件中的占位节点、options.parent 父组件实例、options.render 渲染函数、options._parentListeners 子组件绑定的事件信息、options._renderChildren 子组件包含的下级节点。有了这些从父组件模板中透传过来的信息以后，Vue 就可以在实例化过程中消费这些数据，笔者将在下文予以展开。</p>
+<p>以下是内部实例化过程中生成最终选项 vm.$options 的源码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initInternalComponent</span> (<span class="params">vm: Component, options: InternalComponentOptions</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> opts = vm.$options = <span class="built_in">Object</span>.create(vm.constructor.options)<span class="comment">// 构造函数中携带的选项</span></span><br><span class="line">  <span class="keyword">const</span> parentVnode = options._parentVnode<span class="comment">// 组件在父组件模板的占位节点</span></span><br><span class="line">  opts.parent = options.parent<span class="comment">// 父组件实例</span></span><br><span class="line">  opts._parentVnode = parentVnode</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> vnodeComponentOptions = parentVnode.componentOptions</span><br><span class="line">  opts.propsData = vnodeComponentOptions.propsData<span class="comment">// 父组件传入的 props 数据</span></span><br><span class="line">  opts._parentListeners = vnodeComponentOptions.listeners<span class="comment">// 父组件传入的绑定事件</span></span><br><span class="line">  opts._renderChildren = vnodeComponentOptions.children<span class="comment">// 父组件传入的 children</span></span><br><span class="line">  opts._componentTag = vnodeComponentOptions.tag<span class="comment">// 组件的 tag</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 渲染函数</span></span><br><span class="line">  <span class="keyword">if</span> (options.render) &#123;</span><br><span class="line">    opts.render = options.render</span><br><span class="line">    opts.staticRenderFns = options.staticRenderFns</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="initProxy"><a href="#initProxy" class="headerlink" title="initProxy"></a>initProxy</h2><p>有了上一小节的 vm.$options.render 方法（从父组件模板中解析到子组件渲染函数），Vue 仍需要将 vm 实例作为执行上下文灌入到 render 方法中，以使 render 方法执行期间可以访问到 vm 实例的属性或方法。为什么要构建 vm 实例的代理呢？当 render 方法访问 vm 实例不存在的属性时，通过 vm 代理就可以予以提示。详情参阅源码。</p>
+<h2 id="initLifecycle"><a href="#initLifecycle" class="headerlink" title="initLifecycle"></a>initLifecycle</h2><p>initLifecycle 主要用于创建生命周期相关属性。源码见下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initLifecycle</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> options = vm.$options</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取非抽象父组件</span></span><br><span class="line">  <span class="keyword">let</span> parent = options.parent</span><br><span class="line">  <span class="keyword">if</span> (parent &amp;&amp; !options.abstract) &#123;</span><br><span class="line">    <span class="keyword">while</span> (parent.$options.abstract &amp;&amp; parent.$parent) &#123;</span><br><span class="line">      parent = parent.$parent</span><br><span class="line">    &#125;</span><br><span class="line">    parent.$children.push(vm)<span class="comment">// 作为子组件</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  vm.$parent = parent<span class="comment">// 父组件</span></span><br><span class="line">  vm.$root = parent ? parent.$root : vm<span class="comment">// 根组件</span></span><br><span class="line"></span><br><span class="line">  vm.$children = []</span><br><span class="line">  vm.$refs = &#123;&#125;</span><br><span class="line"></span><br><span class="line">  vm._watcher = <span class="literal">null</span></span><br><span class="line">  vm._inactive = <span class="literal">null</span></span><br><span class="line">  vm._directInactive = <span class="literal">false</span></span><br><span class="line">  vm._isMounted = <span class="literal">false</span><span class="comment">// 是否挂载</span></span><br><span class="line">  vm._isDestroyed = <span class="literal">false</span><span class="comment">// 是否销毁</span></span><br><span class="line">  vm._isBeingDestroyed = <span class="literal">false</span><span class="comment">// 是否开始销毁</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="initEvents"><a href="#initEvents" class="headerlink" title="initEvents"></a>initEvents</h2><p>首先 Vue 通过 eventsMixin 自建事件系统 vm.$on, vm.$.once, vm.$off, vm.$emit。事件的绑定函数以对象数组的形式存储在 vm._events 属性中。结合解析模板组件一节由父组件模板配置的 options._parentListeners 信息，Vue 中的 initEvents 方法可用于更新 vm 实例上挂载的事件处理函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initEvents</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  vm._events = <span class="built_in">Object</span>.create(<span class="literal">null</span>)</span><br><span class="line">  vm._hasHookEvent = <span class="literal">false</span></span><br><span class="line">  <span class="keyword">const</span> listeners = vm.$options._parentListeners</span><br><span class="line">  <span class="keyword">if</span> (listeners) &#123;</span><br><span class="line">    <span class="comment">// 更新绑定函数</span></span><br><span class="line">    updateComponentListeners(vm, listeners)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="initRender"><a href="#initRender" class="headerlink" title="initRender"></a>initRender</h2><p>initRender 用于解析插槽 vm.$slots（与 React 中 props.chidren 同等功用，但能传多个），创建 vm._c, vm.$createElement 方法用于为子组件构建 vnode，同时将从父模板中注入的节点属性或事件存储为响应式数据 vm.$attrs, vm.$listeners。有了 vm.$createElement 方法后，原型方法 vm._render 就能实际调用 vm.$options.render.call(vm._renderProxy, vm.$createElement) 方法了，进而实现将模板真正解析为 vnode。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initRender</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  vm._vnode = <span class="literal">null</span> <span class="comment">// 当前组件的节点树根元素</span></span><br><span class="line">  vm._staticTrees = <span class="literal">null</span> <span class="comment">// 当前组件的节点树</span></span><br><span class="line">  <span class="keyword">const</span> options = vm.$options</span><br><span class="line">  <span class="keyword">const</span> parentVnode = vm.$vnode = options._parentVnode <span class="comment">// 当前组件在父模板中的占位节点</span></span><br><span class="line">  <span class="keyword">const</span> renderContext = parentVnode &amp;&amp; parentVnode.context</span><br><span class="line">  vm.$slots = resolveSlots(options._renderChildren, renderContext)<span class="comment">// 解析插槽</span></span><br><span class="line">  vm.$scopedSlots = emptyObject</span><br><span class="line">  <span class="comment">// 创建 vnode 的内部方法，解析父模板后由 Vue 自动调用</span></span><br><span class="line">  <span class="comment">// 参数依次为 vm 实例、tag 节点标签、data 父模板传入数据、children 父模板传入的子节点、</span></span><br><span class="line">  <span class="comment">//    normalizationType 序列化子节点的方式，alwaysNormalize 是否需要序列化子节点</span></span><br><span class="line">  vm._c = <span class="function">(<span class="params">a, b, c, d</span>) =&gt;</span> createElement(vm, a, b, c, d, <span class="literal">false</span>)</span><br><span class="line">  <span class="comment">// 创建 vnode 的公共方法，当开发者显式执行 new Vue 语句时调用</span></span><br><span class="line">  vm.$createElement = <span class="function">(<span class="params">a, b, c, d</span>) =&gt;</span> createElement(vm, a, b, c, d, <span class="literal">true</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 通过父模板绑定的属性值</span></span><br><span class="line">  <span class="keyword">const</span> parentData = parentVnode &amp;&amp; parentVnode.data</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">    defineReactive(vm, <span class="string">'$attrs'</span>, parentData &amp;&amp; parentData.attrs || emptyObject, () =&gt; &#123;</span><br><span class="line">      !isUpdatingChildComponent &amp;&amp; warn(<span class="string">`$attrs is readonly.`</span>, vm)</span><br><span class="line">    &#125;, <span class="literal">true</span>)</span><br><span class="line">    defineReactive(vm, <span class="string">'$listeners'</span>, options._parentListeners || emptyObject, () =&gt; &#123;</span><br><span class="line">      !isUpdatingChildComponent &amp;&amp; warn(<span class="string">`$listeners is readonly.`</span>, vm)</span><br><span class="line">    &#125;, <span class="literal">true</span>)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    defineReactive(vm, <span class="string">'$attrs'</span>, parentData &amp;&amp; parentData.attrs || emptyObject, <span class="literal">null</span>, <span class="literal">true</span>)</span><br><span class="line">    defineReactive(vm, <span class="string">'$listeners'</span>, options._parentListeners || emptyObject, <span class="literal">null</span>, <span class="literal">true</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 解析插槽，将父模板中灌入子组件的 children 解析为 slots 对象或 slots.default 数组</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolveSlots</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  children: ?Array&lt;VNode&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  context: ?Component</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): </span>&#123; [key: string]: <span class="built_in">Array</span>&lt;VNode&gt; &#125; &#123;</span><br><span class="line">  <span class="keyword">if</span> (!children || !children.length) &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> slots = &#123;&#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>, l = children.length; i &lt; l; i++) &#123;</span><br><span class="line">    <span class="keyword">const</span> child = children[i]</span><br><span class="line">    <span class="keyword">const</span> data = child.data</span><br><span class="line">    <span class="keyword">if</span> (data &amp;&amp; data.attrs &amp;&amp; data.attrs.slot) &#123;</span><br><span class="line">      <span class="keyword">delete</span> data.attrs.slot</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ((child.context === context || child.fnContext === context) &amp;&amp;</span><br><span class="line">      data &amp;&amp; data.slot != <span class="literal">null</span></span><br><span class="line">    ) &#123;</span><br><span class="line">      <span class="keyword">const</span> name = data.slot</span><br><span class="line">      <span class="keyword">const</span> slot = (slots[name] || (slots[name] = []))</span><br><span class="line">      <span class="keyword">if</span> (child.tag === <span class="string">'template'</span>) &#123;</span><br><span class="line">        slot.push.apply(slot, child.children || [])</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        slot.push(child)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      (slots.default || (slots.default = [])).push(child)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> name <span class="keyword">in</span> slots) &#123;</span><br><span class="line">    <span class="keyword">if</span> (slots[name].every(isWhitespace)) &#123;</span><br><span class="line">      <span class="keyword">delete</span> slots[name]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> slots</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isWhitespace</span> (<span class="params">node: VNode</span>): <span class="title">boolean</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (node.isComment &amp;&amp; !node.asyncFactory) || node.text === <span class="string">' '</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="initInjections、initProvide"><a href="#initInjections、initProvide" class="headerlink" title="initInjections、initProvide"></a>initInjections、initProvide</h2><p>vm.$options.provide，vm.$options.inject 辅助于组件之间跨级传递数据。provide 约定祖先组件传给子孙组件的数据，inject 约定子孙组件接受祖先组件的哪些数据。initProvide 函数用于将 vm.$options.provide 以实际数据的形式写入 vm._provided；initInjections 函数先解析到当前组件实际需要从祖先组件获得的数据或默认数据，然后将这部分数据以响应式数据形式写入 vm 实例属性中，以在数据变更时可引起重绘。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initProvide</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> provide = vm.$options.provide</span><br><span class="line">  <span class="keyword">if</span> (provide) &#123;</span><br><span class="line">    vm._provided = <span class="keyword">typeof</span> provide === <span class="string">'function'</span></span><br><span class="line">      ? provide.call(vm)</span><br><span class="line">      : provide</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initInjections</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> result = resolveInject(vm.$options.inject, vm)</span><br><span class="line">  <span class="keyword">if</span> (result) &#123;</span><br><span class="line">    toggleObserving(<span class="literal">false</span>)</span><br><span class="line">    <span class="built_in">Object</span>.keys(result).forEach(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">/* istanbul ignore else */</span></span><br><span class="line">      <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">        defineReactive(vm, key, result[key], () =&gt; &#123;</span><br><span class="line">          warn(</span><br><span class="line">            <span class="string">`Avoid mutating an injected value directly since the changes will be `</span> +</span><br><span class="line">            <span class="string">`overwritten whenever the provided component re-renders. `</span> +</span><br><span class="line">            <span class="string">`injection being mutated: "<span class="subst">$&#123;key&#125;</span>"`</span>,</span><br><span class="line">            vm</span><br><span class="line">          )</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        defineReactive(vm, key, result[key])</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    toggleObserving(<span class="literal">true</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获得从祖先组件传入的数据或者取默认值</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolveInject</span> (<span class="params">inject: any, vm: Component</span>): ?<span class="title">Object</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (inject) &#123;</span><br><span class="line">    <span class="keyword">const</span> result = <span class="built_in">Object</span>.create(<span class="literal">null</span>)</span><br><span class="line">    <span class="keyword">const</span> keys = hasSymbol</span><br><span class="line">      ? <span class="built_in">Reflect</span>.ownKeys(inject)</span><br><span class="line">      : <span class="built_in">Object</span>.keys(inject)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; keys.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> key = keys[i]</span><br><span class="line">      <span class="comment">// #6574 in case the inject object is observed...</span></span><br><span class="line">      <span class="keyword">if</span> (key === <span class="string">'__ob__'</span>) <span class="keyword">continue</span></span><br><span class="line">      <span class="keyword">const</span> provideKey = inject[key].from</span><br><span class="line">      <span class="keyword">let</span> source = vm</span><br><span class="line">      <span class="keyword">while</span> (source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (source._provided &amp;&amp; hasOwn(source._provided, provideKey)) &#123;</span><br><span class="line">          result[key] = source._provided[provideKey]</span><br><span class="line">          <span class="keyword">break</span></span><br><span class="line">        &#125;</span><br><span class="line">        source = source.$parent</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (!source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">'default'</span> <span class="keyword">in</span> inject[key]) &#123;</span><br><span class="line">          <span class="keyword">const</span> provideDefault = inject[key].default</span><br><span class="line">          result[key] = <span class="keyword">typeof</span> provideDefault === <span class="string">'function'</span></span><br><span class="line">            ? provideDefault.call(vm)</span><br><span class="line">            : provideDefault</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">          warn(<span class="string">`Injection "<span class="subst">$&#123;key&#125;</span>" not found`</span>, vm)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="initState"><a href="#initState" class="headerlink" title="initState"></a>initState</h2><p>initState 函数用于依次初始化 vm 实例的 props, methods, data, computed, watch 相关信息。其中，在 key 键不冲突的理想状况下，props, methods, data, computed 中的子属性都可以通过 vm 实例进行访问。关于这部分内容，笔者将在后续的文章中加以分析。</p>
+<h2 id="vm-mount"><a href="#vm-mount" class="headerlink" title="vm.$mount"></a>vm.$mount</h2><p>当 vm.$options.el 为真值时，创建 vm 实例的过程中将会显式调用 vm.$mount 挂载组件。对于从模板中解析渲染的 vm 实例，将由 Vue 框架调用 vm.$mount 方法挂载组件。参考 <a href="http://xzfyu.com/2019/05/29/Vue/%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-%E7%BB%84%E4%BB%B6%E6%8C%82%E8%BD%BD%E5%8F%8A%E6%9B%B4%E6%96%B0/" target="_blank" rel="noopener">Vue 生命周期 - 组件挂载及更新</a>。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/13/java/集合/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/13/java/集合/" itemprop="url">集合</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-13T00:00:00+08:00">2019-05-13</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/13/java/集合/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/05/13/java/集合/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>同大多数数据结构类库相同，Java 集合类库在设计上采用接口（interface）和实现（implementation）分离的模式。在强类型语言中，接口和实现的分离有利于在声明实例时切换实现类。Java 核心技术卷以先进先出队列 Queue 接口为例，既可以用循环数组 CircuralArrayQueue 形式实现，又可以用链表 LinkedListQueue 形式实现。循环数组比链表更高效，但是长度受限。在声明实例时，我们可以按条件使用循环数组 Queue<customer> expressLane = new CircuralArrayQueue&lt;&gt;() 或者使用 Queue<customer> expressLane = new LinkedListQueue&lt;&gt;()。同时设计者会制作 AbstractQueue 抽象类，以方便类库制作者快速实现自己的队列类，因为扩展 AbstractQueue 抽象类会比实现 Queue 接口轻松得多。</customer></customer></p>
+<p>Java 集合类库的实现结构为：</p>
+<img src="/2019/05/13/java/集合/collection.gif">
+<p>Java 集合框架有两个基本接口：集合 Collection 和映射 Map。集合使用 add, remove 添加或移除元素，通过迭代器读取元素；映射使用 put 添加元素，get 读取元素。在 Collection, Map 之外，List 有序集合接口允许以索引形式访问元素；Set 接口不能有重复的元素，对于元素相同的两个 Set 需要保证 hashCode 方法会返回相同的散列码；SortedSet, SortedMap 均提供了用于排序的比较器对象；NavigableSet, NavigableMap 均提供了用于搜索和遍历的方法。</p>
+<p>具体的集合类大致如下：</p>
+<ul>
+<li>ArrayList 可动态增长和缩减的索引序列</li>
+<li>LinkedList 可在任何位置高效插人和删除元素的有序序列</li>
+<li>HashSet 没有重复元素的无序集合</li>
+<li>TreeSet 有序集合</li>
+<li>EnumSet 包含枚举类型值的集合</li>
+<li>LinkedHashSet 可记住元素插入次序的集合</li>
+<li>HashMap 存储键值对的映射表</li>
+<li>TreeMap 键值有序排列的映射表</li>
+<li>EnumMap 键值属于枚举类型的映射表</li>
+<li>LinkedHashMap 可记住键值对添加次序的映射表</li>
+<li>WeakHashMap 其值无用武之地后可被垃圾回收的映射表</li>
+<li>IdentityHashMap 用 = 而不是用 equals 比较键值的映射表</li>
+<li>PriorityQueue 允许高效删除最小元素的集合</li>
+<li>ArrayDeque 用循环数组实现的双端队列</li>
+</ul>
+<h2 id="基础支撑"><a href="#基础支撑" class="headerlink" title="基础支撑"></a>基础支撑</h2><h3 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h3><p>迭代器可用于遍历元素。元素被访问的顺序取决于集合的实现类，如 ArrayList 支持从索引 0 位置的有序访问；HashSet 支持无序访问。在 Java 中，查找操作与位置变更紧密关联，只能调用 next 方法逐个访问元素；C++ 中，迭代器根据数组索引建模，通过变更索引就可以访问特定的元素。</p>
+<ul>
+<li>hasNext 判断集合中是否还有剩余的元素</li>
+<li>next 逐个访问元素</li>
+<li>remove 删除上次调用 next 方法访问的元素</li>
+<li>forEachRemaining 使用 lambda 表达式逐个处理元素</li>
+</ul>
+<p>但凡实现了 Iterable 接口的类都支持使用 for each 语句循环，因此标准集合类库都允许使用 for each 语句循环。在实现了 Iterable 接口的类中，iterator 方法用于迭代器；forEach 方法可以使用 lambda 表达式逐个处理元素；spliterator 方法用于创建一个可分割迭代器，以支持并行遍历。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Iterable</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">Iterator&lt;T&gt; <span class="title">iterator</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">forEach</span><span class="params">(Consumer&lt;? <span class="keyword">super</span> T&gt; action)</span> </span>&#123;</span><br><span class="line">        Objects.requireNonNull(action);</span><br><span class="line">        <span class="keyword">for</span> (T t : <span class="keyword">this</span>) &#123;</span><br><span class="line">            action.accept(t);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">default</span> Spliterator&lt;T&gt; <span class="title">spliterator</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Spliterators.spliteratorUnknownSize(iterator(), <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="ListIterator"><a href="#ListIterator" class="headerlink" title="ListIterator"></a>ListIterator</h3><p>首先需要说明的是，Java 以双向链表的形式实现 List。因为双向链表比起数组具有如下优点：在指定位置插入元素时，数组需要移动该位置后的元素，双向链表不需要；删除元素时也相同。因为是双向链表，ListIterator 支持反向遍历元素。</p>
+<ul>
+<li>hasNext 判断集合中是否还有剩余的元素</li>
+<li>next 逐个访问元素</li>
+<li>hasPrevious 判断集合中是否还有打头的元素</li>
+<li>previous 反向逐个访问元素</li>
+<li>remove 基于遍历的方向删除元素</li>
+<li>set(e) 修改当前访问的元素</li>
+<li>add(e) 基于当前访问的元素位置插入元素</li>
+</ul>
+<h3 id="Spliterator"><a href="#Spliterator" class="headerlink" title="Spliterator"></a>Spliterator</h3><p>Spliterator 分割迭代器用于分割遍历数据，可分割的数据包含数组、集合、IO 通道、生成器函数。Spliterator.OfPrimitive, Spliterator.OfInt, Spliterator.OfLong, Spliterator.OfDouble 是半指定或全指定类型的分割迭代器。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Spliterator</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">// 使用 lambda 表达式逐个处理元素</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">tryAdvance</span><span class="params">(Consumer&lt;? <span class="keyword">super</span> T&gt; action)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">forEachRemaining</span><span class="params">(Consumer&lt;? <span class="keyword">super</span> T&gt; action)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">do</span> &#123; &#125; <span class="keyword">while</span> (tryAdvance(action));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 估算剩余元素</span></span><br><span class="line">    <span class="function"><span class="keyword">long</span> <span class="title">estimateSize</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 Spliterator 分割成小的 Spliterator，原始 Spliterator 的大小相应改变，分割的方式取决于实现类</span></span><br><span class="line">    <span class="function">Spliterator&lt;T&gt; <span class="title">trySplit</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当迭代器拥有 SIZED 特征时，返回剩余元素个数；否则返回-1</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">long</span> <span class="title">getExactSizeIfKnown</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (characteristics() &amp; SIZED) == <span class="number">0</span> ? -<span class="number">1L</span> : estimateSize();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 包含哪些特征</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">characteristics</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 是否具有某特征</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">boolean</span> <span class="title">hasCharacteristics</span><span class="params">(<span class="keyword">int</span> characteristics)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (characteristics() &amp; characteristics) == characteristics;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 特征</span></span><br><span class="line">    <span class="comment">// 元素是否有序，可以用索引访问元素，如 List</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> ORDERED    = <span class="number">0x00000010</span>;</span><br><span class="line">    <span class="comment">// 元素是否唯一，如 Set</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DISTINCT   = <span class="number">0x00000001</span>;</span><br><span class="line">    <span class="comment">// 元素是否有序排列，如 SortedSet</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SORTED     = <span class="number">0x00000004</span>;</span><br><span class="line">    <span class="comment">// 是否有大小，大多数集合都可以计算大小，HashSet 不能？</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SIZED      = <span class="number">0x00000040</span></span><br><span class="line">    <span class="comment">// 元素不能为 null</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> NONNULL    = <span class="number">0x00000100</span>;</span><br><span class="line">    <span class="comment">// 元素是否可修改</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> IMMUTABLE  = <span class="number">0x00000400</span>;</span><br><span class="line">    <span class="comment">// 可否并行处理。可并行处理不具备线程安全，其大小在另一个线程中可能被修改，因此也不具备 SIZED 特征</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CONCURRENT = <span class="number">0x00001000</span>;</span><br><span class="line">    <span class="comment">// 使用 trySplit 分割出来的子迭代器都具有 SIZED, SUBSIZED 特征</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SUBSIZED = <span class="number">0x00004000</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回 Comparator 排序方式；自然排序返回 null；不支持排序报错</span></span><br><span class="line">    <span class="keyword">default</span> Comparator&lt;? <span class="keyword">super</span> T&gt; getComparator() &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Serializable"><a href="#Serializable" class="headerlink" title="Serializable"></a>Serializable</h3><h3 id="Cloneable"><a href="#Cloneable" class="headerlink" title="Cloneable"></a>Cloneable</h3><h2 id="Collection"><a href="#Collection" class="headerlink" title="Collection"></a>Collection</h2><p>Collection 和 Iterator 都是泛型接口，内含操作任意集合的实用方法。为了实现 Collection 接口的方便，java.util 提供了 AbstractCollection 抽象类，以抽象常见的处理逻辑。</p>
+<img src="/2019/05/13/java/集合/Collection.png">
+<p>AbstractCollection 抽象类实现了 finishToArray, hugeCapacity 方法可用于辅助扩容。</p>
+<h2 id="List"><a href="#List" class="headerlink" title="List"></a>List</h2><p>List 接口最大的特征是可以借助索引插入、获取和删除元素，即元素是有序的。</p>
+<img src="/2019/05/13/java/集合/List.png">
+<h3 id="ArrayList"><a href="#ArrayList" class="headerlink" title="ArrayList"></a>ArrayList</h3><p>ArrayList 是一种支持长度弹性收缩的有序列表。在实现上，ArrayList 使用 elementData 属性以数组形式存储元素，这样就简便地支持了索引读写；ArrayList 提供 ensureCapacity 方法在插值时动态改变 elementData 属性的大小；ArrayList 可使用 writeObject 方法将数据序列化写入输出流中，readObject 方法从输入流中反序列化读取出数据，以赋值到 elementData 属性中。</p>
+<p>ArrayList 不是线程安全的；Vector 是线程安全的（Vector 包含了许多不属于集合框架的传统方法），但需要耗费大量的精力实现同步操作。</p>
+<p>以下是 ArrayList 中数组扩容的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArrayList</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractList</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="keyword">implements</span> <span class="title">List</span>&lt;<span class="title">E</span>&gt;, <span class="title">RandomAccess</span>, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_CAPACITY = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">transient</span> Object[] elementData;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 外部扩容</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ensureCapacity</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> minExpand = (elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATA)</span><br><span class="line">            ? <span class="number">0</span> : DEFAULT_CAPACITY;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (minCapacity &gt; minExpand) &#123;</span><br><span class="line">            ensureExplicitCapacity(minCapacity);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 内部扩容</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ensureCapacityInternal</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) &#123;</span><br><span class="line">            minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ensureExplicitCapacity(minCapacity);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ensureExplicitCapacity</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">        modCount++;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (minCapacity - elementData.length &gt; <span class="number">0</span>)</span><br><span class="line">            grow(minCapacity);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX_ARRAY_SIZE = Integer.MAX_VALUE - <span class="number">8</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">grow</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> oldCapacity = elementData.length;</span><br><span class="line">        <span class="keyword">int</span> newCapacity = oldCapacity + (oldCapacity &gt;&gt; <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (newCapacity - minCapacity &lt; <span class="number">0</span>)</span><br><span class="line">            newCapacity = minCapacity;</span><br><span class="line">        <span class="keyword">if</span> (newCapacity - MAX_ARRAY_SIZE &gt; <span class="number">0</span>)</span><br><span class="line">            newCapacity = hugeCapacity(minCapacity);</span><br><span class="line">        elementData = Arrays.copyOf(elementData, newCapacity);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">hugeCapacity</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (minCapacity &lt; <span class="number">0</span>) </span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> OutOfMemoryError();</span><br><span class="line">        <span class="keyword">return</span> (minCapacity &gt; MAX_ARRAY_SIZE) ?</span><br><span class="line">            Integer.MAX_VALUE :</span><br><span class="line">            MAX_ARRAY_SIZE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="LinkedList"><a href="#LinkedList" class="headerlink" title="LinkedList"></a>LinkedList</h3><p>LinkedList 采用双向链表实现。在 LinkedList 中，每个元素 Node 均包含 prev, next 属性引用相邻元素；若无相邻元素，prev, next 属性均置为自身，使首尾相连。LinkedList 保有 first, last 属性引用双向链表中的首个以及最后一个元素。</p>
+<p>LinkedList 支持索引访问，然而双向链表实际会基于遍历找到指定位置的元素，并不高效。LinkedList 同样支持读取输入流、写入输出流。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LinkedList</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">extends</span> <span class="title">AbstractSequentialList</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">List</span>&lt;<span class="title">E</span>&gt;, <span class="title">Deque</span>&lt;<span class="title">E</span>&gt;, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">        E item;</span><br><span class="line">        Node&lt;E&gt; next;</span><br><span class="line">        Node&lt;E&gt; prev;</span><br><span class="line"></span><br><span class="line">        Node(Node&lt;E&gt; prev, E element, Node&lt;E&gt; next) &#123;</span><br><span class="line">            <span class="keyword">this</span>.item = element;</span><br><span class="line">            <span class="keyword">this</span>.next = next;</span><br><span class="line">            <span class="keyword">this</span>.prev = prev;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">transient</span> Node&lt;E&gt; first;</span><br><span class="line">    <span class="keyword">transient</span> Node&lt;E&gt; last;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 头部插入</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">linkFirst</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> Node&lt;E&gt; f = first;</span><br><span class="line">        <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(<span class="keyword">null</span>, e, f);</span><br><span class="line">        first = newNode;</span><br><span class="line">        <span class="keyword">if</span> (f == <span class="keyword">null</span>)</span><br><span class="line">            last = newNode;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            f.prev = newNode;</span><br><span class="line">        size++;</span><br><span class="line">        modCount++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 尾部插入</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">linkLast</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> Node&lt;E&gt; l = last;</span><br><span class="line">        <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(l, e, <span class="keyword">null</span>);</span><br><span class="line">        last = newNode;</span><br><span class="line">        <span class="keyword">if</span> (l == <span class="keyword">null</span>)</span><br><span class="line">            first = newNode;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            l.next = newNode;</span><br><span class="line">        size++;</span><br><span class="line">        modCount++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h2><p>Map 映射是<a href="http://xzfyu.com/2019/04/21/%E7%AE%97%E6%B3%95/%E7%AC%A6%E5%8F%B7%E8%A1%A8%E4%B8%8E%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91/" target="_blank" rel="noopener">符号表</a>的一种，用于存储和操纵键值对。</p>
+<img src="/2019/05/13/java/集合/Map.png">
+<p>关于 Map 接口的实现类如 HashMap, WeakHashMap, TreeMap，以及相关的 Hashtable 类，可参考 <a href="http://xzfyu.com/2019/04/20/java/%E9%80%8F%E8%BF%87%E6%95%A3%E5%88%97%E8%A1%A8%E7%9C%8BHashMap/" target="_blank" rel="noopener">透过散列表看HashMap</a>、<a href="http://xzfyu.com/2019/04/14/%E7%AE%97%E6%B3%95/HashMap%E4%B8%AD%E7%9A%84%E7%BA%A2%E9%BB%91%E6%A0%91/" target="_blank" rel="noopener">HashMap中的红黑树</a>。</p>
+<p>IdentityHashMap 完全通过数组存储键值对，而不是数组链表。首先通过基于哈希函数计算数组的索引（该哈希函数通过 System.identityHashCode 计算内存地址的散列码，因此允许 key 键重复），然后将键值对先后存入数组的相邻索引位中。当哈希函数算得的索引相同时，IdentityHashMap 首先会比较 key 键，如果 key 键的内存地址相同，就替换为新值；如果不同，在其后插入键值对。因此，在查找键值对时，极限情况下 IdentityHashMap 会遍历整个数组。</p>
+<p>LinkedHashMap 会额外使用双向链表保存每个插入的节点，且新修改的节点始终在链表的尾部。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LinkedHashMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">HashMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; head;<span class="comment">// 链表中的首节点</span></span><br><span class="line">    <span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; tail;<span class="comment">// 链表中的尾节点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在 hashMap.removeNode 方法中执行，用于移除双向链表中的节点</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">afterNodeRemoval</span><span class="params">(Node&lt;K,V&gt; e)</span> </span>&#123; <span class="comment">// unlink</span></span><br><span class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</span><br><span class="line">            (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</span><br><span class="line">        p.before = p.after = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (b == <span class="keyword">null</span>)</span><br><span class="line">            head = a;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            b.after = a;</span><br><span class="line">        <span class="keyword">if</span> (a == <span class="keyword">null</span>)</span><br><span class="line">            tail = b;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            a.before = b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">afterNodeInsertion</span><span class="params">(<span class="keyword">boolean</span> evict)</span> </span>&#123; <span class="comment">// possibly remove eldest</span></span><br><span class="line">        LinkedHashMap.Entry&lt;K,V&gt; first;</span><br><span class="line">        <span class="comment">// 订制的 removeEldestEntry 可在链表超过指定长度，移除顶部的节点</span></span><br><span class="line">        <span class="keyword">if</span> (evict &amp;&amp; (first = head) != <span class="keyword">null</span> &amp;&amp; removeEldestEntry(first)) &#123;</span><br><span class="line">            K key = first.key;</span><br><span class="line">            removeNode(hash(key), key, <span class="keyword">null</span>, <span class="keyword">false</span>, <span class="keyword">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在 hashMap.putVal 等方法中执行，将新插入或新修改的节点插入到双向链表的尾部</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">afterNodeAccess</span><span class="params">(Node&lt;K,V&gt; e)</span> </span>&#123; <span class="comment">// move node to last</span></span><br><span class="line">        LinkedHashMap.Entry&lt;K,V&gt; last;</span><br><span class="line">        <span class="keyword">if</span> (accessOrder &amp;&amp; (last = tail) != e) &#123;</span><br><span class="line">            LinkedHashMap.Entry&lt;K,V&gt; p =</span><br><span class="line">                (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</span><br><span class="line">            p.after = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">if</span> (b == <span class="keyword">null</span>)</span><br><span class="line">                head = a;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                b.after = a;</span><br><span class="line">            <span class="keyword">if</span> (a != <span class="keyword">null</span>)</span><br><span class="line">                a.before = b;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                last = b;</span><br><span class="line">            <span class="keyword">if</span> (last == <span class="keyword">null</span>)</span><br><span class="line">                head = p;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                p.before = last;</span><br><span class="line">                last.after = p;</span><br><span class="line">            &#125;</span><br><span class="line">            tail = p;</span><br><span class="line">            ++modCount;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h2><img src="/2019/05/13/java/集合/Set.png">
+<p>HashSet 使用 HashMap 存储元素，且以元素作为 key 键，因此其所存储的元素是无序的、不重复的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashSet</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractSet</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Set</span>&lt;<span class="title">E</span>&gt;, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">transient</span> HashMap&lt;E,Object&gt; map;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object PRESENT = <span class="keyword">new</span> Object();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> map.put(e, PRESENT)==<span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Iterator&lt;E&gt; <span class="title">iterator</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> map.keySet().iterator();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>TreeSet 使用 TreeMap 存储元素，同样以元素作为 key 键，因此其所存储的元素是有序的、不重复的。借助于 TreeMap，TreeSet 可对元素进行分组提取。</p>
+<p>关于 EnumSet，可参考 <a href="http://xzfyu.com/2019/05/12/java/%E6%9E%9A%E4%B8%BE/" target="_blank" rel="noopener">枚举</a>。</p>
+<h2 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h2><img src="/2019/05/13/java/集合/Queue.png">
+<p>PriorityQueue 优先级队列，表现上以数组形式存储元素，实际数组项按索引构成一棵二叉树（即将索引展开为二叉树）。在这棵二叉树中，从根节点起，元素从小到大分层排列。PriorityQueue 同样实现了扩容方法。特别的，在添加元素的过程中，PriorityQueue 提供 siftUp 方法保证二叉树中父子节点的优先级按从小到大排列。在移除元素的过程中，PriorityQueue 提供 siftDown 方法取队尾元素填补被删除元素留下的空位，并酌情重新调整二叉树中父子节点的位置。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PriorityQueue</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractQueue</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">transient</span> Object[] queue;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftUp</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (comparator != <span class="keyword">null</span>)</span><br><span class="line">            siftUpUsingComparator(k, x);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            siftUpComparable(k, x);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftUpComparable</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;</span><br><span class="line">        Comparable&lt;? <span class="keyword">super</span> E&gt; key = (Comparable&lt;? <span class="keyword">super</span> E&gt;) x;</span><br><span class="line">        <span class="keyword">while</span> (k &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 中值作为二叉树的父节点，若插入元素小于父节点，顺势插入</span></span><br><span class="line">            <span class="comment">// 若插入元素大于父节点，将父节点下移，并向上比较</span></span><br><span class="line">            <span class="keyword">int</span> parent = (k - <span class="number">1</span>) &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">            Object e = queue[parent];</span><br><span class="line">            <span class="keyword">if</span> (key.compareTo((E) e) &gt;= <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            queue[k] = e;</span><br><span class="line">            k = parent;</span><br><span class="line">        &#125;</span><br><span class="line">        queue[k] = key;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftUpUsingComparator</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (k &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> parent = (k - <span class="number">1</span>) &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">            Object e = queue[parent];</span><br><span class="line">            <span class="keyword">if</span> (comparator.compare(x, (E) e) &gt;= <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            queue[k] = e;</span><br><span class="line">            k = parent;</span><br><span class="line">        &#125;</span><br><span class="line">        queue[k] = x;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// x 为队尾元素</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftDown</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (comparator != <span class="keyword">null</span>)</span><br><span class="line">            siftDownUsingComparator(k, x);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            siftDownComparable(k, x);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftDownComparable</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;</span><br><span class="line">        Comparable&lt;? <span class="keyword">super</span> E&gt; key = (Comparable&lt;? <span class="keyword">super</span> E&gt;)x;</span><br><span class="line">        <span class="keyword">int</span> half = size &gt;&gt;&gt; <span class="number">1</span>;        <span class="comment">// loop while a non-leaf</span></span><br><span class="line">        <span class="keyword">while</span> (k &lt; half) &#123;</span><br><span class="line">            <span class="keyword">int</span> child = (k &lt;&lt; <span class="number">1</span>) + <span class="number">1</span>; <span class="comment">// assume left child is least</span></span><br><span class="line">            Object c = queue[child];</span><br><span class="line">            <span class="keyword">int</span> right = child + <span class="number">1</span>;</span><br><span class="line">            <span class="comment">// 若左子节点的优先级大于右子节点，取右子节点，即在左右子节点中最小优先级的节点</span></span><br><span class="line">            <span class="keyword">if</span> (right &lt; size &amp;&amp;</span><br><span class="line">                ((Comparable&lt;? <span class="keyword">super</span> E&gt;) c).compareTo((E) queue[right]) &gt; <span class="number">0</span>)</span><br><span class="line">                c = queue[child = right];</span><br><span class="line">            <span class="keyword">if</span> (key.compareTo((E) c) &lt;= <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="comment">// 如果父节点的优先级大于最小优先级的子节点，交换位置</span></span><br><span class="line">            queue[k] = c;</span><br><span class="line">            k = child;</span><br><span class="line">        &#125;</span><br><span class="line">        queue[k] = key;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftDownUsingComparator</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> half = size &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (k &lt; half) &#123;</span><br><span class="line">            <span class="keyword">int</span> child = (k &lt;&lt; <span class="number">1</span>) + <span class="number">1</span>;</span><br><span class="line">            Object c = queue[child];</span><br><span class="line">            <span class="keyword">int</span> right = child + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">if</span> (right &lt; size &amp;&amp;</span><br><span class="line">                comparator.compare((E) c, (E) queue[right]) &gt; <span class="number">0</span>)</span><br><span class="line">                c = queue[child = right];</span><br><span class="line">            <span class="keyword">if</span> (comparator.compare(x, (E) c) &lt;= <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            queue[k] = c;</span><br><span class="line">            k = child;</span><br><span class="line">        &#125;</span><br><span class="line">        queue[k] = x;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="数据转换"><a href="#数据转换" class="headerlink" title="数据转换"></a>数据转换</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/ioriogami/article/details/12782141" target="_blank" rel="noopener">Lambda表达式</a><br><a href="https://www.jianshu.com/p/8f4f58b4b8ab" target="_blank" rel="noopener">图解LinkedHashMap原理</a><br><a href="https://www.cnblogs.com/lemon-flm/p/7877898.html" target="_blank" rel="noopener">java队列——queue详细分析</a><br><a href="https://cloud.tencent.com/developer/article/1152628" target="_blank" rel="noopener">PriorityQueue 源码分析</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/12/java/枚举/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1984,334 +2391,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/03/frontend/首页性能优化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/03/frontend/首页性能优化/" itemprop="url">首页性能优化</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-03T00:00:00+08:00">2019-03-03</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/03/03/frontend/首页性能优化/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/03/03/frontend/首页性能优化/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>提升网页加载性能的手段无非合并请求、减小资源体积、缓存资源这几种。借助于前端工程化能力，我们能合并压缩 js, css 代码；制作 base64 图片，合成雪碧图等。此外，我们可以借助<a href="https://www.iconfont.cn/" target="_blank" rel="noopener">阿里矢量图标库</a>制作字体图标；借助网上工具制作 WebP 图片。chrome 浏览器的 Page Speed 扩展工具能帮助我们查看网页加载性能，并给出有效的建议。</p>
-<p>在前端编码层面，我们可以通过减少回流重绘、避免内存泄漏的方式提升网页加载性能。减少回流、重置的方法可参考<a href="http://xzfyu.com/2019/03/03/frontend/%E7%BD%91%E9%A1%B5%E6%B8%B2%E6%9F%93%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">网页渲染机制</a>。关于内存泄漏，chrome 开发者工具 - more tools - Profile 面板可用于查看各函数的执行时间和 CPU 占用率。</p>
-<p>在服务端领域，我们可以将静态资源放在 cdn 服务器上；使用 nginx 或 nodejs 搭建前置服务器，并基于 nginx 缓存、压缩静态资源。当使用 nodejs 制作前置服务器时，基于 pm2 或 egg-cluster 可开启多进程。</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">etag</span> <span class="string">on;</span> <span class="comment"># 开启etag验证</span></span><br><span class="line"><span class="string">expires</span> <span class="number">7</span><span class="string">d;</span> <span class="comment"># 设置缓存过期时间为7天</span></span><br><span class="line"><span class="string">gzip</span> <span class="string">on;</span> <span class="comment"># 压缩资源</span></span><br><span class="line"><span class="string">gzip_types</span> <span class="string">text/plain</span> <span class="string">application/javascriptapplication/x-javascripttext/css</span> <span class="string">application/xml</span> <span class="string">text/javascriptapplication/x-httpd-php</span> <span class="string">application/vnd.ms-fontobject</span> <span class="string">font/ttf</span> <span class="string">font/opentype</span> <span class="string">font/x-woff</span> <span class="string">image/svg+xml;</span> <span class="comment"># 压缩资源类型（压缩图片会占用后台资源，效果也不佳）</span></span><br></pre></td></tr></table></figure>
-<h2 id="雅虎优化军规"><a href="#雅虎优化军规" class="headerlink" title="雅虎优化军规"></a>雅虎优化军规</h2><ol>
-<li>减少 http 请求或优化资源：合并文件、使用雪碧图、使用 base64 图片、压缩混淆 js 脚本或 css 样式等</li>
-<li>减少 dns 查询：减少网页资源主机名的数量（同时会影响可并行请求数量），建议使用 2 到 4 个主机名</li>
-<li>避免重定向，重定向会一直等待到获取网页内容才渲染视图</li>
-<li>使用 ajax 缓存：针对 get 请求，消息头添加 Expires，可以缓存响应</li>
-<li>延迟加载：针对折叠的图片或者根据交互动作展示的内容等，可使用延迟加载的方式优化</li>
-<li>预加载：在浏览器空闲的时候，预加载资源，包含跳转页面的资源、新版本的资源</li>
-<li>减少 dom 节点的数量，可以提升 dom 树构建的速度，减少不必要的事件绑定</li>
-<li>避免使用 iframe，iframe 会阻塞页面加载</li>
-<li>杜绝 404，因其会占用服务端资源，浏览器还需要解析响应体</li>
-<li>外链 css 样式和 js 脚本，可以减轻 html 体积，缓存资源。css 样式放在 head 中，可以逐步渲染页面。js 脚本放在底部，避免阻塞</li>
-<li>js 编码中避免回流、重绘；使用事件委托绑定事件，避免多次绑定</li>
-<li>给 cookie 瘦身：cookie 尽可能小；设置合适的域级别和有效期</li>
-<li>通过 Content-Encoding: gzip 响应头压缩资源</li>
-<li>通过实体标签 ETags 响应头作为唯一标识，以判断浏览器缓存和服务端资源的更新状态，浏览器将传输 If-None-Match 查找资源</li>
-<li>通过 Expires 响应头设置缓存失效时间，Cache-Control 条件性控制缓存</li>
-<li>使用 CDN 内容分发网络</li>
-</ol>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://imweb.io/topic/5b6fd3c13cb5a02f33c013bd" target="_blank" rel="noopener">网站性能优化实战——从12.67s到1.06s的故事</a><br><a href="https://www.cnblogs.com/xianyulaodi/p/5755079.html" target="_blank" rel="noopener">雅虎前端优化的35条军规</a><br><a href="http://www.barretlee.com/blog/2016/04/01/optimization-in-taobao-homepage/" target="_blank" rel="noopener">淘宝首页性能优化实践</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/26/网站制作/nginx/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/26/网站制作/nginx/" itemprop="url">nginx</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-26T00:00:00+08:00">2019-02-26</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/网站制作/" itemprop="url" rel="index"><span itemprop="name">网站制作</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/02/26/网站制作/nginx/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/02/26/网站制作/nginx/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><ol>
-<li><a href="http://nginx.org/en/download.html" target="_blank" rel="noopener">nginx主站</a> 下载 nginx</li>
-<li>cd 到 nginx 目录，start nginx 启动</li>
-<li>修改 conf/nginx.conf 全局配置，nginx -s reload 重启</li>
-</ol>
-<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><p>start nginx 启动<br>nginx -s stop 强制退出<br>nginx -s quit 平滑退出<br>nginx -s reload 修改配置后，平滑重启</p>
-<p>taskkill /F /IM nginx.exe &gt; null 强制杀死 nginx 进程<br>taskkill /fi “imagename nginx.exe” 查看 nginx 进程</p>
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">worker_process</span> <span class="number">1</span><span class="string">;</span></span><br><span class="line"></span><br><span class="line"><span class="string">events</span> <span class="string">&#123;</span></span><br><span class="line">  <span class="string">worker_connection</span> <span class="number">1024</span><span class="string">;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="string">http</span> <span class="string">&#123;</span></span><br><span class="line">  <span class="string">include</span> <span class="string">mime.types;</span> <span class="comment"># 缺失会导致 css 解析无效</span></span><br><span class="line">  <span class="string">default_type</span> <span class="string">application/octet-stream;</span></span><br><span class="line"></span><br><span class="line">  <span class="string">gzip</span> <span class="string">on;</span></span><br><span class="line"></span><br><span class="line">  <span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">listen</span> <span class="number">80</span><span class="string">;</span></span><br><span class="line">    <span class="string">server_name</span> <span class="string">localhost;</span></span><br><span class="line">    <span class="string">root</span> <span class="attr">D:/git/test;</span></span><br><span class="line">  <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/fengff/p/8892590.html" target="_blank" rel="noopener">Nginx安装及配置详解</a><br><a href="https://blog.csdn.net/wangzhenyu177/article/details/78679053" target="_blank" rel="noopener">nginx常用配置—-作为web服务端</a><br><a href="http://nginx.org/en/docs/windows.html" target="_blank" rel="noopener">nginx for Windows</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2361,7 +2440,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">83</span>
+                    <span class="site-state-item-count">85</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2372,7 +2451,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-count">29</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>

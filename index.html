@@ -379,7 +379,7 @@
 <p>典型的 tpl 模板如下：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;div&gt;</span><br><span class="line">  &lt;input type=<span class="string">"text"</span> v-model=<span class="string">"newName"</span>/&gt;</span><br><span class="line">  &lt;p&gt;&#123;&#123;newName&#125;&#125;&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>div&gt;</span><br></pre></td></tr></table></figure>
 <p>解析 tpl 模板时，首先需要将节点建模成约定属性集合的树形节点；其次，在解析过程中，将模板中的标签内容转化为模型节点；然后，针对模型节点的特殊属性，通过可扩展的程式（如对于 v-model 指令，需要将 vm.data 数据与 input 节点进行双向绑定）；最后，通过递归下钻又回升的机制获得 dom 节点树，以供插入页面。我们就可以解释为什么 v-on 指令能将 vm.methods 能称为真实 dom 节点的绑定函数了。vm.data 数据又是怎么驱动视图重绘的呢？数据驱动视图更新的机制主要有手动调用、脏值检测、对象劫持、Proxy 代理。手动调用即抽象一般的数据变更方法，在该方法执行的尾部主动重新渲染组件（React 实现机制）。脏值检测即主动轮询树节点的数据属性，当发现其与 vm.data 数据不符时，即重新渲染组件（Angular 实现机制）。对象劫持即通过 Object.defineProperty 使数据变更的处理流程包含重绘组件这一过程（Vue 实现机制）。Proxy 与 Object.defineProperty 异曲同工（Mobx 实现机制）。组件绘制或重绘过程，可以使用虚拟 dom 提升效能，避免节点的全量渲染。这里仅点到为止，不再深入。想要了解更多，可以翻阅张成文的《现代前端技术解析》或各框架的相关文章。</p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>架构犹如轮廓，有助于理解成熟框架的设计和实现，不至于迷失在细节里。理想情况下，先定架构，再完善功能点也是一种高效的工作模式。但是现实中却不乏认知不到位、历史原因、项目工期等问题，心态也是需要适时调整的。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>架构犹如轮廓，有助于理解成熟框架的设计和实现，不至于迷失在细节里。理想情况下，先定架构，再完善功能点也是一种高效的工作模式。现实中却不乏认知不到位、历史原因、项目工期短等问题，心态也需要有相当的韧性。</p>
 
           
         

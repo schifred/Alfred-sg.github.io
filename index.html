@@ -270,6 +270,162 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/16/编辑器/UForm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/16/编辑器/UForm/" itemprop="url">UForm</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-16T00:00:00+08:00">2019-10-16</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/实践/" itemprop="url" rel="index"><span itemprop="name">实践</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/10/16/编辑器/UForm/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/16/编辑器/UForm/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>通常对表单的抽象分为状态管理和视图组件两部分。按我的理解，UForm 的三层结构与 redux + redux-react + react 组件或 mobx + mobx-react + react 组件的构成模式相仿。</p>
+<ul>
+<li>@uform/core：状态管理层，抽象通用 form 表单、field 字段的状态管理逻辑。</li>
+<li>@uform/react：连接器层，桥接状态管理器和视图组件，另包含封装抽象组件、提供组件的注册能力等功能。</li>
+<li>@uform/antd, @uform/next：视图组件层，对接特定的视图组件库。</li>
+</ul>
+<p>在不借助 redux, mobx 等成熟的状态管理器的前提下，针对业务逻辑抽象状态管理的做法是：</p>
+<img src="/2019/10/16/编辑器/UForm/uform.png">
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/13/frontend/MV*架构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -381,154 +537,6 @@
 <p>解析 tpl 模板时，首先需要将节点建模成约定属性集合的树形节点；其次，在解析过程中，将模板中的标签内容转化为模型节点；然后，针对模型节点的特殊属性，通过可扩展的程式加以处理（如对于 v-model 指令，需要将 vm.data 数据与 input 节点进行双向绑定）；最后，通过递归下钻又回升的机制获得 dom 节点树，以供插入页面。我们就可以解释为什么 v-on 指令能将 vm.methods 能成为真实 dom 节点的绑定函数了。vm.data 数据又是怎么驱动视图重绘的呢？数据驱动视图更新的机制主要有手动调用、脏值检测、对象劫持、Proxy 代理。手动调用即抽象一般的数据变更方法，在该方法执行的尾部主动重新渲染组件（React 实现机制）。脏值检测即主动轮询树节点的数据属性，当发现其与 vm.data 数据不符时，即重新渲染组件（Angular 实现机制）。对象劫持即通过 Object.defineProperty 使数据变更的处理流程包含重绘组件这一过程（Vue 实现机制）。Proxy 与 Object.defineProperty 异曲同工（Mobx 实现机制）。组件绘制或重绘过程，可以使用虚拟 dom 提升效能，避免节点的全量渲染。这里仅点到为止，不再深入。想要了解更多，可以翻阅张成文的《现代前端技术解析》或各框架的相关文章。</p>
 <h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>架构犹如轮廓，有助于理解成熟框架的设计和实现，不至于迷失在细节里。理想情况下，先定架构，再完善功能点也是一种高效的工作模式。现实中却不乏认知不到位、历史原因、项目工期短等问题，心态也需要有相当的韧性。</p>
 
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/09/编辑器/UForm/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/09/编辑器/UForm/" itemprop="url">UForm</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-09T00:00:00+08:00">2019-10-09</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/实践/" itemprop="url" rel="index"><span itemprop="name">实践</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/10/09/编辑器/UForm/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/09/编辑器/UForm/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
           
         
       

@@ -111,7 +111,7 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="常见的前端安全问题包含 XSS（Cross Site Script，跨站脚本攻击）、SQL 注入、CSRF（Cross-site Request Forgery，跨站请求伪造）等。 XSSXSS 由可解析执行的代码插入到页面中引起；在页面渲染过程中，这段代码会被执行，从而引起安全问题（如盗取数据、伪造账号等）。因为恶意代码可能是加载特定 js 资源的 script 标签，所以 XSS 攻击引起的问">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-20T14:46:08.805Z">
+<meta property="og:updated_time" content="2019-10-20T15:57:14.250Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="web安全机制">
 <meta name="twitter:description" content="常见的前端安全问题包含 XSS（Cross Site Script，跨站脚本攻击）、SQL 注入、CSRF（Cross-site Request Forgery，跨站请求伪造）等。 XSSXSS 由可解析执行的代码插入到页面中引起；在页面渲染过程中，这段代码会被执行，从而引起安全问题（如盗取数据、伪造账号等）。因为恶意代码可能是加载特定 js 资源的 script 标签，所以 XSS 攻击引起的问">
@@ -366,19 +366,28 @@
 
       
         <p>常见的前端安全问题包含 XSS（Cross Site Script，跨站脚本攻击）、SQL 注入、CSRF（Cross-site Request Forgery，跨站请求伪造）等。</p>
-<h2 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h2><p>XSS 由可解析执行的代码插入到页面中引起；在页面渲染过程中，这段代码会被执行，从而引起安全问题（如盗取数据、伪造账号等）。因为恶意代码可能是加载特定 js 资源的 script 标签，所以 XSS 攻击引起的问题包含通过 js 代码劫持 cookie、伪造请求等；XSS 也可以通过 js 画出登录框，把用户的提交数据发送给黑客电脑，从而造成账号密码的泄漏；XSS 攻击也能通过 UserAgent 获取用户的操作系统和浏览器版本等信息，并逐步挖掘到用户安装的软件、浏览器的扩展程序，再通过浏览器漏洞植入木马。XSS 甚至可以通过 Java Applet、Flash、iTunes、Office Word、QuickTime 等第三方软件获取用户的 ip 地址。更有甚者，XSS Worm 蠕虫会利用社交平台的好友列表，能使恶意代码迅速扩散。</p>
+<h2 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h2><p>XSS 由可解析执行的代码插入到页面中引起；在页面渲染过程中，这段代码会被执行，从而引起安全问题（如盗取数据、伪造账号等）。因为恶意代码可能是加载特定 js 资源的 script 标签，所以 XSS 攻击引起的问题包含通过 js 代码劫持 cookie、伪造请求等；XSS 也可以通过 js 画出登录框，把用户的提交数据发送给黑客电脑，从而造成账号密码的泄漏；XSS 可以通过 window.name 在非源站点中获取源站点的 cookie 信息（window 为浏览器窗体，不像 document 那样受同源策略的影响，因此将 cookie 赋值给 window.name 就可以在非源站点获取到 cookie 信息）；XSS 攻击也能通过 UserAgent 获取用户的操作系统和浏览器版本等信息，并逐步挖掘到用户安装的软件、浏览器的扩展程序，再通过浏览器漏洞植入木马。XSS 甚至可以通过 Java Applet、Flash、iTunes、Office Word、QuickTime 等第三方软件获取用户的 ip 地址。更有甚者，XSS Worm 蠕虫会利用社交平台的好友列表，能使恶意代码迅速扩散。</p>
 <p>测试 XSS 攻击平台有 Attack API、BeFF、XSS-Proxy、</p>
 <p>XSS 分为存储型 XSS、反射型 XSS、DOM XSS（MXSS）三种。存储型 XSS 是指恶意代码随着提交数据入库，再从数据库读取回显时引起恶意代码的执行。因此，存储型 XSS 能引起稳定持续的安全问题。反射型 XSS 是指将用户输入“反射给”浏览器，即需要一个交互行为才能使攻击成功。典型的交互行为如点击一个恶意链接，通过 url 参数植入恶意脚本，url 参数在使用过程时将执行恶意脚本（所以 react 设置了 dangerouslySetInnerHTML 属性，es6 提供模板字符串处理变量）。黑客也可以通过 location.hash 构造 url 参数，因为 hash 路由不会造成发包请求，这样服务器日志也不会留有记录，也就隐藏了黑客的真实意图。MXSS 由恶意代码段代插入 DOM 属性中引起，效果等同反射型 XSS。</p>
 <p>XSS 的防范方式有以下几种：</p>
 <ol>
-<li>在 cookie 中设置 httpOnly 标识，避免 cookie 被劫持。</li>
+<li>在 cookie 中设置 httpOnly 标识，禁止通过 js 访问 cookie，以免 cookie 被劫持。</li>
 <li>提交表单时通过验证码等交互行为限制接口调用的成功率，这样就能在一定程度上避免 XSS 伪造请求。</li>
-<li>验证所有输入到页面上的数据，并对必要的内容作转义处理。常见的转义处理如下：</li>
+<li>验证所有输出到页面上的数据，并对必要的内容作转义处理（成熟的模板引擎需要防范使用模板变量进行 XSS 攻击）。</li>
+<li>服务端使用开源的 XSS Filter 检查输入。</li>
+<li>对 url 参数进行加密，避免攻击者伪造（加密后的 url 不利于用户收藏）。</li>
 </ol>
+<p>以下是常见的转义处理：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">htmlEncode</span>(<span class="params">str</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (str.length === <span class="number">0</span>) <span class="keyword">return</span> <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> str.replace(<span class="regexp">/&amp;/g</span>, <span class="string">'&amp;amp;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&lt;/g</span>, <span class="string">'&amp;lt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&gt;/g</span>, <span class="string">'&amp;gt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/ /g</span>, <span class="string">'&amp;nbsp;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/\'/g</span>, <span class="string">'&amp;#39;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/\"/g</span>, <span class="string">'&amp;quot;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/\n/g</span>, <span class="string">'&lt;br&gt;'</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">htmlDecode</span>(<span class="params">str</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (str.length === <span class="number">0</span>) <span class="keyword">return</span> <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> str.replace(<span class="regexp">/&amp;amp;/g</span>, <span class="string">'&amp;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;lt;/g</span>, <span class="string">'&lt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;gt;/g</span>, <span class="string">'&gt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;nbsp;/g</span>, <span class="string">' '</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;#39;/g</span>, <span class="string">'\''</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;quot;/g</span>, <span class="string">'\"'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&lt;br&gt;/g</span>, <span class="string">'\n'</span>);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="SQL-注入"><a href="#SQL-注入" class="headerlink" title="SQL 注入"></a>SQL 注入</h2><p>SQL 注入是指提交数据未经验证，就直接拼接成 SQL 语句并执行数据库操作。一般由后端校验数据的合法性。</p>
-<h2 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h2><p>CSRF 是非源站点携带着源站点的 cookie 数据，继而调用源站点的接口，这样就容易避过用户校验，并使请求执行成功（如篡改金额后调用支付接口）。CSRF 的主要防范策略是添加随机且加密的 Token 验证。Token 可由后端生成，传给前端；再由前端添加到请求体或请求头中；提交数据后，后端将验证 Token 以判断用户的准确性。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《白帽子讲安全》</p>
+<h2 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h2><p>CSRF 是非源站点携带着源站点的 cookie 数据，继而调用源站点的接口，这样就容易避过用户校验，并使请求执行成功（如篡改金额后调用支付接口）。浏览器 cookie 分为两种：指定失效时间的本地 cookie，浏览器在切换 tab 到子域时不会将该 cookie 带入另一个 tab；未指定失效时间的临时 cookie，在浏览器进程的生命周期中有效，且可以在不同 tab 子域中传播。部分浏览器并未禁止不同域的 iframe, img, script, link 等标签携带本地 cookie，但是所有浏览器允许携带临时 cookie。为嵌入第三方广告等 iframe，W3C 指定的 P3P 头允许 iframe 等标签携带本地 cookie，这样做既使第三方广告能获得 cookie 信息，也增加了遭受 CSRF 攻击的风险。在 CSRF 攻击中，攻击者会伪造嵌入源站点 iframe 的非源站点获取 cookie 信息，同时可以使用 js 脚本伪造 post 请求等。</p>
+<p>CSRF 的防范方式有以下几种：</p>
+<ol>
+<li>提交表单时通过验证码等交互行为限制接口调用的成功率，这样就能在一定程度上避免 CSRF 伪造请求。</li>
+<li>校验 Referer 头是不是指定的页面，但是服务器未必能获取到 Referer 头。</li>
+<li>对 url 参数进行加密，避免攻击者伪造（加密后的 url 不利于用户收藏）。</li>
+<li>添加随机且加密且有一定实效的 token。token 由后端生成，可通过 html 模板变量、session、cookie 传给前端；再由前端添加到请求体或请求头中；提交数据后，后端将验证 Token 以判断用户的准确性。</li>
+</ol>
+<h2 id="点击劫持"><a href="#点击劫持" class="headerlink" title="点击劫持"></a>点击劫持</h2><h2 id="html5"><a href="#html5" class="headerlink" title="html5"></a>html5</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《白帽子讲安全》</p>
 
       
     </div>
@@ -577,7 +586,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#XSS"><span class="nav-number">1.</span> <span class="nav-text">XSS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL-注入"><span class="nav-number">2.</span> <span class="nav-text">SQL 注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSRF"><span class="nav-number">3.</span> <span class="nav-text">CSRF</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#XSS"><span class="nav-number">1.</span> <span class="nav-text">XSS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSRF"><span class="nav-number">2.</span> <span class="nav-text">CSRF</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#点击劫持"><span class="nav-number">3.</span> <span class="nav-text">点击劫持</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#html5"><span class="nav-number">4.</span> <span class="nav-text">html5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>

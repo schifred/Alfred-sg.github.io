@@ -270,6 +270,168 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/20/frontend/web安全机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/20/frontend/web安全机制/" itemprop="url">web安全机制</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-20T00:00:00+08:00">2019-10-20</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/10/20/frontend/web安全机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/20/frontend/web安全机制/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>常见的前端安全问题包含 XSS（Cross Site Script，跨站脚本攻击）、SQL 注入、CSRF（Cross-site Request Forgery，跨站请求伪造）等。</p>
+<h2 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h2><p>XSS 由可解析执行的代码插入到页面中引起；在页面渲染过程中，这段代码会被执行，从而引起安全问题（如盗取数据、伪造账号等）。因为恶意代码可能是加载特定 js 资源的 script 标签，所以 XSS 攻击引起的问题包含通过 js 代码劫持 cookie、伪造请求等；XSS 也可以通过 js 画出登录框，把用户的提交数据发送给黑客电脑，从而造成账号密码的泄漏；XSS 攻击也能通过 UserAgent 获取用户的操作系统和浏览器版本等信息，并逐步挖掘到用户安装的软件、浏览器的扩展程序，再通过浏览器漏洞植入木马。XSS 甚至可以通过 Java Applet、Flash、iTunes、Office Word、QuickTime 等第三方软件获取用户的 ip 地址。更有甚者，XSS Worm 蠕虫会利用社交平台的好友列表，能使恶意代码迅速扩散。</p>
+<p>测试 XSS 攻击平台有 Attack API、BeFF、XSS-Proxy、</p>
+<p>XSS 分为存储型 XSS、反射型 XSS、DOM XSS（MXSS）三种。存储型 XSS 是指恶意代码随着提交数据入库，再从数据库读取回显时引起恶意代码的执行。因此，存储型 XSS 能引起稳定持续的安全问题。反射型 XSS 是指将用户输入“反射给”浏览器，即需要一个交互行为才能使攻击成功。典型的交互行为如点击一个恶意链接，通过 url 参数植入恶意脚本，url 参数在使用过程时将执行恶意脚本（所以 react 设置了 dangerouslySetInnerHTML 属性，es6 提供模板字符串处理变量）。黑客也可以通过 location.hash 构造 url 参数，因为 hash 路由不会造成发包请求，这样服务器日志也不会留有记录，也就隐藏了黑客的真实意图。MXSS 由恶意代码段代插入 DOM 属性中引起，效果等同反射型 XSS。</p>
+<p>XSS 的防范方式有以下几种：</p>
+<ol>
+<li>在 cookie 中设置 httpOnly 标识，避免 cookie 被劫持。</li>
+<li>提交表单时通过验证码等交互行为限制接口调用的成功率，这样就能在一定程度上避免 XSS 伪造请求。</li>
+<li>验证所有输入到页面上的数据，并对必要的内容作转义处理。常见的转义处理如下：</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">htmlEncode</span>(<span class="params">str</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (str.length === <span class="number">0</span>) <span class="keyword">return</span> <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> str.replace(<span class="regexp">/&amp;/g</span>, <span class="string">'&amp;amp;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&lt;/g</span>, <span class="string">'&amp;lt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&gt;/g</span>, <span class="string">'&amp;gt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/ /g</span>, <span class="string">'&amp;nbsp;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/\'/g</span>, <span class="string">'&amp;#39;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/\"/g</span>, <span class="string">'&amp;quot;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/\n/g</span>, <span class="string">'&lt;br&gt;'</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">htmlDecode</span>(<span class="params">str</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (str.length === <span class="number">0</span>) <span class="keyword">return</span> <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> str.replace(<span class="regexp">/&amp;amp;/g</span>, <span class="string">'&amp;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;lt;/g</span>, <span class="string">'&lt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;gt;/g</span>, <span class="string">'&gt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;nbsp;/g</span>, <span class="string">' '</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;#39;/g</span>, <span class="string">'\''</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;quot;/g</span>, <span class="string">'\"'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&lt;br&gt;/g</span>, <span class="string">'\n'</span>);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="SQL-注入"><a href="#SQL-注入" class="headerlink" title="SQL 注入"></a>SQL 注入</h2><p>SQL 注入是指提交数据未经验证，就直接拼接成 SQL 语句并执行数据库操作。一般由后端校验数据的合法性。</p>
+<h2 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h2><p>CSRF 是非源站点携带着源站点的 cookie 数据，继而调用源站点的接口，这样就容易避过用户校验，并使请求执行成功（如篡改金额后调用支付接口）。CSRF 的主要防范策略是添加随机且加密的 Token 验证。Token 可由后端生成，传给前端；再由前端添加到请求体或请求头中；提交数据后，后端将验证 Token 以判断用户的准确性。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《白帽子讲安全》</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/16/编辑器/UForm/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1717,155 +1879,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/04/工程化/jest测试/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/04/工程化/jest测试/" itemprop="url">jest测试</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-04T00:00:00+08:00">2019-08-04</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/08/04/工程化/jest测试/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/08/04/工程化/jest测试/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><a href="http://www.aliued.com/?p=4095" target="_blank" rel="noopener">React应用下的单元测试</a><br><a href="http://www.voidcn.com/article/p-ftetcszg-btt.html" target="_blank" rel="noopener">JavaScript – 使用Jest和Webpack别名进行测试</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1915,7 +1928,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">86</span>
+                    <span class="site-state-item-count">87</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

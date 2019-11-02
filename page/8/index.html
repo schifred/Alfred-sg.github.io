@@ -270,6 +270,180 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/24/设计模式/职责链模式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/24/设计模式/职责链模式/" itemprop="url">职责链模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-24T00:00:00+08:00">2018-06-24</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/06/24/设计模式/职责链模式/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/24/设计模式/职责链模式/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>职责链模式(Chain of Responsibility)的主要实现逻辑为，将请求的处理对象构造为链式结构，然后在这条链上依序传递请求，直到请求被某个对象处理，或者最终得不到处理。</p>
+<p>《设计模式:可复用面向对象软件的基础》一书将职责链模式描述为：</p>
+<p>Avoid coupling the sender of a request to its receiver by giving morethan one object a chance to handle the request. Chain the receiving objects and pass the request along the chain until an object handles it.</p>
+<h2 id="经典实现"><a href="#经典实现" class="headerlink" title="经典实现"></a>经典实现</h2><p>职责链模式包含下列组件：</p>
+<ul>
+<li>Handler: 处理请求对象的抽象接口，包含 handle 抽象方法，用于处理请求或调用下一个处理对象处理请求；setNextHandler 方法（可选），用于设定下一个处理对象；nextHandler 属性为下一个处理对象。</li>
+<li>ConcerteHandler: 处理请求的具体类，包含 handle, setNextHandler 方法的实现，nextHandler 属性访问下一个处理对象。</li>
+<li>Client: 用于向链上的具体处理者传递请求。</li>
+</ul>
+<p>以下代码使用职责链模式揣测浏览器事件冒泡机制的简要实现。与浏览器不同的是，示例代码只演示父子层级关系中，子节点如何将事件对象转交给父节点，并触发绑定在父节点上的事件处理函数。不过，通过这段简要的代码实现，可以猜想事件对象 stopPropagation 方法的实现。事件对象可在鼠标或键盘点击时构造；在浏览器中，指定下一个处理对象这一过程，也可以在解析 dom 树的时候实现，使父节点自然成为子节点的下一个处理对象。关于事件捕获的实现，疑似通过事件对象的坐标属性和元素的位置属性比对实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">abstract <span class="class"><span class="keyword">class</span> <span class="title">Handler</span></span>&#123;</span><br><span class="line">  nextHandler;</span><br><span class="line"></span><br><span class="line">  handle()&#123;&#125;</span><br><span class="line">  setNextHandler(nextHandler)&#123;</span><br><span class="line">    <span class="keyword">this</span>.nextHandler = nextHandler;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span> <span class="keyword">extends</span> <span class="title">Handler</span></span>&#123;</span><br><span class="line">  clickHandlers = [];</span><br><span class="line"></span><br><span class="line">  handle(event)&#123;</span><br><span class="line">    <span class="keyword">switch</span>(event.type)&#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">'onClick'</span>:</span><br><span class="line">        <span class="keyword">for</span> ( <span class="keyword">const</span> handler <span class="keyword">of</span> <span class="keyword">this</span>.clickHandlers )&#123;</span><br><span class="line">          handler();</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        <span class="keyword">if</span> ( <span class="keyword">this</span>.nextHandler ) <span class="keyword">this</span>.nextHandler.handle(event);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  onClick(handler)&#123;</span><br><span class="line">    <span class="keyword">this</span>.clickHandlers.push(handler);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ParentNode</span> <span class="keyword">extends</span> <span class="title">Node</span></span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ChildNode</span> <span class="keyword">extends</span> <span class="title">Node</span></span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> parentNode = <span class="keyword">new</span> ParentNode();</span><br><span class="line"><span class="keyword">const</span> childNode = <span class="keyword">new</span> ChildNode();</span><br><span class="line">childNode.setNextHandler(parentNode);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> mouseEvent = <span class="keyword">new</span> MouseEvent();</span><br><span class="line">childNode.handle(mouseEvent);</span><br></pre></td></tr></table></figure>
+<p>通过上述代码示例，我们也可以猜想 JavaScript 语言中原型链的实现。</p>
+<p>职责链模式具有如下特点：</p>
+<ol>
+<li>处理对象呈链式结构，因此，天然可以用来处理流程。在实现上，可以使用 setNextHandler 方法指定下一个处理对象，也可以使用一条已有的链，如父子结构形成的层级关系，或者队列形式（队列内若存储函数，当函数返回值为 false 时，表示不再将请求转交给下一个处理对象）。通常情况下，职责链模式表现为，根据请求的不同，再唤醒链上的某个处理对象加以操作，效果等同于策略模式。介于其链式处理的特征，职责链模式有一个变种，即请求经由前一个处理对象封装后，再交由下一个处理对象，这和浏览器的事件冒泡机制相仿（这样的链式操作，也可以通过函数队列或者迭代器模式实现）。</li>
+<li>当链未明确指定时，可在链中灵活地添加处理对象、并指定下一个处理对象，跳过不必要的处理逻辑。</li>
+<li>请求对象可以采用最简单的硬编码形式，也可以采用复杂的对象形式、或者使用特定的 Request 类加以构造，甚至使用转换函数从标识符中获取到传入处理对象的数据。这里要指出职责链模式的另一个变种，即可通过处理对象对请求进行特定包装后，再唤醒下一个处理对象。如第一点指出的，对于简单的请求对象，我们可以换用策略模式实现多样的处理机制；甚至对于复杂的请求对象，我们也可以制定规则转换引擎将其转换为简单的标识符形式，再通过策略模式加以处理。但是策略模式只能选中一种算法，且没有呈现出链式结构，因此策略模式不能像职责链模式那样不能用于控制流程，如审批流。</li>
+<li>职责链模式可用于降低请求发送者和接受者的耦合度，处理对象也不需要知道链的结构。</li>
+<li>过长的职责链影响程序的性能，同时也占用内存开销。在某些情况下，传入的请求会得不到处理，这时可以在链的尾端添加一个兜底函数处理请求。</li>
+</ol>
+<h2 id="js-中的职责链模式"><a href="#js-中的职责链模式" class="headerlink" title="js 中的职责链模式"></a>js 中的职责链模式</h2><p>在 js 中，可借助 AOP 切面实现职责链模式，在实现上呈现出函数式特征。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handler1</span>(<span class="params"></span>)</span>&#123; &#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handler2</span>(<span class="params"></span>)</span>&#123; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">Function</span>.property.after = <span class="function"><span class="params">nextHandler</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> ret = <span class="keyword">this</span>.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line">    <span class="keyword">if</span> ( !!ret ) <span class="keyword">return</span> nextHandler.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">handler1.after(handler2);</span><br></pre></td></tr></table></figure>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p>如前文所说，职责链模式可应用于呈现出父子结构的图形界面上，以实现事件处理或者其他图形效果。</p>
+<p>职责链也可用于流程控制，如审批流等。</p>
+<p>在已知的应用中，职责链模式见于 servelt 过滤器的实现，redux、koa 中间件的实现，koa-router 路由的实现。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>[设计模式:可复用面向对象软件的基础]<br>[Javascript 设计模式和开发实践 - 曾探]</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/13/jquery/动效分析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2086,230 +2260,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/24/Js/flow使用指南/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/24/Js/flow使用指南/" itemprop="url">flow使用指南</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-24T00:00:00+08:00">2018-02-24</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/02/24/Js/flow使用指南/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/02/24/Js/flow使用指南/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>flow 是 facebook 推出的 js 代码类型检查工具。</p>
-<p>flow 可借助 babel 编译，添加 babel-preset-flow 即可；babel-preset-react 包含 babel-preset-flow。或者借助安装 flow-bin 启动类型检查，flow-remove-types 移除类型标记。</p>
-<p>通过在脚本前添加 // @flow 或 /<em> @flow </em>/ 将文件标注为需要类型校验的，否则将会跳过 flow 校验（除非执行 flow check –all 命令校验所有文件）。</p>
-<h2 id="类型标注-Type-Annotations"><a href="#类型标注-Type-Annotations" class="headerlink" title="类型标注/Type Annotations"></a>类型标注/Type Annotations</h2><h3 id="基础类型-Primitive-Types"><a href="#基础类型-Primitive-Types" class="headerlink" title="基础类型/Primitive Types"></a>基础类型/Primitive Types</h3><p>flow 支持校验的基础数据类型包含 boolean, string, number, null, undefined（在 flow 中，使用 void 标注）。es6 的 symbol 类型尚不支持。</p>
-<p>boolean, string, number 字面量使用小写形式标注类型；包装对象如 new Number(10) 使用大写形式标注类型。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">method</span>(<span class="params">x: number, y: string, z: boolean</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">method(<span class="number">3.14</span>, <span class="string">"hello"</span>, <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">method</span>(<span class="params">x: Number, y: String, z: Boolean</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">method(<span class="keyword">new</span> <span class="built_in">Number</span>(<span class="number">42</span>), <span class="keyword">new</span> <span class="built_in">String</span>(<span class="string">"world"</span>), <span class="keyword">new</span> <span class="built_in">Boolean</span>(<span class="literal">false</span>));</span><br></pre></td></tr></table></figure>
-<h3 id="字面量类型-Literal-Types"><a href="#字面量类型-Literal-Types" class="headerlink" title="字面量类型/Literal Types"></a>字面量类型/Literal Types</h3><p>flow 允许使用字面量作为类型标注，约定仅接受该字面量，如 value: 2 将仅接受数值 2，其他报错。</p>
-<h3 id="混合类型-Mixed-Types、任意类型-Any-types"><a href="#混合类型-Mixed-Types、任意类型-Any-types" class="headerlink" title="混合类型/Mixed Types、任意类型/Any types"></a>混合类型/Mixed Types、任意类型/Any types</h3><p>使用 mixed 标注可接受任意类型数据，但在使用时需显示校验类型。</p>
-<p>使用 any 标注可接受任意类型数据，且在使用时也跳过校验。若作为对象，其下的所有属性均采用 any 类型形式。需要避免使用 any 类型。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">stringify</span>(<span class="params">value: mixed</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// $ExpectError</span></span><br><span class="line">  <span class="keyword">return</span> <span class="string">""</span> + value; <span class="comment">// Error!</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stringify(<span class="string">"foo"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">stringify</span>(<span class="params">value: mixed</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> value === <span class="string">'string'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">""</span> + value; <span class="comment">// Works!</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stringify(<span class="string">"foo"</span>);</span><br></pre></td></tr></table></figure>
-<h3 id="数组-Array-Types"><a href="#数组-Array-Types" class="headerlink" title="数组/Array Types"></a>数组/Array Types</h3><p>数组通过 Array<type> 或 Type[] 标注，元素的类型必须一致，但可以是 undefined 或 null，如 Array<number> 或 number[]。</number></type></p>
-<h3 id="元祖-Tuple-Types"><a href="#元祖-Tuple-Types" class="headerlink" title="元祖/Tuple Types"></a>元祖/Tuple Types</h3><p>元祖通过 [type, type, type] 形式标注，即元素的类型单独标注，且元素不能增删，因此不能使用 push, pop 等数组原型方法，但可以使用 join 等方法，不同长度的元祖不能相互赋值，元祖和数组之间也不能相互赋值，如 [number, boolean, void]，该元祖标识可接受赋值如 [1, true]。</p>
-<h3 id="函数-Function-Types"><a href="#函数-Function-Types" class="headerlink" title="函数/Function Types"></a>函数/Function Types</h3><p>flow 可标注函数入参和返回值，如 function concat(a: string, b: string): string { return a + b; }。</p>
-<p>可选参数通过 ‘?’ 后缀标注，如 function acceptsOptionalString(value?: string) { }，参数可以是 undefined。</p>
-<p>默认参数可使用如下形式 function method(value: string = “default”) { /<em> … </em>/ }，参数可以是 undefined，但不能为 null。</p>
-<p>解构参数通过数组类型标注，如 function method(…args: Array<number>) { }。</number></p>
-<p>函数类型校验或者通过添加设定入参返回值标注，或者通过添加设定 Funtion 标注，如 function method(func: () =&gt; mixed) { } 或 function method(func: Function) { }。</p>
-<h3 id="对象-Object-Types"><a href="#对象-Object-Types" class="headerlink" title="对象/Object Types"></a>对象/Object Types</h3><p>对象通过 { propname: Type } 形式标注，如 var obj2: { foo: number, bar: boolean, baz: string, } = { foo: 1, bar: true, baz: ‘three’, }。</p>
-<p>可选属性通过 ‘?’ 后缀标注，如 { propertyName?: string }，propertyName 属性可以是 undefined。</p>
-<h3 id="类-Class-Types"><a href="#类-Class-Types" class="headerlink" title="类/Class Types"></a>类/Class Types</h3><p>类本身可作为类型标识。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> myInstance: MyClass = <span class="keyword">new</span> MyClass();</span><br></pre></td></tr></table></figure>
-<p>在类中，方法标识同函数，属性在使用前必须先标识。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123;</span><br><span class="line">  prop: number;</span><br><span class="line">  method(): <span class="keyword">void</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.prop = <span class="number">42</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>类支持泛型标识。将泛型标识的类作为标识时，必须为所有泛型传递参数。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span>&lt;<span class="title">A</span>, <span class="title">B</span>, <span class="title">C</span>&gt; </span>&#123;</span><br><span class="line">  property: A;</span><br><span class="line">  method(val: B): C &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span>&lt;<span class="title">A</span>, <span class="title">B</span>, <span class="title">C</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(arg1: A, arg2: B, arg3: C) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> val: MyClass&lt;number, boolean, string&gt; = <span class="keyword">new</span> MyClass(<span class="number">1</span>, <span class="literal">true</span>, <span class="string">'three'</span>);</span><br></pre></td></tr></table></figure>
-<h3 id="接口-Interface-Types"><a href="#接口-Interface-Types" class="headerlink" title="接口/Interface Types"></a>接口/Interface Types</h3><h4 id="接口作为类型标识"><a href="#接口作为类型标识" class="headerlink" title="接口作为类型标识"></a>接口作为类型标识</h4><p>接口可作为类型校验标识（结构类型校验/Structural typing，非名义类型校验/Nominal typing ）。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">interface Serializable &#123;</span><br><span class="line">  serialize(): string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>&#123;</span><br><span class="line">  serialize() &#123; <span class="keyword">return</span> <span class="string">'[Foo]'</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bar</span> </span>&#123;</span><br><span class="line">  serialize() &#123; <span class="keyword">return</span> <span class="string">'[Bar]'</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> foo: Serializable = <span class="keyword">new</span> Foo(); <span class="comment">// Works!</span></span><br><span class="line"><span class="keyword">const</span> bar: Serializable = <span class="keyword">new</span> Bar(); <span class="comment">// Works!</span></span><br></pre></td></tr></table></figure>
-<p>接口类型通过 ‘+’, ‘-‘ 符号设置只读、只写属性。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 当接口作为类型标识</span></span><br><span class="line">interface MyInterface &#123;</span><br><span class="line">  +readOnly: number | string;</span><br><span class="line">  -writeOnly: number | string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> value: MyInterface = &#123; </span><br><span class="line">  readOnly: <span class="number">3</span>,<span class="comment">// 可读，不可写</span></span><br><span class="line">  writeOnly: number | string<span class="comment">// 可写，不可读</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h4 id="接口作为类实现标准"><a href="#接口作为类实现标准" class="headerlink" title="接口作为类实现标准"></a>接口作为类实现标准</h4><p>接口用于类实现/implements，一个类可以实现多个接口。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">interface MyInterface &#123;</span><br><span class="line">  method(value: string): number;</span><br><span class="line">  property?: string;</span><br><span class="line">  [key: string]: number;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用泛型</span></span><br><span class="line">interface MyInterface&lt;A, B, C&gt; &#123;</span><br><span class="line">  foo: A;</span><br><span class="line">  bar: B;</span><br><span class="line">  baz: C;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="泛型-Generic-Types"><a href="#泛型-Generic-Types" class="headerlink" title="泛型/Generic Types"></a>泛型/Generic Types</h3><p>泛型用于在运行时注入特定的类型。以类型标识的变量使用接口中未声明的属性时，须先作校验属性是否存在。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 函数中使用泛型</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">method</span>&lt;<span class="title">T</span>&gt;(<span class="params">value: T</span>): <span class="title">T</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 类使用泛型</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Class</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  prop: T;</span><br><span class="line">  <span class="keyword">constructor</span>(param: T) &#123; &#125;</span><br><span class="line">  method(): T &#123; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 类型别名使用泛型</span></span><br><span class="line">type TypeAlias&lt;T&gt; = &#123;</span><br><span class="line">  key: T</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接口使用泛型</span></span><br><span class="line">interface Interface&lt;T&gt; &#123;</span><br><span class="line">  prop: T</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">logFoo</span>&lt;<span class="title">T</span>: </span>&#123; foo: string &#125;&gt;(obj: T): T &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(obj.foo); <span class="comment">// Works!</span></span><br><span class="line">  <span class="keyword">return</span> obj;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">logFoo(&#123; <span class="attr">foo</span>: <span class="string">'foo'</span>, <span class="attr">bar</span>: <span class="string">'bar'</span> &#125;);  <span class="comment">// Works!</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type Item&lt;T: number = <span class="number">1</span>&gt; = &#123;</span><br><span class="line">  prop: T,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> foo: Item&lt;&gt; = &#123; <span class="attr">prop</span>: <span class="number">1</span> &#125;;</span><br><span class="line"><span class="keyword">let</span> bar: Item&lt;<span class="number">2</span>&gt; = &#123; <span class="attr">prop</span>: <span class="number">2</span> &#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="可能的类型-Maybe-types"><a href="#可能的类型-Maybe-types" class="headerlink" title="可能的类型/Maybe types"></a>可能的类型/Maybe types</h3><p>可能的类型通过 ‘?’ 前缀标注，如 ?string，其值可以是 null 或 undefined。</p>
-<h3 id="联合类型-Union-Types"><a href="#联合类型-Union-Types" class="headerlink" title="联合类型/Union Types"></a>联合类型/Union Types</h3><p>联合类型使用 ype1 | Type2 | … | TypeN 标注，被标识数据应满足其中一个类型校验。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 联合类型在处理响应的情景中使用，'| ... |'用于避免 success, error 属性冲突</span></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type Success = &#123;| success: <span class="literal">true</span>, <span class="attr">value</span>: boolean |&#125;;</span><br><span class="line">type Failed  = &#123;| error: <span class="literal">true</span>, <span class="attr">message</span>: string |&#125;;</span><br><span class="line"></span><br><span class="line">type Response = Success | Failed;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleResponse</span>(<span class="params">response: Response</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (response.success) &#123;</span><br><span class="line">    <span class="keyword">var</span> value: boolean = response.value; <span class="comment">// Works!</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> error: string = response.error; <span class="comment">// Works!</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="交叉类型-Intersection-Types"><a href="#交叉类型-Intersection-Types" class="headerlink" title="交叉类型/Intersection Types"></a>交叉类型/Intersection Types</h3><p>交叉类型使用 Type1 &amp; Type2 &amp; … &amp; TypeN 标识，被标识数据应满足所有类型校验，需要由开发者避免类型冲突。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type A = &#123; <span class="attr">a</span>: number &#125;;</span><br><span class="line">type B = &#123; <span class="attr">b</span>: boolean &#125;;</span><br><span class="line">type C = &#123; <span class="attr">c</span>: string &#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">method</span>(<span class="params">value: A &amp; B &amp; C</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">method(&#123; <span class="attr">a</span>: <span class="number">1</span> &#125;); <span class="comment">// Error!</span></span><br><span class="line">method(&#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="literal">true</span> &#125;); <span class="comment">// Error!</span></span><br><span class="line">method(&#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="literal">true</span>, <span class="attr">c</span>: <span class="string">'three'</span> &#125;); <span class="comment">// Works!</span></span><br></pre></td></tr></table></figure>
-<h3 id="类型别名-Type-Aliases"><a href="#类型别名-Type-Aliases" class="headerlink" title="类型别名/Type Aliases"></a>类型别名/Type Aliases</h3><p>为常用的类型设置别名，采用如右形式语法 type Alias = Type。设置别名后，方便复用该类型。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">type NumberAlias = number;</span><br><span class="line">type ObjectAlias = &#123;</span><br><span class="line">  property: string,</span><br><span class="line">  method(): number,</span><br><span class="line">&#125;;</span><br><span class="line">type UnionAlias = <span class="number">1</span> | <span class="number">2</span> | <span class="number">3</span>;</span><br><span class="line">type AliasAlias = ObjectAlias;</span><br><span class="line">type GenericsObjectAlias&lt;A, B, C&gt; = &#123;</span><br><span class="line">  property: A,</span><br><span class="line">  method(val: B): C,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> val: ObjectAlias = &#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">method</span>(<span class="params">val: ObjectAlias</span>) </span>&#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>&#123; <span class="keyword">constructor</span>(val: ObjectAlias) &#123; <span class="comment">/* ... */</span> &#125; &#125;</span><br><span class="line"><span class="keyword">var</span> myObject: GenericsObjectAlias&lt;number, boolean, string&gt; = &#123;</span><br><span class="line">  property: <span class="number">1</span>,</span><br><span class="line">  method(val: boolean): string &#123; <span class="keyword">return</span> <span class="string">''</span>; &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h4 id="不透明的类型别名-Opaque-Type-Aliases"><a href="#不透明的类型别名-Opaque-Type-Aliases" class="headerlink" title="不透明的类型别名/Opaque Type Aliases"></a>不透明的类型别名/Opaque Type Aliases</h4><p>不透明的类型别名不允许在定义该类型别名的文件外使用其基础类型，如 opaque type Alias = Type; 或 opaque type Alias: SuperType = Type 用于约定父类型，Type 必须是 SuperType的子类型，且在声明文件外使用该父类型校验。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例 1</span></span><br><span class="line"><span class="comment">// exports.js</span></span><br><span class="line"><span class="keyword">export</span> opaque type NumberAlias = number;</span><br><span class="line"></span><br><span class="line"><span class="comment">// imports.js</span></span><br><span class="line"><span class="keyword">import</span> type &#123;NumberAlias&#125; <span class="keyword">from</span> <span class="string">'./exports'</span>;</span><br><span class="line"></span><br><span class="line">(<span class="number">0</span>: NumberAlias) <span class="comment">// Error: 0 is not a NumberAlias!</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">convert</span>(<span class="params">x: NumberAlias</span>): <span class="title">number</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> x; <span class="comment">// Error: x is not a number!</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例 2</span></span><br><span class="line"><span class="comment">// exports.js</span></span><br><span class="line"><span class="keyword">export</span> opaque type ID: string = string;</span><br><span class="line"></span><br><span class="line"><span class="comment">// imports.js</span></span><br><span class="line"><span class="keyword">import</span> type &#123;ID&#125; <span class="keyword">from</span> <span class="string">'./exports'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">formatID</span>(<span class="params">x: ID</span>): <span class="title">string</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"ID: "</span> + x; <span class="comment">// Ok! IDs are strings.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">toID</span>(<span class="params">x: string</span>): <span class="title">ID</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x; <span class="comment">// Error: strings are not IDs.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例 3 - 泛型</span></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line">opaque type MyObject&lt;A, B, C&gt;: &#123; <span class="attr">foo</span>: A, <span class="attr">bar</span>: B &#125; = &#123;</span><br><span class="line">  foo: A,</span><br><span class="line">  bar: B,</span><br><span class="line">  baz: C,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> val: MyObject&lt;number, boolean, string&gt; = &#123;</span><br><span class="line">  foo: <span class="number">1</span>,</span><br><span class="line">  bar: <span class="literal">true</span>,</span><br><span class="line">  baz: <span class="string">'three'</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例 4 - 使用声明</span></span><br><span class="line">declare opaque type Foo;</span><br><span class="line">declare opaque type PositiveNumber: number;</span><br></pre></td></tr></table></figure>
-<h3 id="typeof"><a href="#typeof" class="headerlink" title="typeof"></a>typeof</h3><p>typeof 操作符返回 flow 的数据类型，可能是开发者设置的类型标识。对基本类型，typeof 操作符返回名义类型；对类，typeof 操作符返回结构类型。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">let</span> num1 = <span class="number">42</span>;</span><br><span class="line"><span class="keyword">let</span> num2: <span class="keyword">typeof</span> num1 = <span class="number">3.14</span>;     <span class="comment">// Works!</span></span><br><span class="line"><span class="keyword">let</span> num3: <span class="keyword">typeof</span> num1 = <span class="string">'world'</span>;  <span class="comment">// Error!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> bool1 = <span class="literal">true</span>;</span><br><span class="line"><span class="keyword">let</span> bool2: <span class="keyword">typeof</span> bool1 = <span class="literal">false</span>;  <span class="comment">// Works!</span></span><br><span class="line"><span class="keyword">let</span> bool3: <span class="keyword">typeof</span> bool1 = <span class="number">42</span>;     <span class="comment">// Error!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> str1 = <span class="string">'hello'</span>;</span><br><span class="line"><span class="keyword">let</span> str2: <span class="keyword">typeof</span> str1 = <span class="string">'world'</span>; <span class="comment">// Works!</span></span><br><span class="line"><span class="keyword">let</span> str3: <span class="keyword">typeof</span> str1 = <span class="literal">false</span>;   <span class="comment">// Error!</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123;</span><br><span class="line">  method(val: number) &#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">YourClass</span> </span>&#123;</span><br><span class="line">  method(val: number) &#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> test1: <span class="keyword">typeof</span> MyClass = YourClass; <span class="comment">// Error!</span></span><br><span class="line"><span class="keyword">let</span> test1: <span class="keyword">typeof</span> MyClass = MyClass;   <span class="comment">// Works!</span></span><br></pre></td></tr></table></figure>
-<h3 id="类型断言-Type-Casting-Expressions"><a href="#类型断言-Type-Casting-Expressions" class="headerlink" title="类型断言/Type Casting Expressions"></a>类型断言/Type Casting Expressions</h3><p>类型断言可使用 (value: Type) 语法，flow 尝试将 value 转换为 Type 类型，且不作类型校验。</p>
-<p>flow 中只允许相关类型转换，由低级到高级，即 42 能转换到 number，不能转换到 string，number 类型不能转换为 42。通过 any 关键字可以将 42 从数值型转换到字符串型。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">let</span> value = <span class="number">42</span>;</span><br><span class="line"></span><br><span class="line">(value: number); <span class="comment">// Works!</span></span><br><span class="line">(value: string); <span class="comment">// Error!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> newValue = ((value: any): string);</span><br><span class="line"></span><br><span class="line">(newValue: number); <span class="comment">// Error!</span></span><br><span class="line">(newValue: string); <span class="comment">// Works!</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">cloneObject</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> clone = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">Object</span>.keys(obj).forEach(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">    clone[key] = obj[key];</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ((clone: any): <span class="keyword">typeof</span> obj); <span class="comment">// &lt;&lt;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> clone = cloneObject(&#123;</span><br><span class="line">  foo: <span class="number">1</span>,</span><br><span class="line">  bar: <span class="literal">true</span>,</span><br><span class="line">  baz: <span class="string">'three'</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">(clone.foo: <span class="number">1</span>);       <span class="comment">// Works!</span></span><br><span class="line">(clone.bar: <span class="literal">true</span>);    <span class="comment">// Works!</span></span><br><span class="line">(clone.baz: <span class="string">'three'</span>); <span class="comment">// Works!</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">cloneObject</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">  (obj: &#123; [key: string]: mixed &#125;); <span class="comment">// &lt;&lt;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> clone = &#123;&#125;;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">return</span> ((clone: any): <span class="keyword">typeof</span> obj);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> clone = cloneObject(&#123;</span><br><span class="line">  foo: <span class="number">1</span>,</span><br><span class="line">  bar: <span class="literal">true</span>,</span><br><span class="line">  baz: <span class="string">'three'</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">(clone.foo: <span class="number">1</span>);       <span class="comment">// Works!</span></span><br><span class="line">(clone.bar: <span class="literal">true</span>);    <span class="comment">// Works!</span></span><br><span class="line">(clone.baz: <span class="string">'three'</span>); <span class="comment">// Works!</span></span><br></pre></td></tr></table></figure>
-<h3 id="工具类型-Utility-Types"><a href="#工具类型-Utility-Types" class="headerlink" title="工具类型/Utility Types"></a>工具类型/Utility Types</h3><h4 id="Keys"><a href="#Keys" class="headerlink" title="$Keys"></a>$Keys<t></t></h4><p>$Keys<t> 以对象或类型的属性构建联合类型。</t></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">const</span> countries = &#123;</span><br><span class="line">  US: <span class="string">"United States"</span>,</span><br><span class="line">  IT: <span class="string">"Italy"</span>,</span><br><span class="line">  FR: <span class="string">"France"</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">type Country = $Keys&lt;<span class="keyword">typeof</span> countries&gt;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> italy: Country = <span class="string">'IT'</span>;</span><br><span class="line"><span class="keyword">const</span> nope: Country = <span class="string">'nope'</span>; <span class="comment">// 'nope' is not a Country</span></span><br></pre></td></tr></table></figure>
-<h4 id="Values"><a href="#Values" class="headerlink" title="$Values"></a>$Values<t></t></h4><p>$Values<t> 以对象或类型的值构建联合类型。</t></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type Props = &#123;</span><br><span class="line">  name: string,</span><br><span class="line">  age: number,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// The following two types are equivalent:</span></span><br><span class="line">type PropValues = string | number;</span><br><span class="line">type Prop$Values = $Values&lt;Props&gt;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> name: Prop$Values = <span class="string">'Jon'</span>;  <span class="comment">// OK</span></span><br><span class="line"><span class="keyword">const</span> age: Prop$Values = <span class="number">42</span>;  <span class="comment">// OK</span></span><br><span class="line"><span class="keyword">const</span> fn: Prop$Values = <span class="function"><span class="params">()</span> =&gt;</span> &#123;&#125;;  <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure>
-<h4 id="ReadOnly"><a href="#ReadOnly" class="headerlink" title="$ReadOnly"></a>$ReadOnly<t></t></h4><p>$ReadOnly<t> 用于将对象或类型的属性转化为只读属性。</t></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// The following two types are equivalent:</span></span><br><span class="line">type ReadOnlyObj = &#123;</span><br><span class="line">  +key: any,  <span class="comment">// read-only field, marked by the `+` annotation</span></span><br><span class="line">&#125;;</span><br><span class="line">type ReadOnlyObj = $ReadOnly&lt;&#123;</span><br><span class="line">  key: any,</span><br><span class="line">&#125;&gt;;</span><br></pre></td></tr></table></figure>
-<h4 id="Exact"><a href="#Exact" class="headerlink" title="$Exact"></a>$Exact<t></t></h4><p>$Exact&lt;{name: string}&gt; 语法和 {| name: string |} 等价，用于避免对象属性冲突。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type ExactUser = $Exact&lt;&#123;<span class="attr">name</span>: string&#125;&gt;;</span><br><span class="line">type ExactUserShorthand = &#123;| name: string |&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> user2 = &#123;<span class="attr">name</span>: <span class="string">'John Wilkes Booth'</span>&#125;;</span><br><span class="line"><span class="comment">// These will both be satisfied because they are equivalent</span></span><br><span class="line">(user2: ExactUser);</span><br><span class="line">(user2: ExactUserShorthand);</span><br></pre></td></tr></table></figure>
-<h4 id="Diff-lt-A-B-gt"><a href="#Diff-lt-A-B-gt" class="headerlink" title="$Diff&lt;A, B&gt;"></a>$Diff&lt;A, B&gt;</h4><p>$Diff&lt;A, B&gt; 语法中，待校验数据须包含 A 仅有的属性，能包含 B 有的属性，且 B 中不能有 A 没有的属性。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type Props = &#123; <span class="attr">name</span>: string, <span class="attr">age</span>: number &#125;;</span><br><span class="line">type DefaultProps = &#123; <span class="attr">age</span>: number &#125;;</span><br><span class="line">type RequiredProps = $Diff&lt;Props, DefaultProps&gt;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setProps</span>(<span class="params">props: RequiredProps</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">setProps(&#123; <span class="attr">name</span>: <span class="string">'foo'</span> &#125;);</span><br><span class="line">setProps(&#123; <span class="attr">name</span>: <span class="string">'foo'</span>, <span class="attr">age</span>: <span class="number">42</span>, <span class="attr">baz</span>: <span class="literal">false</span> &#125;); <span class="comment">// you can pass extra props too</span></span><br><span class="line">setProps(&#123; <span class="attr">age</span>: <span class="number">42</span> &#125;); <span class="comment">// error, name is required</span></span><br></pre></td></tr></table></figure>
-<h4 id="Rest-lt-A-B-gt"><a href="#Rest-lt-A-B-gt" class="headerlink" title="$Rest&lt;A, B&gt;"></a>$Rest&lt;A, B&gt;</h4><p>$Rest&lt;A, B&gt; 语法中，待校验数据只能包含 A 仅有的属性，不能包含 B 有的属性。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type Props = &#123; <span class="attr">name</span>: string, <span class="attr">age</span>: number &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> props: Props = &#123;<span class="attr">name</span>: <span class="string">'Jon'</span>, <span class="attr">age</span>: <span class="number">42</span>&#125;;</span><br><span class="line"><span class="keyword">const</span> &#123;age, ...otherProps&#125; = props;</span><br><span class="line">(otherProps: $Rest&lt;Props, &#123;|age: number|&#125;&gt;);</span><br><span class="line">otherProps.age;  <span class="comment">// Error</span></span><br></pre></td></tr></table></figure>
-<h4 id="PropertyType-lt-T-k-gt"><a href="#PropertyType-lt-T-k-gt" class="headerlink" title="$PropertyType&lt;T, k&gt;"></a>$PropertyType&lt;T, k&gt;</h4><p>$PropertyType&lt;T, k&gt; 语法用于获取特定属性的类型。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Tooltip</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  props: &#123;</span><br><span class="line">    text: string,</span><br><span class="line">    onMouseOver: <span class="function">(<span class="params">&#123;x: number, y: number&#125;</span>) =&gt;</span> <span class="keyword">void</span></span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> someProps: $PropertyType&lt;Tooltip, <span class="string">'props'</span>&gt; = &#123;</span><br><span class="line">  text: <span class="string">'foo'</span>,</span><br><span class="line">  onMouseOver: <span class="function">(<span class="params">data: &#123;x: number, y: number&#125;</span>) =&gt;</span> <span class="literal">undefined</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> otherProps: $PropertyType&lt;Tooltip, <span class="string">'props'</span>&gt; = &#123;</span><br><span class="line">  text: <span class="string">'foo'</span></span><br><span class="line">  <span class="comment">// Missing the `onMouseOver` definition</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h4 id="ElementType-lt-T-k-gt"><a href="#ElementType-lt-T-k-gt" class="headerlink" title="$ElementType&lt;T, k&gt;"></a>$ElementType&lt;T, k&gt;</h4><p>$ElementType&lt;T, k&gt; 语法用于获取特定元素的类型，包含数组项、元祖项、对象属性。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Using objects:</span></span><br><span class="line">type Obj = &#123;</span><br><span class="line">  name: string,</span><br><span class="line">  age: number,</span><br><span class="line">&#125;</span><br><span class="line">(<span class="string">'Jon'</span>: $ElementType&lt;Obj, <span class="string">'name'</span>&gt;);</span><br><span class="line">(<span class="number">42</span>: $ElementType&lt;Obj, <span class="string">'age'</span>&gt;);</span><br><span class="line">(<span class="literal">true</span>: $ElementType&lt;Obj, <span class="string">'name'</span>&gt;); <span class="comment">// Nope, `name` is not a boolean</span></span><br><span class="line">(<span class="literal">true</span>: $ElementType&lt;Obj, <span class="string">'other'</span>&gt;); <span class="comment">// Nope, property `other` is not in Obj</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Using tuples:</span></span><br><span class="line">type Tuple = [boolean, string];</span><br><span class="line">(<span class="literal">true</span>: $ElementType&lt;Tuple, <span class="number">0</span>&gt;);</span><br><span class="line">(<span class="string">'foo'</span>: $ElementType&lt;Tuple, <span class="number">1</span>&gt;);</span><br><span class="line">(<span class="string">'bar'</span>: $ElementType&lt;Tuple, <span class="number">2</span>&gt;); <span class="comment">// Nope, can't access position 2</span></span><br></pre></td></tr></table></figure>
-<h4 id="ObjMap-lt-T-F-gt"><a href="#ObjMap-lt-T-F-gt" class="headerlink" title="$ObjMap&lt;T, F&gt;"></a>$ObjMap&lt;T, F&gt;</h4><p>$ObjMap&lt;T, F&gt; 遍历 T 对象或类型，以函数 F 重新构建属性类型。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// let's write a function type that takes a `() =&gt; V` and returns a `V` (its return type)</span></span><br><span class="line">type ExtractReturnType = &lt;V&gt;(() =&gt; V) =&gt; V</span><br><span class="line"></span><br><span class="line">function run&lt;A, O: &#123;[key: string]: () =&gt; A&#125;&gt;(o: O): $ObjMap&lt;O, ExtractReturnType&gt; &#123;</span><br><span class="line">  return Object.keys(o).reduce((acc, k) =&gt; Object.assign(acc, &#123; [k]: o[k]() &#125;), &#123;&#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const o = &#123;</span><br><span class="line">  a: () =&gt; true,</span><br><span class="line">  b: () =&gt; 'foo'</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">(run(o).a: boolean); // Ok</span><br><span class="line">(run(o).b: string);  // Ok</span><br><span class="line">// $ExpectError</span><br><span class="line">(run(o).b: boolean); // Nope, b is a string</span><br><span class="line">// $ExpectError</span><br><span class="line">run(o).c;</span><br></pre></td></tr></table></figure>
-<h4 id="TupleMap-lt-T-F-gt"><a href="#TupleMap-lt-T-F-gt" class="headerlink" title="$TupleMap&lt;T, F&gt;"></a>$TupleMap&lt;T, F&gt;</h4><p>$TupleMap&lt;T, F&gt; 遍历 T 元祖或类型，以函数 F 重新构建元祖项。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type ExtractReturnType = &lt;V&gt;(() =&gt; V) =&gt; V</span><br><span class="line"></span><br><span class="line">function run&lt;A, I: Array&lt;() =&gt; A&gt;&gt;(iter: I): $TupleMap&lt;I, ExtractReturnType&gt; &#123;</span><br><span class="line">  return iter.map(fn =&gt; fn());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const arr = [() =&gt; 'foo', () =&gt; 'bar'];</span><br><span class="line">(run(arr)[0]: string); // OK</span><br><span class="line">(run(arr)[1]: string); // OK</span><br><span class="line">(run(arr)[1]: boolean); // Error</span><br></pre></td></tr></table></figure>
-<h4 id="Call"><a href="#Call" class="headerlink" title="$Call"></a>$Call<f></f></h4><p>$Call<f> 调用 F 函数，函数返回值用于校验类型，参数在 F 后添加。</f></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="comment">// Takes an object type, returns the type of its `prop` key</span></span><br><span class="line">type ExtractPropType = &lt;T&gt;(&#123;prop: T&#125;) =&gt; T;</span><br><span class="line">type Obj = &#123;prop: number&#125;;</span><br><span class="line">type PropType = $Call&lt;ExtractPropType, Obj&gt;;  // Call `ExtractPropType` with `Obj` as an argument</span><br><span class="line">type Nope = $Call&lt;ExtractPropType, &#123;nope: number&#125;&gt;;  // Error: argument doesn't match `Obj`.</span><br><span class="line"></span><br><span class="line">(5: PropType); // OK</span><br><span class="line">(true: PropType);  // Error: PropType is a number</span><br><span class="line">(5: Nope);  // Error</span><br></pre></td></tr></table></figure>
-<h4 id="Class"><a href="#Class" class="headerlink" title="Class"></a>Class<t></t></h4><p>Class<t> 指用类 T 校验类型。</t></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Store</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ExtendedStore</span> <span class="keyword">extends</span> <span class="title">Store</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Model</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeStore</span>(<span class="params">storeClass: Class&lt;Store&gt;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> storeClass();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(makeStore(Store): Store);</span><br><span class="line">(makeStore(ExtendedStore): Store);</span><br><span class="line">(makeStore(Model): Model); <span class="comment">// error</span></span><br><span class="line">(makeStore(ExtendedStore): Model); <span class="comment">// Flow infers the return type</span></span><br></pre></td></tr></table></figure>
-<h4 id><a href="#" class="headerlink" title="*"></a>*</h4><ul>
-<li>用于以占位符形式指明存在类型/Existential Type。</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeParamStore</span>&lt;<span class="title">T</span>&gt;(<span class="params">storeClass: Class&lt;ParamStore&lt;T&gt;&gt;, data: T</span>): * </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> storeClass(data);</span><br><span class="line">&#125;</span><br><span class="line">(makeParamStore(ParamStore, <span class="number">1</span>): ParamStore&lt;number&gt;);</span><br><span class="line">(makeParamStore(ParamStore, <span class="number">1</span>): ParamStore&lt;boolean&gt;); <span class="comment">// failed because of the second parameter</span></span><br></pre></td></tr></table></figure>
-<h3 id="模块-Module-Types"><a href="#模块-Module-Types" class="headerlink" title="模块/Module Types"></a>模块/Module Types</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>&#123;&#125;;</span><br><span class="line"><span class="keyword">export</span> type MyObject = &#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"><span class="keyword">export</span> interface MyInterface &#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">import</span> type Foo, &#123;MyObject, MyInterface&#125; <span class="keyword">from</span> <span class="string">'./exports'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="keyword">typeof</span> &#123;MyClass&#125; <span class="keyword">from</span> <span class="string">'./exports'</span>;</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2359,7 +2309,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">91</span>
+                    <span class="site-state-item-count">92</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

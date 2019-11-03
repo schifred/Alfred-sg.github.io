@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="analyst,">
+
+
+<meta name="description" content="埋点统计数据用户访问统计用户访问统计包含 PV（Page View）、UV（Unique Visitor）、VV（Visit View）、IP 等。PV 用来统计一天之内页面的被访问次数，机刷也可以造成 PV 数据提升。UV 用来统计一天之内访问页面的用户数量，一般使用 IP 统计（IP 统计并不谨慎，同一个办公区或校园公用一个 IP）；使用 cookie + IP 统计（cookie 会被刷新，">
+<meta name="keywords" content="analyst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="前端埋点">
+<meta property="og:url" content="http://yoursite.com/2019/11/03/frontend/前端埋点/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="埋点统计数据用户访问统计用户访问统计包含 PV（Page View）、UV（Unique Visitor）、VV（Visit View）、IP 等。PV 用来统计一天之内页面的被访问次数，机刷也可以造成 PV 数据提升。UV 用来统计一天之内访问页面的用户数量，一般使用 IP 统计（IP 统计并不谨慎，同一个办公区或校园公用一个 IP）；使用 cookie + IP 统计（cookie 会被刷新，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/11/03/frontend/前端埋点/track.png">
+<meta property="og:updated_time" content="2019-11-03T08:09:23.500Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="前端埋点">
+<meta name="twitter:description" content="埋点统计数据用户访问统计用户访问统计包含 PV（Page View）、UV（Unique Visitor）、VV（Visit View）、IP 等。PV 用来统计一天之内页面的被访问次数，机刷也可以造成 PV 数据提升。UV 用来统计一天之内访问页面的用户数量，一般使用 IP 统计（IP 统计并不谨慎，同一个办公区或校园公用一个 IP）；使用 cookie + IP 统计（cookie 会被刷新，">
+<meta name="twitter:image" content="http://yoursite.com/2019/11/03/frontend/前端埋点/track.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/11/03/frontend/前端埋点/">
+
+
+  <title>前端埋点 | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/03/frontend/前端埋点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">前端埋点</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-03T00:00:00+08:00">2019-11-03</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/11/03/frontend/前端埋点/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/03/frontend/前端埋点/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="埋点统计数据"><a href="#埋点统计数据" class="headerlink" title="埋点统计数据"></a>埋点统计数据</h2><h3 id="用户访问统计"><a href="#用户访问统计" class="headerlink" title="用户访问统计"></a>用户访问统计</h3><p>用户访问统计包含 PV（Page View）、UV（Unique Visitor）、VV（Visit View）、IP 等。PV 用来统计一天之内页面的被访问次数，机刷也可以造成 PV 数据提升。UV 用来统计一天之内访问页面的用户数量，一般使用 IP 统计（IP 统计并不谨慎，同一个办公区或校园公用一个 IP）；使用 cookie + IP 统计（cookie 会被刷新，造成用户数被重复统计）；使用 userAgent + API 统计（userAgent + API 相同的情况也常有发生）。UV 统计的细化点是新访客数、新访客比率等。VV 用来统计一天之内网站被用户访问的次数；用户访问网站到结束访问视为 1 次，因此同一个用户在一天之内可能造成多条 VV。IP 用来统计一天之内访问网站的不重复 IP 数。</p>
+<h3 id="用户行为分析"><a href="#用户行为分析" class="headerlink" title="用户行为分析"></a>用户行为分析</h3><p>用户行为分析包含页面点击量、用户点击流、用户访问路径、用户点击热力图、用户转化率、导流转化率、用户访问时长分析和用户访问内容分析等。用户点击量用来统计用户在某个可点击或可操作区域的点击或操作次数。用户点击流用来统计用户在页面中发生点击或操作动作的顺序；埋点过程中，可先用 localStorage 存储用户点击或操作行为的唯一 id，然后在一次 VV 结束或下一次 VV 开始时上报。用户访问路径用来统计用户访问页面的路径。用户点击热力图用来统计用户在一张页面中的点击热衷区域；埋点过程中，可以对 document 点击绑定 click 事件，并上报 e.pageX、e.pageY 数据。用户转化率指的是访问页面的注册用户数和页面 PV 的比值。导流转化率指的是导流页面 PV 和源页面 PV 的比值。用户访问时长用来统计用户在关键内容页面的停留时长，以便分析用户是否对内容感兴趣。</p>
+<h2 id="埋点方案"><a href="#埋点方案" class="headerlink" title="埋点方案"></a>埋点方案</h2><p>前端埋点分为：代码埋点、可视化埋点、无痕埋点三种。代码埋点即侵入式埋点，可以在任意时刻、任意位置精确地发送数据，但是工作量较大，对业务代码也有较大影响。可视化埋点即以业务代码为输入，通过可视化系统配置埋点，最后以耦合的形式输出业务代码和埋点代码，但是可视化系统的埋点控件有限，并不能充分满足埋点需求。无痕埋点即无差别地对所有事件等进行全埋点，但是没法定制埋点需求。</p>
+<img src="/2019/11/03/frontend/前端埋点/track.png">
+<h3 id="埋点上报数据"><a href="#埋点上报数据" class="headerlink" title="埋点上报数据"></a>埋点上报数据</h3><p>上报的主要数据包含：appid、userAgent、timestamp（上报的时间戳）、currentUrl（用户当前的 url）、fromUrl（前一个页面的 url）、type（上报事件的类型）、element（触发上报事件的元素）、data（自定义数据）等。数据可通过 OpenSSL 或 crypto 模块进行加密。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;   </span><br><span class="line">  <span class="comment">// 上报接口本身提供</span></span><br><span class="line">  currentUrl,  </span><br><span class="line">  fromUrl,</span><br><span class="line">  timestamp,</span><br><span class="line">  userAgent: &#123;</span><br><span class="line">    os,</span><br><span class="line">    netWord,</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 业务代码配置和自定义上报数据</span></span><br><span class="line">  <span class="keyword">type</span>,</span><br><span class="line">  appid,</span><br><span class="line">  element,</span><br><span class="line">  data: &#123;</span><br><span class="line">    uid,</span><br><span class="line">    uname</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="mixpanel"><a href="#mixpanel" class="headerlink" title="mixpanel"></a>mixpanel</h2><p><a href="https://github.com/mixpanel/mixpanel-js" target="_blank" rel="noopener">mixpanel</a> 根据配置分别使用 img 节点、script 节点或者 XHR 对象上报数据，这一逻辑实现在 mixpanelLib._send_request(url, data, callback) 实例方法中。在 _send_request 方法，额外附加的系统级上报数据包含 ip 地址、时间戳等。在 _send_request 方法的基础上，MixpanelLib 提供了 track 方法等。其实现如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// addOptOutCheckMixpanelLib 从 localStorage 或 cookie 获取指定的 token 值</span></span><br><span class="line"><span class="comment">//    若有，执行回调；没有，跳过</span></span><br><span class="line">MixpanelLib.prototype.track = addOptOutCheckMixpanelLib(<span class="function"><span class="keyword">function</span>(<span class="params">event_name, properties, callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span>(callback) !== <span class="string">'function'</span>) &#123;</span><br><span class="line">        callback = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (_.isUndefined(event_name)) &#123;</span><br><span class="line">        <span class="built_in">console</span>.error(<span class="string">'No event name provided to mixpanel.track'</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>._event_is_disabled(event_name)) &#123;</span><br><span class="line">        callback(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// set defaults</span></span><br><span class="line">    properties = properties || &#123;&#125;;</span><br><span class="line">    properties[<span class="string">'token'</span>] = <span class="keyword">this</span>.get_config(<span class="string">'token'</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// set $duration if time_event was previously called for this event</span></span><br><span class="line">    <span class="keyword">var</span> start_timestamp = <span class="keyword">this</span>[<span class="string">'persistence'</span>].remove_event_timer(event_name);</span><br><span class="line">    <span class="keyword">if</span> (!_.isUndefined(start_timestamp)) &#123;</span><br><span class="line">        <span class="keyword">var</span> duration_in_ms = <span class="keyword">new</span> <span class="built_in">Date</span>().getTime() - start_timestamp;</span><br><span class="line">        properties[<span class="string">'$duration'</span>] = <span class="built_in">parseFloat</span>((duration_in_ms / <span class="number">1000</span>).toFixed(<span class="number">3</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// update persistence</span></span><br><span class="line">    <span class="keyword">this</span>[<span class="string">'persistence'</span>].update_search_keyword(<span class="built_in">document</span>.referrer);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.get_config(<span class="string">'store_google'</span>)) &#123; <span class="keyword">this</span>[<span class="string">'persistence'</span>].update_campaign_params(); &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.get_config(<span class="string">'save_referrer'</span>)) &#123; <span class="keyword">this</span>[<span class="string">'persistence'</span>].update_referrer_info(<span class="built_in">document</span>.referrer); &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// note: extend writes to the first object, so lets make sure we</span></span><br><span class="line">    <span class="comment">// don't write to the persistence properties object and info</span></span><br><span class="line">    <span class="comment">// properties object by passing in a new object</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// update properties with pageview info and super-properties</span></span><br><span class="line">    properties = _.extend(</span><br><span class="line">        &#123;&#125;,</span><br><span class="line">        _.info.properties(),</span><br><span class="line">        <span class="keyword">this</span>[<span class="string">'persistence'</span>].properties(),</span><br><span class="line">        properties</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> property_blacklist = <span class="keyword">this</span>.get_config(<span class="string">'property_blacklist'</span>);</span><br><span class="line">    <span class="keyword">if</span> (_.isArray(property_blacklist)) &#123;</span><br><span class="line">        _.each(property_blacklist, <span class="function"><span class="keyword">function</span>(<span class="params">blacklisted_prop</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">delete</span> properties[blacklisted_prop];</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.error(<span class="string">'Invalid value for property_blacklist config: '</span> + property_blacklist);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> data = &#123;</span><br><span class="line">        <span class="string">'event'</span>: event_name,</span><br><span class="line">        <span class="string">'properties'</span>: properties</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">var</span> truncated_data = _.truncate(data, <span class="number">255</span>);</span><br><span class="line">    <span class="keyword">var</span> json_data      = _.JSONEncode(truncated_data);</span><br><span class="line">    <span class="keyword">var</span> encoded_data   = _.base64Encode(json_data);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'MIXPANEL REQUEST:'</span>);</span><br><span class="line">    <span class="built_in">console</span>.log(truncated_data);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>._send_request(</span><br><span class="line">        <span class="keyword">this</span>.get_config(<span class="string">'api_host'</span>) + <span class="string">'/track/'</span>,</span><br><span class="line">        &#123; <span class="string">'data'</span>: encoded_data &#125;,</span><br><span class="line">        <span class="keyword">this</span>._prepare_callback(callback, truncated_data)</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>._check_and_handle_triggered_notifications(data);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> truncated_data;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/03/frontend/前端监控/" rel="next" title="前端监控">
+                <i class="fa fa-chevron-left"></i> 前端监控
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpeg" alt="Alfred">
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">93</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#埋点统计数据"><span class="nav-number">1.</span> <span class="nav-text">埋点统计数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#用户访问统计"><span class="nav-number">1.1.</span> <span class="nav-text">用户访问统计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用户行为分析"><span class="nav-number">1.2.</span> <span class="nav-text">用户行为分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#埋点方案"><span class="nav-number">2.</span> <span class="nav-text">埋点方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#埋点上报数据"><span class="nav-number">2.1.</span> <span class="nav-text">埋点上报数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mixpanel"><span class="nav-number">3.</span> <span class="nav-text">mixpanel</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2019/11/03/frontend/前端埋点/';
+        this.page.identifier = '2019/11/03/frontend/前端埋点/';
+        this.page.title = '前端埋点';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

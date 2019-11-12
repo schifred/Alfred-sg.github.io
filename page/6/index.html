@@ -270,6 +270,231 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/27/react/react相关/history源码/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/27/react/react相关/history源码/" itemprop="url">history</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-27T00:00:00+08:00">2019-01-27</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端路由/" itemprop="url" rel="index"><span itemprop="name">前端路由</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/01/27/react/react相关/history源码/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/01/27/react/react相关/history源码/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>history 库基于 html5 的 history 接口，用于操控和观察浏览器地址栏的变更。本文分为两部分：介绍 html5 的 history 接口；再介绍 history 库的实现。</p>
+<h2 id="history-接口"><a href="#history-接口" class="headerlink" title="history 接口"></a>history 接口</h2><p>为实现浏览器地址栏变更，又不至使页面刷新，html 提供了 history.pushState(state, title, url) 方法。该方法结合 ajax 请求一起使用，就可以实现地址栏变更时的局部刷新。实现详情可参阅 <a href="http://diveintohtml5.info/history.html" target="_blank" rel="noopener">MANIPULATING HISTORY FOR FUN &amp; PROFIT</a> 这篇文章。同时，这篇文章也指出，若想保证回退按钮也实现局部刷新，须监听 popstate 事件。以下整理的是 mozilla 开列的 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/History" target="_blank" rel="noopener">history 文档</a>。</p>
+<ul>
+<li>history.length: 存储在回话历史堆栈中的元素数量。</li>
+<li>history.state: 获取栈顶——历史堆栈入口的状态值。</li>
+<li>history.back(): 前往上一页，浏览器的回退按钮可以模拟此方法。</li>
+<li>history.forward(): 前往下一页，浏览器的前进按钮可以模拟此方法。</li>
+<li>history.go(num): 前往历史堆栈中的指定页面。</li>
+<li>history.pushState(state, title, url): 将数据压入历史堆栈中。state 数据量须小于 640kb，firefox 会将其保存到本地磁盘中。firefox 也会忽略 title 参数。这一过程将触发 popstate 事件，但不会触发 hashchange 事件。</li>
+<li>history.replaceState(state, title, url): 替换历史堆栈入口的数据。</li>
+<li>popstate: 当历史堆栈入口数据变更时，均会触发 popstate 事件，包含调用 history.back, history.forward, history.go 方法，以及点击前进、回退按钮。history.pushState, history.replaceState 方法不会触发 popstate 事件。</li>
+<li>window.onpopstate = (event) =&gt; {}; window.addEventListener(‘popstate’, (event) =&gt; {}): 监听 popstate 事件。</li>
+<li>hashchange: hash 路径变更，将会触发 hashchange 事件。</li>
+<li>window.onhashchange = (event) =&gt; {}; window.addEventListener(‘hashchange’, (event) =&gt; {}): 监听 hashchange 事件。</li>
+</ul>
+<h2 id="history-库"><a href="#history-库" class="headerlink" title="history 库"></a>history 库</h2><p>history 库创建了一个虚拟的 history 对象，以操纵浏览器地址栏的变更（createBrowserHistory）、或者操纵 hash 路径的变更（createHashHistory）、或者管理内存中的虚拟历史堆栈（createMemoryHistory）。各 history 对象均含有如下属性或方法：</p>
+<ul>
+<li>push(path, state): 往历史堆栈中压入数据。</li>
+<li>replace(path, state): 变更历史堆栈入口数据。</li>
+<li>go, goBack, goForward: 根据历史堆栈信息进行跳页。</li>
+<li>block(prompt): 根据条件 prompt 阻断地址栏变更。</li>
+<li>listen((location, action) =&gt; {}): 监听地址栏变更。</li>
+<li>length: 历史堆栈中的数据量。</li>
+<li>action: history 前次执行的方法名，值包含 ‘POP’, ‘PUSH’, ‘REPLACE’。</li>
+<li>location: 历史堆栈入口的数据内容，数据结构为 { pathname, search, hash, key, state }，通过 LocationUtils.createLocation 创建。</li>
+</ul>
+<p>监听函数 listener 会在地址栏变更后予以执行。实现上，history 先收集历史堆栈入口的变更数据，并写入虚拟的 history 对象中，然后再执行 listener。这一过程表现为 createBrowserHistory, createHashHistory, createMemoryHistory 模块中的 setState 函数。因此，通过 pushState, replaceState, go 方法，或者通过对 location 对象赋值变更地址栏后，就可以调用 setState 执行监听函数了。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setState</span>(<span class="params">nextState</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">Object</span>.assign(history, nextState);</span><br><span class="line">  history.length = globalHistory.length;</span><br><span class="line">  transitionManager.notifyListeners(history.location, history.action);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>history 有两种阻断地址栏变更的方法：在变更前拦截；在变更后回滚。相对于变更地址栏的三种方式：对 location 对象直接赋值，或者调用 pushState, replaceState 方法，或者调用 go 方法。前两种方法，我们都知道地址栏将要变更为何值，因此 history 选择在变更前拦截；后一种方法，我们不知道地址栏将会变更为何值，因此 history 选择在变更后回滚。实现上，history 使用 transitionManager.confirmTransitionTo 包裹前两种方法的调用过程；通过监听 popstate, hashchange 事件获得变更后的 location 数据，同样使用 transitionManager.confirmTransitionTo 判断是否需要回滚，还是维持现状。回滚机制的典型实现如 createBrowserHistory, createHashHistory 模块中的 handlePop 函数等。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 回滚到前几页时，跳过回滚机制</span></span><br><span class="line"><span class="keyword">let</span> forceNextPop = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handlePop</span>(<span class="params">location</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (forceNextPop) &#123;</span><br><span class="line">    forceNextPop = <span class="literal">false</span>;</span><br><span class="line">    setState();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> action = <span class="string">'POP'</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过 prompt 判断是否需要回滚</span></span><br><span class="line">    transitionManager.confirmTransitionTo(</span><br><span class="line">      location,</span><br><span class="line">      action,</span><br><span class="line">      getUserConfirmation,</span><br><span class="line">      ok =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (ok) &#123;</span><br><span class="line">          <span class="comment">// 维持现状</span></span><br><span class="line">          setState(&#123; action, location &#125;);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="comment">// 回滚</span></span><br><span class="line">          revertPop(location);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">revertPop</span>(<span class="params">fromLocation</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> toLocation = history.location;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// <span class="doctag">TODO:</span> We could probably make this more reliable by</span></span><br><span class="line">  <span class="comment">// keeping a list of keys we've seen in sessionStorage.</span></span><br><span class="line">  <span class="comment">// Instead, we just default to 0 for keys we don't know.</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// allKeys 缓存历史堆栈中的数据标识</span></span><br><span class="line">  <span class="keyword">let</span> toIndex = allKeys.indexOf(toLocation.key);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (toIndex === <span class="number">-1</span>) toIndex = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> fromIndex = allKeys.indexOf(fromLocation.key);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (fromIndex === <span class="number">-1</span>) fromIndex = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> delta = toIndex - fromIndex;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (delta) &#123;</span><br><span class="line">    forceNextPop = <span class="literal">true</span>;</span><br><span class="line">    go(delta);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>transitionManager 由 createTransitionManager 模块创建，提供了如下四种方法：</p>
+<ul>
+<li>appendListener(fn)：添加 fn 监听函数，返回函数可用于移除添加的监听函数。</li>
+<li>notifyListeners(…args)：执行所有已添加的监听函数。</li>
+<li>setPrompt(nextPrompt)：字符串时为提示；函数形式 (location, action) =&gt; {} 既可用于判断变更条件是否达成，或者输出提示文案；布尔值作为变更条件判断的结果。</li>
+<li>confirmTransitionTo(location, action, getUserConfirmation, callback)：变更地址栏时，通过 prompt 判断变更条件是否达成或者获取提示文案；若取得提示文案，由 getUserConfirmation = (prompt, callback) =&gt; {} 设定 callback 的调用机制，否则以变更条件达成与否的状态值作为 callback 的参数，并执行 callback 回调。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">confirmTransitionTo</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  location,</span></span></span><br><span class="line"><span class="function"><span class="params">  action,</span></span></span><br><span class="line"><span class="function"><span class="params">  getUserConfirmation,</span></span></span><br><span class="line"><span class="function"><span class="params">  callback</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// <span class="doctag">TODO:</span> If another transition starts while we're still confirming</span></span><br><span class="line">  <span class="comment">// the previous one, we may end up in a weird state. Figure out the</span></span><br><span class="line">  <span class="comment">// best way to handle this.</span></span><br><span class="line">  <span class="keyword">if</span> (prompt != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> result =</span><br><span class="line">      <span class="keyword">typeof</span> prompt === <span class="string">'function'</span> ? prompt(location, action) : prompt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> result === <span class="string">'string'</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> getUserConfirmation === <span class="string">'function'</span>) &#123;</span><br><span class="line">        getUserConfirmation(result, callback);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        warning(</span><br><span class="line">          <span class="literal">false</span>,</span><br><span class="line">          <span class="string">'A history needs a getUserConfirmation function in order to use a prompt message'</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        callback(<span class="literal">true</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// Return false from a transition hook to cancel the transition.</span></span><br><span class="line">      callback(result !== <span class="literal">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    callback(<span class="literal">true</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>基于以上触发监听函数、阻断地址栏变更的机制，下面我们一一揭开 createBrowserHistory, createHashHistory, createMemoryHistory 模块的面纱。</p>
+<h3 id="createBrowserHistory"><a href="#createBrowserHistory" class="headerlink" title="createBrowserHistory"></a>createBrowserHistory</h3><p>createBrowserHistory 基于 html5 中的 pushState, replaceState 变更地址栏。地址栏变更内容不限于 hash 路径。当浏览器不支持 html5 的 history 接口时，createBrowserHistory 将直接变更 location.href 或者调用 location.replace 方法实现地址栏变更。</p>
+<p>首先，createBrowserHistory 接受 props 参数。其中，props.forceRefresh 设定以刷新页面的形式变更地址栏；getUserConfirmation 配合 browserHistory.block 方法，可根据地址栏变更信息决定是否允许本次变更；props.keyLength 决定每条历史数据标识符 key 键的长度；props.basename 设置地址栏变更的基本路径。</p>
+<p>其次，实现 push, replace 方法，用于变更历史入口。在支持 html5 history 接口的浏览器中，createBrowserHistory 将调用 setState 方法监听函数的执行。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">push</span>(<span class="params">path, state</span>) </span>&#123;</span><br><span class="line">  warning(</span><br><span class="line">    !(</span><br><span class="line">      <span class="keyword">typeof</span> path === <span class="string">'object'</span> &amp;&amp;</span><br><span class="line">      path.state !== <span class="literal">undefined</span> &amp;&amp;</span><br><span class="line">      state !== <span class="literal">undefined</span></span><br><span class="line">    ),</span><br><span class="line">    <span class="string">'You should avoid providing a 2nd state argument to push when the 1st '</span> +</span><br><span class="line">      <span class="string">'argument is a location-like object that already has state; it is ignored'</span></span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> action = <span class="string">'PUSH'</span>;</span><br><span class="line">  <span class="keyword">const</span> location = createLocation(path, state, createKey(), history.location);</span><br><span class="line"></span><br><span class="line">  transitionManager.confirmTransitionTo(</span><br><span class="line">    location,</span><br><span class="line">    action,</span><br><span class="line">    getUserConfirmation,</span><br><span class="line">    ok =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (!ok) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> href = createHref(location);</span><br><span class="line">      <span class="keyword">const</span> &#123; key, state &#125; = location;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (canUseHistory) &#123;</span><br><span class="line">        globalHistory.pushState(&#123; key, state &#125;, <span class="literal">null</span>, href);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (forceRefresh) &#123;</span><br><span class="line">          <span class="built_in">window</span>.location.href = href;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">const</span> prevIndex = allKeys.indexOf(history.location.key);</span><br><span class="line">          <span class="keyword">const</span> nextKeys = allKeys.slice(</span><br><span class="line">            <span class="number">0</span>,</span><br><span class="line">            prevIndex === <span class="number">-1</span> ? <span class="number">0</span> : prevIndex + <span class="number">1</span></span><br><span class="line">          );</span><br><span class="line"></span><br><span class="line">          nextKeys.push(location.key);</span><br><span class="line">          allKeys = nextKeys;</span><br><span class="line"></span><br><span class="line">          setState(&#123; action, location &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        warning(</span><br><span class="line">          state === <span class="literal">undefined</span>,</span><br><span class="line">          <span class="string">'Browser history cannot push state in browsers that do not support HTML5 history'</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="built_in">window</span>.location.href = href;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">replace</span>(<span class="params">path, state</span>) </span>&#123;</span><br><span class="line">  warning(</span><br><span class="line">    !(</span><br><span class="line">      <span class="keyword">typeof</span> path === <span class="string">'object'</span> &amp;&amp;</span><br><span class="line">      path.state !== <span class="literal">undefined</span> &amp;&amp;</span><br><span class="line">      state !== <span class="literal">undefined</span></span><br><span class="line">    ),</span><br><span class="line">    <span class="string">'You should avoid providing a 2nd state argument to replace when the 1st '</span> +</span><br><span class="line">      <span class="string">'argument is a location-like object that already has state; it is ignored'</span></span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> action = <span class="string">'REPLACE'</span>;</span><br><span class="line">  <span class="keyword">const</span> location = createLocation(path, state, createKey(), history.location);</span><br><span class="line"></span><br><span class="line">  transitionManager.confirmTransitionTo(</span><br><span class="line">    location,</span><br><span class="line">    action,</span><br><span class="line">    getUserConfirmation,</span><br><span class="line">    ok =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (!ok) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> href = createHref(location);</span><br><span class="line">      <span class="keyword">const</span> &#123; key, state &#125; = location;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (canUseHistory) &#123;</span><br><span class="line">        globalHistory.replaceState(&#123; key, state &#125;, <span class="literal">null</span>, href);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (forceRefresh) &#123;</span><br><span class="line">          <span class="built_in">window</span>.location.replace(href);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">const</span> prevIndex = allKeys.indexOf(history.location.key);</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> (prevIndex !== <span class="number">-1</span>) allKeys[prevIndex] = location.key;</span><br><span class="line"></span><br><span class="line">          setState(&#123; action, location &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        warning(</span><br><span class="line">          state === <span class="literal">undefined</span>,</span><br><span class="line">          <span class="string">'Browser history cannot replace state in browsers that do not support HTML5 history'</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="built_in">window</span>.location.replace(href);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其次，基于原生的 history 对象实现 go, goBack, goForward 方法。此种变更地址栏的方式可以触发 popstate 或 hashchange 事件。</p>
+<p>最后，实现 block 方法阻断地址栏变更；listen 方法监听地址栏变更。两者都会绑定 popstate 或 hashchange 事件的回调函数。通过这两个事件判断本次变更是否需要回滚、以及触发 listener 监听函数的执行。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 作为事件的绑定函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handlePopState</span>(<span class="params">event</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// Ignore extraneous popstate events in WebKit.</span></span><br><span class="line">  <span class="keyword">if</span> (isExtraneousPopstateEvent(event)) <span class="keyword">return</span>;</span><br><span class="line">  handlePop(getDOMLocation(event.state));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleHashChange</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  handlePop(getDOMLocation(getHistoryState()));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 绑定或清理事件的处理函数</span></span><br><span class="line"><span class="keyword">let</span> listenerCount = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkDOMListeners</span>(<span class="params">delta</span>) </span>&#123;</span><br><span class="line">  listenerCount += delta;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (listenerCount === <span class="number">1</span> &amp;&amp; delta === <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">window</span>.addEventListener(PopStateEvent, handlePopState);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (needsHashChangeListener)</span><br><span class="line">      <span class="built_in">window</span>.addEventListener(HashChangeEvent, handleHashChange);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (listenerCount === <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">window</span>.removeEventListener(PopStateEvent, handlePopState);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (needsHashChangeListener)</span><br><span class="line">      <span class="built_in">window</span>.removeEventListener(HashChangeEvent, handleHashChange);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 阻断地址栏变更</span></span><br><span class="line"><span class="keyword">let</span> isBlocked = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">block</span>(<span class="params">prompt = false</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> unblock = transitionManager.setPrompt(prompt);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!isBlocked) &#123;</span><br><span class="line">    checkDOMListeners(<span class="number">1</span>);</span><br><span class="line">    isBlocked = <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (isBlocked) &#123;</span><br><span class="line">      isBlocked = <span class="literal">false</span>;</span><br><span class="line">      checkDOMListeners(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> unblock();</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听地址栏变更</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">listen</span>(<span class="params">listener</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> unlisten = transitionManager.appendListener(listener);</span><br><span class="line">  checkDOMListeners(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    checkDOMListeners(<span class="number">-1</span>);</span><br><span class="line">    unlisten();</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="createHashHistory"><a href="#createHashHistory" class="headerlink" title="createHashHistory"></a>createHashHistory</h3><p>createHashHistory 的处理逻辑与 createBrowserHistory 相同，只不过 createHashHistory 着眼于 hash 路径的变更。</p>
+<p>createHashHistory 的参数 props 仅接受 basename, getUserConfirmation, hashType 三个属性。createHashHistory 专有的 hashType 用于设置 hash 路径的编码解码策略，默认为 ‘slash’。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// hash 路径的编码解码策略集合</span></span><br><span class="line"><span class="keyword">const</span> HashPathCoders = &#123;</span><br><span class="line">  hashbang: &#123;</span><br><span class="line">    encodePath: <span class="function"><span class="params">path</span> =&gt;</span></span><br><span class="line">      path.charAt(<span class="number">0</span>) === <span class="string">'!'</span> ? path : <span class="string">'!/'</span> + stripLeadingSlash(path),</span><br><span class="line">    decodePath: <span class="function"><span class="params">path</span> =&gt;</span> (path.charAt(<span class="number">0</span>) === <span class="string">'!'</span> ? path.substr(<span class="number">1</span>) : path)</span><br><span class="line">  &#125;,</span><br><span class="line">  noslash: &#123;</span><br><span class="line">    encodePath: stripLeadingSlash,</span><br><span class="line">    decodePath: addLeadingSlash</span><br><span class="line">  &#125;,</span><br><span class="line">  slash: &#123;</span><br><span class="line">    encodePath: addLeadingSlash,</span><br><span class="line">    decodePath: addLeadingSlash</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>在 createHashHistory 模块中，变更 hash 路径基于 location.hash 赋值和 location.replace 方法。同时，createHashHistory 借助 hashchange 事件实现回滚，而上述两者变更 hash 路径的方式均会触发 hashchange 事件。因此，在 push, replace 方法的实现中，待变更的地址将会写入 ignorePath 缓存中，以在 handleHashChange 绑定函数对此变更不作回滚操作。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleHashChange</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> path = getHashPath();</span><br><span class="line">  <span class="keyword">const</span> encodedPath = encodePath(path);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (path !== encodedPath) &#123;</span><br><span class="line">    <span class="comment">// Ensure we always have a properly-encoded hash.</span></span><br><span class="line">    replaceHashPath(encodedPath);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> location = getDOMLocation();</span><br><span class="line">    <span class="keyword">const</span> prevLocation = history.location;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!forceNextPop &amp;&amp; locationsAreEqual(prevLocation, location)) <span class="keyword">return</span>; <span class="comment">// A hashchange doesn't always == location change.</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ignorePath === createPath(location)) <span class="keyword">return</span>; <span class="comment">// Ignore this change; we already setState in push/replace.</span></span><br><span class="line"></span><br><span class="line">    ignorePath = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    handlePop(location);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="createMemoryHistory"><a href="#createMemoryHistory" class="headerlink" title="createMemoryHistory"></a>createMemoryHistory</h3><p>createMemoryHistory 用于在内存中创建完全虚拟的历史堆栈，只缓存历史记录，但与真实的地址栏无关（不会引起地址栏变更，不会和原生的 history 对象保持同步），也与 popstate, hashchange 事件无关。</p>
+<p>createMemoryHistory 的参数 props 接受 getUserConfirmation, initialEntries, initialIndex, keyLength 属性。其中，props.initialEntries 指定最初的历史堆栈内容 history.entries；props.initialIndex 指定最初的索引值 history.index。push, replace 方法均将改变 history.entries 历史堆栈内容；go, goBack, goForward 均基于  history.entries 历史堆栈内容，以改变 history.index 及 history.location。实现参见源码。</p>
+<h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><h4 id="PathUtils"><a href="#PathUtils" class="headerlink" title="PathUtils"></a>PathUtils</h4><p>路径相关操作。</p>
+<ul>
+<li>addLeadingSlash(path)：酌情为 path 路径添加前缀 ‘/‘。</li>
+<li>stripLeadingSlash(path)：酌情为 path 路径剔除前缀 ‘/‘。</li>
+<li>hasBasename(path, prefix)：判断路径 path 是否包含前缀 prefix。</li>
+<li>stripBasename(path, prefix)：酌情为 path 路径剔除前缀 prefix。</li>
+<li>stripTrailingSlash(path)：酌情为 path 路径剔除后缀 ‘/‘。</li>
+<li>parsePath(path)：将字符串路径 path 转换为 { pathname, search, hash } 对象。</li>
+<li>createPath(location)：将 { pathname, search, hash } 对象转换为字符串路径 path。</li>
+</ul>
+<h4 id="LocationUtils"><a href="#LocationUtils" class="headerlink" title="LocationUtils"></a>LocationUtils</h4><p>location 对象相关操作，基于 resolve-pathname, value-equal。</p>
+<ul>
+<li>createLocation(path, state, key, currentLocation) 构建 location = { pathname, search, hash, key, state } 对象，pathname 将根据 currentLocation 参数进行调整。</li>
+<li>locationsAreEqual(a, b) 判断两个 location 对象是否相等。</li>
+</ul>
+<h4 id="DOMUtils"><a href="#DOMUtils" class="headerlink" title="DOMUtils"></a>DOMUtils</h4><p>DOM 环境判断。</p>
+<ul>
+<li>canUseDOM 是否可以操作节点。</li>
+<li>getConfirmation(message, callback) 使用 window.confirm 弹出确认框，callback 的参数可用于判断用户是否点击确认按键。</li>
+<li>supportsHistory 判断浏览器平台是否支持 HTML5 history API。</li>
+<li>supportsPopStateOnHashChange 判断浏览器平台是否会在 hash 路径变更时触发 popstate 事件。</li>
+<li>supportsGoWithoutReloadUsingHash 使用 go(n) 变更 hash 路径时是否不会页面刷新。</li>
+<li>isExtraneousPopstateEvent 判断 popstate 事件是否由无关的操作引起。iOS 平台 chrome 浏览器点击回退按钮会触发 state 为 undefined 的 popstate 事件。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/15/react/react16源码/scheduler/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2304,172 +2529,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/11/antd/Input/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/11/antd/Input/" itemprop="url">antd-Input 组件</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T00:00:00+08:00">2018-11-11</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/11/antd/Input/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/11/antd/Input/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Input-组件"><a href="#Input-组件" class="headerlink" title="Input 组件"></a>Input 组件</h2><p>Input 组件只关乎布局，其余均为常规处理。props.addonBefore 为前置标签，props.addonAfter 为后置标签，props.prefix 前缀图标，props.suffix 后缀图标。参看官方图例：</p>
-<img src="/2018/11/11/antd/Input/Input组件布局.png">
-<p>Input 组件在 render 方法执行阶段将绘制出 input 原生组件。鉴于 react 的实现机制，对于 input 原生组件的处理，有受控组件和非手空组件的区别。受控组件即根据组件的 state 变化渲染 input 节点的值，非受控组件只允许组件渲染出 input 节点的默认值，而其实时值将根据用户的操作行为加以改变。ant design 中的 Input 组件对于受控组件和非受控组件的处理，即是当开发者同时传入 props.value 和 props.defaultValue，props.value 的优先级高于 props.defaultValue，且当 props.value 为 undefined 或 null，均会以空字符串渲染 input 节点的值。</p>
-<p>在事件的绑定函数方面，常规的绑定函数均会透传到 input 原生组件上，而 props.onPressEnter, props.onKeyDown 两个绑定函数均会以 inputInstance.handleKeyDown 方法的形式挂载为 input 原生组件的 onKeyDown 绑定函数（inputInstance 为 Input 组件的实例）。</p>
-<p>此外，inputInstance 实例内置 focus, blur, select 方法，其功用如 inputInstance.focus 可以在校验表单时使校验失败的输入框组件获得焦点。inputInstance.input 属性用于访问 input 原生节点。</p>
-<p>在样式处理方面，笔者将作专文加以阐述。</p>
-<h2 id="TextArea-组件"><a href="#TextArea-组件" class="headerlink" title="TextArea 组件"></a>TextArea 组件</h2><p>TextArea 组件用于绘制 textarea 原生节点。不同于使用前后标签、前后图标影响渲染输入框组件的布局，TextArea 组件只包含 textarea 节点，没有其他布局元素。</p>
-<p>TextArea 组件的特殊处理逻辑是，textarea 节点的高度随用户输入内容而改变，受控于 props.autosize = { minRows?, maxRows? } 属性。其实现原理为：</p>
-<ol>
-<li>使用插入文档的隐藏文本框节点计算单行文本的高度，再由 minRows, maxRows 计算文本框的最大最小高度，并计算文本框的高度。计算获得的文本框即 textareaStyles 变量。</li>
-<li>调用组件实例的 setState 方法，更新 state.textareaStyles，最终构成组件实例的 resizeTextarea 方法。对于受控组件，将在componentWillReceiveProps 生命周期中判断组件获得的 props.value 是否更新，再使用 window.requestAnimationFrame 方式调用 resizeTextarea 方法，以调整文本框的高度。对于非受控组件，在 onChange 事件发生时调用 resizeTextarea 方法。</li>
-</ol>
-<p>calculateNodeHeight 函数计算文本框高度源码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> HIDDEN_TEXTAREA_STYLE = <span class="string">`</span></span><br><span class="line"><span class="string">  min-height:0 !important;</span></span><br><span class="line"><span class="string">  max-height:none !important;</span></span><br><span class="line"><span class="string">  height:0 !important;</span></span><br><span class="line"><span class="string">  visibility:hidden !important;</span></span><br><span class="line"><span class="string">  overflow:hidden !important;</span></span><br><span class="line"><span class="string">  position:absolute !important;</span></span><br><span class="line"><span class="string">  z-index:-1000 !important;</span></span><br><span class="line"><span class="string">  top:0 !important;</span></span><br><span class="line"><span class="string">  right:0 !important</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> SIZING_STYLE = [</span><br><span class="line">  <span class="string">'letter-spacing'</span>,</span><br><span class="line">  <span class="string">'line-height'</span>,</span><br><span class="line">  <span class="string">'padding-top'</span>,</span><br><span class="line">  <span class="string">'padding-bottom'</span>,</span><br><span class="line">  <span class="string">'font-family'</span>,</span><br><span class="line">  <span class="string">'font-weight'</span>,</span><br><span class="line">  <span class="string">'font-size'</span>,</span><br><span class="line">  <span class="string">'text-rendering'</span>,</span><br><span class="line">  <span class="string">'text-transform'</span>,</span><br><span class="line">  <span class="string">'width'</span>,</span><br><span class="line">  <span class="string">'text-indent'</span>,</span><br><span class="line">  <span class="string">'padding-left'</span>,</span><br><span class="line">  <span class="string">'padding-right'</span>,</span><br><span class="line">  <span class="string">'border-width'</span>,</span><br><span class="line">  <span class="string">'box-sizing'</span>,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> computedStyleCache: &#123;[key: string]: NodeType&#125; = &#123;&#125;;</span><br><span class="line"><span class="keyword">let</span> hiddenTextarea: HTMLTextAreaElement;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">calculateNodeStyling</span>(<span class="params">node: HTMLElement, useCache = false</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> nodeRef = (</span><br><span class="line">    node.getAttribute(<span class="string">'id'</span>) ||</span><br><span class="line">    node.getAttribute(<span class="string">'data-reactid'</span>) ||</span><br><span class="line">    node.getAttribute(<span class="string">'name'</span>)</span><br><span class="line">  ) <span class="keyword">as</span> string;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (useCache &amp;&amp; computedStyleCache[nodeRef]) &#123;</span><br><span class="line">    <span class="keyword">return</span> computedStyleCache[nodeRef];</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> style = <span class="built_in">window</span>.getComputedStyle(node);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> boxSizing = (</span><br><span class="line">    style.getPropertyValue(<span class="string">'box-sizing'</span>) ||</span><br><span class="line">    style.getPropertyValue(<span class="string">'-moz-box-sizing'</span>) ||</span><br><span class="line">    style.getPropertyValue(<span class="string">'-webkit-box-sizing'</span>)</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> paddingSize = (</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'padding-bottom'</span>)) +</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'padding-top'</span>))</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> borderSize = (</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'border-bottom-width'</span>)) +</span><br><span class="line">    <span class="built_in">parseFloat</span>(style.getPropertyValue(<span class="string">'border-top-width'</span>))</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> sizingStyle = SIZING_STYLE</span><br><span class="line">    .map(<span class="function"><span class="params">name</span> =&gt;</span> <span class="string">`<span class="subst">$&#123;name&#125;</span>:<span class="subst">$&#123;style.getPropertyValue(name)&#125;</span>`</span>)</span><br><span class="line">    .join(<span class="string">';'</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> nodeInfo: NodeType = &#123;</span><br><span class="line">    sizingStyle,</span><br><span class="line">    paddingSize,</span><br><span class="line">    borderSize,</span><br><span class="line">    boxSizing,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (useCache &amp;&amp; nodeRef) &#123;</span><br><span class="line">    computedStyleCache[nodeRef] = nodeInfo;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> nodeInfo;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">calculateNodeHeight</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  uiTextNode: HTMLTextAreaElement,</span></span></span><br><span class="line"><span class="function"><span class="params">  useCache = false,</span></span></span><br><span class="line"><span class="function"><span class="params">  minRows: number | null = null,</span></span></span><br><span class="line"><span class="function"><span class="params">  maxRows: number | null = null,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!hiddenTextarea) &#123;</span><br><span class="line">    hiddenTextarea = <span class="built_in">document</span>.createElement(<span class="string">'textarea'</span>);</span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(hiddenTextarea);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Fix wrap="off" issue</span></span><br><span class="line">  <span class="comment">// https://github.com/ant-design/ant-design/issues/6577</span></span><br><span class="line">  <span class="keyword">if</span> (uiTextNode.getAttribute(<span class="string">'wrap'</span>)) &#123;</span><br><span class="line">    hiddenTextarea.setAttribute(<span class="string">'wrap'</span>, uiTextNode.getAttribute(<span class="string">'wrap'</span>) <span class="keyword">as</span> string);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    hiddenTextarea.removeAttribute(<span class="string">'wrap'</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将影响文本框节点高度的样式属性拷贝给隐藏节点</span></span><br><span class="line">  <span class="comment">// overflow 样式属性置为 hidden，以此将滚动条排除在外</span></span><br><span class="line">  <span class="keyword">let</span> &#123;</span><br><span class="line">    paddingSize, borderSize,</span><br><span class="line">    boxSizing, sizingStyle,</span><br><span class="line">  &#125; = calculateNodeStyling(uiTextNode, useCache);</span><br><span class="line">  hiddenTextarea.setAttribute(<span class="string">'style'</span>, <span class="string">`<span class="subst">$&#123;sizingStyle&#125;</span>;<span class="subst">$&#123;HIDDEN_TEXTAREA_STYLE&#125;</span>`</span>);</span><br><span class="line">  hiddenTextarea.value = uiTextNode.value || uiTextNode.placeholder || <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> minHeight = <span class="built_in">Number</span>.MIN_SAFE_INTEGER;</span><br><span class="line">  <span class="keyword">let</span> maxHeight = <span class="built_in">Number</span>.MAX_SAFE_INTEGER;</span><br><span class="line">  <span class="keyword">let</span> height = hiddenTextarea.scrollHeight;<span class="comment">// 以隐藏节点计算文本框高度</span></span><br><span class="line">  <span class="keyword">let</span> overflowY: any;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 根据盒模式调整高度</span></span><br><span class="line">  <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">    height = height + borderSize;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (boxSizing === <span class="string">'content-box'</span>) &#123;</span><br><span class="line">    height = height - paddingSize;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (minRows !== <span class="literal">null</span> || maxRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// 计算文本框单行高度</span></span><br><span class="line">    hiddenTextarea.value = <span class="string">' '</span>;</span><br><span class="line">    <span class="keyword">let</span> singleRowHeight = hiddenTextarea.scrollHeight - paddingSize;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (minRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">      minHeight = singleRowHeight * minRows;</span><br><span class="line">      <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">        minHeight = minHeight + paddingSize + borderSize;</span><br><span class="line">      &#125;</span><br><span class="line">      height = <span class="built_in">Math</span>.max(minHeight, height);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (maxRows !== <span class="literal">null</span>) &#123;</span><br><span class="line">      maxHeight = singleRowHeight * maxRows;</span><br><span class="line">      <span class="keyword">if</span> (boxSizing === <span class="string">'border-box'</span>) &#123;</span><br><span class="line">        maxHeight = maxHeight + paddingSize + borderSize;</span><br><span class="line">      &#125;</span><br><span class="line">      overflowY = height &gt; maxHeight ? <span class="string">''</span> : <span class="string">'hidden'</span>;</span><br><span class="line">      height = <span class="built_in">Math</span>.min(maxHeight, height);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!maxRows) &#123;</span><br><span class="line">    overflowY = <span class="string">'hidden'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> &#123; height, minHeight, maxHeight, overflowY &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>setState 更新文本框高度源码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不打断本次渲染，在下一次渲染调整文本框的样式</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">onNextFrame</span>(<span class="params">cb: (</span>) =&gt; <span class="title">void</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">window</span>.requestAnimationFrame) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">window</span>.requestAnimationFrame(cb);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">window</span>.setTimeout(cb, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">clearNextFrameAction</span>(<span class="params">nextFrameId: number</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">window</span>.cancelAnimationFrame) &#123;</span><br><span class="line">    <span class="built_in">window</span>.cancelAnimationFrame(nextFrameId);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">window</span>.clearTimeout(nextFrameId);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextArea</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span>&lt;<span class="title">TextAreaProps</span>, <span class="title">TextAreaState</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> defaultProps = &#123;</span><br><span class="line">    prefixCls: <span class="string">'ant-input'</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  nextFrameActionId: number;</span><br><span class="line"></span><br><span class="line">  state = &#123;</span><br><span class="line">    textareaStyles: &#123;&#125;,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.resizeTextarea();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillReceiveProps(nextProps: TextAreaProps) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.props.value !== nextProps.value) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.nextFrameActionId) &#123;</span><br><span class="line">        clearNextFrameAction(<span class="keyword">this</span>.nextFrameActionId);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.nextFrameActionId = onNextFrame(<span class="keyword">this</span>.resizeTextarea);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  resizeTextarea = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; autosize &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (!autosize || !<span class="keyword">this</span>.textAreaRef) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> minRows = autosize ? (autosize <span class="keyword">as</span> AutoSizeType).minRows : <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">const</span> maxRows = autosize ? (autosize <span class="keyword">as</span> AutoSizeType).maxRows : <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">const</span> textareaStyles = calculateNodeHeight(<span class="keyword">this</span>.textAreaRef, <span class="literal">false</span>, minRows, maxRows);</span><br><span class="line">    <span class="keyword">this</span>.setState(&#123; textareaStyles &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  handleTextareaChange = <span class="function">(<span class="params">e: React.ChangeEvent&lt;HTMLTextAreaElement&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!(<span class="string">'value'</span> <span class="keyword">in</span> <span class="keyword">this</span>.props)) &#123;</span><br><span class="line">      <span class="keyword">this</span>.resizeTextarea();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> &#123; onChange &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (onChange) &#123;</span><br><span class="line">      onChange(e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 余略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h2><p>Search 组件基于 Input 组件制作，其特殊处理是在 inputInstance.onPressEnter 方法执行过程中调用 props.onSearch 方法，适用于远程搜索之类的场景；Search 组件还提供 props.enterButton 属性用于配置输入框的后缀图标，默认使用 search 图标，可渲染文本或按钮。实现请参考 ant design 源码。</p>
-<h2 id="Group"><a href="#Group" class="headerlink" title="Group"></a>Group</h2><p>Group 组件主要以样式控制多个表单项组件 props.children 的成组渲染。实现请参考 ant design 源码。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2519,7 +2578,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">95</span>
+                    <span class="site-state-item-count">96</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

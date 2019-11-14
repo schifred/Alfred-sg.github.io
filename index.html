@@ -369,8 +369,11 @@
         
           
             <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在我所知的前端脚手架中，dawn 使用中间件的方式串联任务流，nowa 使用子命令的方式串联任务流，umi 使用插件的方式串联任务流。三者中较为特别的是，umi 在提供打包构建、测试、mock 服务器等能力之外，它还以根据配置制作入口文件的方式，集成了路由、限定了前端代码的结构。umi 中的集成意识也许来自于 dva。无论从 dva （由状态管理器入手的）前端应用框架到 umi 脚手架，还是从 antd 组件库到 ant pro 模板工程，蚂蚁工程师们抛出的命题总是一环扣一环。我只觉得，问题会引导人去解决，开阔的应用场景会激发问题，这是一条良性的道路。如果应用场景受限，问题得不到暴露，那就要凭技术上的储备去探知下一个去脉。因此，我学习 spring 的目的在于寻找创新点，手法也是不求甚解。</p>
-<h2 id="IoC"><a href="#IoC" class="headerlink" title="IoC"></a>IoC</h2><p>在 spring 中，控制反转就是依赖注入。当 Class B 作为 Class A 的依赖时，控制反转会将 B 实例注入到 A 实例中。其实现过程是可以推想的：首先使用 Bean 容器管理并协调 bean 的生命周期，然后从 xml、注解或 java 配置构成的元数据中解析出 bean 的依赖关系，最后按照依赖关系将 B 实例组装到 A 实例中。在 spring 中，作为 Bean 容器的是 BeanFactory；ApplicationContext 作为 BeanFactory 的超类，额外实现了对 AOP、资源处理、事件发布、应用上下文的支持。在这套机制的基础上，spring 一方面提供了声明式编程的能力（同时可以通过 ApplicationContext 访问 bean），另一方面对元数据的多种配置场景作了适配（也就是超强的模式解析能力）。</p>
+<h2 id="IoC"><a href="#IoC" class="headerlink" title="IoC"></a>IoC</h2><p>在 spring 中，控制反转就是依赖注入。当 Class B 作为 Class A 的依赖时，控制反转会将 B 实例注入到 A 实例中。其实现过程是可以推想的：首先使用 Bean 容器管理并协调 bean 的生命周期，然后从 xml、注解或 java 配置构成的元数据中解析出 bean 的依赖关系，最后按照依赖关系将 B 实例组装到 A 实例中。在 spring 中，作为 Bean 容器的是 BeanFactory；ApplicationContext 作为 BeanFactory 的超类，额外实现了对 AOP、资源处理、事件发布、应用上下文的支持。在这套机制的基础上，spring 既对 bean 注入的多种情形作了适配（也就是以超强的模式解析能力获取元数据），又可以通过 ApplicationContext 实例访问 bean。由此 spring 提供了声明式编程的能力。</p>
 <img src="/2019/11/13/java/spring之我见/container-magic.png">
+<p>在上述过程中，spring 需要解决的问题包含：通过 xml、注解或 java 配置 bean 的依赖关系；通过构造函数、静态工厂函数、setter 方法注入依赖；注入时须对依赖 bean 作类型转换和顺序处理；解决 bean 的循环依赖问题（通过预实例化或使用 setter 注入）；支持 xml 的各种便捷配置；</p>
+<p>BeanDefinition</p>
+<p>PropertyEditor</p>
 
           
         

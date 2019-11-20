@@ -270,6 +270,189 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/20/java/JDBC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/20/java/JDBC/" itemprop="url">JDBC</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-20T00:00:00+08:00">2019-11-20</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/11/20/java/JDBC/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/20/java/JDBC/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Java 数据库连接（JDBC）API 用于对接不同的数据库 —— 由遵守不同网络协议的数据库厂商提供第三方驱动程序，再由 Java 提供一个驱动管理器和一套 API，驱动程序就会注册到驱动管理器中，在此基础上，调用 API 即能访问驱动管理器，最后通过驱动程序与实际的数据库通信。驱动程序的实现经历过多次演进，目前是以纯 Java 语言的形式实现，能将 JDBC 请求直接翻译成数据库相关的协议。</p>
+<img src="/2019/11/20/java/JDBC/jdbc.jpeg">
+<p>JDBC 数据库 url 如 jdbc:mysql://127.0.0.1:3306/test?characterEncoding=UTF-8，需要描述主机名、端口号和数据库名等。使用 JDBC 的前置操作包含：下载驱动程序 jar 文件并注册（部分驱动不需要注册）；下载并启动特定数据库。完成前置操作后，就可以连接数据库并执行 sql。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">String url = <span class="string">"jdbc:mysql://127.0.0.1:3306/test?characterEncoding=UTF-8"</span>;</span><br><span class="line">String username = <span class="string">"admin"</span>;</span><br><span class="line">String password = <span class="string">"admin"</span>;</span><br><span class="line">Connection conn = DriverManager.getConnection(url, username, password);</span><br><span class="line"></span><br><span class="line">Statement stat = conn.createStatement();</span><br><span class="line">stat.executeUpdate(<span class="string">"CREATE TABLE Greeting (Message CHAR(20))"</span>);</span><br></pre></td></tr></table></figure>
+<p>api 接口包含：</p>
+<ul>
+<li>Statement connection.createStatement(); 创建 Statement 对象，用于执行 sql。</li>
+<li>void connection.close(); 关闭当前连接并释放 jdbc 资源。</li>
+<li>ResultSet statement.executeQuery(String sql); 查询并返回 ResultSet 对象。</li>
+<li>int statement.executeUpdate(String sql); 插入、更新、删除、DDL 建表等操作并返回受影响的行数。如果没有更新计数，则返回 0。</li>
+<li>boolean statement.execute(String sql); 执行 sql，可能会产生多个结果集和更新计数。如果第一个执行结果是结果集，返回 true；反之为 false，即增删改操作。调用 getResultSet 或 getUpdateCount 可以得到第一个执行结果。</li>
+<li>ResultSet statement.getResultSet(); 返回前一条查询语句的结果集，或返回 null。对每个结果集，该方法只能被调用一次。</li>
+<li>boolean statement.getMoreResults(); 部分数据库允许一条 Select 查出多个结果集，getMoreResults 方法用于获取下一个结果集，如果存在，返回 true。</li>
+<li>int statement.getUpdateCount(); 返回前一条更新语句影响的行数。如果前一条语句没有更新数据库，返回 -1。</li>
+<li>void statement.close(); 关闭 statement 以及它的结果集。</li>
+<li>boolean statement.isClosed; 是否关闭。</li>
+<li>void statement.closeOnCompletion(); 当所有结果集被关闭后，自动关闭 statement。</li>
+<li>boolean resultset.next(); 获取下一行数据，到达底部返回 false。</li>
+<li>String resultset.getString(int columnNumber), String resultset.getString(String columnName), Int resultset.getInt(int columnNumber), Double resultset.getDouble(int columnNumber), Date resultset.getDate(int columnNumber), Blob resultset.getBlob(int columnNumber), Clob resultset.getClob(int columnNumber)… 获取指定列数据。</li>
+<li><t> resultset.getObject(int columnNumber, Class<t>type),  <t> resultset.getObject(String columnLabel, Class<t>type); 以特定类型获取给定列数据。</t></t></t></t></li>
+<li>int resultset.finalColumn(String columnName); 获取给定列的序号。</li>
+<li>void resultset.close(); 关闭当前结果集。</li>
+<li>boolean resultset.isClosed(); 判断是否关闭。</li>
+<li>PreparedStatement connection.PrepareStatement(); 创建 PreparedStatement 对象，带 ? 的预备语句（使用场景如 where name = ?），便于重用 sql 操作语句。</li>
+<li>void preparedStatement.setInt(int n, Int x)… 设置 PreparedStatement 对象第 n 个问号的值，即参数。</li>
+<li>void preparedStatement.clearParameters(); 清除当前 PreparedStatement 对象的参数。</li>
+<li>ResultSet preparedStatement.executeQuery(String sql); 查询。</li>
+<li>int preparedStatement.executeUpdate(String sql); 插入、更新、删除、DDL 建表等操作并返回受影响的行数。如果没有更新计数，则返回 0。</li>
+</ul>
+<p>jdbc 另外解决的问题包含：（日期格式等出入库时）转义；获取自动生成的主键；支持结果集可滚动查询上或下一条数据、结果集集成更新数据库操作（并非所有的数据库都支持可滚动、可更新操作，需要通过 DatabaseMetaData 接口的 supportsResultSetType, supportsResultSetConcurrency 判断）（可滚动、可更新操作会与数据库保持连接，消耗数据库资源）</p>
+<p>注意：</p>
+<ol>
+<li>Connection, Statement, ResultSet 均因较大的数据结果占用不少内存资源以及数据库服务器上有限的资源，请求完成后须使用 try…catch…finally… 语句予以关闭。</li>
+<li>尽量使用预编译并缓存的 PreparedStatement，并避免 sql 注入。</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/18/frontend/自动化部署/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1062,6 +1245,160 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/10/frontend/前端调试/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/10/frontend/前端调试/" itemprop="url">前端调试</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-10T00:00:00+08:00">2019-11-10</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/11/10/frontend/前端调试/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/10/frontend/前端调试/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>基本调试可以借助 chrome 控制台实现。</p>
+<h2 id="同步刷新"><a href="#同步刷新" class="headerlink" title="同步刷新"></a>同步刷新</h2><h3 id="browser-sync"><a href="#browser-sync" class="headerlink" title="browser-sync"></a>browser-sync</h3><p>browser-sync 通过 web-socket 将变更内容透出到页面侧，因此无须刷新页面。browser-sync 提供了两个方法：init({ server }) 启动本地静态服务器，init({ proxy }) 启动代理服务器（当本地服务器通过其他方式启动时，browser-sync 选用代理模式启动）；reload 实时更新页面变动内容。</p>
+<h3 id="emmet-livestyle"><a href="#emmet-livestyle" class="headerlink" title="emmet livestyle"></a>emmet livestyle</h3><p>emmet livestyle 扩展程序（浏览器、编辑器有各自的扩展程序）允许将编辑器的变更内容自动反应在页面上，又将浏览器的变更内容自动反应在编辑器上。</p>
+<h2 id="抓包工具"><a href="#抓包工具" class="headerlink" title="抓包工具"></a>抓包工具</h2><p>charles 是 mac os 中的抓包工具，fiddler 是 windows 中的抓包工具，两者都通过将自己设置成系统的网络访问代理服务器实现。即所有请求先经过 charles、fiddler，然后再发送到远程服务器中，因此可以拦截请求、修改请求、修改响应，甚至将响应内容替换成本地资源。fiddler 还可以通过 tools - options - connection 设置监听端口，然后手机代理到该端口，就可以将手机端获得的响应资源替换成本地文件，详情可参阅 <a href="https://www.cnblogs.com/wenbodeboke/p/9770771.html" target="_blank" rel="noopener">fiddler手机抓包配置方法</a>。</p>
+<h2 id="模拟器"><a href="#模拟器" class="headerlink" title="模拟器"></a>模拟器</h2><p>Genymotion</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/xy-nb/p/web.html" target="_blank" rel="noopener">手机web前端调试页面的几种方式</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/10/frontend/前端监控/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1168,160 +1505,6 @@
 <h2 id="Bombay"><a href="#Bombay" class="headerlink" title="Bombay"></a>Bombay</h2><p><a href="https://github.com/bombayjs/bombayjs" target="_blank" rel="noopener">Bombay</a> 通过 xhr 对象或者 window.navigator.sendBeacon 上报数据。上报数据类型包含 error、behavior、health 以及其他，除了 health 尝试使用 window.navigator.sendBeacon 上报以外，其他全部使用 xhr 对象。上报数据的功能实现由 reporter 模块承担；在 reporter 模块的基础上，handlers 模块用于实际上报不同类型的数据，如 pv、health（页面停留时长）、click 点击事件、blur 失焦事件（点击和失焦事件的上报内容包含节点的路径）、performance 性能（首屏渲染时各操作的处理时长）、resource（资源加载时长）、navigation（页面跳转情况）、hashChange（单页应用跳转情况）、caughtError（js 报错，通过 window.addEventListener(‘error’, …) 实现）、promiseError（promise 错误，通过 window.addEventListener(‘unhandledrejection’, …) 实现）、resourceError（资源加载错误）、api（ajax 处理情况）、message（window.postMessage 发送消息）等。在处理单页应用的页面跳转或 ajax 请求等时，Bombay 通过 hack 机制劫持了 window.console、history.pushState、history.replaceState、window.fetch、window.XMLHttpRequest、window.onpopstate 等原生语法，以在封装后的函数执行过程中上报数据。最后，Bombay 根据用户配置项启用功能。</p>
 <p>与 mixpanel 一样，Bombay 在上报数据时需要设置 token，即避免其他应用调用上报接口。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/passkey/p/9981654.html" target="_blank" rel="noopener">监控平台前端SDK开发实践</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/10/frontend/前端调试/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/10/frontend/前端调试/" itemprop="url">前端调试</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-10T00:00:00+08:00">2019-11-10</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/11/10/frontend/前端调试/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/10/frontend/前端调试/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>基本调试可以借助 chrome 控制台实现。</p>
-<h2 id="同步刷新"><a href="#同步刷新" class="headerlink" title="同步刷新"></a>同步刷新</h2><h3 id="browser-sync"><a href="#browser-sync" class="headerlink" title="browser-sync"></a>browser-sync</h3><p>browser-sync 通过 web-socket 将变更内容透出到页面侧，因此无须刷新页面。browser-sync 提供了两个方法：init({ server }) 启动本地静态服务器，init({ proxy }) 启动代理服务器（当本地服务器通过其他方式启动时，browser-sync 选用代理模式启动）；reload 实时更新页面变动内容。</p>
-<h3 id="emmet-livestyle"><a href="#emmet-livestyle" class="headerlink" title="emmet livestyle"></a>emmet livestyle</h3><p>emmet livestyle 扩展程序（浏览器、编辑器有各自的扩展程序）允许将编辑器的变更内容自动反应在页面上，又将浏览器的变更内容自动反应在编辑器上。</p>
-<h2 id="抓包工具"><a href="#抓包工具" class="headerlink" title="抓包工具"></a>抓包工具</h2><p>charles 是 mac os 中的抓包工具，fiddler 是 windows 中的抓包工具，两者都通过将自己设置成系统的网络访问代理服务器实现。即所有请求先经过 charles、fiddler，然后再发送到远程服务器中，因此可以拦截请求、修改请求、修改响应，甚至将响应内容替换成本地资源。fiddler 还可以通过 tools - options - connection 设置监听端口，然后手机代理到该端口，就可以将手机端获得的响应资源替换成本地文件，详情可参阅 <a href="https://www.cnblogs.com/wenbodeboke/p/9770771.html" target="_blank" rel="noopener">fiddler手机抓包配置方法</a>。</p>
-<h2 id="模拟器"><a href="#模拟器" class="headerlink" title="模拟器"></a>模拟器</h2><p>Genymotion</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/xy-nb/p/web.html" target="_blank" rel="noopener">手机web前端调试页面的几种方式</a></p>
 
           
         
@@ -1696,182 +1879,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/29/frontend/hybird app/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/29/frontend/hybird app/" itemprop="url">hybird app</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-29T00:00:00+08:00">2019-10-29</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/实践/" itemprop="url" rel="index"><span itemprop="name">实践</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/10/29/frontend/hybird app/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/29/frontend/hybird app/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>hybird app 介于 native app、web app 之间，性能比 web app 好，比 native app 差，但是适应了更多的移动开发场景。hybird app 具有如下特点：因为受到移动设备CPU、内存、网卡、网络连接等限制，hybird app 可用的系统网络资源有限；hybird app 支持更新的浏览器特性；hybird app 可实现离线应用，即借助浏览器最新的特性或 Native 的文件读取机制进行文件级的文件缓存或离线更新；hybird app 需要考虑不同设备机型的兼容性问题；hybird app 支持唤起 Native 的能力，如摄像头、定位、传感器、本地文件访问等。理想情况下，hybird app 须唤起 native 能力绘制通用导航菜单、系统 UI、核心动效等，这样能充分利用 native 的性能优势（WebView 的执行性能只有移动端浏览器的 1/3 ~ 1/4）。</p>
-<h2 id="web-到-native-通信协议"><a href="#web-到-native-通信协议" class="headerlink" title="web 到 native 通信协议"></a>web 到 native 通信协议</h2><h3 id="通过-url"><a href="#通过-url" class="headerlink" title="通过 url"></a>通过 url</h3><p>Native 应用在移动端系统中注册一个 Schema 协议的 URI，这个 URI 可在系统的任意地方授权访问来掉漆一段原生方法或一个原生的界面。在此基础上，Native 应用的 WebView 控件中的 js 脚本也可以远程请求匹配 Schema 协议的 URI，如通过 iframe 的 src 属性，这个请求就能被 Native 应用的系统捕获并调起 Native 应用注册匹配的 Schema 协议内容，以唤起原生能力。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> iframe = <span class="built_in">document</span>.createElement(<span class="string">'iframe'</span>);</span><br><span class="line">iframe.setAttribute(<span class="string">'style'</span>, <span class="string">'display: none'</span>);</span><br><span class="line"><span class="built_in">document</span>.appendChild(iframe);</span><br><span class="line">iframe.setAttribute(<span class="string">'src'</span>, <span class="string">'myApp://className/method?args'</span>);</span><br></pre></td></tr></table></figure>
-<h3 id="通过-addJavascriptInterface"><a href="#通过-addJavascriptInterface" class="headerlink" title="通过 addJavascriptInterface"></a>通过 addJavascriptInterface</h3><p>Native 应用也可以通过 addJavascriptInterface 方法将 Native 的一个对象方法注入到页面 window 对象中，供 js 调用。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Websettings websettings = webView.getSettings();</span><br><span class="line">websettings.setJavascriptEnabled(<span class="keyword">true</span>);<span class="comment">// 设置 webView 允许执行 js 脚本</span></span><br><span class="line">webView.loadUrl(<span class="string">'file:///android_asset/index.html'</span>);<span class="comment">// 加载页面到 webView 中</span></span><br><span class="line">webView.addJavascriptInterface(<span class="keyword">new</span> JsInterface(), <span class="string">'native'</span>);<span class="comment">// window 加入 native 对象</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JsInterface</span> </span>&#123;</span><br><span class="line">  <span class="meta">@JavascriptInterface</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showToast</span><span class="params">(String toast)</span> </span>&#123;</span><br><span class="line">    Toast.makeText(MainActivity.<span class="keyword">this</span>, toast, Toast.LENGTH_SHORT).show();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>addJavascriptInterface 在 Android 4.2 以下版本有安全漏洞。另一种可行的方法时，当 js 调用 alert 或 prompt 方法时，会执行 Native 中的 onJsAlert 或 onJsPrompt 方法，因此就可以用这两个方法加以监听 html5 传递的消息。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">webView.setWebChromeClient(<span class="keyword">new</span> WebChromeClient() &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onJsPrompt</span><span class="params">(WebView view, String url, String message, </span></span></span><br><span class="line"><span class="function"><span class="params">    String defaultValue, JsPromptResult result)</span> </span>&#123;</span><br><span class="line">    result.confirm(JSBridge.callJsPrompt(MainActivity.<span class="keyword">this</span>, view, message));</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="native-到-web-通信协议"><a href="#native-到-web-通信协议" class="headerlink" title="native 到 web 通信协议"></a>native 到 web 通信协议</h2><p>首先在 html5 页面的全局作用域下声明一个方法；其次在 Android 中使用 loadUrl 唤起这个方法，或者在 iOS 中使用 stringByEvaluatingJavaScriptFromString 唤起这个方法，这样就能使 Native 应用主动调用 html5 中的 js 方法。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Websettings websettings = webView.getSettings();</span><br><span class="line">websettings.setJavascriptEnabled(<span class="keyword">true</span>);<span class="comment">// 设置 webView 允许执行 js 脚本</span></span><br><span class="line">webView.loadUrl(<span class="string">'file:///android_asset/index.html'</span>);<span class="comment">// 加载页面到 webView 中</span></span><br><span class="line">JsInterface jsInterface = <span class="keyword">new</span> JsInterface();</span><br><span class="line">jsInterface.log(<span class="string">'hello world'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JsInterface</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">log</span><span class="params">(<span class="keyword">final</span> String msg)</span> </span>&#123;</span><br><span class="line">    webView.post(<span class="keyword">new</span> Runnable() &#123;<span class="comment">// 创建一个新线程执行 js 中的 log 方法</span></span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 调用 html5 中 window.log 方法</span></span><br><span class="line">        webView.loadUrl(<span class="string">'javascript: log('</span> + <span class="string">'"'</span> + msg + <span class="string">'"'</span> + <span class="string">')'</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="通信协议"><a href="#通信协议" class="headerlink" title="通信协议"></a>通信协议</h2><p>目前较多使用的通信协议方案为 jsbridge://className:callbackMethod/methodName?jsonObj。jsbridge 为 Native 注册的协议头；className 为调用 Native 的类；methodName 为类中的方法名；jsonObj 为传递的参数；callbackMethod 为 Native 回调 js 的方法名，即 Native 调用 webView.loadUrl(‘javascript: callbackMethod()’)。以 html5 中请求 jsbridge://Util:success/toString?{“msg”: “hello world”} 为例，Native 使用 Util 类中的 toString 方法处理参数 {“msg”: “hello world”}，完成后再回调 html5 中的 success 方法。</p>
-<p>通常 jsBridge 中会使用公共方法发送请求。如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">JsBridge.call = <span class="function"><span class="keyword">function</span>(<span class="params">className, methodName, params, callback</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> bridgeStr;</span><br><span class="line">  <span class="keyword">let</span> paramsStr = <span class="built_in">JSON</span>.stingify(params || &#123;&#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (className &amp;&amp; methodName)&#123;</span><br><span class="line">    bridgeStr = <span class="string">`jsbridge://<span class="subst">$&#123;className&#125;</span>:<span class="subst">$&#123;callback&#125;</span>/<span class="subst">$&#123;methodName&#125;</span>?<span class="subst">$&#123;paramsStr&#125;</span>`</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      sendToNative(bridgeStr);</span><br><span class="line">    &#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'Invalid className or methodName'</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setToNative</span>(<span class="params">url, data</span>)</span>&#123;</span><br><span class="line">  <span class="built_in">window</span>.prompt(url, <span class="built_in">JSON</span>.stringify(data || &#123;&#125;));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="离线缓存与更新"><a href="#离线缓存与更新" class="headerlink" title="离线缓存与更新"></a>离线缓存与更新</h2><h3 id="ServiceWorker"><a href="#ServiceWorker" class="headerlink" title="ServiceWorker"></a>ServiceWorker</h3><p>使用 ServiceWorker 作离线缓存可参考 <a href="https://blog.csdn.net/huangpb123/article/details/89498418" target="_blank" rel="noopener">Service Worker —— 这应该是一个挺全面的整理</a>，ServiceWorker 有兼容性问题。</p>
-<h3 id="localeStorage"><a href="#localeStorage" class="headerlink" title="localeStorage"></a>localeStorage</h3><p>使用 localeStorage 作离线缓存就是带版本号形式缓存静态资源、页面内容、响应。典型如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> newVersion = <span class="built_in">document</span>.getElementById(<span class="string">'versionStore'</span>).getAttribute(<span class="string">'data-version'</span>);</span><br><span class="line"><span class="keyword">const</span> oldVersion = localeStorage.getItem(<span class="string">'version'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (newVersion &gt; (oldVersion || <span class="number">0</span>))&#123;</span><br><span class="line">  loadScript(<span class="string">`scriptpath/<span class="subst">$&#123;newVersion&#125;</span>.js`</span>).then(<span class="function"><span class="params">content</span> =&gt;</span> &#123;</span><br><span class="line">    localeStorage.setItem(<span class="string">'scriptpath'</span>, content);</span><br><span class="line">  &#125;)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> script = <span class="built_in">document</span>.createElement(<span class="string">'script'</span>);</span><br><span class="line">  script.innerHtml = localeStorage.getItem(<span class="string">'scriptpath'</span>);</span><br><span class="line">  <span class="built_in">document</span>.appendChild(script);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用 localeStorage 有以下缺点：大小有限制（同域一般认为 5M 以内）；用户手动清空会使 localeStorage 失效；读取 localeStorage 较慢。</p>
-<h3 id="文件增量更新"><a href="#文件增量更新" class="headerlink" title="文件增量更新"></a>文件增量更新</h3><p>文件增量更新指的是：客户端通过 localeStorage 获取本地缓存资源的版本号，与 html 页面中最新版本号对比，如果本地版本号较小，则加载增量的静态资源，如本地为 1.1.js，远程最新版本为 1.4.js，则增量获取 1.1-1.4.js。有两种机制可以实现文件的增量更新：基于代码分块、基于编辑距离。基于代码分块的思路是，以增量描述说明代码块的变动内容，新增、删除、修改、保持原样；然后根据原文件和增量描述产生新文件。基于编辑距离（Levenshtein Distance）是计算从一个字符串变更到另一个字符串的最少操作步骤，适合于少量字符串变更的文件内容。</p>
-<p>使用文件增量更新机制，有必要埋点统计不同版本号的用户覆盖率。</p>
-<h3 id="native-离线资源"><a href="#native-离线资源" class="headerlink" title="native 离线资源"></a>native 离线资源</h3><p>当用户访问页面，native 首先会检查离线资源包中是否存在本地目录中的文件，然后将其与线上资源对比：如果线上有最新资源，则拉取线上资源并缓存，没有，就使用本地资源。这样当再次访问页面时，WebView 就可以读取本地资源了。</p>
-<h2 id="支付宝-jssdk"><a href="#支付宝-jssdk" class="headerlink" title="支付宝 jssdk"></a>支付宝 jssdk</h2><p><a href="https://gw.alipayobjects.com/as/g/h5-lib/alipayjsapi/3.1.1/alipayjsapi.js" target="_blank" rel="noopener">alipayjsapi</a> 首先添加 <a href="https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE" target="_blank" rel="noopener">es6-promise</a> 垫片。</p>
-<h3 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h3><p>alipayjsapi 通过 addJavascriptInterface 为 window 对象注入 AlipayJSBridge 对象，html5 页面中即可以用如 AlipayJSBridge.call(‘alert’,{message: 12345}) 形式唤起 native 能力。alipayjsapi 另外构造了一个 _JSAPI 对象。_JSAPI 约定了各方法是怎样处理入参、唤起 native 能力、处理出参等的。下面以 redirectTo 说明 _JSAPI 对象的构造：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> _JSAPI = &#123;</span><br><span class="line">  compressImage: &#123;</span><br><span class="line">    b: <span class="function"><span class="keyword">function</span> <span class="title">b</span>(<span class="params">opt</span>) </span>&#123;</span><br><span class="line">      opt.level = __isUndefined(opt.level) ? <span class="number">4</span> : opt.level;</span><br><span class="line">      <span class="comment">// _mapping 将 opt._ 更名为 opt.apFilePaths</span></span><br><span class="line">      <span class="keyword">return</span> _mapping(opt, &#123;</span><br><span class="line">        _: <span class="string">'apFilePaths'</span>,</span><br><span class="line">        level: <span class="string">'compressLevel%d'</span></span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;,</span><br><span class="line">    d: <span class="function"><span class="keyword">function</span> <span class="title">d</span>(<span class="params">_opt, cb</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (__isAndroid()) &#123;</span><br><span class="line">        _JS_BRIDGE.call(<span class="string">'compressImage'</span>, _opt, cb);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// _fakeCallBack 使用定时器直接调用 cb</span></span><br><span class="line">        _fakeCallBack(cb, &#123;</span><br><span class="line">          apFilePaths: _opt.apFilePaths || []</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在 _JSAPI 对象中，每个 api 可能包含以下方法或属性：m，即 mapping 的缩写，指定 native 端实际的接口名；b，即 before 的缩写，前置处理函数，用于转化入参；d，即 doing 的缩写，指定实际的执行流程（在不指定的情况下，将使用 AlipayJSBridge.call 的形式唤起 native 能力）；a，即 after 的缩写，后置处理函数，用于转化出参；e 或者 extra，指定 handleEventData 等扩展字段。在上面一段代码中，compressImage.b 就在转换选项，compressImage.d 就在执行图片压缩操作或不作任何处理。</p>
-<p>在 _JSAPI 的基础上，alipayjsapi 的核心流程即使用 _JSAPI 处理出入参数，再使用 AlipayJSBridge.call 唤起 native 能力；偶然绑定事件。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> AP = &#123;</span><br><span class="line">  call: <span class="function"><span class="keyword">function</span> <span class="title">call</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> args = __argumentsToArg(<span class="built_in">arguments</span>);</span><br><span class="line">    <span class="keyword">if</span> (__isSupportPromise()) &#123;</span><br><span class="line">      <span class="keyword">return</span> AP.ready().then(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(realCall);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">//如果直接加到 ready 事件里会有不触发调用的情况</span></span><br><span class="line">      <span class="comment">//AP.ready(realCall);</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (_isBridgeReady()) &#123;</span><br><span class="line">        realCall();</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//保存在待执行队列</span></span><br><span class="line">        _WAITING_QUEUE.push(args);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">realCall</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">var</span> apiName;</span><br><span class="line">      <span class="keyword">var</span> opt; <span class="comment">//原始 option</span></span><br><span class="line">      <span class="keyword">var</span> cb; <span class="comment">//原始 callback</span></span><br><span class="line">      <span class="keyword">var</span> _opt; <span class="comment">//处理过的 option</span></span><br><span class="line">      <span class="keyword">var</span> _cbSFC; <span class="comment">//不同状态回调</span></span><br><span class="line">      <span class="keyword">var</span> _cb; <span class="comment">//处理过的 callback</span></span><br><span class="line">      <span class="keyword">var</span> onEvt;</span><br><span class="line">      <span class="keyword">var</span> offEvt;</span><br><span class="line">      <span class="keyword">var</span> doingFn;</span><br><span class="line">      <span class="keyword">var</span> logOpt;</span><br><span class="line">      <span class="comment">//强制转为 name + object + function 形式的入参</span></span><br><span class="line">      apiName = args[<span class="number">0</span>] + <span class="string">''</span>;</span><br><span class="line">      opt = args[<span class="number">1</span>];</span><br><span class="line">      cb = args[<span class="number">2</span>];</span><br><span class="line">      <span class="comment">//处理 cb 和 opt 的顺序</span></span><br><span class="line">      <span class="keyword">if</span> (__isUndefined(cb) &amp;&amp; __isFunction(opt)) &#123;</span><br><span class="line">        cb = opt;</span><br><span class="line">        opt = &#123;&#125;;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">//接口有非对象入参，设为快捷入参</span></span><br><span class="line">      <span class="keyword">if</span> (!__isObject(opt) &amp;&amp; args.length &gt;= <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="comment">//before、doing、after 方法中直接取 opt._ 作为参数</span></span><br><span class="line">        opt = &#123;</span><br><span class="line">          _: opt</span><br><span class="line">        &#125;;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">//兜底</span></span><br><span class="line">      <span class="keyword">if</span> (__isUndefined(opt)) &#123;</span><br><span class="line">        opt = &#123;&#125;;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 处理入参，使用 _JSAPI[apiName].b 处理 opt</span></span><br><span class="line">      _opt = _getApiOption(apiName, opt, cb);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 获取回调，_opt 以 success、fail、complete 属性约定回调</span></span><br><span class="line">      _cbSFC = _getApiCallBacks(apiName, _opt);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (__isUndefined(_opt)) &#123;</span><br><span class="line">        <span class="built_in">console</span>.error(<span class="string">'please confirm '</span> + apiName + <span class="string">'.before() returns the options.'</span>);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 获取 _JSAPI[apiName].d 方法</span></span><br><span class="line">      doingFn = _getApiDoing(apiName);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 输出入参</span></span><br><span class="line">      logOpt = __hasOwnProperty(opt, <span class="string">'_'</span>) ? opt._ : opt;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// AP.debug 置为真值时，在控制台打印信息</span></span><br><span class="line">      _apiLog(apiName, logOpt, _opt);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 是否是事件监听，apiName 以 on 起始</span></span><br><span class="line">      onEvt = _getApiOnEvent(apiName);</span><br><span class="line">      <span class="comment">// 是否是事件移除，apiName 以 off 起始</span></span><br><span class="line">      offEvt = _getApiOffEvent(apiName);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 处理回调</span></span><br><span class="line">      _cb = <span class="function"><span class="keyword">function</span> <span class="title">_cb</span>(<span class="params">res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> _res = <span class="keyword">void</span> <span class="number">0</span>;</span><br><span class="line">        res = res || &#123;&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (onEvt &amp;&amp; _getApiExtra(apiName, <span class="string">'handleEventData'</span>) !== <span class="literal">false</span>) &#123;</span><br><span class="line">          _res = _handleEventData(res);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用 _JSAPI[apiName].a 处理结果</span></span><br><span class="line">        _res = _getApiResult(apiName, _res || res, _opt, opt, cb);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (__isUndefined(_res)) &#123;</span><br><span class="line">          <span class="built_in">console</span>.error(<span class="string">'please confirm '</span> + apiName + <span class="string">'.after() returns the result.'</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理错误码及相应，即处理 _res.error 及 res</span></span><br><span class="line">        _res = _handleApiError(apiName, _res);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 打印 debug 日志</span></span><br><span class="line">        _apiLog(apiName, logOpt, _opt, res, _res);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (__hasOwnProperty(_res, <span class="string">'error'</span>) || __hasOwnProperty(_res, <span class="string">'errorMessage'</span>)) &#123;</span><br><span class="line">          <span class="keyword">if</span> (__isFunction(reject)) &#123;</span><br><span class="line">            reject(_res);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (__isFunction(_cbSFC.fail)) &#123;</span><br><span class="line">            _cbSFC.fail(_res);</span><br><span class="line">          &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (__isFunction(resolve)) &#123;</span><br><span class="line">            resolve(_res);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (__isFunction(_cbSFC.success)) &#123;</span><br><span class="line">            _cbSFC.success(_res);</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (__isFunction(_cbSFC.complete)) &#123;</span><br><span class="line">          _cbSFC.complete(_res);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 执行用户的回调</span></span><br><span class="line">        <span class="keyword">if</span> (__isFunction(cb)) &#123;</span><br><span class="line">          cb(_res);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 如果存在 d 直接执行，否则执行 AlipayJSBridge.call</span></span><br><span class="line">      <span class="keyword">if</span> (__isFunction(doingFn)) &#123;</span><br><span class="line">        doingFn(_opt, _cb, opt, cb);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (onEvt) &#123;</span><br><span class="line">        <span class="comment">// 将事件、处理函数等存入 _CACHE.EVENTS</span></span><br><span class="line">        _cacheEventHandler(onEvt, cb, _cb, _cbSFC);</span><br><span class="line">        <span class="comment">// 使用 document.addEventListener 绑定事件</span></span><br><span class="line">        AP.on(onEvt, _cb);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (offEvt) &#123;</span><br><span class="line">        _removeEventHandler(offEvt, cb);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 执行 AlipayJSBridge.call</span></span><br><span class="line">        _JS_BRIDGE.call(_getApiName(apiName), _opt, _cb);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 埋点，发送日志到远程服务器</span></span><br><span class="line">      _apiRemoteLog(apiName);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="埋点"><a href="#埋点" class="headerlink" title="埋点"></a>埋点</h3><p>alipayjsapi 先收集调用的 api，当收集的 api 到 6 个时，再使用定时器上报。alipayjsapi 兜底使用返回按钮的 back 事件上报日志。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> _apiRemoteLog = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> apiInvokeQueue = [];</span><br><span class="line">  <span class="keyword">var</span> timerId = <span class="keyword">void</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">var</span> isTimerActived = <span class="literal">false</span>;</span><br><span class="line">  <span class="comment">//发送日志</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">triggerSendLog</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (apiInvokeQueue.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">var</span> param1 = apiInvokeQueue.join(<span class="string">'|'</span>);</span><br><span class="line">        AP.ready(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">          _JS_BRIDGE.call(<span class="string">'remoteLog'</span>, &#123;</span><br><span class="line">            type: <span class="string">'monitor'</span>,</span><br><span class="line">            bizType: <span class="string">'ALIPAYJSAPI'</span>,</span><br><span class="line">            logLevel: <span class="number">1</span>, <span class="comment">// 1 - high, 2 - medium, 3 - low</span></span><br><span class="line">            actionId: <span class="string">'MonitorReport'</span>,</span><br><span class="line">            seedId: <span class="string">'ALIPAYJSAPI_INVOKE_COUNTER'</span>,</span><br><span class="line">            param1: param1</span><br><span class="line">          &#125;);</span><br><span class="line">        &#125;);</span><br><span class="line">        AP.debug &amp;&amp; <span class="built_in">console</span>.info(<span class="string">'REMOTE_LOG_QUEUE&gt;'</span>, apiInvokeQueue);</span><br><span class="line">        apiInvokeQueue = [];</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">// 停止计时器</span></span><br><span class="line">      clearTimer();</span><br><span class="line">    &#125;, <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 计时器</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">timer</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 计时激活标致</span></span><br><span class="line">    isTimerActived = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// 启动计时器</span></span><br><span class="line">    timerId = setTimeout(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// 日志发送</span></span><br><span class="line">      triggerSendLog();</span><br><span class="line">    &#125;, <span class="number">5000</span>); <span class="comment">// 5 秒上报</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 清除计时器</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">clearTimer</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    !__isUndefined(timerId) &amp;&amp; clearTimeout(timerId);</span><br><span class="line">    isTimerActived = <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// back 事件上报日志，作为兜底</span></span><br><span class="line">  AP.on(<span class="string">'back'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    triggerSendLog();</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params">apiName</span>) </span>&#123;</span><br><span class="line">    apiInvokeQueue.push(apiName);</span><br><span class="line">    <span class="comment">// 6 个上报</span></span><br><span class="line">    <span class="keyword">if</span> (apiInvokeQueue.length &gt;= <span class="number">6</span>) &#123;</span><br><span class="line">      triggerSendLog();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!isTimerActived) &#123;</span><br><span class="line">      timer();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《现代前端技术解析》 —— 张成文</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1921,7 +1928,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">99</span>
+                    <span class="site-state-item-count">100</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

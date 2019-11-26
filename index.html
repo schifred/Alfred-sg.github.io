@@ -524,8 +524,20 @@
 <li>使用 WWW-Authenticate、Authenticate 作基本认证。当服务器接收到一个缺少凭证请求，返回 WWW-Authenticate 响应头；接收响应的浏览器就会弹出模拟窗口，促使用户输入用户名和密码；用户名和密码又会以 base64 编码，并作为 Authenticate 请求头的内容，发送到服务器；等认证成功后，服务器就会返回一个正常的响应。基本认证允许用户将凭证内嵌在 URL 或命令行客户端中，形式如 Wget 或 cURL，具体的值如 <a href="http://username:password@www.example.com，那么凭证会自动转换成" target="_blank" rel="noopener">http://username:password@www.example.com，那么凭证会自动转换成</a> Authenticate 头。基本认证可以使用 https 协议提高安全性。</li>
 <li>摘要认证。首先客户端发起请求，服务端返回 WWW-Authenticate 响应头中会包含 algorithm（创建哈希值的算法，”MD5” 或 “MD5-sess”）、qop（保护的质量，”auth” 或 “auth-int” 或 “auth,auth-int）、opaque（随机字符串数据，作完整性校验）、nonce（服务器随机数，在两个 401 响应之间永远不会重复，客户端需要发送相同的随机数）。然后客户端再次发送请求，Authenticate 请求头中会包含 algorithm、qop、opaque、nonce 以及 username、uri、nc、cnonce（期望值，每次请求都会重新生成，且不能与 nc 重复）、response。当服务端接受到请求时，将重新计算所有的哈希值，如果最后的哈希值能匹配 response 参数中的值时，认证就通过了。nc、cnonce 在每次发送的请求均会不同，这样可以阻止重放，避免被黑客获知信息。</li>
 <li>windows 认证，即使用 windows 域控制器进行验证。IE、Chrome 支持 windows 验证。这一技术已过时，这里列举的目的在于可以使用终端凭证验证用户。</li>
+<li>客户端证书认证，最安全的认证协议之一。首先在注册（通常是创建用户名和密码）时，服务器将告知浏览器生成公钥和私钥，浏览器存储私钥，将公钥发送给服务器。自此之后，公钥可以作为服务器识别浏览器的标识，且浏览器会使用私钥对通信进行签名。服务器接收到 https 请求后，将使用服务器 SSL 证书标识自身，并将自己的公钥和使用私钥签名的数据发送给浏览器。</li>
+<li>智能卡，就是一个特殊的集成电路，如 ID 卡或磁性员工卡。</li>
+<li>生物识别，就是使用指纹、声纹、虹膜扫描、DNA 或用户的其他生物身份去认证用户。</li>
+<li>基于声明的认证，如 OAuth、SAML 协议都基于声明的认证机制。用户在访问应用时，应用将重定向到 Auth URL，然后用户携带凭证访问第三方认证提供者（如登录），第三方提供者将提供令牌给用户；用户再携带令牌访问应用，应用会将令牌发送给第三方认证机构作验证，通过认证后便能获取到应用上的资源。基于声明的认证将在下文详解。</li>
+<li>多因素认证，即在以上认证的基础上，添加随机数验证（如手机校验码）等手段。</li>
 </ul>
-<p><a href="http://www.zijin.net/news/tech/1190163.html" target="_blank" rel="noopener">Spring高级篇—Spring Security入门原理及实战</a></p>
+<p>权限模型通常基于活动（用户可操作行为）、角色（用户可操作行为集）、用户组（某类用户可操作行为），阿里的 ACL 权限模型即基于此设计。详细内容另作专题剖析。java.security.Principal 接口可用于实现鉴权操作。当用户通过认证后，程式将用户身份标识存入 Principal 中，应用代码就可以通过检查 Principal（存在于安全上下文中）包含的标识来判断用户是否通过了认证。Principal 也可以保存用户被授权操作的活动，应用代码就可以通过检查 Principal 获得用户的可执行行为。基于声明的授权指的是由第三方认证用户的身份，再由应用识别用户的权限。</p>
+<h2 id="Spring-Security"><a href="#Spring-Security" class="headerlink" title="Spring Security"></a>Spring Security</h2><p>Spring Security 提供了认证和授权服务。Spring Security 主要基于配置，也可以自定义操作行为（拦截操作等）；同时它既能对接 JDBC 或自己的服务或仓库，也能使用内建的系统如 CAS、JAAS、LDAP、OpenID 鉴权。Spring Security 主要有以下三个接口：</p>
+<ul>
+<li>Authentication：扩展自 Principal，包含 getIdentity 方法返回一个代表 Principal 标识的 Object（通常是用户名）；getCredentials 方法返回用于验证用户身份的凭证（只在认证过程中使用，认证结束后被擦除）；isAuthenticated 方法返回是否通过认证；setAuthenticated 修改认证结果（通常也只在认证过程中使用）。</li>
+<li>GrantedAuthentication：用以判断用户包含的角色、权限信息。Authentication 接口中的 getAuthorities 方法可用于获取用户的 GrantedAuthentication。</li>
+<li>AuthenticationProvider：认证服务的提供者，包含 authenticate 方法以未认证的 Authentication 作为参数，该方法将把 Authentication 标识为已认证，并返回已认证的但完全不同的 Authentication。</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.zijin.net/news/tech/1190163.html" target="_blank" rel="noopener">Spring高级篇—Spring Security入门原理及实战</a><br><a href="https://www.jianshu.com/p/e715cc993bf0" target="_blank" rel="noopener">Spring Boot Security 详解</a></p>
 
           
         

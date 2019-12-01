@@ -270,6 +270,164 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Layout/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/25/antd/Layout/" itemprop="url">Layout 布局</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-25T00:00:00+08:00">2018-11-25</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/25/antd/Layout/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/25/antd/Layout/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>antd 提供 Layout, Header, Sider, Content, Footer 组件用于划定页面布局。实现上，侧边栏 Sider 组件比较特殊，将在第一部分加以介绍；其余组件均将在第一部分加以介绍。</p>
+<h2 id="Layout"><a href="#Layout" class="headerlink" title="Layout"></a>Layout</h2><p>布局容器 Layout, 顶部布局 Header, 内容部分 Content, 底部布局 Footer 在实现上大体相当：都是通过 generator(props) = BasicComponent =&gt; Adapter 创建高阶组件 Adapter，再由该高阶组件将 props.prefixCls 注入到 BasicComponent 中。</p>
+<p>作为 Layout 组件的 BasicComponent，BasicLayout 组件以 state.siders 记录侧边栏的 id，并允许在子组件中使用 context.siderHook 添加或移除侧边栏，其意义是触发 BasicLayout 组件重绘并判断是否需要添加 .ant-layout-has-sider 样式类。作为 Header, Content, Footer 组件的 BasicComponent，Basic 组件只用于拼接 props.prefixCls, props.className，以构成新的样式类。</p>
+<p>Header, Sider, Content, Footer 组件只能作为 Layout 的子组件这一特征，由 less 文件约定，即如果当上述组件不作为 Layout 的子组件时，其样式将得不到正常展示。</p>
+<h2 id="Sider"><a href="#Sider" class="headerlink" title="Sider"></a>Sider</h2><p>侧边栏 Sider 组件用于设定布局，其内容可由 <a href="https://ant.design/components/menu-cn/" target="_blank" rel="noopener">Menu 组件</a> 绘制。在 componentDidMount, componentWillUnmount 生命周期中，侧边栏组件也将通过 context.siderHook.addSider, context.siderHook.removeSider 方法，以添加或移除 Layout 容器中记录的侧边栏 id。侧边栏组件既可以根据折叠状态切换按钮展开或折叠（通过 props.collapsible 或 props.collapsedWidth = 0 开启）；也可以根据屏幕尺寸响应式展开或折叠（通过 props.breakpoint 属性开启），其实现借助 window.matchMedia 方法。子组件可通过 context.siderCollapsed 获得侧边栏的展开和折叠状态。以下是响应式展开或折叠功能的实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// matchMedia polyfill for</span></span><br><span class="line"><span class="comment">// https://github.com/WickyNilliams/enquire.js/issues/82</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="built_in">window</span> !== <span class="string">'undefined'</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> matchMediaPolyfill = <span class="function">(<span class="params">mediaQuery: string</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      media: mediaQuery,</span><br><span class="line">      matches: <span class="literal">false</span>,</span><br><span class="line">      addListener() &#123;</span><br><span class="line">      &#125;,</span><br><span class="line">      removeListener() &#123;</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="built_in">window</span>.matchMedia = <span class="built_in">window</span>.matchMedia || matchMediaPolyfill;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sider</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span>&lt;<span class="title">SiderProps</span>, <span class="title">SiderState</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(props: SiderProps) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> matchMedia;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="built_in">window</span> !== <span class="string">'undefined'</span>) &#123;</span><br><span class="line">      matchMedia = <span class="built_in">window</span>.matchMedia;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (matchMedia &amp;&amp; props.breakpoint &amp;&amp; props.breakpoint <span class="keyword">in</span> dimensionMap) &#123;</span><br><span class="line">      <span class="keyword">this</span>.mql = matchMedia(<span class="string">`(max-width: <span class="subst">$&#123;dimensionMap[props.breakpoint]&#125;</span>)`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.mql) &#123;</span><br><span class="line">      <span class="keyword">this</span>.mql.addListener(<span class="keyword">this</span>.responsiveHandler);</span><br><span class="line">      <span class="keyword">this</span>.responsiveHandler(<span class="keyword">this</span>.mql);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  responsiveHandler = <span class="function">(<span class="params">mql: MediaQueryListEvent | MediaQueryList</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.setState(&#123; <span class="attr">below</span>: mql.matches &#125;);</span><br><span class="line">    <span class="keyword">const</span> &#123; onBreakpoint &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (onBreakpoint) &#123;</span><br><span class="line">      onBreakpoint(mql.matches);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.state.collapsed !== mql.matches) &#123;</span><br><span class="line">      <span class="keyword">this</span>.setCollapsed(mql.matches, <span class="string">'responsive'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setCollapsed = <span class="function">(<span class="params">collapsed: boolean, type: CollapseType</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!(<span class="string">'collapsed'</span> <span class="keyword">in</span> <span class="keyword">this</span>.props)) &#123;</span><br><span class="line">      <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">        collapsed,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> &#123; onCollapse &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">    <span class="keyword">if</span> (onCollapse) &#123;</span><br><span class="line">      onCollapse(collapsed, type);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>侧边栏组件的断点 props.breakpoint 包含五种可能：xs 为 480px；sm 为 576px；md 为 768px；lg 为 992px；xl 为 1200px；xxl 为 1600px。当设置了 props.breakpoint 时，就能实现响应式展开与折叠功能。</p>
+<p>当 props.collapsedWidth 设置为 0，折叠状态切换按钮为 bars 类型。默认的折叠状态切换按钮为 left 或 right 类型。此外，可以使用 props.trigger 设置自定义折叠状态切换按钮。</p>
+<p>侧边栏的主题样式通过设置样式类实现，如 ant-layout-sider-light。</p>
+<p>侧边栏组件使用 <a href="https://github.com/reactjs/react-lifecycles-compat" target="_blank" rel="noopener">react-lifecycles-compat</a> 封装，以在低版本的 react 中书写 static getDerivedStateFromProps, getSnapshotBeforeUpdate 生命周期方法。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/17/css/less 使用指南/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2132,621 +2290,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/11/工程化/前端构建工具dawn/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/11/工程化/前端构建工具dawn/" itemprop="url">前端构建工具 dawn 不完全解密</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-11T00:00:00+08:00">2018-09-11</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/09/11/工程化/前端构建工具dawn/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/09/11/工程化/前端构建工具dawn/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>dawn 是一个采用中间件技术实现的轻量的任务流协调器，它和 gulp, grunt 有异曲同工之妙。dawn 本身并不处理任务，转而交由中间件承担这一职能，如同 gulp, grunt 插件。在实现上，dawn 是 webpack 出台后的产物，就不需要像 gulp, grunt 那样关注任务流的始点 —— 文件位置，而更容易聚焦于任务的分解，将编译、压缩作业交给 dn-middleware-webpack 中间件。若说 gulp 中的任务流是鱼跃似的，一个跟着另一个，那么，dawn 通过 ctx 上下文使得两个任务之间可以借助事件或实例属性进行通信。dawn 的中间件实现机制如同 koa，其一使用 next 引用下一个中间件串联任务流，其二以继承事件模型的 ctx 实例作为上下文。其核心代码如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Context</span> <span class="keyword">extends</span> <span class="title">EventEmitter</span> </span>&#123;</span><br><span class="line">  <span class="keyword">async</span> _execQueue(middlewares, args, onFail) &#123;</span><br><span class="line">    <span class="keyword">const</span> middleware = middlewares.shift();</span><br><span class="line">    <span class="keyword">if</span> (!middleware) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this.load 安装中间件，并执行中间件的外层函数，获得实际的任务逻辑 handler</span></span><br><span class="line">    <span class="keyword">const</span> handler = <span class="keyword">await</span> <span class="keyword">this</span>.load(middleware);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> next = <span class="function">(<span class="params">args</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// 若返回真值，在 watch 状态下，也只执行一次</span></span><br><span class="line">      <span class="keyword">if</span> (next.__result) <span class="keyword">return</span> next.__result;</span><br><span class="line"></span><br><span class="line">      next.__result = <span class="keyword">this</span>._execQueue(middlewares, args, onFail)</span><br><span class="line">        .catch(<span class="function"><span class="params">err</span> =&gt;</span> onFail(err));</span><br><span class="line">      <span class="keyword">return</span> next.__result;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">return</span> handler.call(<span class="keyword">this</span>, next, <span class="keyword">this</span>, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>因为 dawn 是一个任务流协调器，使得它就像一架航母，其能力仰赖于战斗机群 —— 由丰富的中间件、模板构成的生态系统。第一，这样使得 dawn 更着眼于为开发团队提供服务（两者呈互为因果的关系）。dawn 内建了复合远程配置的功能。不少公司会有私有的 npm 仓库，开发的 dn 中间件、模板先期都会在这些私有仓库中发展成形。借助于 dn config registry <a href="http://your_server_url" target="_blank" rel="noopener">http://your_server_url</a> 命令，dawn 安装中间件时会从这些私有仓库中拉取中间件或模板。对于配置文件，借助于 dn config server <a href="http://your_server_url" target="_blank" rel="noopener">http://your_server_url</a> 命令，dawn 也会从私有服务器中拉取远程配置，并与本地配置合并。如此，既能保有模板的闭源特征，又能实现配置文件的复用。扯开一个话题，使用 .yml 文件配置选项、将配置文件存于远端，这和我稍有耳闻的 spring boot 项目有些相仿。</p>
-<p>第二，为了开发中间件的方便，ctx 必然需要提供大而全的功能。以下简要地展示 ctx 提供的 api 列表：</p>
-<ul>
-<li>cli: 命令行 Command 实例。</li>
-<li>command: 当前执行的命令，如 init, dev, build 等。</li>
-<li>pipeline: 当前命令实际所用中间件列表。</li>
-<li>cwd: 项目路径。</li>
-<li>project: 项目 package.json 文件内容。</li>
-<li>middlewareMgr: 中间件管理器，用于查询私有中心的中间件列表，或者安装中间件。</li>
-<li>templateMgr: 模板管理器，用于查询私有中心的模板列表，或者文件重命名，或者下载模板。</li>
-<li>conf: rc配置管理器，用于获取本地或远程 rc 配置，或者设置 rc 配置，默认获取 .dawnrc 文件。</li>
-<li>console: 命令行编辑器 console。</li>
-<li>inquirer, utils.inquirer : 命令行交互接口，即 inquirer 类库。</li>
-<li>utils.exec(script, opts): 执行 script 命令，返回 promise；utils.exec.withResult(script, opts) 等待并返回执行结果。</li>
-<li>utils.writeFile(filename, content): 写文件，返回 promise。</li>
-<li>utils.readFile(filename): 读文件，返回 promise。</li>
-<li>utils.del: 删除文件，返回 promise。</li>
-<li>utils.mkdirp: 创建目录，返回 promise。</li>
-<li>download: fetch 响应。</li>
-<li>sleep: 延时执行。</li>
-<li>prompt: 使用 inquirer.prompt 在命令行编辑器创建引导式交互界面。</li>
-<li>utils.mod: 模块管理器，用于执行 npm 命令，或者安装依赖，或者下载模板（缓存在计算机的特定位置），或者获取 npm 包信息。</li>
-<li>utils.open: 打开浏览器，即 react-dev-utils/openBrowser 模块。</li>
-<li>utils.oneport: 获取一个空闲的端口，即 oneport 类库。</li>
-<li>utils.fetch: fetch 响应。</li>
-<li>utils.yaml: 通过 js-yaml 类库解析或编译 .yml 文件格式数据。</li>
-<li>utils.globby: 通过匹配规则获取文件路径，即 <a href="https://github.com/sindresorhus/globby" target="_blank" rel="noopener">globby 类库</a>。</li>
-<li>utils.confman: 配置文件加载器，即 <a href="https://github.com/Houfeng/confman" target="_blank" rel="noopener">confman 类库</a></li>
-<li>utils.streamToBuffer, utils.stream2buffer: 将可读流转化成 字符串或 buffer，返回 promise。</li>
-<li>utils.bufferToStream, utils.buffer2stream: 将字符串或 buffer 转化成可读流，返回 promise。</li>
-<li>utils.copydir: 拷贝文件夹，返回 promise。</li>
-<li>utils.findCommand(dirname, command): 获取执行脚本文件。</li>
-<li>load(opts): 加载中间件，并执行外层函数。</li>
-<li>exec(middlewares, initailArgs): 构建任务流，可用于在中间件中构建子任务流。</li>
-</ul>
-<h2 id="常用中间件"><a href="#常用中间件" class="headerlink" title="常用中间件"></a>常用中间件</h2><h3 id="dn-middleware-webpack"><a href="#dn-middleware-webpack" class="headerlink" title="dn-middleware-webpack"></a>dn-middleware-webpack</h3><p>概述：基于 webpack3 实现的中间件，打包模块。本地开发模式也将打包模块，而不是读取 webpack 缓存数据。</p>
-<p>奥妙：</p>
-<ol>
-<li>dn-middleware-webpack 在回调中执行后续中间件的处理逻辑。</li>
-<li>通过 vmodule-webpack-plugin 插件将 config.yml 类配置文件注入为可以 import 引入的虚拟模块。</li>
-<li>ctx 中添加 webpack 属性，即 webpack 类库。</li>
-</ol>
-<p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>config</td>
-<td>不同环境通过加载配置文件的模块名和文件路径，使用 <a href="https://github.com/Houfeng/vmodule-webpack-plugin" target="_blank" rel="noopener">vmodule-webpack-plugin</a> 创建虚拟模块</td>
-<td>{ name: ‘$config’, path: ‘./config’ }</td>
-</tr>
-<tr>
-<td>configFile</td>
-<td>webpack 配置文件路径，配置文件导出函数有效</td>
-<td>‘./webpack.config.js’</td>
-</tr>
-<tr>
-<td>mode</td>
-<td>模式</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>entry</td>
-<td>入口文件</td>
-<td>[‘./src/*.{js,jsx,ts,tsx}’]</td>
-</tr>
-<tr>
-<td>inject</td>
-<td>注入模板中的公用入口文件</td>
-<td>[‘./src/*.{js,jsx,ts,tsx}’]</td>
-</tr>
-<tr>
-<td>template</td>
-<td>模板文件，模板会加载同名的入口文件</td>
-<td>[‘./src/assets/*.html’]</td>
-</tr>
-<tr>
-<td>output</td>
-<td>打包文件目录</td>
-<td>‘./build/‘</td>
-</tr>
-<tr>
-<td>publicPath</td>
-<td>浏览器端访问打包文件的路径</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>folders</td>
-<td>不同文件类型的打包目录</td>
-<td>{ js: ‘js’, css: ‘css’, img: ‘img’, font: ‘font’, html: ‘’ }</td>
-</tr>
-<tr>
-<td>chunkFilename</td>
-<td>懒加载模块名</td>
-<td>‘chunks/[name]-[chunkhash].js’</td>
-</tr>
-<tr>
-<td>umd</td>
-<td>值为对象时，混合到 webpackConfig.output 配置中</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>external</td>
-<td>是否使用外部扩展</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>externals</td>
-<td>外部扩展</td>
-<td>{ ‘jquery’: ‘jQuery’, ‘zepto’: ‘Zepto’, ‘react’: ‘React’, ‘react-dom’: ‘ReactDOM’ }</td>
-</tr>
-<tr>
-<td>sourceMap</td>
-<td>是否生成 source map，开发环境默认生成，false 时不生成；打包时置为 true 才生成</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>watch</td>
-<td>是否使用 webpack 监听文件变更，执行 compiler.watch 或 compiler.run 的差别</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>watchOpts</td>
-<td>watch 配置</td>
-<td>{ aggregateTimeout: 600, ignored: /node_modules/ }</td>
-</tr>
-<tr>
-<td>babel</td>
-<td>babel-loader 选项相关，参见下文</td>
-<td></td>
-</tr>
-<tr>
-<td>rules</td>
-<td>配置额外的加载器，默认加载器包含 babel-loader, vue-loader, json-loader, raw-loader, ejs-loader, url-loade, css-loader, less-loader, fast-sass-loader，可加载的文件可想而知</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>cssModules</td>
-<td>是否使用 css modules</td>
-<td>undefined</td>
-</tr>
-</tbody>
-</table>
-<p>babel 选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>presets</td>
-<td>配置额外的 presets，默认包含 ‘babel-preset-env’, ‘babel-preset-react’, ‘babel-preset-stage-0’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>plugins</td>
-<td>配置额外的 plugins，默认包含 ‘babel-plugin-typecheck’, ‘babel-plugin-transform-decorators-legacy’, ‘babel-plugin-transform-runtime’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>targets</td>
-<td>作用于 ‘babel-preset-env’，设定编译后脚本的适配环境</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>browsers</td>
-<td>适配的浏览器环境，默认适配 [ ‘last 2 versions’, ‘IE &gt;= 9’ ]</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>uglify</td>
-<td>targets 中属性，使用 uglify.js 压缩脚本前是否已编译成 es5，默认是，false 为否</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>include</td>
-<td>作用于 ‘babel-preset-env’，设定包含的插件</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>exclude</td>
-<td>作用于 ‘babel-preset-env’，设定移除的插件</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>loose</td>
-<td>作用于 ‘babel-preset-env’，是否允许插件启用 “loose” 转换，默认为否</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>modules</td>
-<td>作用于 ‘babel-preset-env’，将es6模块语法转换为何种模块规范语法，默认为 ‘commonjs’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>useBuiltIns</td>
-<td>作用于 ‘babel-preset-env’，是否自动引入 ‘babel-ployfill’，默认使用时引入</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>spec</td>
-<td>作用于 ‘babel-preset-env’，是否允许插件启用 “spec” 转换，更符合规范，编译较慢，默认为 false</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>debug</td>
-<td>作用于 ‘babel-preset-env’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>react</td>
-<td>是否使用 ‘babel-preset-react’，默认使用，false 时不使用</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform</td>
-<td>作用于 ‘babel-plugin-transform-runtime’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform.helpers</td>
-<td>是否内置 classCallCheck, extends 等，默认内置</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform.polyfill</td>
-<td>是否内置 Promise, Set, Map, Symbol 等，默认内置</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform.regenerator</td>
-<td>是否内置生成器函数，async 函数，默认内置</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform.moduleName</td>
-<td>模块名，import 导入需要，默认为 ‘babel-runtime’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>transform.useBuiltIns</td>
-<td>默认自动引入</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>addExports</td>
-<td>影响 ‘babel-plugin-add-module-exports’ 插件的使用（该插件可在模块转换成 common.js，无需从default 属性中取出模块导出内容），false 时不使用 ‘babel-plugin-add-module-exports’</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>strict</td>
-<td>影响 ‘babel-plugin-transform-remove-strict-mode’ 插件的使用，true 时不使用</td>
-<td>undefined</td>
-</tr>
-</tbody>
-</table>
-<p>事件：</p>
-<ul>
-<li>‘webpack.opts’，可用于修改 opts 配置项，参数 opts。</li>
-<li>‘webpack.config’，可用于修改注入 webpack 的 config 配置，参数 config, webpack, opts。</li>
-<li>‘webpack.compiler’，操纵 webpack 的编译器，参数 compiler。</li>
-<li>‘webpack.stats’，可用于监控编译状态，参数 stats。</li>
-</ul>
-<h3 id="dn-middleware-server"><a href="#dn-middleware-server" class="headerlink" title="dn-middleware-server"></a>dn-middleware-server</h3><p>概述：基于 <a href="https://github.com/nokitjs/nokit" target="_blank" rel="noopener">nokit</a>，启动本地服务。首次执行时将在项目空间创建 server.yml 配置文件。</p>
-<p>奥妙：</p>
-<ol>
-<li>在 nokit 服务器中设置拦截器，通过 <a href="https://github.com/nodejitsu/node-http-proxy" target="_blank" rel="noopener">httpProxy</a> 转发请求。</li>
-<li>ctx 中添加 server 属性，即 nokit.Server 实例；以及 httpServer 属性，即 server.httpServer。</li>
-</ol>
-<p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>host</td>
-<td>主机，影响自动访问的页面地址</td>
-<td>‘<a href="http://localhost&#39;" target="_blank" rel="noopener">http://localhost&#39;</a></td>
-</tr>
-<tr>
-<td>config</td>
-<td>配置文件路径，作为 nokit 服务器的配置文件路径，默认读取 server.yml</td>
-<td>‘server’</td>
-</tr>
-<tr>
-<td>public</td>
-<td>浏览器端访问资源文件的路径</td>
-<td>‘./build’</td>
-</tr>
-<tr>
-<td>port</td>
-<td>端口，默认使用 ctx.oneport 检测空闲的端口</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>autoOpen</td>
-<td>是否自动访问网页，false 时为否</td>
-<td>undefined</td>
-</tr>
-</tbody>
-</table>
-<p>server.yml 中 proxy 支持配置选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>rules</td>
-<td>转发路径匹配规则，如 ^/api(.*): ‘<a href="https://www.aliyun.com/&#39;" target="_blank" rel="noopener">https://www.aliyun.com/&#39;</a></td>
-<td>{}</td>
-</tr>
-<tr>
-<td>options</td>
-<td>作为 Proxy Server 的选项</td>
-<td>{ xfwd: true, changeOrigin: true }</td>
-</tr>
-<tr>
-<td>headers</td>
-<td>设置代理请求的 header 头，如 Referer: ‘<a href="https://www.aliyun.com/&#39;" target="_blank" rel="noopener">https://www.aliyun.com/&#39;</a> 可携带 cookie</td>
-<td>undefined</td>
-</tr>
-</tbody>
-</table>
-<p>事件：</p>
-<ul>
-<li>‘server.init’，服务未启动时事件，参数 server 实例。</li>
-<li>‘server.start’，服务启动成功时事件，参数 server 实例。</li>
-</ul>
-<h3 id="dn-middleware-dll"><a href="#dn-middleware-dll" class="headerlink" title="dn-middleware-dll"></a>dn-middleware-dll</h3><p>概述：独立构建项目依赖，节省打包时间。</p>
-<p>奥妙：</p>
-<ol>
-<li>借助 ctx.exec 方法执行 webpack 中间件，打包项目的依赖，默认存放在工程目录 .cache 文件夹内。子文件夹名基于项目所使用的依赖通过 md5 生成散列，以便在依赖更新时重新打包。再借助 ctx.exec 方法执行 copy 中间件，将打包文件拷贝到 build/js 文件夹内。</li>
-<li>通过 ‘webpack.config’ 事件，在 webpackConfig 插件中注入 webpack.DllReferencePlugin 插件。</li>
-</ol>
-<p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>output</td>
-<td>打包文件输出位置</td>
-<td>‘build/js’</td>
-</tr>
-<tr>
-<td>libName</td>
-<td>打包文件名</td>
-<td>‘lib’</td>
-</tr>
-<tr>
-<td>compress</td>
-<td>是否压缩打包文件，默认压缩，false 时不压缩</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>vendors</td>
-<td>待打包模块列表，默认为 package.json 中依赖</td>
-<td>undefined</td>
-</tr>
-</tbody>
-</table>
-<h3 id="dn-middleware-faked"><a href="#dn-middleware-faked" class="headerlink" title="dn-middleware-faked"></a>dn-middleware-faked</h3><p>概述：基于 <a href="https://github.com/Houfeng/faked" target="_blank" rel="noopener">faked</a> 提供数据模拟服务。</p>
-<p>奥妙：</p>
-<ol>
-<li>基于 faked 创建 gui server 服务器，配置的模拟数据将输出到工程目录 mock 文件夹中 index.js, gui.data.json。</li>
-<li>模拟数据文件最终将作为 webpack 入口文件，以此实现远程请求的拦截，并实现热更新。</li>
-<li>执行逻辑被封装为 ctx.faked.apply 方法，在 dn-middleware-webpack 中执行，两个中间件耦合度较高。</li>
-</ol>
-<p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>dir</td>
-<td>打包文件输出位置</td>
-<td>‘mock’</td>
-</tr>
-<tr>
-<td>port</td>
-<td>gui server 服务启动的端口号，默认使用 this.utils.oneport 检出</td>
-<td>undefined</td>
-</tr>
-<tr>
-<td>gui</td>
-<td>禁用 gui server 服务</td>
-<td>‘build/js’</td>
-</tr>
-</tbody>
-</table>
-<h3 id="dn-middleware-i18n"><a href="#dn-middleware-i18n" class="headerlink" title="dn-middleware-i18n"></a>dn-middleware-i18n</h3><p>概述：将工程目录中 locales 语言包加载为 $locales 模块，通过 $i18n 获取指定模块，实现国际化。</p>
-<p>奥妙：</p>
-<ol>
-<li>使用 confman.webpackPlugin 方法将工程目录中的语言包输出为 $locales 虚拟模块。</li>
-<li>使用 vmodule-webpack-plugin 类库输出 $i18n 虚拟模块，以获取指定文案。</li>
-</ol>
-<p>选项：</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>意义</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>dir</td>
-<td>语言包所在位置</td>
-<td>‘./locales’</td>
-</tr>
-<tr>
-<td>extract</td>
-<td>指定将语言包输出为单独的 js 资源的文件夹路径，默认不输出单独的脚本</td>
-<td>null</td>
-</tr>
-</tbody>
-</table>
-<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
-<li>dn-middleware-clean，清理文件或目录，可用 opts.target 加以配置，默认清理 ‘./build/*<em>/</em>.*’。</li>
-<li>dn-middleware-copy，复制文件。选项 from 查询源文件的文件夹路径，默认 ‘./from’; to 目标文件夹路径; log 是否打印日志; dot 源文件匹配规则是否支持 ‘.’ 起始; direction 影响映射 key 键指代源文件还是目标文件; files 源文件和目标文件映射，目标文件路径支持占位符 {index} 替换（index 自右而左），或使用源文件路径（映射中，目标文件以 ‘/‘ 结尾）。</li>
-<li>dn-middleware-browser-sync 基于 ‘browser-sync’ 监听打包文件变更，借助 ‘connect-browser-sync’ express中间件实现热更新。选项 files 配置监听的文件，默认 [‘./build/*<em>/</em>.*’]；port 为 ‘browser-sync’ 服务启动端口，默认 5001。</li>
-<li>dn-middleware-git-sync，git 操作，包含 commit, push 动作（push 又区分日常和预发环境）。</li>
-<li>dn-middleware-jcs，在 babel-loader 中添加 ‘jsx-control-statements’ 插件，以使 jsx 可使用结构控制语句，同时 lint 阶段也会作代码检查，参考 <a href="https://zhuanlan.zhihu.com/p/28519304" target="_blank" rel="noopener">通过 JSX Control Statements 编写 JSX</a>。</li>
-<li>dn-middleware-lint，使用 eslint 命令作语法检查。</li>
-<li>dn-middleware-tslint，对 typescript 进行语法检查。</li>
-<li>dn-middleware-typedoc，使用 typedoc 为 typescript 项目生成文档。</li>
-<li>dn-middleware-typescript，在 webpackConfig 中添加 awesome-typescript-loader，支持编译 tsx 模块。选项 declaration 是否分离 ts, js 文件，默认分离，false 时不分离。</li>
-<li>dn-middleware-pkginfo，更新项目 package.json 中的 name, version, description 信息。</li>
-<li>dn-middleware-prepush，在 .git/hooks/pre-push 添加 shell 命令，推送前执行 dn build 命令。</li>
-<li>dn-middleware-sensitive-path，在 webpackConfig 中添加 ‘case-sensitive-paths-webpack-plugin’ 插件，使 mac, windows 引入模块时严格区分模块的大小写。</li>
-<li>dn-middleware-shell，调用 ctx.utils.exec 执行 shell 命令。选项 script 命令内容；wscript 为 windows 系统下命令内容；async 是否异步执行，默认同步。</li>
-<li>dn-middleware-watch，基于 ‘chokidar’ 监听执行文件变更。选项 match 匹配的文件，默认为 ‘./src/*<em>/</em>.*’；event 监听的事件类型；script 事件发生后执行的脚本；onChange 事件发生后执行的动作。</li>
-<li>dn-middleware-unit，基于 ‘mocha’ 对 ./test/unit 文件夹中内容作单元测试。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2796,7 +2339,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">107</span>
+                    <span class="site-state-item-count">108</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

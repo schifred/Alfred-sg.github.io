@@ -270,6 +270,176 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/07/react/react相关/浅析react-transition-group源码/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/07/react/react相关/浅析react-transition-group源码/" itemprop="url">浅析react-transition-group源码</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-07T23:19:17+08:00">2018-02-07</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/07/react/react相关/浅析react-transition-group源码/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/02/07/react/react相关/浅析react-transition-group源码/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="react-transition-group-1-版本回顾"><a href="#react-transition-group-1-版本回顾" class="headerlink" title="react-transition-group 1 版本回顾"></a>react-transition-group 1 版本回顾</h2><p>react-transition-group 1 版本在子组件创建、删除过程通过添加 class 控制 css 动效。</p>
+<p>介于 css transition 动效在元素添加到页面过程就会执行，因此这个过程无需调控动效的执行。而当有元素被移除时，我们需要容器组件驻留被删除的子组件，等到动效执行完成后，才实际删除该子组件。</p>
+<p>针对这一问题，react-transition-group 提供了 TransitionGroup 容器组件。其 state.children 属性为实际待绘制的组件，当组件更新时，通过比对 state.children, props.children，就可以获知新增了哪些组件、移除了哪些组件（用户配置的子组件通过 key 键存储成映射结构）。当子组件被移除时，触发 performLeave 方法，以调用子组件的 componentWillLeave 方法添加样式类、执行动效；再通过 componentWillLeave 方法的回调函数，更新 TransitionGroup 容器的 state.children，触发子组件的实际移除行为。</p>
+<p>当采用上述逻辑处理子组件的移除动效时，为着处理逻辑的统一，react-transition-group 针对 componentDidMount 或 componentDidUpdate 时创建的子组件也采用相同的处理逻辑。子组件的钩子函数 componentWillAppear, componentDidAppear, componentWillEnter, componentDidEnter, componentWillLeave, componentDidLeave 将分别得到执行。当独立使用  TransitionGroup 容器时，我们可以借助这些钩子函数操控节点的样式以触发 css 动效，或者组织 js 动效，或者实现懒加载等等。</p>
+<p>在 TransitionGroup 容器的基础上，CSSTransitionGroupChild 组件用于装饰子组件，在 componentWillAppear 等钩子函数添加样式类以执行 css 动效，通过 setTimeout 或 transitionEnd 事件更新 TransitionGroup 容器的 state.children 属性。CSSTransitionGroup 组件用于将 props 配置上提，而不是通过 CSSTransitionGroupChild 给每个子组件外加一个壳子。</p>
+<h2 id="react-transition-group-2-版本"><a href="#react-transition-group-2-版本" class="headerlink" title="react-transition-group 2 版本"></a>react-transition-group 2 版本</h2><h3 id="Transition"><a href="#Transition" class="headerlink" title="Transition"></a>Transition</h3><p>相比于 1 版本通过判断子组件的有无添加动效，react-transition-group 2 版本可通过向子组件传递状态值（props.children 以函数形式配置；若为ReactElement，则无任何作用）控制子组件的创建和删除过程，这一点和 react-motion 类库相仿。关于 react-motion，笔者将在后续文章中加以分析。</p>
+<p>上述思路的简单实现是通过容器组件向子组件传递 props.status，用于判断动效是在执行中 transitionExcute，还是执行完成 transitionEnd。若执行完成，将触发移除组件的操作。为此，react-transition-group 2 提供了 Transition 容器组件，props.status 状态分别在子组件创建和移除阶段添置了两个值，合计四种状态，即 ENTERING, ENTERED, EXITING, EXITED 。ENTERING, ENTERED 状态针对新创建的子组件，EXITING, EXITED 状态针对待移除的子组件。Transition 组件内部实现的主要业务逻辑就是协调 ENTERING 到 ENTERED，EXITING 到 EXITED 状态的自动变更。对于不需要动效的场景，状态将直接置为 ENTERED, EXITED；在 Transition 组件中，作为动效开关的是 props.appear, props.enter, props.exit 属性。</p>
+<p>除此之外，有必要区分组件在创建过程 onEnter 还是在移除过程 onExit，以便于控制组件的挂载状态。然而 onEnter, onExit 两个状态值不适用于动效结束时仍保留组件的场景。为此，Transition 组件使用 props.in 属性表示组件的显示状态，结合 props.unmountOnExit 属性即表示在动效执行完成后，不必移除组件。子组件不能通过获得的 status 值控制自身的挂载状态，Transition 容器通过将 status 置为 UNMOUNTED，并在其 render 方法中输出 null，以控制子组件的显隐。这样的设计也满足了对子组件挂载时机的微调。像 1 版本中那样，通常情况下，子组件往往而在。不同的是，在组件初始化时通过将 props.mountOnEnter 属性置为真值，且 props.in 为否值，子组件将不在视图显示；当更新组件时，props.in 属性首次切换为真值时，才将 status 置为 EXITED，以便在实际视图中创建子组件，从而启动动效。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constructor</span>(props, context) &#123;</span><br><span class="line">  <span class="keyword">super</span>(props, context);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> parentGroup = context.transitionGroup;</span><br><span class="line">  <span class="comment">// In the context of a TransitionGroup all enters are really appears</span></span><br><span class="line">  <span class="keyword">let</span> appear = parentGroup &amp;&amp; !parentGroup.isMounting ?</span><br><span class="line">    props.enter :</span><br><span class="line">    props.appear;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> initialStatus;</span><br><span class="line">  <span class="keyword">this</span>.nextStatus = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (props.in) &#123;<span class="comment">// in 为真值，创建并显示组件</span></span><br><span class="line">    <span class="keyword">if</span> (appear) &#123;<span class="comment">// appear 为真值，执行动效</span></span><br><span class="line">      initialStatus = EXITED;<span class="comment">// updateStatus 方法中满足 initialStatus 非 null 校验，以执行 performEnter 方法</span></span><br><span class="line">      <span class="keyword">this</span>.nextStatus = ENTERING;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;<span class="comment">// appear 为否值，不执行动效</span></span><br><span class="line">      initialStatus = ENTERED;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// mountOnEnter 为真值，意味着延迟挂载；unmountOnExit 为否值的情形，主要为着避过 updateStatus 中对 &#123; state: EXITED &#125; 的处理逻辑，即动效执行结束后移除组件</span></span><br><span class="line">    <span class="keyword">if</span> (props.unmountOnExit || props.mountOnEnter) &#123;</span><br><span class="line">      initialStatus = UNMOUNTED;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 悬空</span></span><br><span class="line">      initialStatus = EXITED;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.state = &#123; <span class="attr">status</span>: initialStatus &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.nextCallback = <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">componentDidMount() &#123;</span><br><span class="line">  <span class="keyword">this</span>.updateStatus(<span class="literal">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">componentWillReceiveProps(nextProps) &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; status &#125; = <span class="keyword">this</span>.pendingState || <span class="keyword">this</span>.state;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (nextProps.in) &#123;</span><br><span class="line">    <span class="comment">// 子组件已被移除或初始化未被挂载，status 置为 EXITED，便于添加子组件</span></span><br><span class="line">    <span class="keyword">if</span> (status === UNMOUNTED) &#123;</span><br><span class="line">      <span class="keyword">this</span>.setState(&#123; <span class="attr">status</span>: EXITED &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 子组件尚未在视图中，执行显示动效</span></span><br><span class="line">    <span class="keyword">if</span> (status !== ENTERING &amp;&amp; status !== ENTERED) &#123;</span><br><span class="line">      <span class="keyword">this</span>.nextStatus = ENTERING;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 子组件已在视图中，执行移除动效</span></span><br><span class="line">    <span class="keyword">if</span> (status === ENTERING || status === ENTERED) &#123;</span><br><span class="line">      <span class="keyword">this</span>.nextStatus = EXITING;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">componentDidUpdate() &#123;</span><br><span class="line">  <span class="keyword">this</span>.updateStatus();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">updateStatus(mounting = <span class="literal">false</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> nextStatus = <span class="keyword">this</span>.nextStatus;<span class="comment">// 只有两种可能，ENTERING 或 EXITING</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (nextStatus !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.nextStatus = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">this</span>.cancelNextCallback();</span><br><span class="line">    <span class="keyword">const</span> node = ReactDOM.findDOMNode(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nextStatus === ENTERING) &#123;</span><br><span class="line">      <span class="keyword">this</span>.performEnter(node, mounting);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.performExit(node);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="comment">// 动效执行完成后 state 置为 EXITED 时，且 unmountOnExit 为真，移除子组件</span></span><br><span class="line">    <span class="keyword">this</span>.props.unmountOnExit &amp;&amp;</span><br><span class="line">    <span class="keyword">this</span>.state.status === EXITED</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">this</span>.setState(&#123; <span class="attr">status</span>: UNMOUNTED &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>（当初始化时，props.in 置为否值，子组件将不予渲染或渲染后无动效；当更新时置为否值，子组件已在视图中，执行 performExit 方法，好启动 exit 动效。）</p>
+<p>上述代码中，performEnter, performExit 方法用于操控容器组件在 props.timeout 时间后自动从 ENTERING 切换到 ENTERED 状态，或者从 EXITING 切换到 EXITED 状态。这两个方法均调用了 safeSetState 方法，该方法的意义是设置 pendingState 属性，以避免动效的多次执行；以及通过调用 onTransitionEnd 方法执行变更 status 的逻辑。onTransitionEnd 方法的延迟机制通过监听 transitionEnd 事件（借助于 props.addEventLinstener 配置）或者使用 setTimeout 执行回调实现，变更 status 状态的回调通过 setNextCallback 方法免于多次执行。</p>
+<p>Transition 容器在根据 props.in, props.appear, props.enter, props.exit, props.mountOnEnter, props.unmountOnExit 属性自动处理 status 状态的同时，还设置了多个在适当时机执行的钩子函数，包含 props.onEnter, props.onEntering, props.onEntered, props.onExit, props.onExiting, props.onExited 配置项。</p>
+<h3 id="CSSTransition"><a href="#CSSTransition" class="headerlink" title="CSSTransition"></a>CSSTransition</h3><p>在 react-transition-group 2 版本内部，props.onEnter 等钩子在实现 CSSTransition 组件时极有意义。因为 Transition 容器传给 props.children 函数的 status 只包含 enter, exit 相关状态，没有 appear 状态。而 onEnter, onEntering, onEntered 钩子的次参即为是否在 appear 状态中（通过 context.transitionGroup.isMounting 或 mounting 获知），CSSTransition 组件即在此基础上实现，通过钩子更新 props.children 对应节点的 class（依次由 <em>-appear, </em>-appear-active, <em>-enter, </em>-enter-active, <em>-enter-done, </em>-exit, <em>-exit-active, </em>-exit-done 变更，* 通过 props.classNames 设置，该属性也设置为对象）。与 1 版本相同，2 版本在类名变更的同时，访问了 node.scrollTop 促使浏览器重绘；也可以在 props.children 中执行 onEnter 等方法阻止 js 动效或懒加载等逻辑。CSSTransition 组件同样向上抛出 props.onEnter, props.onEntering, props.onEntered, props.onExit, props.onExiting, props.onExited 钩子。</p>
+<h3 id="TransitionGroup"><a href="#TransitionGroup" class="headerlink" title="TransitionGroup"></a>TransitionGroup</h3><p>TransitionGroup 的处理逻辑和 1 版本相同，即通过 state.children 控制待渲染的元素，以实现 exit 动效执行时仍驻留子组件的场景。不同的是，1 版本会用 CSSTransitionGroupChild 包装子组件，2 版本需要用户传入 Transition 组件作为 TransitionGroup 的子组件。当然，因为 2 版本中，Transition 组件动效执行时机和组件渲染状态的弱关联，促使 TransitionGroup 容器的 componentWillReceiveProps 方法中更新 state.children 的逻辑也不一样。</p>
+<p>TransitionGroup 的一般适用场景为当子组件添加时，执行 enter 动效；当子组件移除时，执行 exit 动效。在这样的场景中，子组件的渲染状态不受 TransitionGroup 控制，也即 TransitionGroup 容器对子组件的 props.in 属性的调控必须与子组件的渲染状态向匹配。在 TransitionGroup 容器初始化阶段，传入子组件的 props.in 属性必然为真值，因为在这阶段，子组件都会得到渲染。在更新阶段，当子组件移除时，通过设置 props.in 为否值，触发 exit 动效；当子组件 exit 动效执行阶段，子组件又被添加，通过设置 props.in 为真值，使 enter, exit 动效得以执行；当子组件 exit 动效执行完成、且组件已移除后，处理逻辑同 exit 动效执行阶段；当子组件维持原样，传入子组件的 props.in 属性维持原值，props.oEnter, props.onExit 属性则同步为子组件最新的 props 值。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constructor</span>(props, context) &#123;</span><br><span class="line">  <span class="keyword">super</span>(props, context);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Initial children should all be entering, dependent on appear</span></span><br><span class="line">  <span class="keyword">this</span>.state = &#123;</span><br><span class="line">    children: getChildMapping(props.children, child =&gt; &#123;</span><br><span class="line">      <span class="keyword">return</span> cloneElement(child, &#123;</span><br><span class="line">        onExited: <span class="keyword">this</span>.handleExited.bind(<span class="keyword">this</span>, child),</span><br><span class="line">        <span class="keyword">in</span>: <span class="literal">true</span>,</span><br><span class="line">        appear: <span class="keyword">this</span>.getProp(child, <span class="string">'appear'</span>),</span><br><span class="line">        enter: <span class="keyword">this</span>.getProp(child, <span class="string">'enter'</span>),</span><br><span class="line">        exit: <span class="keyword">this</span>.getProp(child, <span class="string">'exit'</span>),</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;),</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">componentWillReceiveProps(nextProps) &#123;</span><br><span class="line">  <span class="keyword">let</span> prevChildMapping = <span class="keyword">this</span>.state.children;</span><br><span class="line">  <span class="keyword">let</span> nextChildMapping = getChildMapping(nextProps.children);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> children = mergeChildMappings(prevChildMapping, nextChildMapping);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">Object</span>.keys(children).forEach(<span class="function">(<span class="params">key</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> child = children[key]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!isValidElement(child)) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> hasPrev = key <span class="keyword">in</span> prevChildMapping;</span><br><span class="line">    <span class="keyword">const</span> hasNext = key <span class="keyword">in</span> nextChildMapping;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> prevChild = prevChildMapping[key];</span><br><span class="line">    <span class="comment">// child 在移除过程中</span></span><br><span class="line">    <span class="keyword">const</span> isLeaving = isValidElement(prevChild) &amp;&amp; !prevChild.props.in;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// child 新添加或者移除动效尚未执行完成，执行 enter 动效</span></span><br><span class="line">    <span class="keyword">if</span> (hasNext &amp;&amp; (!hasPrev || isLeaving)) &#123;</span><br><span class="line">      <span class="comment">// console.log('entering', key)</span></span><br><span class="line">      children[key] = cloneElement(child, &#123;</span><br><span class="line">        onExited: <span class="keyword">this</span>.handleExited.bind(<span class="keyword">this</span>, child),</span><br><span class="line">        <span class="keyword">in</span>: <span class="literal">true</span>,</span><br><span class="line">        exit: <span class="keyword">this</span>.getProp(child, <span class="string">'exit'</span>, nextProps),</span><br><span class="line">        enter: <span class="keyword">this</span>.getProp(child, <span class="string">'enter'</span>, nextProps),</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 组件已移除，执行 exit 动效</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (!hasNext &amp;&amp; hasPrev &amp;&amp; !isLeaving) &#123;</span><br><span class="line">      <span class="comment">// console.log('leaving', key)</span></span><br><span class="line">      children[key] = cloneElement(child, &#123; <span class="attr">in</span>: <span class="literal">false</span> &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 组件动效特性未作改变，保留原值</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (hasNext &amp;&amp; hasPrev &amp;&amp; isValidElement(prevChild)) &#123;</span><br><span class="line">      <span class="comment">// console.log('unchanged', key)</span></span><br><span class="line">      children[key] = cloneElement(child, &#123;</span><br><span class="line">        onExited: <span class="keyword">this</span>.handleExited.bind(<span class="keyword">this</span>, child),</span><br><span class="line">        <span class="keyword">in</span>: prevChild.props.in,</span><br><span class="line">        exit: <span class="keyword">this</span>.getProp(child, <span class="string">'exit'</span>, nextProps),</span><br><span class="line">        enter: <span class="keyword">this</span>.getProp(child, <span class="string">'enter'</span>, nextProps),</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.setState(&#123; children &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>handleExited 方法用于当子组件 exit 动效执行完成且移除后，更新 TransitionGroup 容器的 state.children 属性，附带调用原始传入子组件的 props.onExited 方法（实际传入子组件的 props.onExited 方法被改写为 handleExited 方法）。</p>
+<p>在变更 state.children 的处理逻辑之外，TransitionGroup 向外提供 props.appear, props.enter, props.exit, props.component, props.childFactory 配置项。props.appear, props.enter, props.exit 为当子组件元素没有同名 props 属性时，使用 TransitionGroup 容器的 props 属性；props.component 为外层包裹元素（适配 react 中 props.children 不能置为数组的特性，react 16 可能不需要）；props.childFactory 用于装饰子元素。</p>
+<p>2 版本没有提供 CSSTransitionGroup 组件，因为在 TransitionGroup 组件下挂载 CSSTransition 组件即能实现与 1 版本中 CSSTransitionGroup 相同的效果，通过调整节点的 class 实现动效。在这里，CSSTransition 组件作为特殊的 Transition 组件。除此而外，Transition, CSSTransition 组件都向外暴露 props.onEnter, props.onEntering, props.onEntered, props.onExit, props.onExiting, props.onExited 配置钩子，因此相较于 1 版本中通过 CSSTransitionGroup 自应用的 CSSTransitionGroupChild 组件，2 版本能对 css 动效实现更细微的控制。</p>
+<p>此外，TransitionGroup 组件会通过 context 属性向 Transition 子组件传递 transitionGroup 属性，以使 Transition 子组件能够感知动效处于 appear 阶段还是 enter 阶段。Transition 组件又通过 getChildContext 方法，将其子孙组件的 transitionGroup 属性置为 null，其意义时，当父 Transition 嵌套子 Transition 时，子 Transition 不至于尝试通过 context.transitionGroup 属性判断动效在 appear 阶段还是 enter 阶段。</p>
+<h3 id="ReplaceTransition"><a href="#ReplaceTransition" class="headerlink" title="ReplaceTransition"></a>ReplaceTransition</h3><p>2 版本中，ReplaceTransition 用于通过控制 props.in 切换显示两个子组件中的一个。因此实际使用过程中，需要有容器包裹，通过容器更新传入 ReplaceTransition 组件中的props.in；循环切换需要在容器中设置定时器（循环切换过程中，不支持其中任意一个子组件 exit 动效，适用场景相对较小）。ReplaceTransition 组价向外提供 props.onEnter, props.onEntering, props.onEntered, props.onExit, props.onExiting, props.onExited 等配置属性，前三个为第一个子组件 enter 动效相关钩子，后三个为第二个子组件 enter 动效相关钩子。其 ReplaceTransition 组价支持在 enter 发生过程中调用子组件的 props.onEnter, props.onEntering, props.onEntered, props.onExit, props.onExiting, props.onExited，前三个钩子为第一个子组件独有，后三个为第二个子组件独有。源码不作赘述。</p>
+<h2 id="反思"><a href="#反思" class="headerlink" title="反思"></a>反思</h2><p>无论 1 版本的核心模块 TransitionGroup，还是 2 版本的核心模块 Transition，都通过容器管理子组件的动效执行过程。1 版本切入的视角在于通过判断子组件从列表中创建、移除的过程，触发调用子组件的 componentWillAppear 等方法，以管理动效。对于 css 动效，1 版本又通过包含特定 componentWillAppear 等实例方法的 CSSTransitionGroupChild 包装用户实际开发的子组件，从而对接上 TransitionGroup 容器，使子组件中的动效得到管理。2 版本在处理上更为细致，独立对待用户开发的动效组件，而不是视为列表形式。2 版本通过 Transition 容器将子组件可能包含的 enter, exit 动效抽象为 state.status，并传入子组件，由子组件自身通过 status 启用特定的动效；并且同样提供了以钩子方式（props.onEnter 等配置方法）管理动效的实现，2 版本自身的 CSSTransition 组件即通过钩子调节添加到节点上的 class。若说 1 版本还滞留于子组件从列表中移入移出的视点，2 版本的观察角度则从列表中脱离，实打实地介入了子组件动效执行周期的管理，will - excute - did，并向下注入执行状态。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/06/webpack/webpack插件指南/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1505,7 +1675,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">105</span>
+                    <span class="site-state-item-count">106</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1516,7 +1686,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">34</span>
+                    <span class="site-state-item-count">35</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>

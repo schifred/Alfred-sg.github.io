@@ -387,7 +387,12 @@
 <li>RetentionPolicy.RUNTIME：永久保存，可以反射获取</li>
 </ul>
 <p>更多内容参考 <a href="https://www.cnblogs.com/yangming1996/p/9295168.html" target="_blank" rel="noopener">JAVA 注解的基本原理</a>。</p>
-
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>java 文件经编译器编译成 class 文件，class 文件由虚拟机加载并创建对应的 java.lang.Class 对象实例。虚拟机提供了三种类加载器：Bootstrap 启动类加载器、Extension 扩展类加载器、System 系统类加载器。启动类加载器主要加载的虚拟机自身所需的类（使用 C++ 实现），包含 &lt;JAVA_HOME&gt;/lib 路径下的核心类库以及 -Xbootclasspath 参数指定路径下的 jar 包。扩展类加载器负责加载”标准的扩展“，包含 &lt;JAVA_HOME&gt;/lib/ext 目录下或者由系统变量 -Djava.ext.dir 指定路径中的类库。系统类加载器负责加载系统类路径 java -classpath 或 -D java.class.path 指定路径下的类库。虚拟机对 class 文件采用按需加载的方式，并使用双亲委派模式，即先有父类加载器处理，如果加载失败，再交由子类加载器处理。类加载器的典型使用如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建 URL 资源</span></span><br><span class="line">URL url = <span class="keyword">new</span> URL(<span class="string">"file:///path/to/plugin.jar"</span>);</span><br><span class="line"><span class="comment">// 2. 创建 URLClassLoader 实例，URLClassLoader 会通过给定的 URL 加载类</span></span><br><span class="line">URLClassLoader pluginLoader = <span class="keyword">new</span> URLClassLoader(<span class="keyword">new</span> URL[] &#123; url &#125;);</span><br><span class="line"><span class="comment">// 3. 加载指定包下的类</span></span><br><span class="line">Class&lt;?&gt; cl = pluginLoader.loadClass(<span class="string">"mypackage.MyClass"</span>);</span><br></pre></td></tr></table></figure>
+<p>自定义的加载器可以通过集成 ClassLoader 实现。ClassLoader#loadClass 方法的职责是将类的加载操作委托给父类加载器，当父类加载器无法加载时，就会转而使用 ClassLoader#findClass。因此自定义的加载逻辑推荐实现在 ClassLoader#findClass 方法中。</p>
+<p>每个线程都由对类加载器的引用，称为上下文类加载器。主线程的上下文加载器是系统类加载器。当新线程创建时，它的上下文类加载器会被设置成创建该线程的上下文类加载器。线程的上下文类加载器可以通过 thread#setContextClassLoader 方法改写。</p>
+<p>更多内容参考 <a href="https://www.cnblogs.com/mybatis/p/9396135.html" target="_blank" rel="noopener">深入理解Java类加载器</a>。</p>
+<h2 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h2>
           
         
       

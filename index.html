@@ -270,6 +270,170 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/31/frontend/前端工程体系/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/31/frontend/前端工程体系/" itemprop="url">前端工程体系</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-31T00:00:00+08:00">2019-12-31</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/12/31/frontend/前端工程体系/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/31/frontend/前端工程体系/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>我常常执着于部分（比如昏天暗地地解读一个源码），不能跳出来看看整体。这篇文章旨在于整理我所理解的前端工程体系，方便逐步演进顶层观念并指导后续发展。因为见识的有限和理解的不足，这篇文章本难免缺陷和差缪，还望有识予以理解。</p>
+<img src="/2019/12/31/frontend/前端工程体系/global.png">
+<p>我所理解的前端工程体系大致如上图。左半部分以 antd + umi、fusion + 飞冰为参照加以说明，组件库用于提供基础的通用组件。模板工程通常提供了应用层面的最佳实践，因此不止于使用在组件库之内的基础通用组件、在组件库之外的图表和编辑器组件等，还包含状态管理、路由管理、服务调用等内容。当某些组件还未包含在组件库中，但在应用中经常使用，那么这些组件也可以通过模板工程下沉到组件库中。由组件库往上，可以生长出业务组件、区块、前端工程模板，这些都可以被物料中心所吸纳，以便使用特定的域作为标识，在可视化搭建等其他应用、前端 IDE 工具或简单的本地开发环境中复用。这部分内容不限于 web 场景，还包含小程序等场景。事实上，fusion 的物料中心包含 rax 组件，支付宝小程序也提供了基础组件库和 IDE 开发环境。</p>
+<p>右半部分在于使用 node 服务封装后端接口提供定制化的数据，包含但不限于元数据（如菜单栏）、查询数据库的动态数据等。node 服务不止可以提供数据接口，还包含构建发布平台（构建工具通过命令行工具与其打通）、mock 服务（在应用本地运行时动态获取）、国际化服务（在应用启动阶段动态拉取）等。</p>
+<img src="/2019/12/31/frontend/前端工程体系/node.png">
+<h2 id="组件库"><a href="#组件库" class="headerlink" title="组件库"></a>组件库</h2><p>现行较为火热的组件库有 <a href="https://github.com/ant-design/ant-design" target="_blank" rel="noopener">ant design</a>、<a href="https://github.com/alibaba-fusion/next" target="_blank" rel="noopener">fusion</a>、<a href="https://github.com/mui-org/material-ui" target="_blank" rel="noopener">material ui</a>、<a href="https://github.com/elemefe" target="_blank" rel="noopener">element ui</a> 等。以下是 ant design 的大体结构：</p>
+<img src="/2019/12/31/frontend/前端工程体系/antd.png">
+<ul>
+<li><a href="https://github.com/benjycui/bisheng" target="_blank" rel="noopener">bisheng</a>: 解析 markdown 文件并生成静态网站。主流程上，它借助 <a href="https://github.com/mozilla/nunjucks" target="_blank" rel="noopener">nunjucks</a>、webpack、ssr 机制启动本地服务器、生成打包文件，以及通过 <a href="https://github.com/tschaub/gh-pages" target="_blank" rel="noopener">gh-pages</a> 将静态页面上传到 github 服务器上。实现可参考 <a href="http://xzfyu.com/2019/12/21/antd/%E8%81%8A%E8%81%8A%20antd%20%E7%BD%91%E7%AB%99%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%B6%E4%BD%9C%E7%9A%84/" target="_blank" rel="noopener">聊聊 antd 网站是怎么制作的</a>。</li>
+<li><a href="https://github.com/ant-design/antd-tools" target="_blank" rel="noopener">antd-tools</a>、scripts: 提供基本的命令行工具。antd-tools 基于 gulp 实现，它集成了 compile（基于不同组件的入口文件编译 less、ts、svg 等）、dist（使用 webpack 打包整个组件库）、<a href="https://github.com/ant-design/antd-tools/blob/master/lib/lint/checkDeps.js" target="_blank" rel="noopener">deps-lint</a>（检查模块是否被依赖）、pub（编译、打包并发布）、guard、sort-api-table、api-collection、clean 等操作。</li>
+</ul>
+<p>ant design 的定制主题功能基于 less 的 <a href="https://ant.design/docs/react/customize-theme-cn" target="_blank" rel="noopener">modifyVars</a>，即将可定制的样式定义为 less 变量，随后就可以通过 less-loader 引用外部 less 变量文件实现定制。ant design 中可配置的样式见 <a href="https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less" target="_blank" rel="noopener">这里</a>。无障碍功能基于节点的 aria-、role- 属性实现，可参考 <a href="https://www.cnblogs.com/dingyuanxin/p/4052518.html" target="_blank" rel="noopener">aria初探</a>。国际化功能基于 react 的 context 机制实现，同时会设置 moment 的语言。按需加载功能借助于 <a href="https://github.com/ant-design/babel-plugin-import" target="_blank" rel="noopener">babel-plugin-import</a> 插件；其原理为在 babel 编译期间转换 import 语句，并加载必要的样式（默认加载组件文件夹下的 css/index.js 文件）。</p>
+<p>以下是 react-components 组件图谱，动效、对齐、伸缩作为基础的组件或工具函数，其上再延伸出表单、数据展示、导航、回馈组件等。</p>
+<img src="/2019/12/31/frontend/前端工程体系/react-components.png">
+<p>ant-design 的组件基本基于 ConfigProvider 构建。ConfigProvider 通过 react 的 context 机制提供国际化、弹层根节点获取函数、空态渲染函数等。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://news.html5.qq.com/article?ch=901201&amp;tabId=0&amp;tagId=0&amp;docId=669838503675269442&amp;showAttach=1&amp;url=http%3A%2F%2Fkuaibao%2Eqq%2Ecom%2Fs%2F20191214A0F0TM00&amp;dataSrc=96&amp;showDate=1&amp;extenddata=%26%5Fdis%3D3%26bp%3D1%26contentLevel%3D2%26dataSrc%3D96%26queryId%3D1576313487963%26sGrayPlatFormModelId%3D100000%26sModelId%3D100000%26sStrategyId%3D153%26subjectId%3D1090319%26wx%3D1%26zimeitiId%3Dqeh%5F5598878&amp;pid=1&amp;data_type=1&amp;ctrid=1" target="_blank" rel="noopener">如果我是阿里的前端架构师，我会这么搭建前端架构体系</a><br><a href="https://zhuanlan.zhihu.com/p/94949118" target="_blank" rel="noopener">蚂蚁前端研发最佳实践</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/21/antd/聊聊 antd 网站是怎么制作的/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -711,170 +875,6 @@
           
             <h2 id="RMI"><a href="#RMI" class="headerlink" title="RMI"></a>RMI</h2><p>分布式编程即当客户端调用某方法时，产生一个请求发送到服务器上，然后取回响应。RMI（远程方法调用）的实现思路植根于：在客户端和服务端均安装代理，由客户端代理将客户端方法调用转换成请求（包含服务器地址、所调用方法、传参等信息），服务端代理通过请求执行服务端方法，并向客户端发送响应。服务端接口实例（实现 Remote 接口、扩展 UnicastRemoteObject 类）须通过 InitialContext 实例注册到 RMI 注册表中，客户端就可以通过 InitialContext#list 或 InitialContext#lookup 方法获取到代理对象（称为存根）。</p>
 <h2 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h2><h2 id="web-服务"><a href="#web-服务" class="headerlink" title="web 服务"></a>web 服务</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://cloud.tencent.com/developer/article/1353191" target="_blank" rel="noopener">RMI与RPC的区别</a><br><a href="https://blog.csdn.net/mingtianhaiyouwo/article/details/50513577" target="_blank" rel="noopener">Java RMI 简介及其优劣势总结</a><br><a href="https://blog.csdn.net/kouzhaokui/article/details/89176541" target="_blank" rel="noopener">EJB到底是什么？</a><br><a href="https://www.jianshu.com/p/7d6853140e13" target="_blank" rel="noopener">什么是RPC？</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/20/frontend/前端工程体系/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/20/frontend/前端工程体系/" itemprop="url">前端工程体系</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-20T00:00:00+08:00">2019-12-20</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/12/20/frontend/前端工程体系/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/20/frontend/前端工程体系/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>我常常执着于部分（比如昏天暗地地解读一个源码），不能跳出来看看整体。这篇文章旨在于整理我所理解的前端工程体系，方便逐步演进顶层观念并指导后续发展。因为见识的有限和理解的不足，这篇文章本难免缺陷和差缪，还望有识予以理解。</p>
-<img src="/2019/12/20/frontend/前端工程体系/global.png">
-<p>我所理解的前端工程体系大致如上图。左半部分以 antd + umi、fusion + 飞冰为参照加以说明，组件库用于提供基础的通用组件。模板工程通常提供了应用层面的最佳实践，因此不止于使用在组件库之内的基础通用组件、在组件库之外的图表和编辑器组件等，还包含状态管理、路由管理、服务调用等内容。当某些组件还未包含在组件库中，但在应用中经常使用，那么这些组件也可以通过模板工程下沉到组件库中。由组件库往上，可以生长出业务组件、区块、前端工程模板，这些都可以被物料中心所吸纳，以便使用特定的域作为标识，在可视化搭建等其他应用、前端 IDE 工具或简单的本地开发环境中复用。这部分内容不限于 web 场景，还包含小程序等场景。事实上，fusion 的物料中心包含 rax 组件，支付宝小程序也提供了基础组件库和 IDE 开发环境。</p>
-<p>右半部分在于使用 node 服务封装后端接口提供定制化的数据，包含但不限于元数据（如菜单栏）、查询数据库的动态数据等。node 服务不止可以提供数据接口，还包含构建发布平台（构建工具通过命令行工具与其打通）、mock 服务（在应用本地运行时动态获取）、国际化服务（在应用启动阶段动态拉取）等。</p>
-<img src="/2019/12/20/frontend/前端工程体系/node.png">
-<h2 id="组件库"><a href="#组件库" class="headerlink" title="组件库"></a>组件库</h2><p>现行较为火热的组件库有 <a href="https://github.com/ant-design/ant-design" target="_blank" rel="noopener">ant design</a>、<a href="https://github.com/alibaba-fusion/next" target="_blank" rel="noopener">fusion</a>、<a href="https://github.com/mui-org/material-ui" target="_blank" rel="noopener">material ui</a>、<a href="https://github.com/elemefe" target="_blank" rel="noopener">element ui</a> 等。以下是 ant design 的大体结构：</p>
-<img src="/2019/12/20/frontend/前端工程体系/antd.png">
-<ul>
-<li><a href="https://github.com/benjycui/bisheng" target="_blank" rel="noopener">bisheng</a>: 解析 markdown 文件并生成静态网站。主流程上，它借助 <a href="https://github.com/mozilla/nunjucks" target="_blank" rel="noopener">nunjucks</a>、webpack、ssr 机制启动本地服务器、生成打包文件，以及通过 <a href="https://github.com/tschaub/gh-pages" target="_blank" rel="noopener">gh-pages</a> 将静态页面上传到 github 服务器上。实现可参考 <a href="http://xzfyu.com/2019/12/21/antd/%E8%81%8A%E8%81%8A%20antd%20%E7%BD%91%E7%AB%99%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%B6%E4%BD%9C%E7%9A%84/" target="_blank" rel="noopener">聊聊 antd 网站是怎么制作的</a>。</li>
-<li><a href="https://github.com/ant-design/antd-tools" target="_blank" rel="noopener">antd-tools</a>、scripts: 提供基本的命令行工具。antd-tools 基于 gulp 实现，它集成了 compile（基于不同组件的入口文件编译 less、ts、svg 等）、dist（使用 webpack 打包整个组件库）、<a href="https://github.com/ant-design/antd-tools/blob/master/lib/lint/checkDeps.js" target="_blank" rel="noopener">deps-lint</a>（检查模块是否被依赖）、pub（编译、打包并发布）、guard、sort-api-table、api-collection、clean 等操作。</li>
-</ul>
-<p>ant design 的定制主题功能基于 less 的 <a href="https://ant.design/docs/react/customize-theme-cn" target="_blank" rel="noopener">modifyVars</a>，即将可定制的样式定义为 less 变量，随后就可以通过 less-loader 引用外部 less 变量文件实现定制。ant design 中可配置的样式见 <a href="https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less" target="_blank" rel="noopener">这里</a>。无障碍功能基于节点的 aria-、role- 属性实现，可参考 <a href="https://www.cnblogs.com/dingyuanxin/p/4052518.html" target="_blank" rel="noopener">aria初探</a>。国际化功能基于 react 的 context 机制实现，同时会设置 moment 的语言。按需加载功能借助于 <a href="https://github.com/ant-design/babel-plugin-import" target="_blank" rel="noopener">babel-plugin-import</a> 插件；其原理为在 babel 编译期间转换 import 语句，并加载必要的样式（默认加载组件文件夹下的 css/index.js 文件）。</p>
-<p>以下是 react-components 组件图谱，动效、对齐、伸缩作为基础的组件或工具函数，其上再延伸出表单、数据展示、导航、回馈组件等。</p>
-<img src="/2019/12/20/frontend/前端工程体系/react-components.png">
-<p>ant-design 的组件基本基于 ConfigProvider 构建。ConfigProvider 通过 react 的 context 机制提供国际化、弹层根节点获取函数、空态渲染函数等。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://news.html5.qq.com/article?ch=901201&amp;tabId=0&amp;tagId=0&amp;docId=669838503675269442&amp;showAttach=1&amp;url=http%3A%2F%2Fkuaibao%2Eqq%2Ecom%2Fs%2F20191214A0F0TM00&amp;dataSrc=96&amp;showDate=1&amp;extenddata=%26%5Fdis%3D3%26bp%3D1%26contentLevel%3D2%26dataSrc%3D96%26queryId%3D1576313487963%26sGrayPlatFormModelId%3D100000%26sModelId%3D100000%26sStrategyId%3D153%26subjectId%3D1090319%26wx%3D1%26zimeitiId%3Dqeh%5F5598878&amp;pid=1&amp;data_type=1&amp;ctrid=1" target="_blank" rel="noopener">如果我是阿里的前端架构师，我会这么搭建前端架构体系</a><br><a href="https://zhuanlan.zhihu.com/p/94949118" target="_blank" rel="noopener">蚂蚁前端研发最佳实践</a></p>
 
           
         

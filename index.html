@@ -434,6 +434,171 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/22/antd/聊聊组件库中样式文件组织/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/22/antd/聊聊组件库中样式文件组织/" itemprop="url">聊聊组件库中样式文件组织</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-22T00:00:00+08:00">2019-12-22</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/12/22/antd/聊聊组件库中样式文件组织/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/22/antd/聊聊组件库中样式文件组织/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="antd"><a href="#antd" class="headerlink" title="antd"></a>antd</h2><p>antd 基于 <a href="https://github.com/necolas/normalize.css" target="_blank" rel="noopener">normalize.css</a> 制作了重置样式 <a href="https://github.com/ant-design/ant-design/blob/master/components/style/core/base.less" target="_blank" rel="noopener">base.less</a>。</p>
+<p>按 <a href="https://github.com/ant-design/babel-plugin-import" target="_blank" rel="noopener">babel-plugin-import</a> 按需加载功能的实现机制，样式文件须放在 style 文件夹下，并以 index 文件形式导出。</p>
+<h3 id="色彩模式"><a href="#色彩模式" class="headerlink" title="色彩模式"></a>色彩模式</h3><p>antd 定义了一套 <a href="https://ant.design/docs/spec/colors-cn" target="_blank" rel="noopener">色彩模式（Color Palettes）</a>。可以发现，antd 中的 <a href="https://github.com/ant-design/ant-design/blob/master/components/style/color/colorPalette.less" target="_blank" rel="noopener">colorPalette.less</a> 与 <a href="https://github.com/ant-design/ant-design-colors/blob/master/src/generate.ts" target="_blank" rel="noopener">@ant-design/color</a> 有相同的实现：基于 <a href="https://github.com/clearbladeplatform/tinycolor2" target="_blank" rel="noopener">tinycolor2</a> 以 Hue - Saturation - Value （色调-饱和度-明度）模型处理颜色，通过旋转色相、增减饱和度、增减亮度的方式生成色板。基本原理可以参考 <a href="https://blog.csdn.net/weixin_33813128/article/details/88039468" target="_blank" rel="noopener">Ant Design 色板生成算法演进之路</a>。通过这篇文章，也能了解到 antd 中提供 <a href="https://github.com/ant-design/ant-design/blob/master/components/style/color/bezierEasing.less" target="_blank" rel="noopener">颜色的贝塞尔曲线算法</a> 的意义，贝塞尔曲线的算法实现来自于 <a href="https://github.com/gre/bezier-easing" target="_blank" rel="noopener">bezier-easing</a>。。有所差别的是，在 antd 组件库中，基于主色生成色板的 generate 函数使用 less 函数制作。关于 less 函数，可参考 <a href="https://www.cnblogs.com/mabylove/p/8206264.html" target="_blank" rel="noopener">less-mixin 之 @functions 趣谈</a>。</p>
+<h3 id="动效"><a href="#动效" class="headerlink" title="动效"></a>动效</h3><p>antd 使用 <a href="https://github.com/ant-design/ant-design/blob/master/components/style/mixins/motion.less" target="_blank" rel="noopener">make-motion(@className, @keyframeName, @duration) 混入</a> 制作动效，动效的样式类为 @{className}-enter、@{className}-enter-active、@{className}-appear、@{className}-appear-active、@{className}-leave、@{className}-leave-active，动画名为 @{keyframeName}In、@{keyframeName}Out。除此之外，make-motion 混入限定了 animation-duration、animation-fill-mode、animation-play-state 样式。在 make-motion 混入之上，antd 提供 <a href="https://github.com/ant-design/ant-design/blob/master/components/style/core/motion/fade.less" target="_blank" rel="noopener">fade 显隐</a>、<a href="https://github.com/ant-design/ant-design/blob/master/components/style/core/motion/move.less" target="_blank" rel="noopener">move 移动</a>、<a href="https://github.com/ant-design/ant-design/blob/master/components/style/core/motion/slide.less" target="_blank" rel="noopener">slide 滑动</a>、<a href="https://github.com/ant-design/ant-design/blob/master/components/style/core/motion/swing.less" target="_blank" rel="noopener">swing 抖动</a>、<a href="https://github.com/ant-design/ant-design/blob/master/components/style/core/motion/zoom.less" target="_blank" rel="noopener">zoom 缩放</a> 动效，以及 loadingCircle 加载、点击动画等。</p>
+<h3 id="混入"><a href="#混入" class="headerlink" title="混入"></a>混入</h3><p>除了上文提到的 make-motion 混入以外，antd 还提供了以下混入：clearfix、reset-component、placeholder（用于解决兼容性问题）、iconfont-mixin（字体样式）、operation-uni（可操作的链接文案样式）、size、square、typography-paragraph（段落） 等。</p>
+<h3 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h3><p>antd 基于 less 的 <a href="https://ant.design/docs/react/customize-theme-cn" target="_blank" rel="noopener">modifyVars</a> 机制实现了定制主题功能，即将可定制的样式定义为 less 变量，随后以 less-loader 引用外部 less 文件的形式实现定制。可定制的样式见于 <a href="https://github.com/ant-design/ant-design/blob/master/components/style/core/base.less" target="_blank" rel="noopener">base.less</a>。</p>
+<h2 id="fusion"><a href="#fusion" class="headerlink" title="fusion"></a>fusion</h2><p>fusion 的重置样式同样来自于 <a href="https://github.com/necolas/normalize.css" target="_blank" rel="noopener">normalize.css</a>。</p>
+<p>fusion 的基本样式变量基本如 <a href="https://fusion.design/design/tokens?type=theme&amp;themeid=3" target="_blank" rel="noopener">Design Tokens 设计标注</a> 所示，样式文件可参考 <a href="https://github.com/alibaba-fusion/next/tree/master/src/core/style" target="_blank" rel="noopener">style</a>。</p>
+<p>fusion 提供了以下函数：strip-units（移除单位）、is-length（校验是否为合法的 css 长度）、em（将 px 像素转化为 em 单位）、unpack（转化为四值属性，适用于 margin、padding、position）、corner-maker（圆角生成器）、shadow-maker（阴影生成器），可参考 <a href="https://github.com/alibaba-fusion/next/blob/master/src/core/util/_function.scss" target="_blank" rel="noopener">function.scss</a>。</p>
+<p>fusion 支持的混入包含 clearfix、ellipsis、multi-line-ellipsis（单多行截取文本）、hide-text、center-tl、center-td、size、position、triangle（三角形生成器）、box-sizing（边框模式）、icon-size、icon-square-size、font-face-handler、button-color、button-size，可参考 <a href="https://github.com/alibaba-fusion/next/blob/master/src/core/util/_mixin.scss" target="_blank" rel="noopener">mixin.scss</a>。</p>
+<p>fusion 又定义了表单控件、蒙层、弹层的基本样式，可参考 <a href="https://github.com/alibaba-fusion/next/tree/master/src/core/utility" target="_blank" rel="noopener">utility</a>。</p>
+<p>fusion 的组件样式基本由 main.scss、rtl.scss、scss/mixin.scss（混入）、scss/normalize.scss、scss/variable.scss（变量）等文件构成。</p>
+<h2 id="element"><a href="#element" class="headerlink" title="element"></a>element</h2><p>element 依循 BEM 规范制作样式。BEN 规范可参考 <a href="https://www.jianshu.com/p/339fdb93e155" target="_blank" rel="noopener">前端领域的BEM到底是什么</a>。</p>
+<p>element 将样式单独抽出为 <a href="https://github.com/ElementUI/theme-chalk.git" target="_blank" rel="noopener">element-theme-chalk</a>。element 可定制的样式定义在 <a href="https://github.com/ElemeFE/element/blob/dev/packages/theme-chalk/src/common/var.scss" target="_blank" rel="noopener">var.scss</a> 中。</p>
+<p>element 支持的混入包含 res（根据断点作媒体查询）、scroll-bar（滚动条）、placeholder、b、e、m、configurable-m、spec-selector、meb、when、extend-rule、share-rule、pseudo（伪类）；utils-user-select、utils-clearfix、utils-vertical-center、utils-ellipsis；button-plain、button-variant、button-size。</p>
+<p>element 支持的动画包含 model 显隐、显隐、zoom 缩放等。</p>
+<p>组件的样式均由一个 scss 文件编写。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/21/antd/聊聊 antd 网站是怎么制作的/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1775,155 +1940,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/25/frontend/自动化部署/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/25/frontend/自动化部署/" itemprop="url">自动化部署</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-25T00:00:00+08:00">2019-11-25</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/11/25/frontend/自动化部署/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/25/frontend/自动化部署/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.imooc.com/article/268784" target="_blank" rel="noopener">Jenkins本地搭建遇到的问题 for Mac</a><br><a href="https://www.douban.com/note/407034249/" target="_blank" rel="noopener">使用git做服务器端代码的部署</a><br><a href="https://www.cnblogs.com/mycognos/p/10155978.html" target="_blank" rel="noopener">Git Hooks、GitLab CI持续集成以及使用Jenkins实现自动化任务</a><br><a href="https://www.jianshu.com/p/ac59402caa66" target="_blank" rel="noopener">持续集成 の 使用 git hook 部署代码</a><br><a href="https://www.jianshu.com/p/9afaae953247" target="_blank" rel="noopener">前端自动化发布实战总结</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1973,7 +1989,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">111</span>
+                    <span class="site-state-item-count">112</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

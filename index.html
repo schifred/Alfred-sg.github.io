@@ -571,7 +571,6 @@
 <p>ant-design 所做的全局测试包含对导出的模块列表作快照测试（生成的快照均在 <strong>snapshots</strong> 文件夹内）、组件库版本号是否与 package.json 中一致、使用 <a href="https://github.com/benjycui/dekko" target="_blank" rel="noopener">dekko 库</a> 校验打包文件是否正确输出、测试 lib 以及语言包是否正常输出。</p>
 <p>组件测试包含功能测试、快照测试。快照测试基于遍历 components 文件夹中的 demo 文档（加载的 markdown 经过 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/demoPreprocessor.js" target="_blank" rel="noopener">demoPreprocessor.js</a> 转译器处理，快照中移除 aria-control 属性。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> glob <span class="keyword">from</span> <span class="string">'glob'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; render &#125; <span class="keyword">from</span> <span class="string">'enzyme'</span>;</span><br><span class="line"><span class="keyword">import</span> MockDate <span class="keyword">from</span> <span class="string">'mockdate'</span>;</span><br><span class="line"><span class="keyword">import</span> moment <span class="keyword">from</span> <span class="string">'moment'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">demoTest</span>(<span class="params">component, options = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> files = glob.sync(<span class="string">`./components/<span class="subst">$&#123;component&#125;</span>/demo/*.md`</span>);</span><br><span class="line"></span><br><span class="line">  files.forEach(<span class="function"><span class="params">file</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> testMethod = options.skip === <span class="literal">true</span> ? test.skip : test;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(options.skip) &amp;&amp; options.skip.some(<span class="function"><span class="params">c</span> =&gt;</span> file.includes(c))) &#123;</span><br><span class="line">      testMethod = test.skip;</span><br><span class="line">    &#125;</span><br><span class="line">    testMethod(<span class="string">`renders <span class="subst">$&#123;file&#125;</span> correctly`</span>, () =&gt; &#123;</span><br><span class="line">      MockDate.set(moment(<span class="string">'2016-11-22'</span>));</span><br><span class="line">      <span class="keyword">const</span> demo = <span class="built_in">require</span>(<span class="string">`../.<span class="subst">$&#123;file&#125;</span>`</span>).default;</span><br><span class="line">      <span class="keyword">const</span> wrapper = render(demo);</span><br><span class="line"></span><br><span class="line">      ariaConvert(wrapper);<span class="comment">// 快照移除 aria-control 属性</span></span><br><span class="line"></span><br><span class="line">      expect(wrapper).toMatchSnapshot();</span><br><span class="line">      MockDate.reset();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/1b99af371e66" target="_blank" rel="noopener">聊聊前端开发的测试</a></p>
 
           
         
@@ -741,6 +740,29 @@
 <li>snapshotSerializers：快照序列化模块。</li>
 <li>testURL：测试用的 jsdom 环境，应用于获取 location.href。</li>
 <li>globals：测试用的全局变量。</li>
+</ul>
+<h2 id="api"><a href="#api" class="headerlink" title="api"></a>api</h2><h3 id="Mock-Functions"><a href="#Mock-Functions" class="headerlink" title="Mock Functions"></a>Mock Functions</h3><p>模拟函数 Mock Functions 也被称为 spies，它可用于监控函数的行为，不止于测试输出。jest.fn() 可用于创建模拟函数，如果参数没有传入实现，那么将返回默认值 undefined。以下 api 列表中，mockFn 等价于 jest.fn()：</p>
+<ul>
+<li>mockFn.mockImplementation(fn)、mockFn.mockImplementationOnce(fn)：设置模拟函数的实现，等价于 jest.fn(fn)。</li>
+<li>mockFn.mockReturnThis()：模拟返回 this。</li>
+<li>mockFn.mockReturnValue(value)、mockFn.mockReturnValueOnce(value)：模拟返回值。</li>
+<li>mockFn.mockResolvedValue(value)、mockFn.mockResolvedValueOnce(value)：模拟 promise 返回值。</li>
+<li>mockFn.mockRejectedValue(value)、mockFn.mockRejectedValueOnce(value)：模拟 promise 拒绝值。</li>
+<li>mockFn.mockName(value)、mockFn.getMockName()：作为引用替代 jest.fn()。</li>
+<li>mockFn.mock.calls：获取 jest.fn 调用时获得的参数，[[ arg1, arg2 ], [arg3]] 形式。</li>
+<li>mockFn.mock.results：获取 jest.fn 的返回值，[{ type, value }] 形式。type 值可以是 ‘return’、’throw’、’incomplete’。</li>
+<li>mockFn.mock.instances：获取以 jest.fn 作为构造函数的实例。</li>
+<li>mockFn.mockClear：重置 mockFn.mock.calls、mockFn.mock.instances。</li>
+<li>mockFn.mockReset：重置 mockFn.mock.calls、mockFn.mock.instances 以及返回值或实现 implementation。</li>
+<li>mockFn.mockRestore：重置 mockFn.mock.calls、mockFn.mock.instances 以及返回值和实现 implementation。</li>
+</ul>
+<h3 id="Jest-Object"><a href="#Jest-Object" class="headerlink" title="Jest Object"></a>Jest Object</h3><ul>
+<li>jest.disableAutomock、jest.enableAutomock：是否对外部引入的模块开启自动模拟功能。自动模拟功能一旦开启，模块导出方法将包含 _isMockFunction 属性，测试时须为真值；若非真值，则测试失败。</li>
+<li>jest.genMockFromModule(modulePath)：加载模块，模块在加载时会按自动模拟机制带上 mock 属性，测试时须为真值。该方法通常可配合制作模拟模块，然后使用该方法进行加载。对于函数，该方法会创建模拟函数（该函数没有形参，且返回值也是 undefined）（该方法对 async 函数也有效）；对于类，该方法会创建新的类，且保留原有接口；对于对象，该方法会以深拷贝的方式模拟该对象；对于数组，该方法会创建一个与原数组长度相同、但元素为空值的数组；对于 string, number, bigint, boolean, null, undefined, symbol 原始类型，该方法会创建相同的模拟值。</li>
+<li>jest.mock(moduleName, factory, options)：模拟一个模块，jest 会使用自动模拟机制为模块添加模拟版本号。如果没有传入 factory，模拟模块将是返回 undefined 的函数；factory 可以作为模拟函数。</li>
+<li>jest.unmock(moduleName)：加载模块时不会使用自动模拟机制。</li>
+<li>jest.doMock(moduleName, factory, options)：当使用 babel-jest 转译时，jest.mock 会提升到测试脚本的顶部，jest.doMock 不会。jest.doMock 适合用于模拟同一模块的不同导出，该模块在测试脚本中仍需要加载。</li>
+<li>jest.dontMock(moduleName)：当使用 babel-jest 转译时，jest.unmock 会提升到测试脚本的顶部，jest.dontMock 不会。</li>
 </ul>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.aliued.com/?p=4095" target="_blank" rel="noopener">React应用下的单元测试</a><br><a href="http://www.voidcn.com/article/p-ftetcszg-btt.html" target="_blank" rel="noopener">JavaScript – 使用Jest和Webpack别名进行测试</a><br><a href="https://www.cnblogs.com/zaking/p/10582228.html" target="_blank" rel="noopener">在vue中如何配置Jest</a></p>
 

@@ -33,8 +33,13 @@
     <content><![CDATA[<h2 id="antd"><a href="#antd" class="headerlink" title="antd"></a>antd</h2><p>antd 基于 <a href="https://jestjs.io/docs/zh-Hans/getting-started" target="_blank" rel="noopener">jest 断言库</a>、<a href="https://github.com/airbnb/enzyme" target="_blank" rel="noopener">enzyme</a>、<a href="https://github.com/School-Explained/enzyme-adapter-react-16" target="_blank" rel="noopener">enzyme-adapter-react-16</a>。</p>
 <p><a href="https://github.com/ant-design/ant-design/blob/master/.jest.js" target="_blank" rel="noopener">jest 配置</a>：</p>
 <ul>
+<li>moduleNameMapper：正则到模块名的 map 映射，这些模块将不会被模拟，无论启动自动模拟与否。</li>
 <li>transform：在 ant-design 中，jest 配置的转译器主要使用 babel-jest 实现，只是混入了与启动开发服务器相同的 babel 配置，参见 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/codePreprocessor.js" target="_blank" rel="noopener">codePreprocessor.js</a>。对于 markdown 文件，转译器将先使用 mark-twain 进行解析，然后获取 markdown 文件中的代码，然后进行转译，参见 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/demoPreprocessor.js" target="_blank" rel="noopener">demoPreprocessor.js</a>。对于图片，转译器使用 <a href="https://github.com/webpack-contrib/url-loader" target="_blank" rel="noopener">url-loader</a> 进行处理，参见 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/imagePreprocessor.js" target="_blank" rel="noopener">imagePreprocessor.js</a>。</li>
 </ul>
+<p>setup.js 启动文件配置 Enzyme，即执行 const Adapter = require(‘enzyme-adapter-react-16’); Enzyme.configure({ adapter: new Adapter() })。</p>
+<p>ant-design 所做的全局测试包含对导出的模块列表作快照测试（生成的快照均在 <strong>snapshots</strong> 文件夹内）、组件库版本号是否与 package.json 中一致、使用 <a href="https://github.com/benjycui/dekko" target="_blank" rel="noopener">dekko 库</a> 校验打包文件是否正确输出、测试 lib 以及语言包是否正常输出。</p>
+<p>组件测试包含功能测试、快照测试。快照测试基于遍历 components 文件夹中的 demo 文档（加载的 markdown 经过 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/demoPreprocessor.js" target="_blank" rel="noopener">demoPreprocessor.js</a> 转译器处理，快照中移除 aria-control 属性。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> glob <span class="keyword">from</span> <span class="string">'glob'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; render &#125; <span class="keyword">from</span> <span class="string">'enzyme'</span>;</span><br><span class="line"><span class="keyword">import</span> MockDate <span class="keyword">from</span> <span class="string">'mockdate'</span>;</span><br><span class="line"><span class="keyword">import</span> moment <span class="keyword">from</span> <span class="string">'moment'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">demoTest</span>(<span class="params">component, options = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> files = glob.sync(<span class="string">`./components/<span class="subst">$&#123;component&#125;</span>/demo/*.md`</span>);</span><br><span class="line"></span><br><span class="line">  files.forEach(<span class="function"><span class="params">file</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> testMethod = options.skip === <span class="literal">true</span> ? test.skip : test;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(options.skip) &amp;&amp; options.skip.some(<span class="function"><span class="params">c</span> =&gt;</span> file.includes(c))) &#123;</span><br><span class="line">      testMethod = test.skip;</span><br><span class="line">    &#125;</span><br><span class="line">    testMethod(<span class="string">`renders <span class="subst">$&#123;file&#125;</span> correctly`</span>, () =&gt; &#123;</span><br><span class="line">      MockDate.set(moment(<span class="string">'2016-11-22'</span>));</span><br><span class="line">      <span class="keyword">const</span> demo = <span class="built_in">require</span>(<span class="string">`../.<span class="subst">$&#123;file&#125;</span>`</span>).default;</span><br><span class="line">      <span class="keyword">const</span> wrapper = render(demo);</span><br><span class="line"></span><br><span class="line">      ariaConvert(wrapper);<span class="comment">// 快照移除 aria-control 属性</span></span><br><span class="line"></span><br><span class="line">      expect(wrapper).toMatchSnapshot();</span><br><span class="line">      MockDate.reset();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/1b99af371e66" target="_blank" rel="noopener">聊聊前端开发的测试</a></p>
 ]]></content>
       <categories>
@@ -3105,11 +3110,14 @@
       </tags>
   </entry>
   <entry>
-    <title>dom-align</title>
-    <url>/2019/02/01/antd/react-component/dom-align/</url>
-    <content><![CDATA[<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
+    <title>rc-align</title>
+    <url>/2019/02/01/antd/react-component/rc-align/</url>
+    <content><![CDATA[<h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
 <li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
+<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
+</li>
+<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
+</li>
 </ul>
 ]]></content>
       <categories>
@@ -3122,14 +3130,11 @@
       </tags>
   </entry>
   <entry>
-    <title>rc-align</title>
-    <url>/2019/02/01/antd/react-component/rc-align/</url>
-    <content><![CDATA[<h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
+    <title>dom-align</title>
+    <url>/2019/02/01/antd/react-component/dom-align/</url>
+    <content><![CDATA[<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
 <li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
-</li>
-<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
-</li>
+<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
 </ul>
 ]]></content>
       <categories>

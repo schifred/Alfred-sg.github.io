@@ -28,29 +28,8 @@
       </tags>
   </entry>
   <entry>
-    <title>聊聊组件库的测试</title>
-    <url>/2019/12/24/antd/%E8%81%8A%E8%81%8A%E7%BB%84%E4%BB%B6%E5%BA%93%E7%9A%84%E6%B5%8B%E8%AF%95/</url>
-    <content><![CDATA[<h2 id="antd"><a href="#antd" class="headerlink" title="antd"></a>antd</h2><p>antd 基于 <a href="https://jestjs.io/docs/zh-Hans/getting-started" target="_blank" rel="noopener">jest 断言库</a>、<a href="https://github.com/airbnb/enzyme" target="_blank" rel="noopener">enzyme</a>、<a href="https://github.com/School-Explained/enzyme-adapter-react-16" target="_blank" rel="noopener">enzyme-adapter-react-16</a>。</p>
-<p><a href="https://github.com/ant-design/ant-design/blob/master/.jest.js" target="_blank" rel="noopener">jest 配置</a>：</p>
-<ul>
-<li>moduleNameMapper：正则到模块名的 map 映射，这些模块将不会被模拟，无论启动自动模拟与否。</li>
-<li>transform：在 ant-design 中，jest 配置的转译器主要使用 babel-jest 实现，只是混入了与启动开发服务器相同的 babel 配置，参见 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/codePreprocessor.js" target="_blank" rel="noopener">codePreprocessor.js</a>。对于 markdown 文件，转译器将先使用 mark-twain 进行解析，然后获取 markdown 文件中的代码，然后进行转译，参见 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/demoPreprocessor.js" target="_blank" rel="noopener">demoPreprocessor.js</a>。对于图片，转译器使用 <a href="https://github.com/webpack-contrib/url-loader" target="_blank" rel="noopener">url-loader</a> 进行处理，参见 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/imagePreprocessor.js" target="_blank" rel="noopener">imagePreprocessor.js</a>。</li>
-</ul>
-<p>setup.js 启动文件配置 Enzyme，即执行 const Adapter = require(‘enzyme-adapter-react-16’); Enzyme.configure({ adapter: new Adapter() })。</p>
-<p>ant-design 所做的全局测试包含对导出的模块列表作快照测试（生成的快照均在 <strong>snapshots</strong> 文件夹内）、组件库版本号是否与 package.json 中一致、使用 <a href="https://github.com/benjycui/dekko" target="_blank" rel="noopener">dekko 库</a> 校验打包文件是否正确输出、测试 lib 以及语言包是否正常输出。</p>
-<p>组件测试包含功能测试、快照测试。快照测试基于遍历 components 文件夹中的 demo 文档（加载的 markdown 经过 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/demoPreprocessor.js" target="_blank" rel="noopener">demoPreprocessor.js</a> 转译器处理，快照中移除 aria-control 属性。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> glob <span class="keyword">from</span> <span class="string">'glob'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; render &#125; <span class="keyword">from</span> <span class="string">'enzyme'</span>;</span><br><span class="line"><span class="keyword">import</span> MockDate <span class="keyword">from</span> <span class="string">'mockdate'</span>;</span><br><span class="line"><span class="keyword">import</span> moment <span class="keyword">from</span> <span class="string">'moment'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">demoTest</span>(<span class="params">component, options = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> files = glob.sync(<span class="string">`./components/<span class="subst">$&#123;component&#125;</span>/demo/*.md`</span>);</span><br><span class="line"></span><br><span class="line">  files.forEach(<span class="function"><span class="params">file</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> testMethod = options.skip === <span class="literal">true</span> ? test.skip : test;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(options.skip) &amp;&amp; options.skip.some(<span class="function"><span class="params">c</span> =&gt;</span> file.includes(c))) &#123;</span><br><span class="line">      testMethod = test.skip;</span><br><span class="line">    &#125;</span><br><span class="line">    testMethod(<span class="string">`renders <span class="subst">$&#123;file&#125;</span> correctly`</span>, () =&gt; &#123;</span><br><span class="line">      MockDate.set(moment(<span class="string">'2016-11-22'</span>));</span><br><span class="line">      <span class="keyword">const</span> demo = <span class="built_in">require</span>(<span class="string">`../.<span class="subst">$&#123;file&#125;</span>`</span>).default;</span><br><span class="line">      <span class="keyword">const</span> wrapper = render(demo);</span><br><span class="line"></span><br><span class="line">      ariaConvert(wrapper);<span class="comment">// 快照移除 aria-control 属性</span></span><br><span class="line"></span><br><span class="line">      expect(wrapper).toMatchSnapshot();</span><br><span class="line">      MockDate.reset();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>analyst</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>jest测试</title>
-    <url>/2019/12/24/%E5%B7%A5%E7%A8%8B%E5%8C%96/jest%E6%B5%8B%E8%AF%95/</url>
+    <url>/2019/12/26/%E5%B7%A5%E7%A8%8B%E5%8C%96/jest%E6%B5%8B%E8%AF%95/</url>
     <content><![CDATA[<p><a href="https://jestjs.io/docs/zh-Hans/getting-started" target="_blank" rel="noopener">jest 断言库</a> 支持两种测试模式：功能测试、快照测试。通过添加 <a href="https://github.com/facebook/jest/tree/master/packages/babel-jest" target="_blank" rel="noopener">babel-jest</a> 依赖以及 babel.config.js 配置，可以在工程中使用 babel 转译 es6 语法或者 ts 语法，可参看 <a href="https://jestjs.io/docs/zh-Hans/getting-started" target="_blank" rel="noopener">Getting Started</a>。jest 也可以用于使用 <a href="https://webpack.js.org/" target="_blank" rel="noopener">webpack</a> 来管理资源、 样式和编译的项目，可参看 <a href="https://jestjs.io/docs/zh-Hans/webpack" target="_blank" rel="noopener">Using with webpack</a>。jest 支持的断言方法可参见 <a href="https://jestjs.io/docs/zh-Hans/expect" target="_blank" rel="noopener">Expect</a>。以下仅以异步 async/await 函数说明功能测试用例的编写：</p>
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">test(<span class="string">'the data is peanut butter'</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> data = <span class="keyword">await</span> fetchData();</span><br><span class="line">  expect(data).toBe(<span class="string">'peanut butter'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'the fetch fails with an error'</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  expect.assertions(<span class="number">1</span>);</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">await</span> fetchData();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    expect(e).toMatch(<span class="string">'error'</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'the data is peanut butter'</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> expect(fetchData()).resolves.toBe(<span class="string">'peanut butter'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'the fetch fails with an error'</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> expect(fetchData()).rejects.toThrow(<span class="string">'error'</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 <p>快照测试的功能在于当期望每次渲染的 ui 内容一致时，可以使用快照进行对比。第一次执行测试时，就会生成一个快照；下次测试时，重新生成的快照就会与之前的快照进行对比，如果两份快照有差别，就表示测试失败；如果无差别，就标识测试成功。为了避免 ui 的实际渲染，可以使用 react-test-renderer 等模拟渲染库来生成虚拟的 react 渲染树。jest –updateSnapshot 命令可用于重新生成快照。快照测试也可以用于测试 json 数据；对于动态 json 数据，可以使用匹配器的方式进行快照测试。快照测试可参看 <a href="https://jestjs.io/docs/zh-Hans/snapshot-testing" target="_blank" rel="noopener">Snapshot Testing</a>、<a href="https://benmccormick.org/2016/09/19/testing-with-jest-snapshots-first-impressions/" target="_blank" rel="noopener">Testing with Jest Snapshots: First Impressions</a>、<a href="https://jestjs.io/blog/2016/07/27/jest-14.html" target="_blank" rel="noopener">Jest 14.0: React Tree Snapshot Testing</a>。</p>
@@ -73,7 +52,46 @@
 <li>testURL：测试用的 jsdom 环境，应用于获取 location.href。</li>
 <li>globals：测试用的全局变量。</li>
 </ul>
-<h2 id="api"><a href="#api" class="headerlink" title="api"></a>api</h2><h3 id="Mock-Functions"><a href="#Mock-Functions" class="headerlink" title="Mock Functions"></a>Mock Functions</h3><p>模拟函数 Mock Functions 也被称为 spies，它可用于监控函数的行为，不止于测试输出。jest.fn() 可用于创建模拟函数，如果参数没有传入实现，那么将返回默认值 undefined。以下 api 列表中，mockFn 等价于 jest.fn()：</p>
+<h2 id="api"><a href="#api" class="headerlink" title="api"></a>api</h2><h3 id="Globals"><a href="#Globals" class="headerlink" title="Globals"></a>Globals</h3><ul>
+<li>beforeAll(fn, timeout)、afterAll(fn, timeout)：测试脚本调用前执行一次。</li>
+<li>beforeEach(fn, timeout)、afterEach(fn, timeout)：每个测试脚本调用时均执行一次。</li>
+<li>describe(name, fn)、describe.each(table)(name, fn, timeout)、describe.only(name, fn)、describe.only.each(table)(name, fn)、describe.skip(name, fn)、escribe.skip.each(table)(name, fn)：测试套件。</li>
+<li>test(name, fn, timeout)、test.each(table)(name, fn, timeout)：编写测试脚本，test 可以使用 it 替换。</li>
+<li>test.only(name, fn, timeout)、test.only.each(table)(name, fn)：只执行某测试脚本。</li>
+<li>test.skip(name, fn)、test.skip.each(table)(name, fn)：跳过的测试脚本。</li>
+<li>test.todo(name)：待添加的测试脚本，高亮显示。</li>
+</ul>
+<h3 id="Expect"><a href="#Expect" class="headerlink" title="Expect"></a>Expect</h3><ul>
+<li>expect.extend(matchers)：设置额外的匹配器 { [matcherName]: () =&gt; ({ message: Function, pass: boolean }) }，匹配器可以是 async 函数。匹配器可以通过 expect(value)[matcherName] 调用。</li>
+<li>expect.addSnapshotSerializer(serializer)：添加快照序列化函数。</li>
+<li>expect(value)：value 为实际值。</li>
+<li>expect(value).resolves、expect(value).rejects：promise 返回值。</li>
+<li>expect(value).not：取反，如 expect.not.arrayContaining(array)。</li>
+<li>except(mockFn).toBe(value)：判断相符。</li>
+<li>except(mockFn).toHaveBeenCalled()、except(mockFn).toBeCalled()：判断模拟函数被调用。</li>
+<li>except(mockFn).toHaveBeenCalledTimes(number)、except(mockFn).toBeCalledTimes(number)：判断模拟函数以指定参数被调用次数。</li>
+<li>except(mockFn).toHaveBeenCalledWith(arg1, arg2, …)、except(mockFn).toBeCalledWith(arg1, arg2, …)：判断模拟函数以指定参数调用。</li>
+<li>except(mockFn).toHaveBeenLastCalledWith(arg1, arg2, …)、except(mockFn).lastCalledWith(arg1, arg2, …)：判断模拟函数最后一次以指定参数调用。</li>
+<li>except(mockFn).toHaveBeenNthCalledWith(nthCall, arg1, arg2, ….)、except(mockFn).nthCalledWith(nthCall, arg1, arg2, …)：判断模拟函数以指定参数形式调用。</li>
+<li>except(mockFn).toHaveReturned()、except(mockFn).toReturn()：判断模拟函数正常返回。</li>
+<li>except(mockFn).toHaveReturnedTimes(number)、except(mockFn).toReturnTimes(number)：判断模拟函数返回值次数。</li>
+<li>except(mockFn).toHaveReturnedWith(value)、except(mockFn).toReturnWith(value)：判断模拟函数返回了指定值。</li>
+<li>except(mockFn).toHaveLastReturnedWith(value)：判断模拟函数的最后一个返回值。</li>
+<li>except(mockFn).toHaveNthReturnedWith(nthCall, value)：判断模拟函数第 n 次返回结果是否为某值。</li>
+<li>except(value).toHaveLength(number)：判断长度。</li>
+<li>except(value).toHaveProperty(keyPath, value?)：判断对象是否包含某属性。</li>
+<li>except(value).toBeCloseTo(number, numDigits?)、except(value).toBeGreaterThan(number)、except(value).toBeGreaterThanOrEqual(number)、except(value).toBeLessThan(number)、except(value).toBeLessThanOrEqual(number)：比较数值。</li>
+<li>except(value).toBeInstanceOf(Class)：判断是否实例。</li>
+<li>except(value).toBeNull()、except(value).toBeTruthy()、except(value).toBeFalsy()、except(value).toBeDefined()、except(value).toBeUndefined()、except(value).toBeNaN()：匹配 null、true、false、undefined 或 NaN 等。</li>
+<li>except(value).toContain(item)、except(value).toContainEqual(item)：判断数组是否包含某元素。</li>
+<li>except(value).toMatch(regexpOrString)：匹配正则或字符串。</li>
+<li>except(value).toMatchObject(object)：匹配对象。</li>
+<li>except(value).toMatchSnapshot(propertyMatchers?, hint?)、except(value).toMatchInlineSnapshot(propertyMatchers?, inlineSnapshot)：匹配快照。</li>
+<li>expect(value).toEqual(value)、expect(value).toStrictEqual(value)：期望等值，toStrictEqual 方法额外会比较 undefined 值等。</li>
+<li>expect(value).toThrow(error?)：期望报错。</li>
+<li>expect(value).toThrowErrorMatchingSnapshot(hint?)、expect(value).toThrowErrorMatchingInlineSnapshot(inlineSnapshot)：期望报错内容与快照相符。</li>
+</ul>
+<h3 id="Mock-Functions"><a href="#Mock-Functions" class="headerlink" title="Mock Functions"></a>Mock Functions</h3><p>模拟函数 Mock Functions 也被称为 spies，它可用于监控函数的行为，不止于测试输出。jest.fn() 可用于创建模拟函数，如果参数没有传入实现，那么将返回默认值 undefined。以下 api 列表中，mockFn 等价于 jest.fn()：</p>
 <ul>
 <li>mockFn.mockImplementation(fn)、mockFn.mockImplementationOnce(fn)：设置模拟函数的实现，等价于 jest.fn(fn)。</li>
 <li>mockFn.mockReturnThis()：模拟返回 this。</li>
@@ -95,6 +113,28 @@
 <li>jest.unmock(moduleName)：加载模块时不会使用自动模拟机制。</li>
 <li>jest.doMock(moduleName, factory, options)：当使用 babel-jest 转译时，jest.mock 会提升到测试脚本的顶部，jest.doMock 不会。jest.doMock 适合用于模拟同一模块的不同导出，该模块在测试脚本中仍需要加载。</li>
 <li>jest.dontMock(moduleName)：当使用 babel-jest 转译时，jest.unmock 会提升到测试脚本的顶部，jest.dontMock 不会。</li>
+<li>jest.setMock(moduleName, moduleExports)：指定模块返回的模拟对象。</li>
+<li>jest.requireActual(moduleName)：获取实际的模块，用于构建模拟对象。</li>
+<li>jest.requireMock(moduleName)：为模块构建一个模拟对象。</li>
+<li>jest.resetModules()：重置所有加载的模块。</li>
+<li>jest.isolateModules(fn)：创建沙箱，用于以回调形式加载模块。</li>
+<li>jest.fn(implementation)、jest.isMockFunction(fn)：创建模拟函数。</li>
+<li>jest.spyOn(object, methodName)：追踪 object[methodName] 方法的调用情况。若想为 object[methodName] 创建模拟函数，可以使用 jest.spyOn(object, methodName).mockImplementation(() =&gt; customImplementation)、object[methodName] = jest.fn(() =&gt; customImplementation)。</li>
+<li>jest.spyOn(object, methodName, accessType?)：监听访问器的调用情况，accessType 可以是 get 或者 set。</li>
+<li>jest.clearAllMocks()、jest.resetAllMocks()：重置 mock.calls、mock.instances。</li>
+<li>jest.restoreAllMocks()：将模拟函数重置为初始值。</li>
+<li>jest.useFakeTimers()：模拟 setTimeout, setInterval, clearTimeout, clearInterval, nextTick, setImmediate, clearImmediate。</li>
+<li>jest.useRealTimers()：采用实际的 setTimeout, setInterval, clearTimeout, clearInterval, nextTick, setImmediate, clearImmediate。</li>
+<li>jest.runAllTicks()：等价于使用 process.nextTick 执行 micro-task 队列。</li>
+<li>jest.runAllTimers()：等价于使用 setTimeout, setInterval, setImmediate 执行 macro-task 队列以及  process.nextTick 执行 micro-task 队列。</li>
+<li>jest.runAllImmediates()：等价于调用 setImmediate。</li>
+<li>jest.advanceTimersByTime(msToRun)、jest.runTimersToTime(msToRun)：等价于使用 setTimeout, setInterval, setImmediate 执行 macro-task 队列。</li>
+<li>jest.runOnlyPendingTimers()：等价于使用 setTimeout, setInterval 执行被中断的 macro-task 队列（新添加的 macro-task 依旧不会执行）。</li>
+<li>jest.advanceTimersToNextTimer(steps)：提前执行下一个 timeout 或 interval。</li>
+<li>jest.clearAllTimers()：中止所有计时器。</li>
+<li>jest.getTimerCount()：获取待执行的计时器个数。</li>
+<li>jest.setTimeout(timeout)：设置计时。</li>
+<li>jest.retryTimes(count)：定时器重试。</li>
 </ul>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.aliued.com/?p=4095" target="_blank" rel="noopener">React应用下的单元测试</a><br><a href="http://www.voidcn.com/article/p-ftetcszg-btt.html" target="_blank" rel="noopener">JavaScript – 使用Jest和Webpack别名进行测试</a><br><a href="https://www.cnblogs.com/zaking/p/10582228.html" target="_blank" rel="noopener">在vue中如何配置Jest</a></p>
 ]]></content>
@@ -103,6 +143,27 @@
       </categories>
       <tags>
         <tag>carrier</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>聊聊组件库的测试</title>
+    <url>/2019/12/24/antd/%E8%81%8A%E8%81%8A%E7%BB%84%E4%BB%B6%E5%BA%93%E7%9A%84%E6%B5%8B%E8%AF%95/</url>
+    <content><![CDATA[<h2 id="antd"><a href="#antd" class="headerlink" title="antd"></a>antd</h2><p>antd 基于 <a href="https://jestjs.io/docs/zh-Hans/getting-started" target="_blank" rel="noopener">jest 断言库</a>、<a href="https://github.com/airbnb/enzyme" target="_blank" rel="noopener">enzyme</a>、<a href="https://github.com/School-Explained/enzyme-adapter-react-16" target="_blank" rel="noopener">enzyme-adapter-react-16</a>。</p>
+<p><a href="https://github.com/ant-design/ant-design/blob/master/.jest.js" target="_blank" rel="noopener">jest 配置</a>：</p>
+<ul>
+<li>moduleNameMapper：正则到模块名的 map 映射，这些模块将不会被模拟，无论启动自动模拟与否。</li>
+<li>transform：在 ant-design 中，jest 配置的转译器主要使用 babel-jest 实现，只是混入了与启动开发服务器相同的 babel 配置，参见 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/codePreprocessor.js" target="_blank" rel="noopener">codePreprocessor.js</a>。对于 markdown 文件，转译器将先使用 mark-twain 进行解析，然后获取 markdown 文件中的代码，然后进行转译，参见 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/demoPreprocessor.js" target="_blank" rel="noopener">demoPreprocessor.js</a>。对于图片，转译器使用 <a href="https://github.com/webpack-contrib/url-loader" target="_blank" rel="noopener">url-loader</a> 进行处理，参见 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/imagePreprocessor.js" target="_blank" rel="noopener">imagePreprocessor.js</a>。</li>
+</ul>
+<p>setup.js 启动文件配置 Enzyme，即执行 const Adapter = require(‘enzyme-adapter-react-16’); Enzyme.configure({ adapter: new Adapter() })。</p>
+<p>ant-design 所做的全局测试包含对导出的模块列表作快照测试（生成的快照均在 <strong>snapshots</strong> 文件夹内）、组件库版本号是否与 package.json 中一致、使用 <a href="https://github.com/benjycui/dekko" target="_blank" rel="noopener">dekko 库</a> 校验打包文件是否正确输出、测试 lib 以及语言包是否正常输出。</p>
+<p>组件测试包含功能测试、快照测试。快照测试基于遍历 components 文件夹中的 demo 文档（加载的 markdown 经过 <a href="https://github.com/ant-design/antd-tools/blob/master/lib/jest/demoPreprocessor.js" target="_blank" rel="noopener">demoPreprocessor.js</a> 转译器处理，快照中移除 aria-control 属性。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> glob <span class="keyword">from</span> <span class="string">'glob'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; render &#125; <span class="keyword">from</span> <span class="string">'enzyme'</span>;</span><br><span class="line"><span class="keyword">import</span> MockDate <span class="keyword">from</span> <span class="string">'mockdate'</span>;</span><br><span class="line"><span class="keyword">import</span> moment <span class="keyword">from</span> <span class="string">'moment'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">demoTest</span>(<span class="params">component, options = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> files = glob.sync(<span class="string">`./components/<span class="subst">$&#123;component&#125;</span>/demo/*.md`</span>);</span><br><span class="line"></span><br><span class="line">  files.forEach(<span class="function"><span class="params">file</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> testMethod = options.skip === <span class="literal">true</span> ? test.skip : test;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(options.skip) &amp;&amp; options.skip.some(<span class="function"><span class="params">c</span> =&gt;</span> file.includes(c))) &#123;</span><br><span class="line">      testMethod = test.skip;</span><br><span class="line">    &#125;</span><br><span class="line">    testMethod(<span class="string">`renders <span class="subst">$&#123;file&#125;</span> correctly`</span>, () =&gt; &#123;</span><br><span class="line">      MockDate.set(moment(<span class="string">'2016-11-22'</span>));</span><br><span class="line">      <span class="keyword">const</span> demo = <span class="built_in">require</span>(<span class="string">`../.<span class="subst">$&#123;file&#125;</span>`</span>).default;</span><br><span class="line">      <span class="keyword">const</span> wrapper = render(demo);</span><br><span class="line"></span><br><span class="line">      ariaConvert(wrapper);<span class="comment">// 快照移除 aria-control 属性</span></span><br><span class="line"></span><br><span class="line">      expect(wrapper).toMatchSnapshot();</span><br><span class="line">      MockDate.reset();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
       </tags>
   </entry>
   <entry>
@@ -3132,14 +3193,11 @@
       </tags>
   </entry>
   <entry>
-    <title>rc-align</title>
-    <url>/2019/02/01/antd/react-component/rc-align/</url>
-    <content><![CDATA[<h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
+    <title>dom-align</title>
+    <url>/2019/02/01/antd/react-component/dom-align/</url>
+    <content><![CDATA[<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
 <li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
-</li>
-<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
-</li>
+<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
 </ul>
 ]]></content>
       <categories>
@@ -3152,11 +3210,14 @@
       </tags>
   </entry>
   <entry>
-    <title>dom-align</title>
-    <url>/2019/02/01/antd/react-component/dom-align/</url>
-    <content><![CDATA[<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
+    <title>rc-align</title>
+    <url>/2019/02/01/antd/react-component/rc-align/</url>
+    <content><![CDATA[<h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
 <li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
+<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
+</li>
+<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
+</li>
 </ul>
 ]]></content>
       <categories>

@@ -103,28 +103,28 @@
   <meta name="keywords" content="analyst,">
 
 
-<meta name="description" content="what数据访问时的事务机制包含开启事务、提交事务、数据回滚等操作。spring 事务机制提供了统一的编程模型来处理不同数据访问操作；支持声明式事务编程，编码时无侵入性；支持分布式事务；与 spring 数据访问抽象完美集成。PlatformTranscationManager 是 spring 提供的事务管理接口，不同的数据访问技术有各自的实现，如 JDBC 实现了 DataSourceTran">
+<meta name="description" content="参考TDDL剖析TDDL调研笔记分布式数据库中间件TDDL、Amoeba、Cobar、MyCAT架构比较">
 <meta name="keywords" content="analyst">
 <meta property="og:type" content="article">
-<meta property="og:title" content="spring 事务机制">
-<meta property="og:url" content="http://yoursite.com/2019/12/31/java/spring 事务机制/index.html">
+<meta property="og:title" content="TDDL">
+<meta property="og:url" content="http://yoursite.com/2019/12/31/java/TDDL/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="what数据访问时的事务机制包含开启事务、提交事务、数据回滚等操作。spring 事务机制提供了统一的编程模型来处理不同数据访问操作；支持声明式事务编程，编码时无侵入性；支持分布式事务；与 spring 数据访问抽象完美集成。PlatformTranscationManager 是 spring 提供的事务管理接口，不同的数据访问技术有各自的实现，如 JDBC 实现了 DataSourceTran">
+<meta property="og:description" content="参考TDDL剖析TDDL调研笔记分布式数据库中间件TDDL、Amoeba、Cobar、MyCAT架构比较">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-29T03:54:25.047Z">
+<meta property="og:updated_time" content="2019-12-29T15:19:17.180Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="spring 事务机制">
-<meta name="twitter:description" content="what数据访问时的事务机制包含开启事务、提交事务、数据回滚等操作。spring 事务机制提供了统一的编程模型来处理不同数据访问操作；支持声明式事务编程，编码时无侵入性；支持分布式事务；与 spring 数据访问抽象完美集成。PlatformTranscationManager 是 spring 提供的事务管理接口，不同的数据访问技术有各自的实现，如 JDBC 实现了 DataSourceTran">
+<meta name="twitter:title" content="TDDL">
+<meta name="twitter:description" content="参考TDDL剖析TDDL调研笔记分布式数据库中间件TDDL、Amoeba、Cobar、MyCAT架构比较">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/12/31/java/spring 事务机制/">
+  <link rel="canonical" href="http://yoursite.com/2019/12/31/java/TDDL/">
 
 
-  <title>spring 事务机制 | 修子范语</title>
+  <title>TDDL | 修子范语</title>
   
 
 
@@ -300,7 +300,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/31/java/spring 事务机制/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/31/java/TDDL/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -317,7 +317,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">spring 事务机制</h1>
+          <h1 class="post-title" itemprop="name headline">TDDL</h1>
         
 
         <div class="post-meta">
@@ -365,8 +365,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/12/31/java/spring 事务机制/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/31/java/spring 事务机制/" itemprop="commentCount"></span>
+                <a href="/2019/12/31/java/TDDL/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/31/java/TDDL/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -394,19 +394,7 @@
       
 
       
-        <h2 id="what"><a href="#what" class="headerlink" title="what"></a>what</h2><p>数据访问时的事务机制包含开启事务、提交事务、数据回滚等操作。spring 事务机制提供了统一的编程模型来处理不同数据访问操作；支持声明式事务编程，编码时无侵入性；支持分布式事务；与 spring 数据访问抽象完美集成。PlatformTranscationManager 是 spring 提供的事务管理接口，不同的数据访问技术有各自的实现，如 JDBC 实现了 DataSourceTranscationManager；JPA 实现了 JPATranscationManager；Hibernate 实现了 HibernateTranscationManager；JDO 实现了 JdoTranscationManager；分布式事务实现了 JtaTranscationManager。在 spring boot 项目中，spring-boot-starter-jdbc 会为应用自动注入 DataSourceTransactionManager 实例；spring-boot-starter-data-jpa 会为应用自动注入 JpaTransactionManager 实例。因此，对于 spring boot 项目，只要显式地对启动类添加 @EnableTransactionManagement 注解，即能为应用注入 PlatformTransactionManager 实例；然后在需要事务支持的方法或类上添加 @Transactional 注解，spring 就能基于 AOP 机制开启一个事务，当调用无异常时，事务就会被提交了。</p>
-<h2 id="sample"><a href="#sample" class="headerlink" title="sample"></a>sample</h2><h3 id="basic"><a href="#basic" class="headerlink" title="basic"></a>basic</h3><p>样例来自 <a href="https://spring.io/guides/gs/managing-transactions/" target="_blank" rel="noopener">Managing Transactions</a>，基于 spring boot 作了改造：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableTransactionManagement</span> <span class="comment">// 启注解事务管理</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProfiledemoApplication</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Bean</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">testBean</span><span class="params">(PlatformTransactionManager platformTransactionManager)</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;"</span> + platformTransactionManager.getClass().getName());</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Object();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    SpringApplication.run(ProfiledemoApplication.class, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BookingService</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Logger logger = LoggerFactory.getLogger(BookingService.class);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> JdbcTemplate jdbcTemplate;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">BookingService</span><span class="params">(JdbcTemplate jdbcTemplate)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.jdbcTemplate = jdbcTemplate;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Transactional</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">book</span><span class="params">(String... persons)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (String person : persons) &#123;</span><br><span class="line">      logger.info(<span class="string">"Booking "</span> + person + <span class="string">" in a seat..."</span>);</span><br><span class="line">      jdbcTemplate.update(<span class="string">"insert into BOOKINGS(FIRST_NAME) values (?)"</span>, person);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">findAllBookings</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> jdbcTemplate.query(<span class="string">"select FIRST_NAME from BOOKINGS"</span>,</span><br><span class="line">        (rs, rowNum) -&gt; rs.getString(<span class="string">"FIRST_NAME"</span>));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="multiple-management"><a href="#multiple-management" class="headerlink" title="multiple management"></a>multiple management</h3><p>当应用中有多种数据库连接方式时，<a href="https://blog.csdn.net/u010963948/article/details/79208328" target="_blank" rel="noopener">Spring Boot的事务管理注解@EnableTransactionManagement的使用</a> 这篇文章指明了该如何使用声明式事务：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableTransactionManagement</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProfiledemoApplication</span> <span class="keyword">implements</span> <span class="title">TransactionManagementConfigurer</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Resource</span>(name=<span class="string">"txManager2"</span>)</span><br><span class="line">  <span class="keyword">private</span> PlatformTransactionManager txManager2;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 创建事务管理器1</span></span><br><span class="line">  <span class="meta">@Bean</span>(name = <span class="string">"txManager1"</span>)</span><br><span class="line">  <span class="function"><span class="keyword">public</span> PlatformTransactionManager <span class="title">txManager</span><span class="params">(DataSource dataSource)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DataSourceTransactionManager(dataSource);</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">// 创建事务管理器2</span></span><br><span class="line">  <span class="meta">@Bean</span>(name = <span class="string">"txManager2"</span>)</span><br><span class="line">  <span class="function"><span class="keyword">public</span> PlatformTransactionManager <span class="title">txManager2</span><span class="params">(EntityManagerFactory factory)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> JpaTransactionManager(factory);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 实现接口 TransactionManagementConfigurer 方法，设置默认的事务管理器</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> PlatformTransactionManager <span class="title">annotationDrivenTransactionManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> txManager2;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    SpringApplication.run(ProfiledemoApplication.class, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DevSendMessage</span> <span class="keyword">implements</span> <span class="title">SendMessage</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 使用 value 指定事务管理器</span></span><br><span class="line">  <span class="meta">@Transactional</span>(value=<span class="string">"txManager1"</span>)</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 使用默认的事务管理器；如果没有默认的事务管理器，就必须制定 value，否则会抛出异常</span></span><br><span class="line">  <span class="meta">@Transactional</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="how"><a href="#how" class="headerlink" title="how"></a>how</h2><p>spring 的事务策略由 PlatformTransactionManager 接口定义。PlatformTransactionManager 是一个 service provider interface（服务提供者接口 SPI），通过 spring 的依赖注入机制构建实例。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PlatformTransactionManager</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 如果当前调用堆栈存在匹配事务，就返回新事务或当前的事务</span></span><br><span class="line">  <span class="function">TransactionStatus <span class="title">getTransaction</span><span class="params">(TransactionDefinition definition)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">commit</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">rollback</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>TransactionDefinition 指定了：</p>
-<ul>
-<li>Propagation（事务传播）：默认情况下（值为 REQUIRED），在一个事务范围内的代码都在这个事务中执行（需要事务支持的方法 A 调用方法 B，B 将使用与 A 相同的事务，而不创建新事务；当方法 B 发生异常时，整个事务将回滚）。当赋值为 REQUIRED_NEW 时，方法 B 将构建新的事务，异常也将只导致 B 事务回滚。当赋值为 NESTED 时，效果与 REQUIRED_NEW 类似，但只支持 JDBC，不支持 JPA、Hibernate。当赋值为 SUPPORTS 时，声明方法调用时有事务就用事务，没有事务就不用事务（比如某方法没有事务，调用它的方法可能有事务）。当赋值为 NOT_SUPPORTS 时，声明方法不在事务中执行，若有事务，在方法调用结束阶段事务都会被挂起。当赋值为 NEVER 时，声明方法不在事务中执行，若有事务则抛出异常。当赋值为 MANDATORY 时，声明方法在事务中执行，若没有事务则抛出异常。</li>
-<li>Isolation（事务隔离）：指定事务之间的隔离程度，比如此事务是否可以看到其他事务的未提交写入。默认（值为 DEFAULT）使用当前数据库的默认隔离级别，如 Oracle、SQL Server 的 READ_COMMITTED，Mysql 的 REPEATABLE_READ。当值为 READ_UNCOMMITTED </li>
-</ul>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html#transaction" target="_blank" rel="noopener">spring 官方文档</a><br><a href="https://blog.csdn.net/w372426096/article/details/78574161" target="_blank" rel="noopener">Java中的事务——全局事务与本地事务</a><br><a href="https://www.cnblogs.com/kaleidoscope/p/9756845.html" target="_blank" rel="noopener">TDDL剖析</a><br><a href="https://www.cnblogs.com/kaleidoscope/p/9757043.html" target="_blank" rel="noopener">TDDL调研笔记</a><br><a href="https://www.jianshu.com/p/ed54162d720c" target="_blank" rel="noopener">分布式数据库中间件TDDL、Amoeba、Cobar、MyCAT架构比较</a></p>
+        <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/kaleidoscope/p/9756845.html" target="_blank" rel="noopener">TDDL剖析</a><br><a href="https://www.cnblogs.com/kaleidoscope/p/9757043.html" target="_blank" rel="noopener">TDDL调研笔记</a><br><a href="https://www.jianshu.com/p/ed54162d720c" target="_blank" rel="noopener">分布式数据库中间件TDDL、Amoeba、Cobar、MyCAT架构比较</a></p>
 
       
     </div>
@@ -535,7 +523,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">116</span>
+                    <span class="site-state-item-count">117</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -609,7 +597,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#what"><span class="nav-number">1.</span> <span class="nav-text">what</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sample"><span class="nav-number">2.</span> <span class="nav-text">sample</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#basic"><span class="nav-number">2.1.</span> <span class="nav-text">basic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#multiple-management"><span class="nav-number">2.2.</span> <span class="nav-text">multiple management</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#how"><span class="nav-number">3.</span> <span class="nav-text">how</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">1.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
@@ -769,9 +757,9 @@
   
     <script type="text/javascript">
       var disqus_config = function () {
-        this.page.url = 'http://yoursite.com/2019/12/31/java/spring 事务机制/';
-        this.page.identifier = '2019/12/31/java/spring 事务机制/';
-        this.page.title = 'spring 事务机制';
+        this.page.url = 'http://yoursite.com/2019/12/31/java/TDDL/';
+        this.page.identifier = '2019/12/31/java/TDDL/';
+        this.page.title = 'TDDL';
       };
       function loadComments () {
         var d = document, s = d.createElement('script');

@@ -299,6 +299,518 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/23/他山石/HSF服务/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/23/他山石/HSF服务/" itemprop="url">HSF服务</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-23T00:00:00+08:00">2019-10-23</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/他山石/" itemprop="url" rel="index"><span itemprop="name">他山石</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/10/23/他山石/HSF服务/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/23/他山石/HSF服务/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>此前用 node 对接过一段时候的 HSF 服务，不知分寸地一头扎进 node 模块源码里，也没得出个所以然。直到今天偶然在《企业IT架构转型之道：阿里巴巴中台战略思想与架构实战》这本书读到有关 HSF 的内容，才理解了 HSF 实现的大致原理。看来还是要多读书、多看文档。谨以这篇短文留念。</p>
+<h2 id="HSF"><a href="#HSF" class="headerlink" title="HSF"></a>HSF</h2><p>HSF 全称 High Speed Framework 高速服务框架，是阿里内部广泛使用的 RPC 框架。不同于 ESB 企业服务总线，HSF 实现了服务调用方（Consumer）和服务提供方（Provider）的点对点通信。在 HSF 框架中，地址服务器用于维护全量服务器（包含服务调用方和服务提供方）和 Diamond 服务器列表信息；配置服务器用于记录服务发布（服务提供方发布了哪些服务）和服务订阅（服务调用方需要哪些服务）信息，并将相关信息推送到对应的服务器上，如配置服务器会将服务提供方的相关信息推送给服务调用方。配置服务器与服务提供方、服务调用方均保持长连接，采用心跳的方式监控各服务运行节点的状况，以便剔除故障的服务提供方。HSF 通过 ip 和端口号锁定服务提供方或服务调用方；通过服务名和版本号定位服务（因此，通过指定服务名和版本号可以直连本地服务器）。首先服务提供方会在配置服务器中完成服务的注册发布，然后服务调用方会在配置服务器中订阅服务，以便配置服务器即时推送服务提供方的 ip 和端口。为了服务发布、订阅、推送的负载均衡，生产环境上的配置服务器一般会配置多台，且在不同的配置服务器之间会作实时的数据同步。</p>
+<img src="/2019/10/23/他山石/HSF服务/hsf.png">
+<blockquote class="blockquote-center"><p>每一个 HSF 的应用均以 War 包形式存在，运行在 Ali-Tomcat 容器中。Ali-Tomcat 容器层已经集成了 HSF 服务框架对服务提供者或服务调用者进行配置服务器发现、服务注册、订阅、失效转移等相关功能，所以不管是在服务提供者还是调用者开发时，只需要进行服务相关的配置操作，应用中无需引入任何 HSF 相关的 Jar 包。</p>
+</blockquote>
+<p>在服务提供方和服务调用方的点对点通信中，服务调用者会从服务提供者列表中随机选择一台进行通信，无需通过 ESB 中转，因此就形成“去中心化”的服务架构。当请求的服务提供方故障时，服务调用者会获得失败反馈，继而从剩下的服务提供者列表中选择一台再次通信，这就是 HSF 服务的容错机制；同时配置服务器与服务提供方的长连接通信，允许配置服务器及时剔除故障的服务提供方并推送到服务调用方。HSF 的线性扩展能力在于，只要启动一台新的服务提供方服务器，并由配置服务器推送给服务调用方，即可以分摊服务调用的压力。</p>
+<h3 id="Diamond"><a href="#Diamond" class="headerlink" title="Diamond"></a>Diamond</h3><p>Diamond 服务器用于推送统一的配置服务。在 HSF 中，Diamond 主要用于：</p>
+<ol>
+<li>通过设置白名单使某些服务调用方的服务只被特定 IP 地址的服务器调用。</li>
+<li>通过用户认证的方式控制服务是否能被调用。</li>
+<li>按照不同的服务路由权重设置服务调用方对多个服务提供方服务节点的访问。</li>
+<li>设置某些服务的 QPS 能力上限值，实现限流。</li>
+</ol>
+<p>Diamond 会将这些规则保存在在自身的 MySql 中，并将这些规则推送到相关的服务节点上，使这些规则能立即在服务运行环境中生效。</p>
+<h3 id="通信和序列化协议"><a href="#通信和序列化协议" class="headerlink" title="通信和序列化协议"></a>通信和序列化协议</h3><p>HSF 框架使用网络通信框架 Netty、Hession 数据序列化协议实现服务器键的交互。这类 RPC 协议采用多路复用的 TCP 长连接方式，即在服务提供方和调用方点对点通信期间会共用同一个长连接，以传输不同的请求块。Hessian 数据序列化协议精简高效，同时可以跨语言使用。另外 Hessian 可以充分利用 Web 容器的成熟功能，在处理大量用户访问时很有优势，在资源分配、线程排队、异常处理等方面都可以由 Web 容器保证。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/laomumu1992/article/details/86636757" target="_blank" rel="noopener">HSF简介（摘自《企业IT架构转型之道》）</a><br><a href="https://help.aliyun.com/document_detail/100087.html?spm=a2c4g.11174359.4.4.34c32b88ntjXfW" target="_blank" rel="noopener">HSF 概述</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/20/frontend/web安全机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/20/frontend/web安全机制/" itemprop="url">web安全机制</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-20T00:00:00+08:00">2019-10-20</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/10/20/frontend/web安全机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/20/frontend/web安全机制/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>常见的前端安全问题包含 XSS（Cross Site Script，跨站脚本攻击）、CSRF（Cross-site Request Forgery，跨站请求伪造）、点击劫持等。</p>
+<h2 id="浏览器安全"><a href="#浏览器安全" class="headerlink" title="浏览器安全"></a>浏览器安全</h2><h3 id="同源策略"><a href="#同源策略" class="headerlink" title="同源策略"></a>同源策略</h3><p>浏览器的同源策略限制了 document 或脚本的跨源读写能力。若域名、子域名、端口、协议其中一个有所不同，浏览器就会认为两个站点是跨源的。当 script、img、iframe、link 等包含 src 属性的标签加载远程资源，即便资源提供的域名和页面的域名不一致，浏览器还是会认为资源的 origin 为当前页面的所在域。与 xhr 不同的是，通过 src 加载的资源，浏览器限制了 js 读写响应的能力。在不启用 CORS 功能的站点中，xhr 只能发起同源请求。除 xhr 外，cookie 也会受同源策略的限制，即，理论上不能在非源站点中获取原站点的 cookie。</p>
+<h3 id="sandbox"><a href="#sandbox" class="headerlink" title="sandbox"></a>sandbox</h3><p>浏览器采用多进程架构隔离多个功能模块、tab。Chrome 的主要进程为：浏览器进程、渲染进程、插件进程、扩展进程。插件进程与浏览器进程严格隔离。渲染进程通过沙箱隔离，网页代码与浏览器内核进程通信、与操作系统通信都需要通过 IPC channel。沙箱使不可信的代码运行在一定的环境中，限制不可信的代码访问隔离区外的资源；如果一定要访问隔离区外的资源，就必须通过指定的数据通道，由特定的 API 校验数据的合法性。浏览器主要用于限制 js 在安全区内执行；多进程架构也使一个 tab 挂掉后，不会影响另一个 tab。</p>
+<img src="/2019/10/20/frontend/web安全机制/multi-process.jpeg">
+<h3 id="恶意网址拦截"><a href="#恶意网址拦截" class="headerlink" title="恶意网址拦截"></a>恶意网址拦截</h3><p>基于页面特征模型，浏览器厂家会将恶意网址加入黑名单中，并推送到客户端，保障用户访问的安全性。网址黑名单并不一定由浏览器厂家收集获得，也可以借助第三方安全厂商提供。</p>
+<h2 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h2><p>XSS 由可解析执行的代码插入到页面中引起；在页面渲染过程中，这段代码会被执行，从而引起安全问题（如盗取数据、伪造账号等）。因为恶意代码可能是加载特定 js 资源的 script 标签，所以 XSS 攻击引起的问题包含通过 js 代码劫持 cookie、伪造请求等；XSS 也可以通过 js 画出登录框，把用户的提交数据发送给黑客电脑，从而造成账号密码的泄漏；XSS 可以通过 window.name 在非源站点中获取源站点的 cookie 信息（window 为浏览器窗体，不像 document 那样受同源策略的影响，因此将 cookie 赋值给 window.name 就可以在非源站点获取到 cookie 信息）；XSS 攻击也能通过 UserAgent 获取用户的操作系统和浏览器版本等信息，并逐步挖掘到用户安装的软件、浏览器的扩展程序，再通过浏览器漏洞植入木马。XSS 甚至可以通过 Java Applet、Flash、iTunes、Office Word、QuickTime 等第三方软件获取用户的 ip 地址。更有甚者，XSS Worm 蠕虫会利用社交平台的好友列表，能使恶意代码迅速扩散。</p>
+<p>测试 XSS 攻击平台有 Attack API、BeFF、XSS-Proxy、</p>
+<p>XSS 分为存储型 XSS、反射型 XSS、DOM XSS（MXSS）三种。存储型 XSS 是指恶意代码随着提交数据入库，再从数据库读取回显时引起恶意代码的执行。因此，存储型 XSS 能引起稳定持续的安全问题。反射型 XSS 是指将用户输入“反射给”浏览器，即需要一个交互行为才能使攻击成功。典型的交互行为如点击一个恶意链接，通过 url 参数植入恶意脚本，url 参数在使用过程时将执行恶意脚本（所以 react 设置了 dangerouslySetInnerHTML 属性，es6 提供模板字符串处理变量）。黑客也可以通过 location.hash 构造 url 参数，因为 hash 路由不会造成发包请求，这样服务器日志也不会留有记录，也就隐藏了黑客的真实意图。MXSS 由恶意代码段代插入 DOM 属性中引起，效果等同反射型 XSS。</p>
+<p>XSS 的防范方式有以下几种：</p>
+<ol>
+<li>在 cookie 中设置 httpOnly 标识，禁止通过 js 访问 cookie，以免 cookie 被劫持。</li>
+<li>提交表单时通过验证码等交互行为限制接口调用的成功率，这样就能在一定程度上避免 XSS 伪造请求。</li>
+<li>验证所有输出到页面上的数据，并对必要的内容作转义处理（成熟的模板引擎需要防范使用模板变量进行 XSS 攻击）。</li>
+<li>服务端使用开源的 XSS Filter 检查输入。</li>
+<li>对 url 参数进行加密，避免攻击者伪造（加密后的 url 不利于用户收藏）。</li>
+</ol>
+<p>以下是常见的转义处理：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">htmlEncode</span>(<span class="params">str</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (str.length === <span class="number">0</span>) <span class="keyword">return</span> <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> str.replace(<span class="regexp">/&amp;/g</span>, <span class="string">'&amp;amp;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&lt;/g</span>, <span class="string">'&amp;lt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&gt;/g</span>, <span class="string">'&amp;gt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/ /g</span>, <span class="string">'&amp;nbsp;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/\'/g</span>, <span class="string">'&amp;#39;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/\"/g</span>, <span class="string">'&amp;quot;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/\n/g</span>, <span class="string">'&lt;br&gt;'</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">htmlDecode</span>(<span class="params">str</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (str.length === <span class="number">0</span>) <span class="keyword">return</span> <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> str.replace(<span class="regexp">/&amp;amp;/g</span>, <span class="string">'&amp;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;lt;/g</span>, <span class="string">'&lt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;gt;/g</span>, <span class="string">'&gt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;nbsp;/g</span>, <span class="string">' '</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;#39;/g</span>, <span class="string">'\''</span>)</span><br><span class="line">    .replace(<span class="regexp">/&amp;quot;/g</span>, <span class="string">'\"'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&lt;br&gt;/g</span>, <span class="string">'\n'</span>);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h2><p>CSRF 是非源站点携带着源站点的 cookie 数据，继而调用源站点的接口，这样就容易避过用户校验，并使请求执行成功（如篡改金额后调用支付接口）。浏览器 cookie 分为两种：指定失效时间的本地 cookie，浏览器在切换 tab 到子域时不会将该 cookie 带入另一个 tab；未指定失效时间的临时 cookie，在浏览器进程的生命周期中有效，且可以在不同 tab 子域中传播。部分浏览器并未禁止不同域的 iframe, img, script, link 等标签携带本地 cookie，但是所有浏览器允许携带临时 cookie。为嵌入第三方广告等 iframe，W3C 指定的 P3P 头允许 iframe 等标签携带本地 cookie，这样做既使第三方广告能获得 cookie 信息，也增加了遭受 CSRF 攻击的风险。在 CSRF 攻击中，攻击者会伪造嵌入源站点 iframe 的非源站点获取 cookie 信息，同时可以使用 js 脚本伪造 post 请求等。</p>
+<p>CSRF 的防范方式有以下几种：</p>
+<ol>
+<li>提交表单时通过验证码等交互行为限制接口调用的成功率，这样就能在一定程度上避免 CSRF 伪造请求。</li>
+<li>校验 Referer 头是不是指定的页面，但是服务器未必能获取到 Referer 头。</li>
+<li>对 url 参数进行加密，避免攻击者伪造（加密后的 url 不利于用户收藏）。</li>
+<li>添加随机且加密且有一定实效的 token。token 由后端生成，可通过 html 模板变量、session、cookie 传给前端；再由前端添加到请求体或请求头中；提交数据后，后端将验证 Token 以判断用户的准确性。</li>
+</ol>
+<h2 id="点击劫持"><a href="#点击劫持" class="headerlink" title="点击劫持"></a>点击劫持</h2><ul>
+<li>点击劫持：在非源站点中使用隐藏的 iframe 加载源站点页面，再通过诱导用户点击源站点的按钮等，产生恶意行为。</li>
+<li>图片覆盖攻击：与点击劫持相类，仍是用 iframe 加载源站点页面，再诱导用户点击绝对定位的图片。</li>
+<li>拖拽劫持：拖拽不受同源策略的限制，在使用 ifame 加载源站点页面的情况下，就能通过拖拽脚本窃取源站点的信息。</li>
+<li>触屏劫持：与点击劫持相类。</li>
+</ul>
+<p>防御点击劫持的手段其一是禁止 iframe 嵌套，这种做法叫做 frame busting。frame busting 是可以被绕过的，详情参看 “Busting frame busting: a study of clickjacking vunlnerabilities at popluar site”。以下是 frame busting 的简单示例。防御点击劫持的手段其二是通过 X-Frame-Options 限制 iframe 加载，这样可以回避 frmae busting 的被绕过。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frame busting 条件语句</span></span><br><span class="line"><span class="keyword">if</span> (top != self)</span><br><span class="line"><span class="keyword">if</span> (top.location != self.location)</span><br><span class="line"><span class="keyword">if</span> (top.location != location)</span><br><span class="line"><span class="keyword">if</span> (parent.frames.length &gt; <span class="number">0</span>)</span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">window</span> != top)</span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">window</span>.top !== <span class="built_in">window</span>.self)</span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">window</span>.self != <span class="built_in">window</span>.top)</span><br><span class="line"><span class="keyword">if</span> (parent &amp;&amp; parent != <span class="built_in">window</span>)</span><br><span class="line"><span class="keyword">if</span> (parent &amp;&amp; parent.frames &amp;&amp; parent.frames.length&gt;<span class="number">0</span>)</span><br><span class="line"><span class="keyword">if</span>((self.parent&amp;&amp;!(self.parent===self))&amp;&amp;(self.parent.frames.length!=<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">// frame busting 纠正错误语句</span></span><br><span class="line">top.location = self.location</span><br><span class="line">top.location.href = <span class="built_in">document</span>.location.href</span><br><span class="line">top.location.href = self.location.href</span><br><span class="line">top.location.replace(self.location)</span><br><span class="line">top.location.href = <span class="built_in">window</span>.location.href</span><br><span class="line">top.location.replace(<span class="built_in">document</span>.location)</span><br><span class="line">top.location.href = <span class="built_in">window</span>.location.href</span><br><span class="line">top.location.href = <span class="string">"URL"</span></span><br><span class="line"><span class="built_in">document</span>.write(<span class="string">''</span>)</span><br><span class="line">top.location = location</span><br><span class="line">top.location.replace(<span class="built_in">document</span>.location)</span><br><span class="line">top.location.replace(<span class="string">'URL'</span>)</span><br><span class="line">top.location.href = <span class="built_in">document</span>.location</span><br><span class="line">top.location.replace(<span class="built_in">window</span>.location.href)</span><br><span class="line">top.location.href = location.href</span><br><span class="line">self.parent.location = <span class="built_in">document</span>.location</span><br><span class="line">parent.location.href = self.document.location</span><br><span class="line">top.location.href = self.location</span><br><span class="line">top.location = <span class="built_in">window</span>.location</span><br><span class="line">top.location.replace(<span class="built_in">window</span>.location.pathname)</span><br><span class="line"><span class="built_in">window</span>.top.location = <span class="built_in">window</span>.self.location</span><br><span class="line">setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="built_in">document</span>.body.innerHTML=<span class="string">''</span>;&#125;,<span class="number">1</span>);</span><br><span class="line"><span class="built_in">window</span>.self.onload = <span class="function"><span class="keyword">function</span>(<span class="params">evt</span>)</span>&#123;<span class="built_in">document</span>.body.innerHTML=<span class="string">''</span>;&#125;</span><br><span class="line"><span class="keyword">const</span> url = <span class="built_in">window</span>.location.href; top.location.replace(url)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例</span></span><br><span class="line"><span class="keyword">if</span>(top.location != location)&#123;</span><br><span class="line">  top.location = self.location;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="html5"><a href="#html5" class="headerlink" title="html5"></a>html5</h2><p>在 html5 中，新标签可能会产生 XSS 攻击，比如通过 video 的绑定事件执行恶意代码。为此，HTML5 Security Cheatsheet 项目统计了一些安全问题。</p>
+<p>html5 为 iframe 添加了 sandbox 属性，可选值 allow-same-origin 允许同源访问、allow-top-navigation 允许访问顶层窗口、allow-forms 允许提交表单、allow-scripts 允许执行脚本。这样就大大提高了使用 iframe 的安全性。</p>
+<p>html5 为 a、area 的 rel 属性添加了 noreferer 值，即在跳转链接时不携带源站点的地址信息，以免敏感信息的泄漏。</p>
+<p>html5 的其他安全问题包含：利用 canvas 可以破解图片验证码；CORS 当后端设置  Access-Control-Allow-Origin: * 时，源站点允许任意的跨域请求；window.postMessage 在不检验 domain 域的前提下，可以接受来自任何页面的消息；localStorage、sessionStorage 提供了保存恶意代码的可能，容易引起 XSS 攻击。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《白帽子讲安全》<br><a href="https://www.cnblogs.com/LittleHann/p/3386055.html" target="_blank" rel="noopener">Busting Frame Busting: a Study of Clickjacking Vulnerabilities on Popular Sites
+</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/13/frontend/MV*架构/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/13/frontend/MV*架构/" itemprop="url">MV* 架构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-13T00:00:00+08:00">2019-10-13</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/实践/" itemprop="url" rel="index"><span itemprop="name">实践</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/10/13/frontend/MV*架构/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/13/frontend/MV*架构/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>曾听人说起“前端没有架构”，我心里时常也有这种困惑。当框架、脚手架划定了前端代码的组织模式后，一方面使前端更聚焦于业务代码的编写，提升了工作时的投入产出比；另一方面也使前端更容易陷在琐碎的业务点上，压抑了饱含灵性的智力作业。但若仔细思索，我会认为前端也有其架构空间：比如设计复杂的业务模块、编辑器、工具库等；比如规划多应用构成的站点。一个人困于所见、所识、所遇，就会产生望洋兴叹、嗟伤时物的情绪。当前端从业者说“前端没有架构”的时候，也许是他的境界还没有达到一定高度，也许是他困于拧螺丝的活而没有出路。这篇文章写在分析 UForm 源码之前，目的在于逐步提炼对前端技术的系统化认知。介于水平的有限，这篇文章难免错谬。</p>
+<h2 id="MVC-架构"><a href="#MVC-架构" class="headerlink" title="MVC 架构"></a>MVC 架构</h2><p>MVC 架构源自桌面应用，在前后端领域均有见及。Model 为模型层，负责与外通信、对接数据；View 为视图层，负责构建视图内容；Controller 为控制器层，负责串联模型层和视图层。MVC 架构最常用见于单应用的组织形态。个人理解，在后端 Spring MVC 应用编码过程中，services 层可用于提供原子级的数据服务；controller 层可用于组合原子级的数据服务，并向页面模板注入内容；view 层以备模板引擎输出 html。controller 层在串联 service 和 view 层时，所采用的关键连接点是路由信息等。到了前端 SPA 应用中，路由仍旧是一个关键连接点，通过 controller 为不同页面输送数据。如果 controller 层进一步对接视图中的交互逻辑，那么 controller 层就与 Presenter 表现层表现相同，构成 MVP 架构（视图层和表现层双向通信）。本文并不区分 MVC 和 MVP 这两种架构。</p>
+<p>与 jQuery 等 DOM 交互框架相比，采用 MVC 架构实现的应用和组件形态都更聚合，编码模式更为清晰，因此也更容易复用和维护。成熟的 MVC 框架一般通过事件监听或观察者模式实现，比如 backbone.js 等。</p>
+<p>以下分别是采用 MVC 架构组织 SPA 应用、前端组件的简单设想，仅以说明 MVC 架构在前端中的应用形态。</p>
+<h3 id="单页应用中的-MVC-架构"><a href="#单页应用中的-MVC-架构" class="headerlink" title="单页应用中的 MVC 架构"></a>单页应用中的 MVC 架构</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 引擎类，管理控制器、视图、模型</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> Engine &#123;</span><br><span class="line">  controllers: Controller[];</span><br><span class="line">  views: &#123;</span><br><span class="line">    [key: <span class="built_in">string</span>]: View</span><br><span class="line">  &#125;;</span><br><span class="line">  models: &#123;</span><br><span class="line">    [key: <span class="built_in">string</span>]: Model</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 注册视图 */</span></span><br><span class="line">  registerView(name: <span class="built_in">string</span>, view: View): <span class="built_in">void</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 注册控制器 */</span></span><br><span class="line">  registerController(controller: Controller): <span class="built_in">void</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 注册模型 */</span></span><br><span class="line">  registerModel(name: <span class="built_in">string</span>, model: Model): <span class="built_in">void</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 根据 hash 路由变更，调用控制器渲染视图 */</span></span><br><span class="line">  onHashChange(): <span class="built_in">void</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 模型装饰器，用于为控制器类属性注入相应的 model，从引擎实例中获取 */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">model</span>(<span class="params">name: <span class="built_in">string</span></span>): <span class="title">Model</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 控制器装饰器，用于为视图类属性注入相应的 controllerl，从引擎实例中获取 */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">controller</span>(<span class="params">name: <span class="built_in">string</span></span>): <span class="title">Controller</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 视图类，通过 @controller 为其属性装填特定的 controller</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> View &#123;</span><br><span class="line">  <span class="comment">/* 页面模板 */</span></span><br><span class="line">  tpl: <span class="built_in">string</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 绑定事件，绑定函数可以是特定 controller 的方法 */</span></span><br><span class="line">  binds(): <span class="built_in">void</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 使用模板引擎渲染页面 */</span></span><br><span class="line">  render(model): html;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 控制器类，通过 @model 为其属性装填特定的 model</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> Controller &#123;</span><br><span class="line">  <span class="comment">/* 路由 */</span></span><br><span class="line">  route: <span class="built_in">string</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 处理异步请求，变更模型数据，使用 view 渲染视图 */</span></span><br><span class="line">  handler(): <span class="built_in">void</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 仅举例视图交互逻辑的抽象 */</span></span><br><span class="line">  onClick(event: <span class="built_in">any</span>): <span class="built_in">void</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 模型类</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> Model &#123;</span><br><span class="line">  <span class="comment">/* 包含数据 */</span></span><br><span class="line">  data: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 仅举例异步请求的抽象 */</span></span><br><span class="line">  <span class="keyword">get</span>(params: Params): <span class="built_in">void</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 仅举例业务处理逻辑的抽象 */</span></span><br><span class="line">  add(item: <span class="built_in">any</span>): <span class="built_in">void</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="前端组件中的-MVC-架构"><a href="#前端组件中的-MVC-架构" class="headerlink" title="前端组件中的 MVC 架构"></a>前端组件中的 MVC 架构</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Component &#123;</span><br><span class="line">  <span class="comment">/* 渲染内容模板 */</span></span><br><span class="line">  tpl: <span class="built_in">string</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 数据模型 */</span></span><br><span class="line">  model: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 构建 dom 节点，并绑定事件 */</span></span><br><span class="line">  view(): DOMElement;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 将内容渲染到特定节点 */</span></span><br><span class="line">  renderTo(data: <span class="built_in">any</span>, elm: DOMElement): <span class="built_in">void</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 控制器方法 */</span></span><br><span class="line">  controllers: &#123;</span><br><span class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">Function</span>,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="MVVM-架构"><a href="#MVVM-架构" class="headerlink" title="MVVM 架构"></a>MVVM 架构</h2><p>MVVM 架构中的 VM 指的是 ViewModel，它实现了双向绑定，视图层的变更会自动通知到数据模型层，反之亦然。因此，MVVM 架构可以认为是一种自动化的 MVP 架构。典型的 MVVM 框架有 Vue, Angular 等。承接上文，以下是采用 MVVM 架构组织前端组件的简单设想。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> ViewModel &#123;</span><br><span class="line">  <span class="comment">/* 声明指令、绑定函数的渲染内容模板 */</span></span><br><span class="line">  tpl: <span class="built_in">string</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 数据模型 */</span></span><br><span class="line">  data: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 方法，可作为绑定函数 */</span></span><br><span class="line">  methods: &#123;</span><br><span class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">Function</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 指令解析方式 */</span></span><br><span class="line">  derectives: &#123;</span><br><span class="line">    [key: <span class="built_in">string</span>]: <span class="built_in">Function</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 将模板解析成渲染函数，渲染函数以当前 ViewModel 为首参 */</span></span><br><span class="line">  parse(): <span class="function">(<span class="params">vm: ViewModel</span>) =&gt;</span> DOMElement;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 将内容渲染到特定节点 */</span></span><br><span class="line">  render(data: <span class="built_in">any</span>, elm: DOMElement): DOMElement;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>典型的 tpl 模板如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;div&gt;</span><br><span class="line">  &lt;input type=<span class="string">"text"</span> v-model=<span class="string">"newName"</span>/&gt;</span><br><span class="line">  &lt;p&gt;&#123;&#123;newName&#125;&#125;&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>div&gt;</span><br></pre></td></tr></table></figure>
+<p>解析 tpl 模板时，首先需要将节点建模成约定属性集合的树形节点；其次，在解析过程中，将模板中的标签内容转化为模型节点；然后，针对模型节点的特殊属性，通过可扩展的程式加以处理（如对于 v-model 指令，需要将 vm.data 数据与 input 节点进行双向绑定）；最后，通过递归下钻又回升的机制获得 dom 节点树，以供插入页面。我们就可以解释为什么 v-on 指令能将 vm.methods 能成为真实 dom 节点的绑定函数了。vm.data 数据又是怎么驱动视图重绘的呢？数据驱动视图更新的机制主要有手动调用、脏值检测、对象劫持、Proxy 代理。手动调用即抽象一般的数据变更方法，在该方法执行的尾部主动重新渲染组件（React 实现机制）。脏值检测即主动轮询树节点的数据属性，当发现其与 vm.data 数据不符时，即重新渲染组件（Angular 实现机制）。对象劫持即通过 Object.defineProperty 使数据变更的处理流程包含重绘组件这一过程（Vue 实现机制）。Proxy 与 Object.defineProperty 异曲同工（Mobx 实现机制）。组件绘制或重绘过程，可以使用虚拟 dom 提升效能，避免节点的全量渲染。这里仅点到为止，不再深入。想要了解更多，可以翻阅张成文的《现代前端技术解析》或各框架的相关文章。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>架构犹如轮廓，有助于理解成熟框架的设计和实现，不至于迷失在细节里。理想情况下，先定架构，再完善功能点也是一种高效的工作模式。现实中却不乏认知不到位、历史原因、项目工期短等问题，心态也需要有相当的韧性。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/08/读书笔记/决战大数据/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1430,487 +1942,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/27/手册/$PATH, nvm, npm, lerna/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/27/手册/$PATH, nvm, npm, lerna/" itemprop="url">$PATH, nvm, npm, lerna</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-27T00:00:00+08:00">2019-07-27</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/手册/" itemprop="url" rel="index"><span itemprop="name">手册</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/07/27/手册/$PATH, nvm, npm, lerna/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/07/27/手册/$PATH, nvm, npm, lerna/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="mac-环境变量"><a href="#mac-环境变量" class="headerlink" title="mac 环境变量"></a>mac 环境变量</h2><p>命令一旦添加到环境变量中，系统就知道从哪个路径中取出文件并执行。mac 有多个环境变量文件，不同的环境变量文件的作用域和加载时间也不同。在 mac 中，不同的 shell 所对应的配置文件也不同：bash 命令对应的配置文件是 .bash_profile；zsh 命令对应的配置文件是 .zshrc。</p>
-<p>rc 即为 run command，一般为脚本类文件的后缀，这些脚本通常在程序启动的时候被调用，比如 .bashrc 就会在 bash shell 启动时调用。</p>
-<p>mac 中环境变量配置文件的默认加载顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/etc/profile <span class="comment"># 系统级环境变量，任何用户登陆时都会读取该文件</span></span><br><span class="line">/etc/bashrc <span class="comment"># 系统级环境变量，bash shell执行时，不管是何种方式，读取该文件</span></span><br><span class="line">/etc/paths <span class="comment"># 系统级环境变量，任何用户登陆时都会读取该文件</span></span><br><span class="line">~/.bash_profile <span class="comment"># 包含用户专有的 bash 信息，当登录时以及每次打开新的 shell 时，该文件被读取；文件存在时，后面的几个文件都会被忽略</span></span><br><span class="line">~/.bash_login <span class="comment"># 系统级环境变量，任何用户登陆时都会读取该文件</span></span><br><span class="line">~/.profile <span class="comment"># 为系统的每个用户设置环境信息，当用户第一次登录时，该文件被执行；重启后生效</span></span><br><span class="line">~/.bashrc <span class="comment"># 每一个运行 bash shell 的用户执行该文件</span></span><br></pre></td></tr></table></figure>
-<p>添加或修改环境变量可使用如下语法（$PATH 即原始的环境变量）：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=<span class="string">"<span class="variable">$PATH</span>:&lt;PATH 1&gt;:&lt;PATH 2&gt;:&lt;PATH 3&gt;:...:&lt;PATH N&gt;"</span> <span class="comment"># 修改环境变量的一般语法</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">'/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/alfred/apache-maven-3.5.0/bin'</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span> <span class="comment"># 查看环境变量</span></span><br></pre></td></tr></table></figure>
-<h3 id="QA"><a href="#QA" class="headerlink" title="QA"></a>QA</h3><p>Q: spawnSync npm ENOENT 报错问题？<br>A: 导致该问题有两个原因：其一是在 windows 环境下，实际制定的命令为 ‘npm.cmd’，当遇到这种情况时，可借助于 cross-spawn 库加以解决；其二是深度嵌套的子进程在执行 require(‘child_process’).spawn 脚本时，如果父进程重写了 process.env，那么该子进程就会丢失 process.env.path 配置，导致 npm 命令无法找到，这时可以拷贝根进程下的 process.env 配置。</p>
-<h2 id="brew"><a href="#brew" class="headerlink" title="brew"></a>brew</h2><p><a href="https://brew.sh/" target="_blank" rel="noopener">homebrew</a> 是 linux 环境下的包管理工具。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 brew</span></span><br><span class="line">/usr/bin/ruby -e <span class="string">"<span class="variable">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新 brew，先卸载，再安装</span></span><br><span class="line">/usr/bin/ruby -e <span class="string">"<span class="variable">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)</span>"</span></span><br><span class="line">/usr/bin/ruby -e <span class="string">"<span class="variable">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新</span></span><br><span class="line">sudo brew update</span><br><span class="line"></span><br><span class="line">brew install nodejs</span><br><span class="line">brew uninstall nodejs</span><br><span class="line">brew upgrade nodejs</span><br><span class="line">brew search nodejs</span><br><span class="line">brew remove nodejs</span><br><span class="line">brew list <span class="comment"># 列出当前安装的软件</span></span><br><span class="line">brew search nodejs <span class="comment"># 查询与 nodejs 相关的可用软件</span></span><br><span class="line">brew info nodejs <span class="comment"># 查询 nodejs 的安装信息</span></span><br></pre></td></tr></table></figure>
-<h2 id="nvm"><a href="#nvm" class="headerlink" title="nvm"></a>nvm</h2><p><a href="https://github.com/nvm-sh/nvm" target="_blank" rel="noopener">nvm</a> 是 Mac 环境下 node 版本管理工具。Windows 平台下推荐 nvmw 或 <a href="https://github.com/coreybutler/nvm-windows" target="_blank" rel="noopener">nvm-windows</a>。</p>
-<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># .bash_profile 添加以下代码，须重启终端</span></span><br><span class="line"><span class="built_in">export</span> NVM_DIR=<span class="string">"<span class="variable">$HOME</span>/.nvm"</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span>  <span class="comment"># This loads nvm</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span>  <span class="comment"># This loads nvm</span></span><br></pre></td></tr></table></figure>
-<h3 id="更新"><a href="#更新" class="headerlink" title="更新"></a>更新</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(</span><br><span class="line">  <span class="built_in">cd</span> <span class="string">"<span class="variable">$NVM_DIR</span>"</span></span><br><span class="line">  git fetch --tags origin</span><br><span class="line">  git checkout `git describe --abbrev=0 --tags --match <span class="string">"v[0-9]*"</span> $(git rev-list --tags --max-count=1)`</span><br><span class="line">) &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span></span><br></pre></td></tr></table></figure>
-<h3 id="卸载"><a href="#卸载" class="headerlink" title="卸载"></a>卸载</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo rm -rf ~/.nvm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移除 .bash_profile 中以下代码，卸载后须重启电脑</span></span><br><span class="line"><span class="built_in">export</span> NVM_DIR=<span class="string">"<span class="variable">$HOME</span>/.nvm"</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span>  <span class="comment"># This loads nvm</span></span><br><span class="line">[ -s <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span> ] &amp;&amp; \. <span class="string">"<span class="variable">$NVM_DIR</span>/bash_completion"</span>  <span class="comment"># This loads nvm bash_completion</span></span><br></pre></td></tr></table></figure>
-<h3 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">nvm debug <span class="comment"># 查看 nvm 及 node 信息</span></span><br><span class="line"></span><br><span class="line">nvm ls <span class="comment"># 展示本地安装的所有 node 版本</span></span><br><span class="line">nvm ls-remote <span class="comment"># 展示所有可用的 node 版本；windows 环境下使用 nvm ls available</span></span><br><span class="line">nvm install node <span class="comment"># 安装 node 最新版本；'node' 是最新版本的别名</span></span><br><span class="line">nvm install 6.14.4 <span class="comment"># 安装 node 指定版本</span></span><br><span class="line">nvm uninstall 6.14.4 <span class="comment"># 卸载 node 指定版本</span></span><br><span class="line">nvm use node <span class="comment"># node 命令使用指定版本</span></span><br><span class="line">nvm current <span class="comment"># 查看正在使用的 node 版本</span></span><br><span class="line">nvm run node --version <span class="comment"># 使用指定版本执行指定命令</span></span><br><span class="line">nvm <span class="built_in">exec</span> 4.2 node --version <span class="comment"># 使用指定版本执行指定命令</span></span><br><span class="line">nvm <span class="built_in">which</span> 5.0 <span class="comment"># 查看指定版本的安装位置</span></span><br><span class="line">nvm install 6 --reinstall-packages-from=5 <span class="comment"># 将 5 版本中安装的全局模块安装到 6 版本中</span></span><br><span class="line"></span><br><span class="line">nvm <span class="built_in">alias</span> awesome-version 4.2.2 <span class="comment"># 为指定版本的 node 起别名</span></span><br><span class="line">nvm <span class="built_in">unalias</span> awesome-version <span class="comment"># 移除别名</span></span><br></pre></td></tr></table></figure>
-<h2 id="npm"><a href="#npm" class="headerlink" title="npm"></a>npm</h2><h3 id="命令-1"><a href="#命令-1" class="headerlink" title="命令"></a>命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">npm install -g npm@3 <span class="comment"># npm 升级到 v3 版本</span></span><br><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org <span class="comment"># 安装 cnpm</span></span><br><span class="line"></span><br><span class="line">npm publish <span class="comment"># 发布包；npm 发布内容优先级为 package.json 中 files 选项，.npmignore, .gitignore</span></span><br><span class="line">npm unpublish <span class="comment"># 撤销发布</span></span><br><span class="line"></span><br><span class="line">npm home <span class="variable">$package</span> <span class="comment"># npm home loadsh 访问 lodash 主页</span></span><br><span class="line">npm repo <span class="variable">$package</span> <span class="comment"># 访问 github 仓库</span></span><br><span class="line"></span><br><span class="line">npm outdate <span class="comment"># 检索过时的依赖</span></span><br><span class="line">npm prune <span class="comment"># 剔除未在 package.json 中注明的 node_modules 依赖</span></span><br><span class="line">npm version &lt;update_type&gt; <span class="comment"># npm version patch,minor,major 自动升级版本号；patch 小改动或bug修复，minor 添加新特性，major 大改动且无法向后兼容</span></span><br><span class="line">npm shrinkwrap <span class="comment"># 生成 npm-shrinkwrap.json 文件，锁定依赖版本号</span></span><br><span class="line"></span><br><span class="line">npm config <span class="built_in">set</span> prefix <span class="variable">$dir</span> <span class="comment"># 变更安装目录为$dir；chown -R $USER $dir改变$dir目录的操作权限；再将$dir/bin加入环境变量，可以不用 sudo</span></span><br><span class="line">npm config <span class="built_in">set</span> save-prefix=“~” <span class="comment"># 改变默认保存前缀；波浪号~，表示当信赖的副版本号有更新时，允许使用npm update进行安装；脱字符^，表示当依赖的主版本号有更新时，允许使用 npm update 进行安装</span></span><br><span class="line">npm config <span class="built_in">set</span> init.author.name <span class="variable">$name</span>，npm config <span class="built_in">set</span> init.author.email <span class="variable">$email</span> <span class="comment"># npm init初始化项目时启用特定值配置 package.json</span></span><br><span class="line">npm config <span class="built_in">set</span> init-module ~/.npm-init.js <span class="comment"># 以特定脚本配置 package.json</span></span><br></pre></td></tr></table></figure>
-<h3 id="备忘"><a href="#备忘" class="headerlink" title="备忘"></a>备忘</h3><ol>
-<li>安装依赖包时携带 –production 参数，将不予安装devDependencies依赖；若设置N ODE_ENV 环境变量为production，devDependencies 依赖也不会被安装。</li>
-<li>项目中若不存在 .npmignore 文件，将取用 .gitignore 设定以及一些默认配置。</li>
-</ol>
-<h3 id="QA-1"><a href="#QA-1" class="headerlink" title="QA"></a>QA</h3><p>Q: 在执行 npm link 命令时，遇到 Unhandled rejection RangeError: Maximum call stack size exceededill install loadIdealTree 报错，该如何处理？<br>A: 尝试清空工程目录中的 node_modules 依赖，再次执行 npm link，参考 <a href="https://stackoverflow.com/questions/40566348/maximum-call-stack-size-exceeded-on-npm-install" target="_blank" rel="noopener">Maximum call stack size exceeded on npm install</a>。</p>
-<h2 id="lerna"><a href="#lerna" class="headerlink" title="lerna"></a>lerna</h2><p><a href="https://github.com/lerna/lerna#getting-started" target="_blank" rel="noopener">lerna</a> 是面向 js 的多包管理器。</p>
-<h3 id="安装-1"><a href="#安装-1" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cnpm install lerna -g</span><br></pre></td></tr></table></figure>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.clloz.com/programming/assorted/2019/04/07/mac-pathnvm/" target="_blank" rel="noopener">Mac的环境变量和nvm的使用</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/工程化/babel/babel types/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/25/工程化/babel/babel types/" itemprop="url">babel types</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-25T00:00:00+08:00">2019-07-25</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/07/25/工程化/babel/babel types/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/07/25/工程化/babel/babel types/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><h3 id="MemberExpression"><a href="#MemberExpression" class="headerlink" title="MemberExpression"></a>MemberExpression</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">interface MemberExpression &lt;: Expression, Pattern &#123;</span><br><span class="line">  type: <span class="string">"MemberExpression"</span>;</span><br><span class="line">  object: Expression | Super;</span><br><span class="line">  property: Expression;</span><br><span class="line">  computed: boolean;<span class="comment">// 真值，即 a[b] 形式的属性，属性 b 为表达式；否值，即 a.b 形式的属性，属性 b 为标识符</span></span><br><span class="line">  optional: boolean | <span class="literal">null</span>;<span class="comment">// true 时表示即便对象为 null 或 undefined，也可以访问对象的属性</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/24/工程化/babel/transform-runtime/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/24/工程化/babel/transform-runtime/" itemprop="url">transform-runtime</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-24T00:00:00+08:00">2019-07-24</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/07/24/工程化/babel/transform-runtime/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/07/24/工程化/babel/transform-runtime/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><a href="https://babeljs.io/docs/en/babel-plugin-transform-runtime/" target="_blank" rel="noopener">@babel/plugin-transform-runtime</a> 插件用于在编译阶段为工程添加垫片。plugin-transform-runtime 插件与 <a href="https://babeljs.io/docs/en/babel-polyfill" target="_blank" rel="noopener">@babel/polyfill</a>, <a href="https://github.com/zloirock/core-js" target="_blank" rel="noopener">core-js</a> 的差别是：避免多次导入；提供沙箱环境，避免全局污染。.babelrc 配置可如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"plugins"</span>: [</span><br><span class="line">    <span class="string">"@babel/plugin-transform-runtime"</span>,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"absoluteRuntime"</span>: <span class="built_in">require</span>.resolve(<span class="string">"../package"</span>),<span class="comment">// 指定 @babel/runtime-corejs2 所在文件夹</span></span><br><span class="line">      <span class="string">"corejs"</span>: &#123;</span><br><span class="line">        <span class="string">"version"</span>: <span class="number">2</span><span class="comment">// 指定垫片由 @babel/runtime-corejs2 提供</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>基于以上配置，babel 就会在编译项目时，主动为工程文件装填 @babel/runtime-corejs2（一般安装在构建工具中）。当使用裸跑的 webpack 构建项目时，则可以同时安装 @babel/plugin-transform-runtime, @babel/runtime-corejs2，然后再配置 .babelrc 文件。</p>
-<p>plugin-transform-runtime 包含选项如下：</p>
-<ul>
-<li>corejs: 指定垫片，值可以是 false, 2, 3，分别为 @babel/runtime, @babel/runtime-corejs2, @babel/runtime-corejs3 垫片。</li>
-<li>helpers: classCallCheck 等函数是否内置，还是导入 ‘@babel/runtime/helpers/classCallCheck’ 等模块。默认 true，内置。</li>
-<li>regenerator: 是否以污染全局命名空间的方式支持生成器语法，还是导入 ‘@babel/runtime/regenerator’。默认 true，污染全局命名空间。</li>
-<li>useESModules: 是否通过 <a href>@babel/plugin-transform-modules-commonjs</a> 编译成 commonjs 语法。默认 false，编译成 commonjs。useESModules 置为 true 时，适用于 webpack 模块系统，因为 webpack 不需要保留 commonjs 语法。</li>
-<li>absoluteRuntime: 默认为 false。设置值时，将从指定的文件中查找 runtime 垫片。</li>
-</ul>
-<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><h3 id="absoluteRuntime-选项"><a href="#absoluteRuntime-选项" class="headerlink" title="absoluteRuntime 选项"></a>absoluteRuntime 选项</h3><p>runtime-corejs2-definitions, runtime-corejs3-definitions 模块定义了垫片支持哪些语法。corejs 选项决定了具体使用哪个 runtime 模块作为垫片；absoluteRuntime 选项预定了从哪个资源位查找垫片模块。以下即为查询 runtime 垫片的实现代码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolveAbsoluteRuntime</span>(<span class="params">moduleName: string, dirname: string</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> path.dirname(</span><br><span class="line">      <span class="comment">// 通过 resolve 库查询 corejs</span></span><br><span class="line">      resolve.sync(<span class="string">`<span class="subst">$&#123;moduleName&#125;</span>/package.json`</span>, &#123; <span class="attr">basedir</span>: dirname &#125;),</span><br><span class="line">    );</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="keyword">if</span> (err.code !== <span class="string">"MODULE_NOT_FOUND"</span>) <span class="keyword">throw</span> err;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">Object</span>.assign(</span><br><span class="line">      <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">`Failed to resolve "<span class="subst">$&#123;moduleName&#125;</span>" relative to "<span class="subst">$&#123;dirname&#125;</span>"`</span>),</span><br><span class="line">      &#123;</span><br><span class="line">        code: <span class="string">"BABEL_RUNTIME_NOT_FOUND"</span>,</span><br><span class="line">        runtime: moduleName,</span><br><span class="line">        dirname,</span><br><span class="line">      &#125;,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// api: babel 提供的 api</span></span><br><span class="line"><span class="comment">// options: 注入插件的选项</span></span><br><span class="line"><span class="comment">// dirname: 工程目录路径</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> declare(<span class="function">(<span class="params">api, options, dirname</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> corejs === <span class="string">"object"</span> &amp;&amp; corejs !== <span class="literal">null</span>) &#123;</span><br><span class="line">    rawVersion = corejs.version;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    rawVersion = corejs;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> corejsVersion = rawVersion ? <span class="built_in">Number</span>(rawVersion) : <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> injectCoreJS2 = corejsVersion === <span class="number">2</span>;</span><br><span class="line">  <span class="keyword">const</span> injectCoreJS3 = corejsVersion === <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> moduleName = injectCoreJS3</span><br><span class="line">    ? <span class="string">"@babel/runtime-corejs3"</span></span><br><span class="line">    : injectCoreJS2</span><br><span class="line">    ? <span class="string">"@babel/runtime-corejs2"</span></span><br><span class="line">    : <span class="string">"@babel/runtime"</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> modulePath = moduleName;</span><br><span class="line">  <span class="keyword">if</span> (absoluteRuntime !== <span class="literal">false</span>) &#123;</span><br><span class="line">    modulePath = resolveAbsoluteRuntime(</span><br><span class="line">      moduleName,</span><br><span class="line">      path.resolve(dirname, absoluteRuntime === <span class="literal">true</span> ? <span class="string">"."</span> : absoluteRuntime),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>需要特别说明的是，npm 和 cnpm 安装依赖的方式有所不同，npm 将子类库安装在父类库的 node_modules 文件夹下，cnpm 将子类库安装在子类库的 node_modules 文件夹下。absoluteRuntime 选项又基于工程文件查找 corejs 模块。因此当构建工具中的 webpack 选项通过内嵌的子类库设置时，实际的 corejs 模块路径会跟着 npm 或 cnpm 安装方式有所不同，处理上可以相对于 require.resolve(‘@babel/plugin-transform-runtime’) 查找。</p>
-<h3 id="导出插件"><a href="#导出插件" class="headerlink" title="导出插件"></a>导出插件</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  name: <span class="string">"transform-runtime"</span>,</span><br><span class="line"></span><br><span class="line">  pre(file) &#123;</span><br><span class="line">    <span class="keyword">if</span> (useRuntimeHelpers) &#123;</span><br><span class="line">      file.set(<span class="string">"helperGenerator"</span>, name =&gt; &#123;</span><br><span class="line">        <span class="comment">// If the helper didn't exist yet at the version given, we bail</span></span><br><span class="line">        <span class="comment">// out and let Babel either insert it directly, or throw an error</span></span><br><span class="line">        <span class="comment">// so that plugins can handle that case properly.</span></span><br><span class="line">        <span class="keyword">if</span> (</span><br><span class="line">          file.availableHelper &amp;&amp;</span><br><span class="line">          !file.availableHelper(name, runtimeVersion)</span><br><span class="line">        ) &#123;</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> isInteropHelper = HEADER_HELPERS.indexOf(name) !== <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Explicitly set the CommonJS interop helpers to their reserve</span></span><br><span class="line">        <span class="comment">// blockHoist of 4 so they are guaranteed to exist</span></span><br><span class="line">        <span class="comment">// when other things used them to import.</span></span><br><span class="line">        <span class="keyword">const</span> blockHoist =</span><br><span class="line">          isInteropHelper &amp;&amp; !isModule(file.path) ? <span class="number">4</span> : <span class="literal">undefined</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> helpersDir =</span><br><span class="line">          esModules &amp;&amp; file.path.node.sourceType === <span class="string">"module"</span></span><br><span class="line">            ? <span class="string">"helpers/esm"</span></span><br><span class="line">            : <span class="string">"helpers"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.addDefaultImport(</span><br><span class="line">          <span class="string">`<span class="subst">$&#123;modulePath&#125;</span>/<span class="subst">$&#123;helpersDir&#125;</span>/<span class="subst">$&#123;name&#125;</span>`</span>,</span><br><span class="line">          name,</span><br><span class="line">          blockHoist,</span><br><span class="line">        );</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> cache = <span class="keyword">new</span> <span class="built_in">Map</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.addDefaultImport = <span class="function">(<span class="params">source, nameHint, blockHoist</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// If something on the page adds a helper when the file is an ES6</span></span><br><span class="line">      <span class="comment">// file, we can't reused the cached helper name after things have been</span></span><br><span class="line">      <span class="comment">// transformed because it has almost certainly been renamed.</span></span><br><span class="line">      <span class="keyword">const</span> cacheKey = isModule(file.path);</span><br><span class="line">      <span class="keyword">const</span> key = <span class="string">`<span class="subst">$&#123;source&#125;</span>:<span class="subst">$&#123;nameHint&#125;</span>:<span class="subst">$&#123;cacheKey || <span class="string">""</span>&#125;</span>`</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">let</span> cached = cache.get(key);</span><br><span class="line">      <span class="keyword">if</span> (cached) &#123;</span><br><span class="line">        cached = t.cloneNode(cached);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cached = addDefault(file.path, source, &#123;</span><br><span class="line">          importedInterop: <span class="string">"uncompiled"</span>,</span><br><span class="line">          nameHint,</span><br><span class="line">          blockHoist,</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        cache.set(key, cached);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> cached;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  visitor: &#123;</span><br><span class="line">    ReferencedIdentifier(path) &#123;</span><br><span class="line">      <span class="keyword">const</span> &#123; node, parent, scope &#125; = path;</span><br><span class="line">      <span class="keyword">const</span> &#123; name &#125; = node;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// transform `regeneratorRuntime`</span></span><br><span class="line">      <span class="keyword">if</span> (name === <span class="string">"regeneratorRuntime"</span> &amp;&amp; useRuntimeRegenerator) &#123;</span><br><span class="line">        path.replaceWith(</span><br><span class="line">          <span class="keyword">this</span>.addDefaultImport(</span><br><span class="line">            <span class="string">`<span class="subst">$&#123;modulePath&#125;</span>/regenerator`</span>,</span><br><span class="line">            <span class="string">"regeneratorRuntime"</span>,</span><br><span class="line">          ),</span><br><span class="line">        );</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!injectCoreJS) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (t.isMemberExpression(parent)) <span class="keyword">return</span>;</span><br><span class="line">      <span class="keyword">if</span> (!hasMapping(BuiltIns, name)) <span class="keyword">return</span>;</span><br><span class="line">      <span class="keyword">if</span> (scope.getBindingIdentifier(name)) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// transform global built-ins like `Symbol()`, `new Promise`</span></span><br><span class="line">      path.replaceWith(</span><br><span class="line">        <span class="keyword">this</span>.addDefaultImport(</span><br><span class="line">          <span class="comment">// const corejsRoot = injectCoreJS3 &amp;&amp; !proposals ? "core-js-stable" : "core-js"</span></span><br><span class="line">          <span class="string">`<span class="subst">$&#123;modulePath&#125;</span>/<span class="subst">$&#123;corejsRoot&#125;</span>/<span class="subst">$&#123;BuiltIns[name].path&#125;</span>`</span>,</span><br><span class="line">          name,</span><br><span class="line">        ),</span><br><span class="line">      );</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    CallExpression(path) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!injectCoreJS) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> &#123; node &#125; = path;</span><br><span class="line">      <span class="keyword">const</span> &#123; callee &#125; = node;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!t.isMemberExpression(callee)) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> &#123; object, property &#125; = callee;</span><br><span class="line">      <span class="keyword">const</span> propertyName = property.name;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// transform calling instance methods like `something.includes()`</span></span><br><span class="line">      <span class="keyword">if</span> (injectCoreJS3 &amp;&amp; !hasStaticMapping(object.name, propertyName)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (</span><br><span class="line">          <span class="comment">// InstanceProperties 由 runtime-corejs3 提供的实例属性集合</span></span><br><span class="line">          hasMapping(InstanceProperties, propertyName) &amp;&amp;</span><br><span class="line">          maybeNeedsPolyfill(</span><br><span class="line">            path.get(<span class="string">"callee"</span>),</span><br><span class="line">            InstanceProperties,</span><br><span class="line">            propertyName,</span><br><span class="line">          )</span><br><span class="line">        ) &#123;</span><br><span class="line">          <span class="keyword">let</span> context1, context2;</span><br><span class="line">          <span class="keyword">if</span> (t.isIdentifier(object)) &#123;</span><br><span class="line">            context1 = object;</span><br><span class="line">            context2 = t.cloneNode(object);</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            context1 = path.scope.generateDeclaredUidIdentifier(<span class="string">"context"</span>);</span><br><span class="line">            context2 = t.assignmentExpression(<span class="string">"="</span>, context1, object);</span><br><span class="line">          &#125;</span><br><span class="line">          node.callee = t.memberExpression(</span><br><span class="line">            t.callExpression(</span><br><span class="line">              <span class="keyword">this</span>.addDefaultImport(</span><br><span class="line">                <span class="string">`<span class="subst">$&#123;moduleName&#125;</span>/<span class="subst">$&#123;corejsRoot&#125;</span>/instance/<span class="subst">$&#123;</span></span></span><br><span class="line"><span class="string"><span class="subst">                  InstanceProperties[propertyName].path</span></span></span><br><span class="line"><span class="string"><span class="subst">                &#125;</span>`</span>,</span><br><span class="line">                <span class="string">`<span class="subst">$&#123;propertyName&#125;</span>InstanceProperty`</span>,</span><br><span class="line">              ),</span><br><span class="line">              [context2],</span><br><span class="line">            ),</span><br><span class="line">            t.identifier(<span class="string">"call"</span>),</span><br><span class="line">          );</span><br><span class="line">          node.arguments.unshift(context1);</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">// we can't compile this</span></span><br><span class="line">      <span class="keyword">if</span> (node.arguments.length) <span class="keyword">return</span>;</span><br><span class="line">      <span class="keyword">if</span> (!callee.computed) <span class="keyword">return</span>;</span><br><span class="line">      <span class="keyword">if</span> (!path.get(<span class="string">"callee.property"</span>).matchesPattern(<span class="string">"Symbol.iterator"</span>)) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// transform `something[Symbol.iterator]()` to calling `getIterator(something)` helper</span></span><br><span class="line">      path.replaceWith(</span><br><span class="line">        t.callExpression(</span><br><span class="line">          <span class="keyword">this</span>.addDefaultImport(</span><br><span class="line">            <span class="string">`<span class="subst">$&#123;modulePath&#125;</span>/core-js/get-iterator`</span>,</span><br><span class="line">            <span class="string">"getIterator"</span>,</span><br><span class="line">          ),</span><br><span class="line">          [object],</span><br><span class="line">        ),</span><br><span class="line">      );</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// transform `Symbol.iterator in something` to calling `isIterable(something)` helper</span></span><br><span class="line">    BinaryExpression(path) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!injectCoreJS) <span class="keyword">return</span>;</span><br><span class="line">      <span class="keyword">if</span> (path.node.operator !== <span class="string">"in"</span>) <span class="keyword">return</span>;</span><br><span class="line">      <span class="keyword">if</span> (!path.get(<span class="string">"left"</span>).matchesPattern(<span class="string">"Symbol.iterator"</span>)) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">      path.replaceWith(</span><br><span class="line">        t.callExpression(</span><br><span class="line">          <span class="keyword">this</span>.addDefaultImport(</span><br><span class="line">            <span class="string">`<span class="subst">$&#123;modulePath&#125;</span>/core-js/is-iterable`</span>,</span><br><span class="line">            <span class="string">"isIterable"</span>,</span><br><span class="line">          ),</span><br><span class="line">          [path.node.right],</span><br><span class="line">        ),</span><br><span class="line">      );</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// transform static built-ins methods like `Array.from`</span></span><br><span class="line">    MemberExpression: &#123;</span><br><span class="line">      enter(path) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!injectCoreJS) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">if</span> (!path.isReferenced()) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> &#123; node &#125; = path;</span><br><span class="line">        <span class="keyword">const</span> &#123; object, property &#125; = node;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!t.isReferenced(object, node)) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (node.computed) &#123;</span><br><span class="line">          <span class="keyword">if</span> (injectCoreJS2) <span class="keyword">return</span>;</span><br><span class="line">          <span class="comment">// transform `something[Symbol.iterator]` to calling `getIteratorMethod(something)` helper</span></span><br><span class="line">          <span class="keyword">if</span> (path.get(<span class="string">"property"</span>).matchesPattern(<span class="string">"Symbol.iterator"</span>)) &#123;</span><br><span class="line">            path.replaceWith(</span><br><span class="line">              t.callExpression(</span><br><span class="line">                <span class="keyword">this</span>.addDefaultImport(</span><br><span class="line">                  <span class="string">`<span class="subst">$&#123;moduleName&#125;</span>/core-js/get-iterator-method`</span>,</span><br><span class="line">                  <span class="string">"getIteratorMethod"</span>,</span><br><span class="line">                ),</span><br><span class="line">                [object],</span><br><span class="line">              ),</span><br><span class="line">            );</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> objectName = object.name;</span><br><span class="line">        <span class="keyword">const</span> propertyName = property.name;</span><br><span class="line">        <span class="comment">// doesn't reference the global</span></span><br><span class="line">        <span class="keyword">if</span> (</span><br><span class="line">          path.scope.getBindingIdentifier(objectName) ||</span><br><span class="line">          !hasStaticMapping(objectName, propertyName)</span><br><span class="line">        ) &#123;</span><br><span class="line">          <span class="comment">// transform getting of instance methods like `method = something.includes`</span></span><br><span class="line">          <span class="keyword">if</span> (</span><br><span class="line">            injectCoreJS3 &amp;&amp;</span><br><span class="line">            hasMapping(InstanceProperties, propertyName) &amp;&amp;</span><br><span class="line">            maybeNeedsPolyfill(path, InstanceProperties, propertyName)</span><br><span class="line">          ) &#123;</span><br><span class="line">            path.replaceWith(</span><br><span class="line">              t.callExpression(</span><br><span class="line">                <span class="keyword">this</span>.addDefaultImport(</span><br><span class="line">                  <span class="string">`<span class="subst">$&#123;moduleName&#125;</span>/<span class="subst">$&#123;corejsRoot&#125;</span>/instance/<span class="subst">$&#123;</span></span></span><br><span class="line"><span class="string"><span class="subst">                    InstanceProperties[propertyName].path</span></span></span><br><span class="line"><span class="string"><span class="subst">                  &#125;</span>`</span>,</span><br><span class="line">                  <span class="string">`<span class="subst">$&#123;propertyName&#125;</span>InstanceProperty`</span>,</span><br><span class="line">                ),</span><br><span class="line">                [object],</span><br><span class="line">              ),</span><br><span class="line">            );</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        path.replaceWith(</span><br><span class="line">          <span class="keyword">this</span>.addDefaultImport(</span><br><span class="line">            <span class="string">`<span class="subst">$&#123;modulePath&#125;</span>/<span class="subst">$&#123;corejsRoot&#125;</span>/<span class="subst">$&#123;</span></span></span><br><span class="line"><span class="string"><span class="subst">              StaticProperties[objectName][propertyName].path</span></span></span><br><span class="line"><span class="string"><span class="subst">            &#125;</span>`</span>,</span><br><span class="line">            <span class="string">`<span class="subst">$&#123;objectName&#125;</span>$<span class="subst">$&#123;propertyName&#125;</span>`</span>,</span><br><span class="line">          ),</span><br><span class="line">        );</span><br><span class="line">      &#125;,</span><br><span class="line"></span><br><span class="line">      exit(path) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!injectCoreJS) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">if</span> (!path.isReferenced()) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">if</span> (path.node.computed) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> &#123; node &#125; = path;</span><br><span class="line">        <span class="keyword">const</span> &#123; object &#125; = node;</span><br><span class="line">        <span class="keyword">const</span> &#123; name &#125; = object;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!hasMapping(BuiltIns, name)) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">if</span> (path.scope.getBindingIdentifier(name)) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        path.replaceWith(</span><br><span class="line">          t.memberExpression(</span><br><span class="line">            <span class="keyword">this</span>.addDefaultImport(</span><br><span class="line">              <span class="string">`<span class="subst">$&#123;modulePath&#125;</span>/<span class="subst">$&#123;corejsRoot&#125;</span>/<span class="subst">$&#123;BuiltIns[name].path&#125;</span>`</span>,</span><br><span class="line">              name,</span><br><span class="line">            ),</span><br><span class="line">            node.property,</span><br><span class="line">          ),</span><br><span class="line">        );</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1960,7 +1991,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">113</span>
+                    <span class="site-state-item-count">116</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1971,7 +2002,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">35</span>
+                    <span class="site-state-item-count">36</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>

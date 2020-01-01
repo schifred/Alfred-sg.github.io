@@ -299,6 +299,179 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/21/java/Java知识点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/21/java/Java知识点/" itemprop="url">java 知识点</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-21T00:00:00+08:00">2019-12-21</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/12/21/java/Java知识点/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/21/java/Java知识点/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h2><p>java 注解与 js 装饰器拥有相当不同的实现方式：java 有编译过程，因此可以使用语法约定注解的意义，脱离了编译过程，注解将毫无意义；js 引擎却没有对装饰器给予有效支持，因此 js 装饰器在 babel 等工具中表现为使用高阶函数封装原类或方法。java 注解本质上都是集成了 java.lang.Annotation 的接口，接口名前加 @interface 标识声明。有以下四种元注解可以标识注解的目标、生命周期、是否包含在 JavaDoc 文档中、是否允许子类继承，分别是 @Target、@Retention、@Documented、@Inherited。</p>
+<p>@Target 注解包含以下值：</p>
+<ul>
+<li>ElementType.TYPE：允许被修饰的注解作用在类、接口和枚举上</li>
+<li>ElementType.FIELD：允许作用在属性字段上</li>
+<li>ElementType.METHOD：允许作用在方法上</li>
+<li>ElementType.PARAMETER：允许作用在方法参数上</li>
+<li>ElementType.CONSTRUCTOR：允许作用在构造器上</li>
+<li>ElementType.LOCAL_VARIABLE：允许作用在本地局部变量上</li>
+<li>ElementType.ANNOTATION_TYPE：允许作用在注解上</li>
+<li>ElementType.PACKAGE：允许作用在包上</li>
+</ul>
+<p>@Retention 注解包含以下值：</p>
+<ul>
+<li>RetentionPolicy.SOURCE：当前注解编译期可见，不会写入 class 文件</li>
+<li>RetentionPolicy.CLASS：类加载阶段丢弃，会写入 class 文件</li>
+<li>RetentionPolicy.RUNTIME：永久保存，可以反射获取</li>
+</ul>
+<p>更多内容参考 <a href="https://www.cnblogs.com/yangming1996/p/9295168.html" target="_blank" rel="noopener">JAVA 注解的基本原理</a>。</p>
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>java 文件经编译器编译成 class 文件，class 文件由虚拟机加载并创建对应的 java.lang.Class 对象实例。虚拟机提供了三种类加载器：Bootstrap 启动类加载器、Extension 扩展类加载器、System 系统类加载器。启动类加载器主要加载的虚拟机自身所需的类（使用 C++ 实现），包含 &lt;JAVA_HOME&gt;/lib 路径下的核心类库以及 -Xbootclasspath 参数指定路径下的 jar 包。扩展类加载器负责加载”标准的扩展“，包含 &lt;JAVA_HOME&gt;/lib/ext 目录下或者由系统变量 -Djava.ext.dir 指定路径中的类库。系统类加载器负责加载系统类路径 java -classpath 或 -D java.class.path 指定路径下的类库。虚拟机对 class 文件采用按需加载的方式，并使用双亲委派模式，即先有父类加载器处理，如果加载失败，再交由子类加载器处理。类加载器的典型使用如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建 URL 资源</span></span><br><span class="line">URL url = <span class="keyword">new</span> URL(<span class="string">"file:///path/to/plugin.jar"</span>);</span><br><span class="line"><span class="comment">// 2. 创建 URLClassLoader 实例，URLClassLoader 会通过给定的 URL 加载类</span></span><br><span class="line">URLClassLoader pluginLoader = <span class="keyword">new</span> URLClassLoader(<span class="keyword">new</span> URL[] &#123; url &#125;);</span><br><span class="line"><span class="comment">// 3. 加载指定包下的类</span></span><br><span class="line">Class&lt;?&gt; cl = pluginLoader.loadClass(<span class="string">"mypackage.MyClass"</span>);</span><br></pre></td></tr></table></figure>
+<p>自定义的加载器可以通过集成 ClassLoader 实现。ClassLoader#loadClass 方法的职责是将类的加载操作委托给父类加载器，当父类加载器无法加载时，就会转而使用 ClassLoader#findClass。因此自定义的加载逻辑推荐实现在 ClassLoader#findClass 方法中。</p>
+<p>每个线程都由对类加载器的引用，称为上下文类加载器。主线程的上下文加载器是系统类加载器。当新线程创建时，它的上下文类加载器会被设置成创建该线程的上下文类加载器。线程的上下文类加载器可以通过 thread#setContextClassLoader 方法改写。</p>
+<p>更多内容参考 <a href="https://www.cnblogs.com/mybatis/p/9396135.html" target="_blank" rel="noopener">深入理解Java类加载器</a>。</p>
+<h2 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h2><p>java 的反射机制用于动态获取任意一个对象的方法和属性等信息以及动态调用对象方法。更多内容参考 <a href="https://www.jianshu.com/p/9be58ee20dee" target="_blank" rel="noopener">Java高级特性——反射</a>。</p>
+<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/21/java/RMI/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1757,178 +1930,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/21/java/JDBC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/21/java/JDBC/" itemprop="url">JDBC</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-21T00:00:00+08:00">2019-11-21</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/11/21/java/JDBC/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/21/java/JDBC/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Java 数据库连接（JDBC）API 用于对接不同的数据库 —— 由遵守不同网络协议的数据库厂商提供第三方驱动程序，再由 Java 提供一个驱动管理器和一套 API，驱动程序就会注册到驱动管理器中，在此基础上，调用 API 即能访问驱动管理器，最后通过驱动程序与实际的数据库通信。驱动程序的实现经历过多次演进，目前以纯 Java 语言实现，它能将 JDBC 请求直接翻译成数据库相关的协议。</p>
-<img src="/2019/11/21/java/JDBC/jdbc.jpeg">
-<p>使用 JDBC 的前置操作包含：获悉数据库 url 地址如 jdbc:mysql://127.0.0.1:3306/test?characterEncoding=UTF-8；下载驱动程序 jar 文件并注册到驱动管理器上（部分驱动不需要注册）；下载并启动特定数据库。完成前置操作后，就可以连接数据库并执行 sql 了。典型的 JDBC 调用操作如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用户名或密码可以放在配置文件中或远程管理中心中</span></span><br><span class="line">String url = <span class="string">"jdbc:mysql://127.0.0.1:3306/test?characterEncoding=UTF-8"</span>;</span><br><span class="line">String username = <span class="string">"admin"</span>;</span><br><span class="line">String password = <span class="string">"123456"</span>;</span><br><span class="line">Connection conn = DriverManager.getConnection(url, username, password);</span><br><span class="line"></span><br><span class="line">Statement stat = conn.createStatement();</span><br><span class="line">stat.executeUpdate(<span class="string">"CREATE TABLE Greeting (Message CHAR(20))"</span>);</span><br></pre></td></tr></table></figure>
-<p>JDBC 接口设计包含如下内容：</p>
-<ol>
-<li>以 Connection 抽象数据库连接，通过 DriverManager.getConnection 创建。连接通过 connection.close 关闭，避免长连接占用有限的数据库资源（数据库有最大并发连接数、最大并发语句数）（与此同时，频繁建立和关闭数据库连接也是高昂的消耗，因此 web 容器或应用服务器开发商会提供连接池机制。连接池保持与数据库的长连接，不存在物理关闭，sql 操作可以重用连接池）。</li>
-<li>以 Statement 抽象针对数据库的表操作，通过 connection.createStatement 创建，同样能通过调用 close 方法关闭。Statement 对象实现 executeQuery, executeUpdate, execute 方法用于增删改查操作。</li>
-<li>以 ResultSet 抽象查询结果集，并缓存在 Statement 对象中，可通过 statement.getResultSet 获取（每个结果集只能获取一次）。部分结果集允许单条 Select 语句查出多个结果集，通过 statement.getMoreResults 使 getResultSet 指向下一条数据。</li>
-<li>ResultSet 可以便捷地访问列数据，主要抽象操作包含 getXxx(int columnNumber), getXxx(String columnName), getObject(int columnNumber, Class<t>type), getObject(String columnLabel, Class<t>type) 等。Xxx 为 String, Int, Double, Date, Blob, Clob。</t></t></li>
-<li>Statement 再进一步，以 PreparedStatement 抽象预编译的表操作，通过 connection.PrepareStatement 创建。它能复用基本的 sql 语句（此时为预备语句）并对编译结果作缓存，? 部分语句可在特定场合下填充为实际值（如 where name = ? 查询特定人员）。preparedStatement.setXxx, preparedStatement.clearParameters 可用于设置或清除参数（即实际值）。</li>
-<li>支持通过 ResultSet 滚动查询、更新操作。</li>
-<li>以 RowSet 缓存查询结果。</li>
-<li>支持查询元数据。</li>
-<li>支持事务操作。6、7、8、9 均见下文。</li>
-</ol>
-<p>JDBC 另外解决的问题包含：（日期格式等出入库时）转义；获取自动生成的主键。</p>
-<h2 id="可滚动、可更新"><a href="#可滚动、可更新" class="headerlink" title="可滚动、可更新"></a>可滚动、可更新</h2><p>部分数据库的驱动程序支持结果集可滚动、可更新，即直接通过 ResultSet 翻查上一条或下一条数据，更新 ResultSet 数据内容即可更新表数据。在执行结果集滚动、更新操作前，首先需要通过 DatabaseMetaData 接口的 supportsResultSetType, supportsResultSetConcurrency 方法进行判断。</p>
-<h2 id="行集"><a href="#行集" class="headerlink" title="行集"></a>行集</h2><p>可滚动、可更新操作需要与数据库保持连接，消耗数据库资源，因此 JDBC 又推出了扩展自 ResultSet 的行集 RowSet 接口。RowSet 接口有以下子接口：CachedRowSet 缓存行集、WebRowSet 缓存行集（保存为 XML）、FilteredRowSet / JoinRowSet 可操作行集（select、join 操作）、JdbcRowSet 继承 get、set 方法的 “bean”。RowSet 允许将 ResultSet 数据填充到行集中；直接执行 sql 语句；设置分页；重新与数据库建立连接，并将数据回写到数据库中（回写时会校验原始值是否与数据库中存储值相同，保证一致性；回写复杂结果一般是不允许的）。RowSet 的典型操作如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 或 CachedRowSet crs = new com.sun.rowset.CachedRowSetImpl();</span></span><br><span class="line">RowSetFactory factory = RowSetProvider.newFactory();</span><br><span class="line">CachedRowSet crs = factory.createCachedRowSet();</span><br><span class="line">crs.setCommand(<span class="string">"SELECT * FROM Books WHERE PUBLISHER = ?"</span>);</span><br><span class="line">crs.setString(<span class="number">1</span>, publisherName);</span><br><span class="line">crs.execute();</span><br></pre></td></tr></table></figure>
-<h2 id="元数据"><a href="#元数据" class="headerlink" title="元数据"></a>元数据</h2><p>JDBC 可用于获取元数据：数据库元数据信息、结果集的元数据信息以及预备语句的元数据信息。数据库元数据信息包含表及字段信息、数据库支持的功能。典型操作如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Connection conn = DriverManager.getConnection(url, username, password);</span><br><span class="line">DatabaseMetaData meta = conn.getMetaData();</span><br><span class="line">ResultSet mrs = meta.getTables(<span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">new</span> String[]&#123; <span class="string">"Table"</span> &#125;);<span class="comment">// 获取所有表信息</span></span><br></pre></td></tr></table></figure>
-<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>一组语句构成一个事务。在一组语句执行过程中，如果中间某个语句执行失败，那么就需要对之前的所有操作进行回滚 rollback。数据库连接默认处于自动提交模式，即 sql 语句一旦被执行就会被提交 commit，无法对其回滚。因此在使用之前，首先需要关闭自动提交模式 setAutoCommit(false)。部分数据库支持更为细致的回滚操作：通过在一组语句执行过程中设置保存点 setSavepoint，就允许后续的回滚操作撤回到保存点位置。同时 JDBC 允许对数据库进行批量更新操作，通过 conn.addBatch, conn.executeBatch 执行。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《Java 核心技术卷二》<br><a href="https://docs.oracle.com/en/database/oracle/oracle-database/19/jjdbc/toc.htm" target="_blank" rel="noopener">JDBC Developer’s Guide</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1978,7 +1979,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">117</span>
+                    <span class="site-state-item-count">118</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

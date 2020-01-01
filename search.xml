@@ -1,6 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>我看 spring mvc</title>
+    <url>/2020/01/01/java/%E6%88%91%E7%9C%8B%20spring%20mvc/</url>
+    <content><![CDATA[<p>spring mvc 基于 <a href="https://www.jianshu.com/p/11cbdc87900c" target="_blank" rel="noopener">前端控制器模式</a> 设计，通过 DispatcherServlet 这个前端控制器将请求交给可配置的委托组件处理，这就能支持请求处理的灵活性。DispatcherServlet 中请求映射、视图解析、异常处理等功能所使用的组件都通过 spring 机制发现。</p>
+<h2 id="why"><a href="#why" class="headerlink" title="why"></a>why</h2><h3 id="EnableWebMvc"><a href="#EnableWebMvc" class="headerlink" title="@EnableWebMvc"></a>@EnableWebMvc</h3><p>@EnableWebMvc 注解会通过 @Import 加载配置类，配置类又会主动查找添加了 @Controller、@RestController 注解的 bean，并注册到 HandlerMapping 中，以便在请求触达时使用。</p>
+<img src="/2020/01/01/java/我看%20spring%20mvc/enablewebmvc.png">
+<h3 id="DispatcherServlet-初始化"><a href="#DispatcherServlet-初始化" class="headerlink" title="DispatcherServlet 初始化"></a>DispatcherServlet 初始化</h3><img src="/2020/01/01/java/我看%20spring%20mvc/dispatchservlet2.png">
+<h3 id="DispatcherServlet-处理请求"><a href="#DispatcherServlet-处理请求" class="headerlink" title="DispatcherServlet 处理请求"></a>DispatcherServlet 处理请求</h3><ol>
+<li>请求触达，DispatcherServlet#doGet 等方法接受到请求。</li>
+<li>DispatcherServlet#doDispatch 阶段，路由找出 Handler（即 Controller）。</li>
+<li>DispatcherServlet#doDispatch 阶段，使用 HandlerAdapter 作子流程处理。</li>
+<li>DispatcherServlet#doDispatch 阶段，使用 Handler 作主流程处理。</li>
+<li>DispatcherServlet#doDispatch 阶段，视图渲染、处理响应。</li>
+</ol>
+<img src="/2020/01/01/java/我看%20spring%20mvc/dispatchservlet.png">
+<ul>
+<li>HandlerMapping：请求到一组拦截器的映射，拦截器包含对请求的前置、后置处理。</li>
+<li>HandlerAdapter：辅助 Handler，用于处理如 Controller 上注释解析等子流程，使 Handler 专注于处理请求的主流程。</li>
+<li>HandlerExceptionResolver：错误处理，将他们转交给 Handler、视图等。</li>
+<li>ViewResolver 视图解析器；LocaleResolver, LocaleContextResolver 国际化；ThemeResolver 个性化；MultipartResolver 解析文件上传请求；FlashMapManager 闪存。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">FrameworkServlet</span> <span class="keyword">extends</span> <span class="title">HttpServletBean</span> <span class="keyword">implements</span> <span class="title">ApplicationContextAware</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 重新加载应用的配置，作为 startup 方法</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refresh</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		WebApplicationContext wac = getWebApplicationContext();</span><br><span class="line">		<span class="keyword">if</span> (!(wac <span class="keyword">instanceof</span> ConfigurableApplicationContext)) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"WebApplicationContext does not support refresh: "</span> + wac);</span><br><span class="line">		&#125;</span><br><span class="line">		((ConfigurableApplicationContext) wac).refresh();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 其他 doPost、doPut、doDelete 等方法都会调用 processRequest</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">		processRequest(request, response);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">processRequest</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">try</span> &#123; doService(request, response); &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DispatcherServlet</span> <span class="keyword">extends</span> <span class="title">FrameworkServlet</span> </span>&#123;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doService</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">try</span> &#123; doDispatch(request, response); &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doDispatch</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		mappedHandler = getHandler(processedRequest);</span><br><span class="line"></span><br><span class="line">    HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!mappedHandler.applyPreHandle(processedRequest, response)) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line">    applyDefaultViewName(processedRequest, mv);</span><br><span class="line">    mappedHandler.applyPostHandle(processedRequest, response, mv);</span><br><span class="line"></span><br><span class="line">    processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/6433a07f909c" target="_blank" rel="noopener">理解SpringMvc架构以及流程</a><br><a href="https://blog.csdn.net/u010013573/article/details/86550326" target="_blank" rel="noopener">Spring MVC源码分析（四）：SpringMVC的HandlerMapping和HandlerAdapter的体系结构设计与实现</a><br><a href="https://blog.csdn.net/qq_32328959/article/details/90247411" target="_blank" rel="noopener">Spring Web MVC（一）|前端控制器-DispatcherServlet</a></p>
+]]></content>
+      <categories>
+        <category>java</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>聊聊组件库的构成</title>
     <url>/2019/12/31/%E8%81%8A%E8%81%8A%E7%BB%84%E4%BB%B6%E5%BA%93%E7%9A%84%E6%9E%84%E6%88%90/</url>
     <content><![CDATA[<h2 id="通用组件"><a href="#通用组件" class="headerlink" title="通用组件"></a>通用组件</h2><h3 id="按钮-Button"><a href="#按钮-Button" class="headerlink" title="按钮 Button"></a>按钮 Button</h3><ul>
@@ -69,7 +100,19 @@
 </ul>
 </li>
 </ul>
-<h3 id="布局-Layout"><a href="#布局-Layout" class="headerlink" title="布局 Layout"></a>布局 Layout</h3>]]></content>
+<h3 id="布局-Layout"><a href="#布局-Layout" class="headerlink" title="布局 Layout"></a>布局 Layout</h3><ul>
+<li>功能特性：<ul>
+<li>页面布局，包含 Header 头部、Content 内容、Sider 侧边栏、Footer 尾部。侧边栏可以展开折叠，由 Layout 组件通过收集折叠的侧边栏标识传入子组件中。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>渲染时，Layout 组件使用 section 节点；Header 使用 header 节点；Content 使用 main 节点；Footer 使用 footer 节点。Layout 采用 flex 布局，主轴为垂直方向。</li>
+<li>Sider#collapsible 激活侧边栏的展开折叠功能。其一可以通过触发按钮展开折叠侧边栏，其二基于 window.matchMedia 方式响应式展开折叠（触发按钮有两种，Sider 组件的展开折叠按钮、Sider 外围通过 Layout 获取状态的展开折叠按钮）。侧边栏内容由子组件渲染，侧边栏的展开折叠状态通过 Context 机制传递。</li>
+<li>Sider#theme 设置侧边栏的样式主题。</li>
+</ul>
+</li>
+</ul>
+<h2 id="导航组件"><a href="#导航组件" class="headerlink" title="导航组件"></a>导航组件</h2><h3 id="固钉-Affix"><a href="#固钉-Affix" class="headerlink" title="固钉 Affix"></a>固钉 Affix</h3>]]></content>
       <categories>
         <category>前端</category>
       </categories>
@@ -3398,14 +3441,11 @@
       </tags>
   </entry>
   <entry>
-    <title>rc-align</title>
-    <url>/2019/02/01/antd/react-component/rc-align/</url>
-    <content><![CDATA[<h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
+    <title>dom-align</title>
+    <url>/2019/02/01/antd/react-component/dom-align/</url>
+    <content><![CDATA[<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
 <li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
-</li>
-<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
-</li>
+<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
 </ul>
 ]]></content>
       <categories>
@@ -3418,11 +3458,14 @@
       </tags>
   </entry>
   <entry>
-    <title>dom-align</title>
-    <url>/2019/02/01/antd/react-component/dom-align/</url>
-    <content><![CDATA[<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
+    <title>rc-align</title>
+    <url>/2019/02/01/antd/react-component/rc-align/</url>
+    <content><![CDATA[<h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
 <li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
+<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
+</li>
+<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
+</li>
 </ul>
 ]]></content>
       <categories>

@@ -299,6 +299,174 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/01/java/我看 spring mvc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/01/java/我看 spring mvc/" itemprop="url">我看 spring mvc</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-01T00:00:00+08:00">2020-01-01</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/01/01/java/我看 spring mvc/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/01/java/我看 spring mvc/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>spring mvc 基于 <a href="https://www.jianshu.com/p/11cbdc87900c" target="_blank" rel="noopener">前端控制器模式</a> 设计，通过 DispatcherServlet 这个前端控制器将请求交给可配置的委托组件处理，这就能支持请求处理的灵活性。DispatcherServlet 中请求映射、视图解析、异常处理等功能所使用的组件都通过 spring 机制发现。</p>
+<h2 id="why"><a href="#why" class="headerlink" title="why"></a>why</h2><h3 id="EnableWebMvc"><a href="#EnableWebMvc" class="headerlink" title="@EnableWebMvc"></a>@EnableWebMvc</h3><p>@EnableWebMvc 注解会通过 @Import 加载配置类，配置类又会主动查找添加了 @Controller、@RestController 注解的 bean，并注册到 HandlerMapping 中，以便在请求触达时使用。</p>
+<img src="/2020/01/01/java/我看%20spring%20mvc/enablewebmvc.png">
+<h3 id="DispatcherServlet-初始化"><a href="#DispatcherServlet-初始化" class="headerlink" title="DispatcherServlet 初始化"></a>DispatcherServlet 初始化</h3><img src="/2020/01/01/java/我看%20spring%20mvc/dispatchservlet2.png">
+<h3 id="DispatcherServlet-处理请求"><a href="#DispatcherServlet-处理请求" class="headerlink" title="DispatcherServlet 处理请求"></a>DispatcherServlet 处理请求</h3><ol>
+<li>请求触达，DispatcherServlet#doGet 等方法接受到请求。</li>
+<li>DispatcherServlet#doDispatch 阶段，路由找出 Handler（即 Controller）。</li>
+<li>DispatcherServlet#doDispatch 阶段，使用 HandlerAdapter 作子流程处理。</li>
+<li>DispatcherServlet#doDispatch 阶段，使用 Handler 作主流程处理。</li>
+<li>DispatcherServlet#doDispatch 阶段，视图渲染、处理响应。</li>
+</ol>
+<img src="/2020/01/01/java/我看%20spring%20mvc/dispatchservlet.png">
+<ul>
+<li>HandlerMapping：请求到一组拦截器的映射，拦截器包含对请求的前置、后置处理。</li>
+<li>HandlerAdapter：辅助 Handler，用于处理如 Controller 上注释解析等子流程，使 Handler 专注于处理请求的主流程。</li>
+<li>HandlerExceptionResolver：错误处理，将他们转交给 Handler、视图等。</li>
+<li>ViewResolver 视图解析器；LocaleResolver, LocaleContextResolver 国际化；ThemeResolver 个性化；MultipartResolver 解析文件上传请求；FlashMapManager 闪存。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">FrameworkServlet</span> <span class="keyword">extends</span> <span class="title">HttpServletBean</span> <span class="keyword">implements</span> <span class="title">ApplicationContextAware</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 重新加载应用的配置，作为 startup 方法</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refresh</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		WebApplicationContext wac = getWebApplicationContext();</span><br><span class="line">		<span class="keyword">if</span> (!(wac <span class="keyword">instanceof</span> ConfigurableApplicationContext)) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"WebApplicationContext does not support refresh: "</span> + wac);</span><br><span class="line">		&#125;</span><br><span class="line">		((ConfigurableApplicationContext) wac).refresh();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 其他 doPost、doPut、doDelete 等方法都会调用 processRequest</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">		processRequest(request, response);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">processRequest</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">try</span> &#123; doService(request, response); &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DispatcherServlet</span> <span class="keyword">extends</span> <span class="title">FrameworkServlet</span> </span>&#123;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doService</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">try</span> &#123; doDispatch(request, response); &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doDispatch</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		mappedHandler = getHandler(processedRequest);</span><br><span class="line"></span><br><span class="line">    HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!mappedHandler.applyPreHandle(processedRequest, response)) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line">    applyDefaultViewName(processedRequest, mv);</span><br><span class="line">    mappedHandler.applyPostHandle(processedRequest, response, mv);</span><br><span class="line"></span><br><span class="line">    processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/6433a07f909c" target="_blank" rel="noopener">理解SpringMvc架构以及流程</a><br><a href="https://blog.csdn.net/u010013573/article/details/86550326" target="_blank" rel="noopener">Spring MVC源码分析（四）：SpringMVC的HandlerMapping和HandlerAdapter的体系结构设计与实现</a><br><a href="https://blog.csdn.net/qq_32328959/article/details/90247411" target="_blank" rel="noopener">Spring Web MVC（一）|前端控制器-DispatcherServlet</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/31/聊聊组件库的构成/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -463,7 +631,19 @@
 </ul>
 </li>
 </ul>
-<h3 id="布局-Layout"><a href="#布局-Layout" class="headerlink" title="布局 Layout"></a>布局 Layout</h3>
+<h3 id="布局-Layout"><a href="#布局-Layout" class="headerlink" title="布局 Layout"></a>布局 Layout</h3><ul>
+<li>功能特性：<ul>
+<li>页面布局，包含 Header 头部、Content 内容、Sider 侧边栏、Footer 尾部。侧边栏可以展开折叠，由 Layout 组件通过收集折叠的侧边栏标识传入子组件中。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>渲染时，Layout 组件使用 section 节点；Header 使用 header 节点；Content 使用 main 节点；Footer 使用 footer 节点。Layout 采用 flex 布局，主轴为垂直方向。</li>
+<li>Sider#collapsible 激活侧边栏的展开折叠功能。其一可以通过触发按钮展开折叠侧边栏，其二基于 window.matchMedia 方式响应式展开折叠（触发按钮有两种，Sider 组件的展开折叠按钮、Sider 外围通过 Layout 获取状态的展开折叠按钮）。侧边栏内容由子组件渲染，侧边栏的展开折叠状态通过 Context 机制传递。</li>
+<li>Sider#theme 设置侧边栏的样式主题。</li>
+</ul>
+</li>
+</ul>
+<h2 id="导航组件"><a href="#导航组件" class="headerlink" title="导航组件"></a>导航组件</h2><h3 id="固钉-Affix"><a href="#固钉-Affix" class="headerlink" title="固钉 Affix"></a>固钉 Affix</h3>
           
         
       
@@ -1948,179 +2128,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/21/java/Java知识点/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/21/java/Java知识点/" itemprop="url">java 知识点</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-21T00:00:00+08:00">2019-12-21</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/12/21/java/Java知识点/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/21/java/Java知识点/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h2><p>java 注解与 js 装饰器拥有相当不同的实现方式：java 有编译过程，因此可以使用语法约定注解的意义，脱离了编译过程，注解将毫无意义；js 引擎却没有对装饰器给予有效支持，因此 js 装饰器在 babel 等工具中表现为使用高阶函数封装原类或方法。java 注解本质上都是集成了 java.lang.Annotation 的接口，接口名前加 @interface 标识声明。有以下四种元注解可以标识注解的目标、生命周期、是否包含在 JavaDoc 文档中、是否允许子类继承，分别是 @Target、@Retention、@Documented、@Inherited。</p>
-<p>@Target 注解包含以下值：</p>
-<ul>
-<li>ElementType.TYPE：允许被修饰的注解作用在类、接口和枚举上</li>
-<li>ElementType.FIELD：允许作用在属性字段上</li>
-<li>ElementType.METHOD：允许作用在方法上</li>
-<li>ElementType.PARAMETER：允许作用在方法参数上</li>
-<li>ElementType.CONSTRUCTOR：允许作用在构造器上</li>
-<li>ElementType.LOCAL_VARIABLE：允许作用在本地局部变量上</li>
-<li>ElementType.ANNOTATION_TYPE：允许作用在注解上</li>
-<li>ElementType.PACKAGE：允许作用在包上</li>
-</ul>
-<p>@Retention 注解包含以下值：</p>
-<ul>
-<li>RetentionPolicy.SOURCE：当前注解编译期可见，不会写入 class 文件</li>
-<li>RetentionPolicy.CLASS：类加载阶段丢弃，会写入 class 文件</li>
-<li>RetentionPolicy.RUNTIME：永久保存，可以反射获取</li>
-</ul>
-<p>更多内容参考 <a href="https://www.cnblogs.com/yangming1996/p/9295168.html" target="_blank" rel="noopener">JAVA 注解的基本原理</a>。</p>
-<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>java 文件经编译器编译成 class 文件，class 文件由虚拟机加载并创建对应的 java.lang.Class 对象实例。虚拟机提供了三种类加载器：Bootstrap 启动类加载器、Extension 扩展类加载器、System 系统类加载器。启动类加载器主要加载的虚拟机自身所需的类（使用 C++ 实现），包含 &lt;JAVA_HOME&gt;/lib 路径下的核心类库以及 -Xbootclasspath 参数指定路径下的 jar 包。扩展类加载器负责加载”标准的扩展“，包含 &lt;JAVA_HOME&gt;/lib/ext 目录下或者由系统变量 -Djava.ext.dir 指定路径中的类库。系统类加载器负责加载系统类路径 java -classpath 或 -D java.class.path 指定路径下的类库。虚拟机对 class 文件采用按需加载的方式，并使用双亲委派模式，即先有父类加载器处理，如果加载失败，再交由子类加载器处理。类加载器的典型使用如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建 URL 资源</span></span><br><span class="line">URL url = <span class="keyword">new</span> URL(<span class="string">"file:///path/to/plugin.jar"</span>);</span><br><span class="line"><span class="comment">// 2. 创建 URLClassLoader 实例，URLClassLoader 会通过给定的 URL 加载类</span></span><br><span class="line">URLClassLoader pluginLoader = <span class="keyword">new</span> URLClassLoader(<span class="keyword">new</span> URL[] &#123; url &#125;);</span><br><span class="line"><span class="comment">// 3. 加载指定包下的类</span></span><br><span class="line">Class&lt;?&gt; cl = pluginLoader.loadClass(<span class="string">"mypackage.MyClass"</span>);</span><br></pre></td></tr></table></figure>
-<p>自定义的加载器可以通过集成 ClassLoader 实现。ClassLoader#loadClass 方法的职责是将类的加载操作委托给父类加载器，当父类加载器无法加载时，就会转而使用 ClassLoader#findClass。因此自定义的加载逻辑推荐实现在 ClassLoader#findClass 方法中。</p>
-<p>每个线程都由对类加载器的引用，称为上下文类加载器。主线程的上下文加载器是系统类加载器。当新线程创建时，它的上下文类加载器会被设置成创建该线程的上下文类加载器。线程的上下文类加载器可以通过 thread#setContextClassLoader 方法改写。</p>
-<p>更多内容参考 <a href="https://www.cnblogs.com/mybatis/p/9396135.html" target="_blank" rel="noopener">深入理解Java类加载器</a>。</p>
-<h2 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h2><p>java 的反射机制用于动态获取任意一个对象的方法和属性等信息以及动态调用对象方法。更多内容参考 <a href="https://www.jianshu.com/p/9be58ee20dee" target="_blank" rel="noopener">Java高级特性——反射</a>。</p>
-<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2170,7 +2177,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">117</span>
+                    <span class="site-state-item-count">118</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

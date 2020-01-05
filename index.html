@@ -481,7 +481,36 @@
 </ul>
 </li>
 </ul>
-<h3 id="面包屑-Breadcrumb"><a href="#面包屑-Breadcrumb" class="headerlink" title="面包屑 Breadcrumb"></a>面包屑 Breadcrumb</h3>
+<h3 id="面包屑-Breadcrumb"><a href="#面包屑-Breadcrumb" class="headerlink" title="面包屑 Breadcrumb"></a>面包屑 Breadcrumb</h3><p>Breadcrumb 组件测试脚本通过 MemoryRouter 组件实现。</p>
+<ul>
+<li>功能特性：<ul>
+<li>绘制面包屑。面包屑内容既可以使用 Breadcrumb.Item 组件渲染，又可以基于 routes 路由属性渲染（基于路由渲染时，额外可以使用 itemRender 渲染函数获取面包屑元素）。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>separator 分隔符，既可以通过 Breadcrumb#separator 属性设置，又可以通过 Breadcrumb.Separator 组件渲染。</li>
+<li>Breadcrumb.Item#href 链接，设置后将使用 a 节点渲染，不然使用 span 节点渲染。</li>
+<li>Breadcrumb.Item#overlay 下拉菜单的内容，下拉菜单通过 DropDown 组件渲染，展示位置在正下方。</li>
+</ul>
+</li>
+</ul>
+<h3 id="下拉菜单-DropDown"><a href="#下拉菜单-DropDown" class="headerlink" title="下拉菜单 DropDown"></a>下拉菜单 DropDown</h3><ul>
+<li>功能特性<ul>
+<li>提供下拉菜单的渲染容器。下拉菜单的触发节点 DropDown#children 和下拉菜单 DropDown#overlay 的内容都由开发者提供，一般菜单内容为 Menu 组件渲染内容。DropDown 会为下拉菜单内容传入 selectable=false, focusable=true 以及 expandIcon 图标属性。渲染容器基于 <a href="http://react-component.github.io/dropdown/" target="_blank" rel="noopener">rc-dropdown</a> 库实现，rc-dropdown 内部使用 <a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 库。</li>
+<li>DropDown.Button 不止于提供下拉菜单的渲染容器，同时也将触发节点设置为按钮。它的实现借助于 Button、DropDown 组件。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>DropDown#getPopupContainer：基于 rc-trigger 库设置下拉菜单的渲染父节点，作为定位节点。</li>
+<li>DropDown#align：基于 rc-trigger 库设置下拉菜单位置调整依据。</li>
+<li>DropDown#placement：基于 rc-trigger 库设置下拉菜单的弹出位置。</li>
+<li>DropDown#transitionName：基于 rc-trigger 库设置下拉菜单展示隐藏时的动效。</li>
+<li>DropDown#trigger：基于 rc-trigger 库设置触发下拉菜单的行为 click、hover、contextMenu。当由 contextMenu 鼠标右键触发时，基于 rc-trigger 特性菜单位置也会跟随鼠标移动。</li>
+<li>DropDown#forceRender、DropDown#mouseEnterDelay、DropDown#mouseLeaveDelay 等：均基于 rc-trigger 库实现。</li>
+</ul>
+</li>
+</ul>
+<h3 id="导航菜单"><a href="#导航菜单" class="headerlink" title="导航菜单"></a>导航菜单</h3>
           
         
       
@@ -643,7 +672,7 @@
 <li>请求触达，DispatcherServlet#doGet 等方法接受到请求。</li>
 <li>DispatcherServlet#doDispatch 阶段，路由到 Handler（即添加了 @RequestMapping 注解的 Controller）。</li>
 <li>DispatcherServlet#doDispatch 阶段，通过 HandlerAdapter 处理请求、执行 handler、转化响应。</li>
-<li>DispatcherServlet#doDispatch 阶段，渲染视图或错误。</li>
+<li>DispatcherServlet#doDispatch 阶段，渲染视图（包含 html、xml、pdf、json 等）或错误。</li>
 </ol>
 <img src="/2020/01/04/java/我看%20spring%20mvc/dispatchservlet.png">
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DispatcherServlet 间接实现了 ApplicationContextAware，可以获得 applicationContext</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DispatcherServlet</span> <span class="keyword">extends</span> <span class="title">FrameworkServlet</span> </span>&#123;</span><br><span class="line">  <span class="comment">// applicationContext#refresh 阶段从 bean 中获取 HandlerMapping 等 bean</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onRefresh</span><span class="params">(ApplicationContext context)</span> </span>&#123;</span><br><span class="line">		initStrategies(context);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 其他 doPost、doPut、doDelete 等方法最终都会调用 doDispatch</span></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doDispatch</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		HttpServletRequest processedRequest = request;</span><br><span class="line">		HandlerExecutionChain mappedHandler = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			ModelAndView mv = <span class="keyword">null</span>;</span><br><span class="line">			Exception dispatchException = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">// 从 HandlerMapping 中获取 handler</span></span><br><span class="line">				mappedHandler = getHandler(processedRequest);</span><br><span class="line">				<span class="keyword">if</span> (mappedHandler == <span class="keyword">null</span>) &#123;</span><br><span class="line">					noHandlerFound(processedRequest, response);</span><br><span class="line">					<span class="keyword">return</span>;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用拦截器 interceptor.preHandle 方法进行处理</span></span><br><span class="line">				<span class="keyword">if</span> (!mappedHandler.applyPreHandle(processedRequest, response)) &#123;</span><br><span class="line">					<span class="keyword">return</span>;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 通过 HandlerAdapter 处理请求、执行 handler、转化响应</span></span><br><span class="line">				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line">				<span class="keyword">if</span> (asyncManager.isConcurrentHandlingStarted()) &#123;</span><br><span class="line">					<span class="keyword">return</span>;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				applyDefaultViewName(processedRequest, mv);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用拦截器 interceptor.postHandle 方法进行处理</span></span><br><span class="line">				mappedHandler.applyPostHandle(processedRequest, response, mv);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">				dispatchException = ex;</span><br><span class="line">			&#125; <span class="keyword">catch</span> (Throwable err) &#123;</span><br><span class="line">				<span class="comment">// As of 4.3, we're processing Errors thrown from handler methods as well,</span></span><br><span class="line">				<span class="comment">// making them available for @ExceptionHandler methods and other scenarios.</span></span><br><span class="line">				dispatchException = <span class="keyword">new</span> NestedServletException(<span class="string">"Handler dispatch failed"</span>, err);</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 渲染视图或错误</span></span><br><span class="line">			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

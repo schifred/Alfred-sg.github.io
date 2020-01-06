@@ -299,6 +299,211 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/24/设计模式/状态模式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/24/设计模式/状态模式/" itemprop="url">状态模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-24T00:00:00+08:00">2018-03-24</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/24/设计模式/状态模式/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/03/24/设计模式/状态模式/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>状态模式(State pattern) 的主要处理逻辑为，构建多个状态对象(state object)以维护特定状态下的行为集，和一个上下文对象(context)以引用形式维护与当前状态对应的状态对象，并将与状态相关的行为委托给这个状态对象加以处理；当状态更新时，上下文对象将重设其实际引用的状态对象，而其行为也将得到变更。通常，状态以标识符形式（有时候表现为内部数据值，即除了标识符以外，还有额外的数据）存储，在编写上下文对象的行为时，会使用大量的条件语句，通过当前的状态值判断实际需要执行的动作；对于新添加的状态，上下文对象的行为也需要相应改变其处理逻辑。当状态以引用对象的形式存储后，状态对象的行为可直接调用其引用的状态对象的方法；对于新添加的状态，只需要构建新的状态对象，即可加以实现。</p>
+<p>状态模式的表现即如《设计模式:可复用面向对象软件的基础》一书中所说的：</p>
+<blockquote class="blockquote-center"><p>Allow an object to alter its behavior when its internal state changes.The object will appear to change its class. </p>
+</blockquote>
+<h2 id="经典实现"><a href="#经典实现" class="headerlink" title="经典实现"></a>经典实现</h2><p>状态模式包含下列组件：</p>
+<ul>
+<li>Context: 定义交互接口，以引用对象形式持有某个 ConcreteState，其行为通过委托给 ConcreteState 实现；当状态更新时，其持有的 ConcreteState 引用也将得到更新。</li>
+<li>State: 状态对象，定义行为的抽象类。</li>
+<li>ConcreteState: 具体状态子类，实现 State 抽象类中定义的行为。</li>
+</ul>
+<p>使用状态模式的效果：</p>
+<ol>
+<li>使用特定的类维护特定状态的行为，该类可以共享，且不同状态的类之间相互没有耦合。</li>
+<li>状态转换更加显式化。从 Context 的角度看，状态转换只需更新其下引用的状态对象，其过程是原子的。而以内部数据值存储状态时，更新状态时，需要同时更新多个内部数据值。</li>
+</ol>
+<p>以下载状态为例，其简单实现为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// typescript 编码</span></span><br><span class="line">abstract <span class="class"><span class="keyword">class</span> <span class="title">State</span></span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(context)&#123;</span><br><span class="line">    <span class="keyword">super</span>(context);</span><br><span class="line">    <span class="keyword">this</span>.context = context;<span class="comment">// 通过引用属性访问 Context 实例，可访问实例属性，以处理状态切换操作；可改为传参实现</span></span><br><span class="line">  &#125;</span><br><span class="line">  download()&#123;&#125;</span><br><span class="line">  pause()&#123;&#125;</span><br><span class="line">  fail()&#123;&#125;</span><br><span class="line">  finish()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReadyState</span> <span class="keyword">extends</span> <span class="title">State</span> </span>&#123;</span><br><span class="line">  @override</span><br><span class="line">  download()&#123;</span><br><span class="line">    <span class="keyword">this</span>.context.setState(<span class="keyword">this</span>.context.downloadingState());</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  pause()&#123;&#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  fail()&#123;&#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  finish()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// DownLoadState, PauseState, FailState, FinishState 实现</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.readyState = <span class="keyword">new</span> ReadyState(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.downLoadState = <span class="keyword">new</span> DownLoadState(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.pauseState = <span class="keyword">new</span> PauseState(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.failState = <span class="keyword">new</span> FailState(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.finishState = <span class="keyword">new</span> FinishState(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.state = <span class="keyword">this</span>.readyState;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  download()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.download();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  pause()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.pause();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fail()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.fail();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  finish()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.finish();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setState(State)&#123;</span><br><span class="line">    <span class="keyword">this</span>.state = State;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>上述实现存在的问题：</p>
+<ol>
+<li>状态转换在 ConcreteState 具体状态子类中实现，这样 ConcreteState 就存在相互依赖关系，其中一个必须知道后继状态是哪一个。同时对于状态转换策略不同的业务场景，也不能共享状态对象。状态转换也可以放在 Context 中完成，这样做不利于状态转换的扩展，同时，状态转换较为复杂时（如开叉后再汇合，就像 git 的提交记录），其中的处理逻辑就会显得繁复。</li>
+<li>状态对象在 Context 初始化过程中即予创建，且始终不销毁，而不是在需要使用的时候再行创建，使用完以后即予销毁。状态变更较为频繁的场景推荐在 Context 初始化过程中一次性创建所有状态对象；状态变更不频繁且初始状态未知的场景推荐使用即时创建状态对象。</li>
+</ol>
+<p>因此，实现可以改写为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用时创建状态对象，状态切换仍由状态对象完成</span></span><br><span class="line">abstract <span class="class"><span class="keyword">class</span> <span class="title">State</span></span>&#123;</span><br><span class="line">  download(context)&#123;&#125;</span><br><span class="line">  pause(context)&#123;&#125;</span><br><span class="line">  fail(context)&#123;&#125;</span><br><span class="line">  finish(context)&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReadyState</span> <span class="keyword">extends</span> <span class="title">State</span> </span>&#123;</span><br><span class="line">  @override</span><br><span class="line">  download(context)&#123;</span><br><span class="line">    context.setState(<span class="keyword">new</span> DownLoadState());</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  pause(context)&#123;&#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  fail(context)&#123;&#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  finish(context)&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// DownLoadState, PauseState, FailState, FinishState 实现</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state = <span class="keyword">new</span> ReadyState(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  download()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.download(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  pause()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.pause(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fail()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.fail(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  finish()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.finish(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setState(State)&#123;</span><br><span class="line">    <span class="keyword">this</span>.state = State;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="js-中的状态模式"><a href="#js-中的状态模式" class="headerlink" title="js 中的状态模式"></a>js 中的状态模式</h2><p>在 js 中，可直接使用对象字面量声明状态对象，同时，借助于 Function.prototype.call 方法可以将上下文对象的行为委托给状态对象加以处理。实现代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> FSM = &#123;</span><br><span class="line">  ready: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = FSM.download;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  download: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = FSM.pause;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is paused!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = FSM.fail;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is failed!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = FSM.finish;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is finished!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// pause, fail, success 状态实现</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state = FSM.ready;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  download()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.download.call(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  pause()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.pause.call(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fail()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.fail.call(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  finish()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.finish.call(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将上述代码中 Function.prototype.call 方法作进一步封装，可实现为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> delegate = <span class="function">(<span class="params">context, delegation</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    download: <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">return</span> delegation.download.call(context, ...args);</span><br><span class="line">    &#125;,</span><br><span class="line">    pause: <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">return</span> delegation.pause.call(context, ...args);</span><br><span class="line">    &#125;,</span><br><span class="line">    fail: <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">return</span> delegation.fail.call(context, ...args);</span><br><span class="line">    &#125;,</span><br><span class="line">    finish: <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">return</span> delegation.finish.call(context, ...args);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> FSM = &#123;</span><br><span class="line">  ready: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = <span class="keyword">this</span>.download;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  download: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = <span class="keyword">this</span>.pause;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is paused!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = <span class="keyword">this</span>.fail;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is failed!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">this</span>.state = <span class="keyword">this</span>.finish;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is finished!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// pause, fail, success 状态实现</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.ready = delegate(<span class="keyword">this</span>, FSM.ready);</span><br><span class="line">    <span class="keyword">this</span>.download = delegate(<span class="keyword">this</span>, FSM.download);</span><br><span class="line">    <span class="keyword">this</span>.pause = delegate(<span class="keyword">this</span>, FSM.pause);</span><br><span class="line">    <span class="keyword">this</span>.fail = delegate(<span class="keyword">this</span>, FSM.fail);</span><br><span class="line">    <span class="keyword">this</span>.success = delegate(<span class="keyword">this</span>, FSM.success);</span><br><span class="line">    <span class="keyword">this</span>.state = <span class="keyword">this</span>.ready;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  download()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.download();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  pause()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.pause();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fail()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.fail(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  finish()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state.finish(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过 Proxy 代理实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> FSM = &#123;</span><br><span class="line">  ready: &#123;</span><br><span class="line">    download: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; </span><br><span class="line">      context.state = FSM.download;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    pause: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; &#125;,</span><br><span class="line">    fail: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; &#125;,</span><br><span class="line">    finish: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  download: &#123;</span><br><span class="line">    download: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; &#125;,</span><br><span class="line">    pause: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; </span><br><span class="line">      context.state = FSM.pause;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is paused!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    fail: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; </span><br><span class="line">      context.state = <span class="keyword">this</span>.fail;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is failed!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    finish: <span class="function">(<span class="params">context</span>) =&gt;</span> &#123; </span><br><span class="line">      context.state = <span class="keyword">this</span>.finish;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is finished!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// pause, fail, success 状态实现</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="keyword">this</span>.state = FSM.ready;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> download = <span class="keyword">new</span> <span class="built_in">Proxy</span>(<span class="keyword">new</span> Download(), &#123;</span><br><span class="line">  <span class="keyword">get</span>(target, propKey, receiver)&#123;</span><br><span class="line">    <span class="keyword">if</span> ( <span class="built_in">Object</span>.keys(target.state).indexOf(propKey) !== <span class="number">-1</span> )&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123;</span><br><span class="line">        target.state[propKey](target, ...args);</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> target[propKey];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="表驱动的状态模式"><a href="#表驱动的状态模式" class="headerlink" title="表驱动的状态模式"></a>表驱动的状态模式</h2><p>表驱动的状态模式，其处理逻辑为使用表结构约定每种状态在特定条件下（该条件也可以是执行状态转换逻辑的函数名）的后继状态为谁，就此实现状态转换。</p>
+<p>借助于 Proxy 代理，实现表驱动的简易代码为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> FSM = &#123;</span><br><span class="line">  ready: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Start Download!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  download: &#123;</span><br><span class="line">    download: <span class="function"><span class="params">()</span> =&gt;</span> &#123; &#125;,</span><br><span class="line">    pause: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is paused!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    fail: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is failed!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    finish: <span class="function"><span class="params">()</span> =&gt;</span> &#123; </span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Download is finished!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// pause, fail, success 状态实现</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoad</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>()&#123;</span><br><span class="line">    <span class="comment">// 状态转换规则</span></span><br><span class="line">    <span class="keyword">this</span>.rules = &#123;</span><br><span class="line">      ready: [&#123; <span class="attr">transition</span>: <span class="string">'download'</span>, <span class="attr">to</span>: <span class="string">'downloading'</span> &#125;],</span><br><span class="line">      download: [&#123; </span><br><span class="line">        transition: <span class="string">'pause'</span>, <span class="attr">to</span>: <span class="string">'paused'</span> </span><br><span class="line">      &#125;,&#123;</span><br><span class="line">        transition: <span class="string">'fail'</span>, <span class="attr">to</span>: <span class="string">'failed'</span> </span><br><span class="line">      &#125;,&#123;</span><br><span class="line">        transition: <span class="string">'finish'</span>, <span class="attr">to</span>: <span class="string">'finished'</span> </span><br><span class="line">      &#125;],</span><br><span class="line">      pause: [&#123; <span class="attr">transition</span>: <span class="string">'download'</span>, <span class="attr">to</span>: <span class="string">'downloading'</span> &#125;]</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">this</span>.state = <span class="string">'ready'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> download = <span class="keyword">new</span> <span class="built_in">Proxy</span>(<span class="keyword">new</span> Download(), &#123;</span><br><span class="line">  <span class="keyword">get</span>(target, propKey, receiver)&#123;</span><br><span class="line">    <span class="keyword">const</span> state = target.state;</span><br><span class="line">    <span class="keyword">const</span> stateObject = FSM[state];</span><br><span class="line">    <span class="keyword">const</span> rules = target.rules[state];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( <span class="built_in">Object</span>.keys(stateObject).indexOf(propKey) !== <span class="number">-1</span> )&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123;</span><br><span class="line">        stateObject[propKey](target, rules, ...args);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 状态装换</span></span><br><span class="line">        <span class="keyword">const</span> rule = rules.filter(<span class="function"><span class="params">rl</span> =&gt;</span> rl.transition === propKey)[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">if</span> ( rule ) target.state = rule.to;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> target[propKey];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>通过上述代码可以发现，基于表结构实现的状态转换需要从表中查询后继状态，没有函数调用直观便捷，同时，状态转换过程需要扩展的动作也难以添加。</p>
+<h3 id="javascript-state-machine"><a href="#javascript-state-machine" class="headerlink" title="javascript-state-machine"></a>javascript-state-machine</h3><p><a href="https://github.com/jakesgordon/javascript-state-machine" target="_blank" rel="noopener">javascript-state-machine</a> 是基于表结构实现的状态转换管理器。相较于状态模式使用状态对象管理状态，并借此改变上下文对象的行为，其重心在于不同状态下行为的不同，换句话说，就是不同模式下不同的业务表现。因此，《设计模式:可复用面向对象软件的基础》书中描述了 GUI 编程使用状态模式协调不同的绘图控件。而 javascript-state-machine 模块的重心在于状态转换的流程，由此种状态进入另一种状态，通过事件执行钩子函数。</p>
+<p>javascript-state-machine 模块有如下几个概念：</p>
+<ul>
+<li>transition: 事务，设定状态切换的方法名，并制定该方法状态切换的规则，从 [from] 状态转变为 [to] 状态。当切换前的 [from] 状态不同时，可使用同一个事务定制多种状态切换规则。由 transitions = [{ name, from, to }] 选项注入。</li>
+<li>state: 状态。通过 transitions 选项转换得来。特别的，transition.to 状态可以用函数形式设定，在状态转换过程中注入 states 状态集中。</li>
+<li>lifecycle events: 生命周期事件，即执行钩子，分为两类，以 onBefore, onAfter 为前缀的事务执行前后的生命周期钩子，以 onEnter, onLeave 为前缀的状态变更前后的生命周期钩子。特殊的，onBeforeTransition, onLeaveState, onTransition, onEnterState, onAfterTransition 为全局声明周期钩子。事件名由 transitions 选项注入，绑定函数由 methods = { eventName: () =&gt; {} } 选项注入，或者通过调用 fsm.observer({ eventName: () =&gt; {} }) 方法注入。</li>
+<li>observer: 观察者，即绑定函数。可以通过 methods 选项添加，或者通过 StateMachine 实例的 observe 方法添加，以数组形式存储对象 { event: ({ transition, from, to, fsm, event }) =&gt; {} }。当事件发生时，再取出串行执行，通过 promise 实现了异步执行机制。</li>
+</ul>
+<p>在 javascript-state-machine 模块的构造中，整体架构：</p>
+<ul>
+<li>config 模块提供 Config 类，用于管理 states, transitions, lifecycle, data, methods, plugins 等实例属性。其中 state 以 this.states 数组形式存储，transitions 以 this.transitions 数组形式存储方法名，this.map = { [from]:{ [name]: transition } } 存储转换规则（其中，transition 为 transitions 选项中的数组项，from 为 transition.from，name 为 transition.name）,this.lifecycle = { onBefore: { transition, …customTransitionName }, onAfter, on, onEnter: { state, …customStateName }, onLeave } 形式存储事件名（其中，this.lifecycle.onBefore.transition 等为全局事件名 ）。Config 还提供 transitionFor(state, transition) 用于查找切换后的状态。</li>
+<li>jsm 模式提供 JSM 类，用于组织状态切换及触发钩子函数的逻辑。通过 this.config 访问 Config 实例，this.context 访问 StateMachine 实例，其 init 方法将 config.data 注入为 StateMachine 实例的属性；在 JSM 实例化过程中，又将注入到 StateMachine 实例方法的config.methods 绑定函数注入为 jsm.observers 属性中，通过 observersForEvent(event) 方法取出绑定函数，再交由 observeEvents 方法统筹一次状态变更过程中执行依序执行的事件、并执行绑定函数（以取出的 observer = { eventName: ({ transition, from, to, fsm, event }) =&gt; {} } 作为上下文，特别的，首个 observer 的就是 StateMachine 实例），最终提供 jsm.fire(transition, args) 方法将当前状态更改为 transition 事务下指定的后继状态（并导出为 stateMachine 实例的 transition 同名方法）、以及 jsm.transit(transition, from, to, args) 方法将状态转换到 to，并指定状态时的 transition, from。事件触发、执行绑定函数过程，绑定函数中的异步逻辑通过返回 promise 处理；状态变更期间，jsm.pending 属性置为真，直到状态变更完毕或报错。</li>
+<li>app 模块提供 StateMachine 类，暴露用户接口。StateMachine 类实例化过程中会将 config 实例的 methods, data 属性转变为其实例属性，同时添加以 transition.name 标识的实例方法，因此三者的命名不能冲突。以 config, jsm, app 三个模块实现 StateMachine 类的好处是尽量少地暴露出交互接口。可通过 StateMachine 实例访问当前的状态 stateMachine.state，公共方法 is(state), can(transition), cannot(transition), observe({ event: () =&gt; {} }), transitions(), allTransitions(), allStates(), onInvalidTransition(transition, from, to), onPendingTransition(transition, from, to)，以及通过选线注入的实例属性或方法如 data, transitions, methods 选项。</li>
+</ul>
+<p>需要留意的特性包含：</p>
+<ul>
+<li>data 选项依赖注入。当 data 选项包含方法时，其参数依赖注入的机制通过工厂函数 StateMachine.factory 实现，创建并返回 StateMachine 的另一种构造函数，该构造函数只将参数注入为 data 方法的参数；选项由 StateMachine.factory 注入。其目的是让多个 StateMachine 实例握有不同的 data 数据，但在不同状态中定制 data 数据需要借助于常规的状态模式。</li>
+<li>to 状态转换的条件性。javascript-state-machine 模块没有设置 condition 条件（在匹配 condition 条件下，才从 from 状态转换到 to 状态），而是可以用函数形式设置 to，以使切换后的状态可以在转换阶段获得。</li>
+<li>插件机制。如同 Vue, mocha 的插件机制，javascript-state-machine 模块的插件在 StateMachine 实例化过程中就会执行 plugin 函数或 plugin.configure 方法，其返回值中的 methods, properties 属性注入为 StateMachine 实例的方法或属性、init, lifecycle 方法将在状态初始化及变更期间被唤起执行。插件通过 plugins 选项或者 StateMachine.plugin 静态属性注入。</li>
+<li>内置 history 插件，通过 require(‘javascipt-state-machine/lib/history’) 引用，记录状态变更历史，通过 fsm.transit 方法实现回撤、前进功能。</li>
+<li>内置 visualize 工具，通过 require(‘javascipt-state-machine/lib/visualize’) 引用，将状态转变为 .dot 语句，借助于 <a href="http://www.graphviz.org/" target="_blank" rel="noopener">GraphViz</a> 类库表现为图形。</li>
+</ul>
+<p>具体请参考 javascript-state-machine 类库文档及源码。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/18/参考文档/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2264,231 +2469,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/12/手册/chai使用指南/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/12/手册/chai使用指南/" itemprop="url">chai使用指南</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-12T19:12:35+08:00">2018-02-12</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/02/12/手册/chai使用指南/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/02/12/手册/chai使用指南/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>chai 是一款辅助 TDD 测试驱动开发, BDD 行为驱动开发 的断言库。</p>
-<p>有关 TDD 和 BDD，可参考：<br><a href="https://www.cnblogs.com/Leo_wl/p/4780678.html" target="_blank" rel="noopener">开发人员看测试之TDD和BDD</a><br><a href="http://blog.jobbole.com/110560/" target="_blank" rel="noopener">TDD 已死？让我们再聊聊 TDD</a><br><a href="http://blog.csdn.net/dc_726/article/details/49688379" target="_blank" rel="noopener">BDD敏捷开发入门与实战</a></p>
-<p>chai 的 TDD 模块只包含 assert 一种， BDD 模块包含 except, should 两种。</p>
-<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><ul>
-<li>chai.config.includeStack = false，错误输出中是否包含堆栈信息</li>
-<li>chai.config.showDiff = true，是否显示 diff</li>
-<li>chai.config.truncateThreshold = 40，错误输出中 actual, expexted 打印字符串上限???</li>
-</ul>
-<h2 id="api手册"><a href="#api手册" class="headerlink" title="api手册"></a>api手册</h2><h3 id="TDD测试"><a href="#TDD测试" class="headerlink" title="TDD测试"></a>TDD测试</h3><h4 id="assert"><a href="#assert" class="headerlink" title="assert"></a>assert</h4><p>类似 node 的同名模块。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> assert = <span class="built_in">require</span>(<span class="string">'chai'</span>).assert</span><br><span class="line">  , foo = <span class="string">'bar'</span></span><br><span class="line">  , beverages = &#123; <span class="attr">tea</span>: [ <span class="string">'chai'</span>, <span class="string">'matcha'</span>, <span class="string">'oolong'</span> ] &#125;;</span><br><span class="line"></span><br><span class="line">assert.typeOf(foo, <span class="string">'string'</span>); <span class="comment">// without optional message</span></span><br><span class="line">assert.typeOf(foo, <span class="string">'string'</span>, <span class="string">'foo is a string'</span>);</span><br><span class="line">assert.equal(foo, <span class="string">'bar'</span>, <span class="string">'foo equal `bar`'</span>);</span><br><span class="line">assert.lengthOf(foo, <span class="number">3</span>, <span class="string">'foo`s value has a length of 3'</span>);</span><br><span class="line">assert.lengthOf(beverages.tea, <span class="number">3</span>, <span class="string">'beverages has 3 types of tea'</span>);</span><br></pre></td></tr></table></figure>
-<h4 id="apis"><a href="#apis" class="headerlink" title="apis"></a>apis</h4><ul>
-<li>assert(expression, message)，参数 expression 为待测试的语句</li>
-<li>.fail(actual, expected, [message], [operator])，operator 为操作（默认为 !=）</li>
-<li>.ifError(object)，校验真值时抛出错误</li>
-<li>.isOk/isNotOk/isTrue/isNotTrue/isFalse/isNotFalse/isNull/isNotNull/isNaN/isNotNaN/<br>isUndefined/isDefined/isFunction/isNotFunction/isObject/isNotObject/isArray/isNotArray/<br>isString/isNotString/isNumber/isNotNumber/isFinite/isBoolean/isNotBoolean(object, [message])</li>
-<li>.exists/notExists(value, [message])，校验 value 不是 null 或 undefined</li>
-<li>.typeOf/notTypeOf(value, type, [message]) 类型校验</li>
-<li>.instanceOf/notInstanceOf(object, constructor, [message])</li>
-<li>.match/notMatch(value, regexp, [message])</li>
-<li>.equal/notEqual/strictEqual/notStrictEqual/deepEqual/notDeepEqual(actual, expected, [message])，’==’, ‘===’ 或 深度相等</li>
-<li>.isAbove/isAtLeast/isBelow/isAtMost(valueToCheck, valueToBeAbove, [message])，以操作符 ‘&gt;’, ‘&gt;=’, ‘&lt;’, ‘&lt;=’ 校验</li>
-<li>.operator(val1, operator, val2, [message])，’&gt;’, ‘&lt;’ 操作符校验</li>
-<li>.closeTo(actual, expected, delta, [message])，actual 在 expected - delta, expected + delta 之间</li>
-<li>.approximately(actual, expected, delta, [message])，同上</li>
-<li>.changes/doesNotChange/increases/doesNotIncrease/decreases/<br>doesNotDecrease(function, object, property, [message])，校验函数执行时是否改变对象属性</li>
-<li>.changesBy/changesButNotBy/ncreasesBy/increasesButNotBy/decreasesBy/<br>doesNotDecreaseBy/decreasesButNotBy(function, object, property, delta, [message])，校验属性数值改变 + delta</li>
-<li>.lengthOf(object, length, [message])，校验字符串或数组的长度</li>
-<li>.isExtensible/isNotExtensible/isSealed/isNotSealed/isFrozen/isNotFrozen(object)</li>
-<li>.isEmpty/isNotEmpty(target)，校验对象、数组、字符串、Map、Set非空</li>
-<li>.oneOf(inList, list, [message])</li>
-<li>.include/notInclude/deepInclude/notDeepInclude/nestedInclude/notNestedInclude/<br>deepNestedInclude/notDeepNestedInclude/ownInclude/notOwnInclude/<br>deepOwnInclude/notDeepOwnInclude(haystack, needle, [message])，校验是否包含数组项，子字符串，或者对象属性的截取。deep 为深度匹配，nest 以分隔符 . 或者 [] 校验嵌套属性，own 校验是否自有属性</li>
-<li>sameMembers/notSameMembers/sameDeepMembers/notSameDeepMembers/<br>sameOrderedMembers/notSameOrderedMembers/<br>sameDeepOrderedMembers/notSameDeepOrderedMembers(set1, set2, [message])，校验 set 是否有相同的成员。orderd 顺序相同</li>
-<li>.includeMembers/notIncludeMembers/includeDeepMembers/notIncludeDeepMembers/<br>includeOrderedMembers/notIncludeOrderedMembers/<br>includeDeepOrderedMembers/notIncludeDeepOrderedMembers(superset, subset, [message])</li>
-<li>.property/notProperty/nestedProperty/notNestedProperty(object, property, [message])</li>
-<li>.propertyVal/notPropertyVal/deepPropertyVal/notDeepPropertyVal/<br>notNestedProperty/notNestedPropertyVal/<br>deepNestedPropertyVal/notDeepNestedPropertyVal(object, property, value, [message])</li>
-<li>.hasAnyKeys/hasAllKeys/containsAllKeys/doesNotHaveAnyKeys/<br>doesNotHaveAllKeys/hasAnyDeepKeys/hasAllDeepKeys/<br>containsAllDeepKeys/doesNotHaveAnyDeepKeys/doesNotHaveAllDeepKeys(object, [keys], [message])</li>
-<li>.throws/doesNotThrow(fn, [errorLike/string/regexp], [string/regexp], [message])，校验函数 fn 将抛出指定类型及文案的错误</li>
-</ul>
-<h3 id="TDD测试-except-should"><a href="#TDD测试-except-should" class="headerlink" title="TDD测试 - except, should"></a>TDD测试 - except, should</h3><h4 id="except"><a href="#except" class="headerlink" title="except"></a>except</h4><p>提供链式调用。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> expect = <span class="built_in">require</span>(<span class="string">'chai'</span>).expect</span><br><span class="line">  , foo = <span class="string">'bar'</span></span><br><span class="line">  , beverages = &#123; <span class="attr">tea</span>: [ <span class="string">'chai'</span>, <span class="string">'matcha'</span>, <span class="string">'oolong'</span> ] &#125;;</span><br><span class="line"></span><br><span class="line">expect(foo).to.be.a(<span class="string">'string'</span>);</span><br><span class="line">expect(foo).to.equal(<span class="string">'bar'</span>);</span><br><span class="line">expect(foo).to.have.lengthOf(<span class="number">3</span>);</span><br><span class="line">expect(beverages).to.have.property(<span class="string">'tea'</span>).with.lengthOf(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
-<h4 id="should"><a href="#should" class="headerlink" title="should"></a>should</h4><p>增强了 Object.property 功能，因此需先显示调用 chai.should 函数。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> should = <span class="built_in">require</span>(<span class="string">'chai'</span>).should() <span class="comment">//actually call the function</span></span><br><span class="line">  , foo = <span class="string">'bar'</span></span><br><span class="line">  , beverages = &#123; <span class="attr">tea</span>: [ <span class="string">'chai'</span>, <span class="string">'matcha'</span>, <span class="string">'oolong'</span> ] &#125;;</span><br><span class="line"></span><br><span class="line">foo.should.be.a(<span class="string">'string'</span>);</span><br><span class="line">foo.should.equal(<span class="string">'bar'</span>);</span><br><span class="line">foo.should.have.lengthOf(<span class="number">3</span>);</span><br><span class="line">beverages.should.have.property(<span class="string">'tea'</span>).with.lengthOf(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
-<h4 id="语言链修饰符"><a href="#语言链修饰符" class="headerlink" title="语言链修饰符"></a>语言链修饰符</h4><p>语言链修饰符用于增强代码的可读性，包含 to, be, been, isthat, and, has, have, with, at, of, same</p>
-<h4 id="apis-1"><a href="#apis-1" class="headerlink" title="apis"></a>apis</h4><ul>
-<li>not 将断言置否，即否值满足断言，如 expect(function () {}).to.not.throw();</li>
-<li>deep 深比较，如 expect({a: 1}).to.deep.equal({a: 1});</li>
-<li>nested 嵌套属性，以 . 或 [] 分割，如 expect({a: {b: [‘x’, ‘y’]}}).to.have.nested.property(‘a.b[1]’);</li>
-<li>own 如 expect({a: 1}).to.have.own.property(‘a’);</li>
-<li>ordered 顺序比较，如 expect([1, 2]).to.have.ordered.members([1, 2]).but.not.have.ordered.members([2, 1]);</li>
-<li>any/all 如 expect({a: 1, b: 2}).to.not.have.any.keys(‘c’, ‘d’);</li>
-<li>.a/an(type[, msg]) 如 expect({a: 1}).to.be.an(‘object’);</li>
-<li>.include(val[, msg]) 如 expect(‘foobar’).to.include(‘foo’);</li>
-<li>.ok/true/false/null/undefined/NaN/exist/empty/arguments/finite 如 expect(arguments).to.be.arguments;</li>
-<li>.eql(obj[, msg]) 如 expect({a: 1}).to.eql({a: 1}).but.not.equal({a: 1});</li>
-<li>.above/least/below/most(n[, msg]) 如 expect(1).to.be.at.least(2);</li>
-<li>.within(start, finish[, msg]) 如 expect(2).to.be.within(1, 3);</li>
-<li>.instanceof(constructor[, msg]) 如 expect({a: 1}).to.not.be.an.instanceof(Array);</li>
-<li>.property(name[, val[, msg]]) 如 expect({x: {a: 1}}).to.have.deep.property(‘x’, {a: 1});</li>
-<li>.ownPropertyDescriptor(name[, descriptor[, msg]]) 如 expect({a: 1}).to.have.ownPropertyDescriptor(‘a’);</li>
-<li>.lengthOf(n[, msg]) 如 expect([1, 2, 3]).to.have.lengthOf(3);</li>
-<li>.match(re[, msg]) 如 expect(‘foobar’).to.match(/^foo/);</li>
-<li>.string(str[, msg]) 包含子字符串，如 expect(‘foobar’).to.not.have.string(‘taco’);</li>
-<li>.keys(key1[, key2[, …]]) 如 expect({a: 1, b: 2}).to.have.all.keys(‘a’, ‘b’);</li>
-<li>.throw([errorLike], [errMsgMatcher], [msg]) 校验函数必须抛出错误，如 expect(badFn).to.throw();</li>
-<li>.respondTo(method[, msg]) 校验对象是否有某方法，可以是继承的，如 expect(new Cat()).to.respondTo(‘meow’);</li>
-<li>.itself 自有属性，如 expect(Cat).itself.to.respondTo(‘hiss’).but.not.respondTo(‘meow’);</li>
-<li>.satisfy(matcher[, msg]) 校验是否匹配 matcher，如 expect(1).to.satisfy(function(num) { return num &gt; 0; });</li>
-<li>.closeTo(expected, delta[, msg]) 校验值在 expected - delta ~ expected + delta 范围内，如 expect(1.5).to.be.closeTo(1, 0.5);</li>
-<li>.members(set[, msg]) 如 expect([1, 2, 3]).to.have.members([2, 1, 3]);</li>
-<li>.oneOf(list[, msg]) 如 expect(1).to.be.oneOf([1, 2, 3]);</li>
-<li>.change(subject[, prop[, msg]]) 执行函数后，引起对象或其属性改变，如 expect(addDot).to.change(myObj, ‘dots’);</li>
-<li>.increase(subject[, prop[, msg]]) 值增加</li>
-<li>.decrease(subject[, prop[, msg]]) 值减少</li>
-<li>.by(delta[, msg]) 如 expect(addTwo).to.increase(myObj, ‘val’).by(2);</li>
-<li>.extensible/sealed/frozen 对象可扩展性</li>
-<li>.fail(actual, expected, [message], [operator])，operator 为操作（默认为 !=）</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2538,7 +2518,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">118</span>
+                    <span class="site-state-item-count">119</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

@@ -299,6 +299,166 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/27/antd/Radio, Checkbox/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/27/antd/Radio, Checkbox/" itemprop="url">Radio, Checkbox</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-27T00:00:00+08:00">2018-11-27</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/27/antd/Radio, Checkbox/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/27/antd/Radio, Checkbox/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>antd 中的 Radio, Checkbox 组件均基于 rc-checkbox 实现。本文第一部分将介绍 <a href="https://github.com/react-component/checkbox" target="_blank" rel="noopener">rc-checkbox</a>，余下两部分再介绍 Radio, Checkbox 组件。</p>
+<h2 id="rc-checkbox"><a href="#rc-checkbox" class="headerlink" title="rc-checkbox"></a>rc-checkbox</h2><p>rc-checkbox 输出 Checkbox 组件。其处理逻辑较为简单，包含样式类转换、多余 props 剔除等。元素层级上，rc-checkbox 使用 span 包裹 input 节点和内层 span 节点（该 span 节点将绘制可见的单选框样式）。样式类转换指 span 元素的样式类包含或可能包含 props.prefixCls, props.className, <code>${props.prefixCls}-checked</code>, <code>${props.prefixCls}-disabled</code>；input 节点的样式类为 <code>${props.prefixCls}-input</code>；内层 span 节点的样式类为 <code>${props.prefixCls}-inner</code>。多余 props 剔除指 input 元素只接受 name, id, type, readOnly, disabled, tabIndex, checked, onClick, onFocus, onBlur, onChange, autoFocus, value, ‘aria-<em>‘, ‘data-</em>‘, role 属性。其中，checked 由 Checkbox 组件的 state.checked 设定；onChange 设置为 Checkbox 组件的 handleChange 方法。当 input 节点数据变更时，props.onChange 接受到的数据先经由 Checkbox 组件转换。以下是其实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">handleChange = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; props &#125; = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">if</span> (props.disabled) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!(<span class="string">'checked'</span> <span class="keyword">in</span> props)) &#123;</span><br><span class="line">    <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">      checked: e.target.checked,</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  props.onChange(&#123;</span><br><span class="line">    target: &#123;</span><br><span class="line">      ...props,</span><br><span class="line">      checked: e.target.checked,</span><br><span class="line">    &#125;,</span><br><span class="line">    stopPropagation() &#123;</span><br><span class="line">      e.stopPropagation();</span><br><span class="line">    &#125;,</span><br><span class="line">    preventDefault() &#123;</span><br><span class="line">      e.preventDefault();</span><br><span class="line">    &#125;,</span><br><span class="line">    nativeEvent: e.nativeEvent,</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="Radio-组件"><a href="#Radio-组件" class="headerlink" title="Radio 组件"></a>Radio 组件</h2><p>antd 提供三种单选框组件：单选框 Radio, 单选框组合 RadioGroup, 单选框按钮 RadioButton。</p>
+<p>Radio 组件的特殊处理逻辑为：通过 context.radioGroup = { name, onChange, value, disabled } 获得 RadioGroup 组件注入的数据，以与单选框组合完成交互。</p>
+<p>Radio 组件的元素层级关系为 label 元素和 RcCheckbox 组件。以下 less 样式中，.@{radio-prefix-cls} 即 RcCheckbox 组件绘制的外层 span 元素；.@{radio-inner-prefix-cls} 即 RcCheckbox 组件绘制的内层 span 元素。Radio 组件呈现在视图上的样式以内层 span 元素及其 span:after 伪类内容绘制，选中时 span:after 设置 opacity: 1 样式。以下是 less 代码。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.@&#123;radio-prefix-cls&#125;</span> &#123;</span><br><span class="line">  <span class="selector-tag">&amp;</span><span class="selector-tag">-inner</span> &#123;</span><br><span class="line">    <span class="selector-tag">&amp;</span><span class="selector-pseudo">:after</span> &#123;</span><br><span class="line">      <span class="variable">@radio-dot-size:</span> <span class="variable">@radio-size</span> - <span class="number">8px</span>;</span><br><span class="line">      <span class="attribute">position</span>: absolute;</span><br><span class="line">      <span class="attribute">width</span>: <span class="variable">@radio-dot-size</span>;</span><br><span class="line">      <span class="attribute">height</span>: <span class="variable">@radio-dot-size</span>;</span><br><span class="line">      <span class="attribute">left</span>: (<span class="variable">@radio-size</span> - <span class="variable">@radio-dot-size</span>) / <span class="number">2</span> - <span class="number">1px</span>;</span><br><span class="line">      <span class="attribute">top</span>: (<span class="variable">@radio-size</span> - <span class="variable">@radio-dot-size</span>) / <span class="number">2</span> - <span class="number">1px</span>;</span><br><span class="line">      <span class="attribute">border-radius</span>: <span class="variable">@radio-dot-size</span>;</span><br><span class="line">      <span class="attribute">display</span>: table;</span><br><span class="line">      <span class="attribute">border-top</span>: <span class="number">0</span>;</span><br><span class="line">      <span class="attribute">border-left</span>: <span class="number">0</span>;</span><br><span class="line">      <span class="attribute">content</span>: <span class="string">' '</span>;</span><br><span class="line">      <span class="attribute">background-color</span>: <span class="variable">@radio-dot-color</span>;</span><br><span class="line">      <span class="attribute">opacity</span>: <span class="number">0</span>;</span><br><span class="line">      <span class="attribute">transform</span>: scale(<span class="number">0</span>);</span><br><span class="line">      <span class="attribute">transition</span>: all <span class="variable">@radio-duration</span> <span class="variable">@ease-in-out-circ</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">position</span>: relative;</span><br><span class="line">    <span class="attribute">top</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">left</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">width</span>: <span class="variable">@radio-size</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="variable">@radio-size</span>;</span><br><span class="line">    <span class="attribute">border-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">border-style</span>: solid;</span><br><span class="line">    <span class="attribute">border-radius</span>: <span class="number">100px</span>;</span><br><span class="line">    <span class="attribute">border-color</span>: <span class="variable">@border-color-base</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="variable">@radio-button-bg</span>;</span><br><span class="line">    <span class="attribute">transition</span>: all <span class="variable">@radio-duration</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.@&#123;radio-prefix-cls&#125;</span><span class="selector-tag">-checked</span> &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;radio-inner-prefix-cls&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">border-color</span>: <span class="variable">@radio-dot-color</span>;</span><br><span class="line">    <span class="selector-tag">&amp;</span><span class="selector-pseudo">:after</span> &#123;</span><br><span class="line">      <span class="attribute">transform</span>: scale(.<span class="number">875</span>);</span><br><span class="line">      <span class="attribute">opacity</span>: <span class="number">1</span>;</span><br><span class="line">      <span class="attribute">transition</span>: all <span class="variable">@radio-duration</span> <span class="variable">@ease-in-out-circ</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>RadioButton 组件的渲染过程无甚特别之处，主要是默认将 props.prefixCls 设定为 ‘ant-radio-button’。</p>
+<p>RadioGroup 组件接受 props.options 作为选项配置内容（props.options 数组项内容可以是字符串或对象）；并将 radioGroup 作为 context 内容传入子孙组件中。</p>
+<h2 id="Checkbox"><a href="#Checkbox" class="headerlink" title="Checkbox"></a>Checkbox</h2><p>antd 提供两种复选框组件：复选框 Checkbox, 复选框组合 CheckboxGroup。</p>
+<p>Checkbox 组件与 Radio 组件的实现无异，只是其接受的 context 数据内容为 checkboxGroup = { toggleOption, value, disabled } 属性。其中，toggleOption 用于影响 Checkbox 组件的 onChange 绑定函数，即改变 CheckboxGroup 组件的 state.value 状态；value 用于判断当前 Checkbox 组件是否处于选中状态。</p>
+<p>CheckboxGroup 组件也与 RadioGroup 组件无异，只是其实现 toggleOption 方法，用于在复选框勾选或取消勾选时，实时更新 state.value 值，并调用 props.onChange 方法；并通过 context 注入到子孙组件中。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Grid/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2079,154 +2239,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/10/react/react相关/react-jsonschema-form源码分析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/10/react/react相关/react-jsonschema-form源码分析/" itemprop="url">react-jsonschema-form源码分析</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-10T00:00:00+08:00">2018-10-10</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/类库/" itemprop="url" rel="index"><span itemprop="name">类库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/10/10/react/react相关/react-jsonschema-form源码分析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/10/10/react/react相关/react-jsonschema-form源码分析/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2276,7 +2288,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">119</span>
+                    <span class="site-state-item-count">120</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2287,7 +2299,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-count">37</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>

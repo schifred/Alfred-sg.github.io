@@ -670,9 +670,23 @@
 <ul>
 <li>ODS：OperationalData Store，操作数据层，保存从业务系统或埋点系统采集过来的原始数据。</li>
 <li>DWD：Data Warehouse Detail，明细数据层，根据主题定义好事实与维度表，保存最细粒度的事实数据。该层数据的生产作业包含：字段名、枚举等数据标准统一；数据脱敏，专门建设敏感数据库存储敏感数据；分库分表等多源数据整合；数据模型统基于业务流程建模。</li>
-<li>DWS：Data Warehouse Service，服务数据层（也称为汇总层），在 DWD 层基础上根据不同的业务需求分主题轻度汇总。DWS 层可拆分为 DWB 轻度汇总数据和 DWS 重度汇总数据。</li>
+<li>DWS：Data Warehouse Summary，汇总数据层，在 DWD 层基础上根据不同的业务需求分主题轻度汇总。DWS 层可拆分为 DWB 轻度汇总数据和 DWS 重度汇总数据。</li>
 <li>DM：Data Market，数据集市层，主要为业务需求提供服务，其包含应用产品所需数据、需求报表、指标等，DM 层还可为业务部门创建专用数据库以及数据探索库。</li>
 </ul>
+<h2 id="数据同步"><a href="#数据同步" class="headerlink" title="数据同步"></a>数据同步</h2><p>数据同步的方式：</p>
+<ul>
+<li>直连同步：通过 ODBC、JDBC 等标准接口将源系统的数据导入到目标系统，对业务系统的性能影响较大（虽然业务系统可以采用主备分离的模式）。</li>
+<li>数据文件同步：通过 FTP 服务器将源系统的数据导入到目标系统。为避免丢包或传输错误，业务系统一般还会发送校验文件，并对数据增加压缩和加密功能。</li>
+<li>数据库日志解析同步：在操作系统层面获取归档日志，将其解析到目标文件数据文件中，可用于增量更新。日志解析同步需要部署一个 agent 系统从源系统抽取数据。该同步机制会导致增量更新的数据丢失调凌晨附近的数据，即数据飘逸和遗漏。</li>
+</ul>
+<h3 id="DataX"><a href="#DataX" class="headerlink" title="DataX"></a>DataX</h3><p>阿里内部使用 <a href="https://github.com/alibaba/DataX" target="_blank" rel="noopener">DataX</a> 作离线数据同步。它能实现包括 MySQL、Oracle、SqlServer、Postgre、HDFS、Hive、ADS、HBase、TableStore(OTS)、MaxCompute(ODPS)、DRDS 等各种异构数据源之间高效的数据同步功能。DataX 面对的主要问题是，从源系统到数仓或从数仓到目标系统，数据流进各个系统时的格式并不统一，因此 Datax 需要将数据转换成格式统一的中间状态。</p>
+<p>DataX 采用 Framework + Plugin 开放式架构实现。Plugin 用于转换不同数据库或文件系统的数据格式，包含 ReadPlugin、WritePlugin 两类，作为 Reader 数据采集模块和 Writer 数据写入模块的实现内容。Framework 将数据同步作业拆分成多个子任务，并处理缓冲、流程控制、并发、上下文加载等高速数据交换等技术问题，再通过 Chanel 交换 Reader、Writer 的数据。</p>
+<img src="/2020/01/16/大数据/数仓/datax.jpeg">
+<p>更多内容可参考 <a href="https://blog.csdn.net/u014646662/article/details/82792725" target="_blank" rel="noopener">DataX3.0 简介</a>。</p>
+<h3 id="TimeTunnel"><a href="#TimeTunnel" class="headerlink" title="TimeTunnel"></a>TimeTunnel</h3><p>阿里内部使用 TimeTunnel 作实时数据同步。它所实现的主要功能包含，通过消息订阅模式从源系统的 binlog 日志读取出增量数据，随后订阅数据的目标系统将读取这些数据。</p>
+<p>TimeTunnel 是基于生产者、消费者和 Topic 消息标识实现的消息中间件。它通过 <a href="https://www.jianshu.com/p/53864dc3f7b4" target="_blank" rel="noopener">HBase</a> 持久化消息数据。在下图的组件架构中：TTManager 负责对外提供队列申请、删除、查询和集群的管理接⼝；对内发现故障，发起队列迁移。Client 是一组访问接口，包含安全认证 api、发布 api 和订阅 api。Router 为 Client、Broker 提供路由服务，路由到 Broker 时须鉴权。Zookeeper 提供状态同步功能，存储 Client、Broker 的状态。Broker 负责消息队列的读写操作，承担实际的流量，它会从 HBase 取发数据。</p>
+<img src="/2020/01/16/大数据/数仓/TimeTunnel.png">
+<p>更多内容可参考 <a href="https://blog.csdn.net/pelick/article/details/26265663" target="_blank" rel="noopener">淘宝实时数据传输平台: TimeTunnel介绍</a>。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/shengyang17/p/10527700.html" target="_blank" rel="noopener">数仓</a><br><a href="https://www.jianshu.com/p/da62fb0c6a0b" target="_blank" rel="noopener">说说数仓</a><br><a href="https://yq.aliyun.com/articles/691541" target="_blank" rel="noopener">数据仓库介绍与实时数仓案例</a><br><a href="https://blog.51cto.com/abezoo/2399546" target="_blank" rel="noopener">大数据环境下数仓设计</a></p>
 
           
@@ -1344,7 +1358,7 @@
 <li>数据访问路由，将数据的读写请求发送到对应的数据库。</li>
 <li>集中式数据源信息管理和动态变更，支持数据存储的自由扩展。</li>
 <li>遵守 JDBC 规范，支持 mysql 和 oracle 等多数据源。</li>
-<li>带权重的读写分离，支持分库分表。</li>
+<li>带权重的读写分离，支持分库分表（TDDL 会创建中间状态的逻辑表来整合统一分库分表的访问）。</li>
 </ol>
 <img src="/2019/12/30/java/TDDL%20&%20DRDS/tddl2.png">
 <p>TDDL 是一个客户端 jar，它的结构主要分为三层：</p>

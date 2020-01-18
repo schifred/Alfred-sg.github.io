@@ -299,6 +299,170 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/31/frontend/前端工程体系/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/12/31/frontend/前端工程体系/" itemprop="url">前端工程体系</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-12-31T00:00:00+08:00">2020-12-31</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/12/31/frontend/前端工程体系/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/12/31/frontend/前端工程体系/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>我常常执着于部分（比如昏天暗地地解读一个源码），不能跳出来看看整体。这篇文章旨在于整理我所理解的前端工程体系，方便逐步演进顶层观念并指导后续发展。因为见识的有限和理解的不足，这篇文章本难免缺陷和差缪，还望有识予以理解。</p>
+<img src="/2020/12/31/frontend/前端工程体系/global.png">
+<p>我所理解的前端工程体系大致如上图。左半部分以 antd + umi、fusion + 飞冰为参照加以说明，组件库用于提供基础的通用组件。模板工程通常提供了应用层面的最佳实践，因此不止于使用在组件库之内的基础通用组件、在组件库之外的图表和编辑器组件等，还包含状态管理、路由管理、服务调用等内容。当某些组件还未包含在组件库中，但在应用中经常使用，那么这些组件也可以通过模板工程下沉到组件库中。由组件库往上，可以生长出业务组件、区块、前端工程模板，这些都可以被物料中心所吸纳，以便使用特定的域作为标识，在可视化搭建等其他应用、前端 IDE 工具或简单的本地开发环境中复用。这部分内容不限于 web 场景，还包含小程序等场景。事实上，fusion 的物料中心包含 rax 组件，支付宝小程序也提供了基础组件库和 IDE 开发环境。</p>
+<p>右半部分在于使用 node 服务封装后端接口提供定制化的数据，包含但不限于元数据（如菜单栏）、查询数据库的动态数据等。node 服务不止可以提供数据接口，还包含构建发布平台（构建工具通过命令行工具与其打通）、mock 服务（在应用本地运行时动态获取）、国际化服务（在应用启动阶段动态拉取）等。</p>
+<img src="/2020/12/31/frontend/前端工程体系/node.png">
+<h2 id="组件库"><a href="#组件库" class="headerlink" title="组件库"></a>组件库</h2><p>现行较为火热的组件库有 <a href="https://github.com/ant-design/ant-design" target="_blank" rel="noopener">ant design</a>、<a href="https://github.com/alibaba-fusion/next" target="_blank" rel="noopener">fusion</a>、<a href="https://github.com/mui-org/material-ui" target="_blank" rel="noopener">material ui</a>、<a href="https://github.com/elemefe" target="_blank" rel="noopener">element ui</a> 等。以下是 ant design 的大体结构：</p>
+<img src="/2020/12/31/frontend/前端工程体系/antd.png">
+<ul>
+<li><a href="https://github.com/benjycui/bisheng" target="_blank" rel="noopener">bisheng</a>: 解析 markdown 文件并生成静态网站。主流程上，它借助 <a href="https://github.com/mozilla/nunjucks" target="_blank" rel="noopener">nunjucks</a>、webpack、ssr 机制启动本地服务器、生成打包文件，以及通过 <a href="https://github.com/tschaub/gh-pages" target="_blank" rel="noopener">gh-pages</a> 将静态页面上传到 github 服务器上。实现可参考 <a href="http://xzfyu.com/2019/12/21/antd/%E8%81%8A%E8%81%8A%20antd%20%E7%BD%91%E7%AB%99%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%B6%E4%BD%9C%E7%9A%84/" target="_blank" rel="noopener">聊聊 antd 网站是怎么制作的</a>。</li>
+<li><a href="https://github.com/ant-design/antd-tools" target="_blank" rel="noopener">antd-tools</a>、scripts: 提供基本的命令行工具。antd-tools 基于 gulp 实现，它集成了 compile（基于不同组件的入口文件编译 less、ts、svg 等）、dist（使用 webpack 打包整个组件库）、<a href="https://github.com/ant-design/antd-tools/blob/master/lib/lint/checkDeps.js" target="_blank" rel="noopener">deps-lint</a>（检查模块是否被依赖）、pub（编译、打包并发布）、guard、sort-api-table、api-collection、clean 等操作。</li>
+</ul>
+<p>ant design 的定制主题功能基于 less 的 <a href="https://ant.design/docs/react/customize-theme-cn" target="_blank" rel="noopener">modifyVars</a>，即将可定制的样式定义为 less 变量，随后就可以通过 less-loader 引用外部 less 变量文件实现定制。ant design 中可配置的样式见 <a href="https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less" target="_blank" rel="noopener">这里</a>。无障碍功能基于节点的 aria-、role- 属性实现，可参考 <a href="https://www.cnblogs.com/dingyuanxin/p/4052518.html" target="_blank" rel="noopener">aria初探</a>。国际化功能基于 react 的 context 机制实现，同时会设置 moment 的语言。按需加载功能借助于 <a href="https://github.com/ant-design/babel-plugin-import" target="_blank" rel="noopener">babel-plugin-import</a> 插件；其原理为在 babel 编译期间转换 import 语句，并加载必要的样式（默认加载组件文件夹下的 css/index.js 文件）。</p>
+<p>以下是 react-components 组件图谱，动效、对齐、伸缩作为基础的组件或工具函数，其上再延伸出表单、数据展示、导航、回馈组件等。</p>
+<img src="/2020/12/31/frontend/前端工程体系/react-components.png">
+<p>ant-design 的组件基本基于 ConfigProvider 构建。ConfigProvider 通过 react 的 context 机制提供国际化、弹层根节点获取函数、空态渲染函数等。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://news.html5.qq.com/article?ch=901201&amp;tabId=0&amp;tagId=0&amp;docId=669838503675269442&amp;showAttach=1&amp;url=http%3A%2F%2Fkuaibao%2Eqq%2Ecom%2Fs%2F20191214A0F0TM00&amp;dataSrc=96&amp;showDate=1&amp;extenddata=%26%5Fdis%3D3%26bp%3D1%26contentLevel%3D2%26dataSrc%3D96%26queryId%3D1576313487963%26sGrayPlatFormModelId%3D100000%26sModelId%3D100000%26sStrategyId%3D153%26subjectId%3D1090319%26wx%3D1%26zimeitiId%3Dqeh%5F5598878&amp;pid=1&amp;data_type=1&amp;ctrid=1" target="_blank" rel="noopener">如果我是阿里的前端架构师，我会这么搭建前端架构体系</a><br><a href="https://zhuanlan.zhihu.com/p/94949118" target="_blank" rel="noopener">蚂蚁前端研发最佳实践</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/31/聊聊组件库的构成/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -560,7 +724,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/16/大数据/数仓/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/18/大数据/数仓技术补遗/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -579,7 +743,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2020/01/16/大数据/数仓/" itemprop="url">数仓</a></h1>
+                <a class="post-title-link" href="/2020/01/18/大数据/数仓技术补遗/" itemprop="url">数仓技术补遗</a></h1>
         
 
         <div class="post-meta">
@@ -591,7 +755,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-16T00:00:00+08:00">2020-01-16</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-18T00:00:00+08:00">2020-01-18</time>
             
 
             
@@ -627,8 +791,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2020/01/16/大数据/数仓/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/16/大数据/数仓/" itemprop="commentCount"></span>
+                <a href="/2020/01/18/大数据/数仓技术补遗/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/18/大数据/数仓技术补遗/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -665,14 +829,16 @@
 <li>OLAP：On-Line Analytical Processing，联机分析处理，辅助决策分析，用于分析数据。</li>
 <li>ETL：Extract-Transform-Load，数据从来源端经过抽取（extract）、转换（transform）、加载（load）至目的端的过程。</li>
 </ul>
-<img src="/2020/01/16/大数据/数仓/lambda.png">
-<p>上图为数据仓库架构发展过程中的第二阶段 —— Lambda 架构。第三阶段 Kappa 架构借助 Flink 等实时流处理引擎，移除了离线批处理 etl 任务。</p>
+<img src="/2020/01/18/大数据/数仓技术补遗/lambda.png">
+<p>上图为数据仓库架构发展过程中的第二阶段 —— Lambda 架构。第三阶段 Kappa 架构借助 Flink 等实时流处理引擎，移除了离线批处理 etl 任务。数据仓库构架的发展过程可以参看 <a href="https://yq.aliyun.com/articles/691541" target="_blank" rel="noopener">数据仓库介绍与实时数仓案例</a>。</p>
 <ul>
 <li>ODS：OperationalData Store，操作数据层，保存从业务系统或埋点系统采集过来的原始数据。</li>
 <li>DWD：Data Warehouse Detail，明细数据层，根据主题定义好事实与维度表，保存最细粒度的事实数据。该层数据的生产作业包含：字段名、枚举等数据标准统一；数据脱敏，专门建设敏感数据库存储敏感数据；分库分表等多源数据整合；数据模型统基于业务流程建模。</li>
 <li>DWS：Data Warehouse Summary，汇总数据层，在 DWD 层基础上根据不同的业务需求分主题轻度汇总。DWS 层可拆分为 DWB 轻度汇总数据和 DWS 重度汇总数据。</li>
 <li>DM：Data Market，数据集市层，主要为业务需求提供服务，其包含应用产品所需数据、需求报表、指标等，DM 层还可为业务部门创建专用数据库以及数据探索库。</li>
 </ul>
+<p>下图为阿里大数据系统的架构图：</p>
+<img src="/2020/01/18/大数据/数仓技术补遗/ali.jpg">
 <h2 id="数据同步"><a href="#数据同步" class="headerlink" title="数据同步"></a>数据同步</h2><p>数据同步的方式：</p>
 <ul>
 <li>直连同步：通过 ODBC、JDBC 等标准接口将源系统的数据导入到目标系统，对业务系统的性能影响较大（虽然业务系统可以采用主备分离的模式）。</li>
@@ -681,19 +847,34 @@
 </ul>
 <h3 id="DataX"><a href="#DataX" class="headerlink" title="DataX"></a>DataX</h3><p>阿里内部使用 <a href="https://github.com/alibaba/DataX" target="_blank" rel="noopener">DataX</a> 作离线数据同步。它能实现包括 MySQL、Oracle、SqlServer、Postgre、HDFS、Hive、ADS、HBase、TableStore(OTS)、MaxCompute(ODPS)、DRDS 等各种异构数据源之间高效的数据同步功能。DataX 面对的主要问题是，从源系统到数仓或从数仓到目标系统，数据流进各个系统时的格式并不统一，因此 Datax 需要将数据转换成格式统一的中间状态。</p>
 <p>DataX 采用 Framework + Plugin 开放式架构实现。Plugin 用于转换不同数据库或文件系统的数据格式，包含 ReadPlugin、WritePlugin 两类，作为 Reader 数据采集模块和 Writer 数据写入模块的实现内容。Framework 将数据同步作业拆分成多个子任务，并处理缓冲、流程控制、并发、上下文加载等高速数据交换等技术问题，再通过 Chanel 交换 Reader、Writer 的数据。</p>
-<img src="/2020/01/16/大数据/数仓/datax.jpeg">
+<img src="/2020/01/18/大数据/数仓技术补遗/datax.jpeg">
 <p>更多内容可参考 <a href="https://blog.csdn.net/u014646662/article/details/82792725" target="_blank" rel="noopener">DataX3.0 简介</a>。</p>
 <h3 id="TimeTunnel"><a href="#TimeTunnel" class="headerlink" title="TimeTunnel"></a>TimeTunnel</h3><p>阿里内部使用 TimeTunnel 作实时数据同步。它所实现的主要功能包含，通过消息订阅模式从源系统的 binlog 日志读取出增量数据，随后订阅数据的目标系统将读取这些数据。</p>
 <p>TimeTunnel 是基于生产者、消费者和 Topic 消息标识实现的消息中间件。它通过 <a href="https://www.jianshu.com/p/53864dc3f7b4" target="_blank" rel="noopener">HBase</a> 持久化消息数据。在下图的组件架构中：TTManager 负责对外提供队列申请、删除、查询和集群的管理接⼝；对内发现故障，发起队列迁移。Client 是一组访问接口，包含安全认证 api、发布 api 和订阅 api。Router 为 Client、Broker 提供路由服务，路由到 Broker 时须鉴权。Zookeeper 提供状态同步功能，存储 Client、Broker 的状态。Broker 负责消息队列的读写操作，承担实际的流量，它会从 HBase 取发数据。</p>
-<img src="/2020/01/16/大数据/数仓/TimeTunnel.png">
+<img src="/2020/01/18/大数据/数仓技术补遗/TimeTunnel.png">
 <p>更多内容可参考 <a href="https://blog.csdn.net/pelick/article/details/26265663" target="_blank" rel="noopener">淘宝实时数据传输平台: TimeTunnel介绍</a>。</p>
 <h2 id="数据计算"><a href="#数据计算" class="headerlink" title="数据计算"></a>数据计算</h2><p>收集到原始数据后，数据还需要被整合和计算，才能发挥大数据的商业和业务价值。阿里为数据计算层提供了两大体系：MaxCompute 离线存储及计算平台、StreamCompute 实时计算平台。</p>
 <h3 id="MaxCompute"><a href="#MaxCompute" class="headerlink" title="MaxCompute"></a>MaxCompute</h3><p><a href="https://helpcdn.aliyun.com/document_detail/27800.html" target="_blank" rel="noopener">MaxCompute</a> 采用分布式计算模型，能满足 100GB 以上规模的存储及计算需求。它支持 SQL 查询、UDF 用户自定义函数、Java MapReduce 编程模型、Graph 图计算处理框架。</p>
-<img src="/2020/01/16/大数据/数仓/maxcompute.png">
+<img src="/2020/01/18/大数据/数仓技术补遗/maxcompute.png">
 <p>MaxCompute 由四部分组成：MaxCompute Client 客户端；MaxCompute Front End 接入层；MaxCompute Server 逻辑层；MaxCompute Core 存储与计算层。其中，客户端提供了 RESTful API、Java SDK、Command Line Tool、为 ETL/BI 提供的可视化 IDE 工具。接入层提供 HTTP 服务、缓存、负载均衡、用户认证等功能。逻辑层负责实现用户空间和对象的管理、命令的解析与执行逻辑、数据对象的访问控制和授权等功能。它有三种角色：Worker 对接 RESTful API、SQL 等，生成 MaxCompute Instance 并交由 Scheduler 处理；Scheduler 负责 MaxCompute Instance 的调度和拆解，询问计算层的资源占用情况；Exector 负责 MaxCompute Instance 的执行，向计算层提交计算任务。计算层即 Apsara Core 飞天内核，运行在和控制层相互独立的计算集群上，它包含 Pangu 分布式文件系统、Fuxi 资源调度系统、Nuwa 命名空间服务、Zhongkui 安全服务、Shennong 监控模块、Open Table Service 开放结构化数据服务（用于存储元数据）等。</p>
-<img src="/2020/01/16/大数据/数仓/apsara.png">
+<img src="/2020/01/18/大数据/数仓技术补遗/apsara.png">
 <p>更多内容可参考 <a href="https://yq.aliyun.com/articles/78108" target="_blank" rel="noopener">阿里巴巴飞天大数据平台MaxCompute（原名ODPS）全套攻略</a>、<a href="https://yq.aliyun.com/articles/61529?spm=a2c4e.11153940.0.0.4f886797FazeNv" target="_blank" rel="noopener">MaxCompute 2.0 生态开放之路及最新发展</a>、<a href="http://www.sohu.com/a/129170041_612370" target="_blank" rel="noopener">MaxCompute 2.0 性能优化揭秘</a>、<a href="https://yq.aliyun.com/articles/690510?spm=a2c4e.11153940.0.0.737b1ffbAsWx17" target="_blank" rel="noopener">MaxCompute，基于Serverless的高可靠大数据服务</a>、<a href="https://www.cnblogs.com/barrywxx/p/10739834.html" target="_blank" rel="noopener">阿里云大数据计算服务 - MaxCompute (原名 ODPS)</a>、<a href="https://www.jianshu.com/p/4104e7d5316f" target="_blank" rel="noopener">当我们用 MaxCompute 的时候，我们在用什么？</a>。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/shengyang17/p/10527700.html" target="_blank" rel="noopener">数仓</a><br><a href="https://www.jianshu.com/p/da62fb0c6a0b" target="_blank" rel="noopener">说说数仓</a><br><a href="https://yq.aliyun.com/articles/691541" target="_blank" rel="noopener">数据仓库介绍与实时数仓案例</a><br><a href="https://blog.51cto.com/abezoo/2399546" target="_blank" rel="noopener">大数据环境下数仓设计</a></p>
+<h3 id="实时计算"><a href="#实时计算" class="headerlink" title="实时计算"></a>实时计算</h3><p>数据时效性一般分为三种：延迟以天计算的离线数据、延迟以小时计算的准实时数据、延迟以秒计算的实时数据。离线数据和准实时数据都可以在批处理系统（如 Hadoop、MaxCompute、Spark 等系统）中实现；实时数据则需要流处理系统（如 Storm、S4、Spark Streaming、Flink、StreamCompute 等系统）来实现。区别于批处理系统周期性调度任务，流处理系统的任务是常驻的，并需要满足高时效性、高性能的要求。流处理系统不能完全替代批处理系统，因为它的计算成本加大，且需要解决复杂的业务逻辑（数据处理需要上下文关系，数据抵达时间的不确定性导致流处理系统可能获取不到前置数据）。</p>
+<p>流处理系统所需要的数据可以通过 TimeTunnel、Kafka 等数据中间件或 MetaQ、Notify 等消息系统实现。其中，使用数据中间件能获得较高的吞吐量，一般用于应对数据量较大的业务系统；消息系统一般用作业务系统数据库变更的消息中转。</p>
+<p>下图是 flink 的架构图：</p>
+<img src="/2020/01/18/大数据/数仓技术补遗/flink.png">
+<p>更多内容可参考 <a href="https://help.aliyun.com/document_detail/110778.html?spm=a2c4g.11186623.6.554.2c6d15eaTRijei" target="_blank" rel="noopener">什么是阿里云实时计算</a>、<a href="https://yq.aliyun.com/articles/674448?spm=a2c4e.11153959.teamhomeleft.33.27f717f74CDX29" target="_blank" rel="noopener">Streaming System 第一章：Streaming 101</a>、<a href="https://www.cnblogs.com/code2one/p/10123112.html" target="_blank" rel="noopener">Flink架构及其工作原理</a>。</p>
+<h2 id="数据服务"><a href="#数据服务" class="headerlink" title="数据服务"></a>数据服务</h2><p>阿里的数据开放服务经历了四个阶段：DWSOA、OpenAPI、SmartDQ 和 OneService。</p>
+<img src="/2020/01/18/大数据/数仓技术补遗/dataservice.jpg">
+<ul>
+<li>DWSOA：烟囱式一个需求一个或者几个接口。</li>
+<li>OpenApi：同类数据（如会员数据）合并成一张逻辑表，对外透出一个接口，通过接口参数定位具体数据。</li>
+<li>SmartDQ：逻辑表的取数据逻辑通过 SQL （作为领域专用语言 DSL）描述，SmartDQ 通过解析 SQL、生成执行计划、执行 SQL、合并数据、限制结果，最终透出数据。</li>
+<li>OneService：在 SmartDQ 基础上，满足不同场景的数据需求，OneService-SmartDQ 简单的查询场景、OneService-Lego 个性化业务场景、 OneService-iPush 实时数据推送场景、OneService-uTiming 定时任务场景。</li>
+</ul>
+<p>在 SmartDQ 中，逻辑表通过多个数据源的物理表汇总而成，多个逻辑表挂在一个主题下。服务层主要包含两大模块：元数据配置维护物理表到逻辑表的映射；主处理模块会解析 DSL、构建逻辑 Query、构建物理 Query、拆分 Query、执行 SQL、合并结果。</p>
+<img src="/2020/01/18/大数据/数仓技术补遗/smartdq.png">
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《大数据之路——阿里巴巴大数据实践》<br><a href="https://www.cnblogs.com/shengyang17/p/10527700.html" target="_blank" rel="noopener">数仓</a><br><a href="https://www.jianshu.com/p/da62fb0c6a0b" target="_blank" rel="noopener">说说数仓</a><br><a href="https://blog.51cto.com/abezoo/2399546" target="_blank" rel="noopener">大数据环境下数仓设计</a></p>
 
           
         
@@ -1039,170 +1220,6 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractNamedValueMethodArgumentResolver</span> <span class="keyword">implements</span> <span class="title">HandlerMethodArgumentResolver</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">	<span class="meta">@Nullable</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Object <span class="title">resolveArgument</span><span class="params">(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,</span></span></span><br><span class="line"><span class="function"><span class="params">			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="comment">// RequestParam(name = "a", required = true, defaultValue = "3") =&gt; NamedValueInfo&#123;name="a",required=true,defaultValue="3"&#125;</span></span><br><span class="line">		NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);</span><br><span class="line">		MethodParameter nestedParameter = parameter.nestedIfOptional();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 处理 name，因为它可能是表达式或占位符</span></span><br><span class="line">		Object resolvedName = resolveStringValue(namedValueInfo.name);</span><br><span class="line">		<span class="keyword">if</span> (resolvedName == <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(</span><br><span class="line">					<span class="string">"Specified name must not resolve to null: ["</span> + namedValueInfo.name + <span class="string">"]"</span>);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 从 webRequest 装填实际的参数值，由子类实现</span></span><br><span class="line">		Object arg = resolveName(resolvedName.toString(), nestedParameter, webRequest);</span><br><span class="line">		<span class="keyword">if</span> (arg == <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">if</span> (namedValueInfo.defaultValue != <span class="keyword">null</span>) &#123;</span><br><span class="line">				arg = resolveStringValue(namedValueInfo.defaultValue);</span><br><span class="line">			&#125; <span class="keyword">else</span> <span class="keyword">if</span> (namedValueInfo.required &amp;&amp; !nestedParameter.isOptional()) &#123;</span><br><span class="line">				handleMissingValue(namedValueInfo.name, nestedParameter, webRequest);</span><br><span class="line">			&#125;</span><br><span class="line">			arg = handleNullValue(namedValueInfo.name, arg, nestedParameter.getNestedParameterType());</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">""</span>.equals(arg) &amp;&amp; namedValueInfo.defaultValue != <span class="keyword">null</span>) &#123;</span><br><span class="line">			arg = resolveStringValue(namedValueInfo.defaultValue);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过数据绑定器转换值</span></span><br><span class="line">		<span class="keyword">if</span> (binderFactory != <span class="keyword">null</span>) &#123;</span><br><span class="line">			WebDataBinder binder = binderFactory.createBinder(webRequest, <span class="keyword">null</span>, namedValueInfo.name);</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (ConversionNotSupportedException ex) &#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> MethodArgumentConversionNotSupportedException(arg, ex.getRequiredType(),</span><br><span class="line">						namedValueInfo.name, parameter, ex.getCause());</span><br><span class="line">			&#125; <span class="keyword">catch</span> (TypeMismatchException ex) &#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> MethodArgumentTypeMismatchException(arg, ex.getRequiredType(),</span><br><span class="line">						namedValueInfo.name, parameter, ex.getCause());</span><br><span class="line"></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用子类钩子</span></span><br><span class="line">		handleResolvedValue(arg, namedValueInfo.name, parameter, mavContainer, webRequest);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> arg;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="应用-2"><a href="#应用-2" class="headerlink" title="应用"></a>应用</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/spittles"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpittleController</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Resource</span></span><br><span class="line">  SpittleRepository spittleRepository;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping</span>(value=<span class="string">"/&#123;spittleId&#125;"</span>, method=RequestMethod.GET)</span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">spittles</span><span class="params">(@PathVariable <span class="keyword">long</span> spittleId, Model model)</span></span>&#123;</span><br><span class="line">    Spittle spittle = spittleRepository.findOne(spittleId);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (spittle == <span class="keyword">null</span>)&#123;<span class="comment">// 由 spring mvc 为 404 异常添加 http 状态码</span></span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> SpittleNotFoundException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 为 spittle 视图传入模型数据</span></span><br><span class="line">    model.addAttributes(spittle);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"spittle"</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@ResponseStatus</span>(value=HttpStatus.NOT_FOUND, reason=<span class="string">"Spittle Not Found"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpittleNotFoundException</span> <span class="keyword">extends</span> <span class="title">RuntimeException</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">shouldShowSpittle</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  SpittleController controller = <span class="keyword">new</span> SpittleController();</span><br><span class="line">  MockMvc mockMvc = standaloneSetup(controller).build();</span><br><span class="line"></span><br><span class="line">  mockMvc.perform(get(<span class="string">"/spittles/10086"</span>))</span><br><span class="line">    .addExcept(view().name(<span class="string">"spittle"</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc" target="_blank" rel="noopener">spring 官方文档</a><br><a href="https://www.jianshu.com/p/6433a07f909c" target="_blank" rel="noopener">理解SpringMvc架构以及流程</a><br><a href="https://blog.csdn.net/u010013573/article/details/86550326" target="_blank" rel="noopener">Spring MVC源码分析（四）：SpringMVC的HandlerMapping和HandlerAdapter的体系结构设计与实现</a><br><a href="https://blog.csdn.net/qq_32328959/article/details/90247411" target="_blank" rel="noopener">Spring Web MVC（一）|前端控制器-DispatcherServlet</a><br><a href="https://blog.csdn.net/zknxx/article/details/78336199" target="_blank" rel="noopener">SpringMVC之分析RequestMappingHandlerAdapter（一）</a><br><a href="https://blog.csdn.net/u013076044/article/details/88086156" target="_blank" rel="noopener">流程图解Spring Framework（十三）Spring MVC RequestMappingHandlerAdapter 是如何处理@RequestMapping的？</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/31/frontend/前端工程体系/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/31/frontend/前端工程体系/" itemprop="url">前端工程体系</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-31T00:00:00+08:00">2019-12-31</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/12/31/frontend/前端工程体系/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/31/frontend/前端工程体系/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>我常常执着于部分（比如昏天暗地地解读一个源码），不能跳出来看看整体。这篇文章旨在于整理我所理解的前端工程体系，方便逐步演进顶层观念并指导后续发展。因为见识的有限和理解的不足，这篇文章本难免缺陷和差缪，还望有识予以理解。</p>
-<img src="/2019/12/31/frontend/前端工程体系/global.png">
-<p>我所理解的前端工程体系大致如上图。左半部分以 antd + umi、fusion + 飞冰为参照加以说明，组件库用于提供基础的通用组件。模板工程通常提供了应用层面的最佳实践，因此不止于使用在组件库之内的基础通用组件、在组件库之外的图表和编辑器组件等，还包含状态管理、路由管理、服务调用等内容。当某些组件还未包含在组件库中，但在应用中经常使用，那么这些组件也可以通过模板工程下沉到组件库中。由组件库往上，可以生长出业务组件、区块、前端工程模板，这些都可以被物料中心所吸纳，以便使用特定的域作为标识，在可视化搭建等其他应用、前端 IDE 工具或简单的本地开发环境中复用。这部分内容不限于 web 场景，还包含小程序等场景。事实上，fusion 的物料中心包含 rax 组件，支付宝小程序也提供了基础组件库和 IDE 开发环境。</p>
-<p>右半部分在于使用 node 服务封装后端接口提供定制化的数据，包含但不限于元数据（如菜单栏）、查询数据库的动态数据等。node 服务不止可以提供数据接口，还包含构建发布平台（构建工具通过命令行工具与其打通）、mock 服务（在应用本地运行时动态获取）、国际化服务（在应用启动阶段动态拉取）等。</p>
-<img src="/2019/12/31/frontend/前端工程体系/node.png">
-<h2 id="组件库"><a href="#组件库" class="headerlink" title="组件库"></a>组件库</h2><p>现行较为火热的组件库有 <a href="https://github.com/ant-design/ant-design" target="_blank" rel="noopener">ant design</a>、<a href="https://github.com/alibaba-fusion/next" target="_blank" rel="noopener">fusion</a>、<a href="https://github.com/mui-org/material-ui" target="_blank" rel="noopener">material ui</a>、<a href="https://github.com/elemefe" target="_blank" rel="noopener">element ui</a> 等。以下是 ant design 的大体结构：</p>
-<img src="/2019/12/31/frontend/前端工程体系/antd.png">
-<ul>
-<li><a href="https://github.com/benjycui/bisheng" target="_blank" rel="noopener">bisheng</a>: 解析 markdown 文件并生成静态网站。主流程上，它借助 <a href="https://github.com/mozilla/nunjucks" target="_blank" rel="noopener">nunjucks</a>、webpack、ssr 机制启动本地服务器、生成打包文件，以及通过 <a href="https://github.com/tschaub/gh-pages" target="_blank" rel="noopener">gh-pages</a> 将静态页面上传到 github 服务器上。实现可参考 <a href="http://xzfyu.com/2019/12/21/antd/%E8%81%8A%E8%81%8A%20antd%20%E7%BD%91%E7%AB%99%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%B6%E4%BD%9C%E7%9A%84/" target="_blank" rel="noopener">聊聊 antd 网站是怎么制作的</a>。</li>
-<li><a href="https://github.com/ant-design/antd-tools" target="_blank" rel="noopener">antd-tools</a>、scripts: 提供基本的命令行工具。antd-tools 基于 gulp 实现，它集成了 compile（基于不同组件的入口文件编译 less、ts、svg 等）、dist（使用 webpack 打包整个组件库）、<a href="https://github.com/ant-design/antd-tools/blob/master/lib/lint/checkDeps.js" target="_blank" rel="noopener">deps-lint</a>（检查模块是否被依赖）、pub（编译、打包并发布）、guard、sort-api-table、api-collection、clean 等操作。</li>
-</ul>
-<p>ant design 的定制主题功能基于 less 的 <a href="https://ant.design/docs/react/customize-theme-cn" target="_blank" rel="noopener">modifyVars</a>，即将可定制的样式定义为 less 变量，随后就可以通过 less-loader 引用外部 less 变量文件实现定制。ant design 中可配置的样式见 <a href="https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less" target="_blank" rel="noopener">这里</a>。无障碍功能基于节点的 aria-、role- 属性实现，可参考 <a href="https://www.cnblogs.com/dingyuanxin/p/4052518.html" target="_blank" rel="noopener">aria初探</a>。国际化功能基于 react 的 context 机制实现，同时会设置 moment 的语言。按需加载功能借助于 <a href="https://github.com/ant-design/babel-plugin-import" target="_blank" rel="noopener">babel-plugin-import</a> 插件；其原理为在 babel 编译期间转换 import 语句，并加载必要的样式（默认加载组件文件夹下的 css/index.js 文件）。</p>
-<p>以下是 react-components 组件图谱，动效、对齐、伸缩作为基础的组件或工具函数，其上再延伸出表单、数据展示、导航、回馈组件等。</p>
-<img src="/2019/12/31/frontend/前端工程体系/react-components.png">
-<p>ant-design 的组件基本基于 ConfigProvider 构建。ConfigProvider 通过 react 的 context 机制提供国际化、弹层根节点获取函数、空态渲染函数等。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://news.html5.qq.com/article?ch=901201&amp;tabId=0&amp;tagId=0&amp;docId=669838503675269442&amp;showAttach=1&amp;url=http%3A%2F%2Fkuaibao%2Eqq%2Ecom%2Fs%2F20191214A0F0TM00&amp;dataSrc=96&amp;showDate=1&amp;extenddata=%26%5Fdis%3D3%26bp%3D1%26contentLevel%3D2%26dataSrc%3D96%26queryId%3D1576313487963%26sGrayPlatFormModelId%3D100000%26sModelId%3D100000%26sStrategyId%3D153%26subjectId%3D1090319%26wx%3D1%26zimeitiId%3Dqeh%5F5598878&amp;pid=1&amp;data_type=1&amp;ctrid=1" target="_blank" rel="noopener">如果我是阿里的前端架构师，我会这么搭建前端架构体系</a><br><a href="https://zhuanlan.zhihu.com/p/94949118" target="_blank" rel="noopener">蚂蚁前端研发最佳实践</a></p>
 
           
         

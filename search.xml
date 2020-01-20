@@ -152,6 +152,27 @@
       </tags>
   </entry>
   <entry>
+    <title>异步消息</title>
+    <url>/2020/01/24/java/%E5%BC%82%E6%AD%A5%E6%B6%88%E6%81%AF/</url>
+    <content><![CDATA[<p>使用 RMI、Hession、Burlap、Http invoker、web 服务等的同步消息需要等待阻塞任务完成，才能运行其他程序。同时，在同步消息模式下，接受消息的客户端与远程服务耦合：客户端需要远程服务接口的变更而变更；客户端需要感知远程服务的网络地址；客户端会随着远程服务的不可用而不可用。异步消息是无阻塞的，且不会造成消息发送者和接受者的强耦合。异步消息通常基于 message broker 消息代理实现，通过代理将消息投放到 destination 目的地。在这过程中，消息发送者会被解析出来，可以处理其他任务。</p>
+<h2 id="消息代理"><a href="#消息代理" class="headerlink" title="消息代理"></a>消息代理</h2><p>常见的消息代理有 ActiveMQ、RabbitMQ、Kafka、RocketMQ，它们也称为消息中间件。</p>
+<h3 id="ActiveMQ"><a href="#ActiveMQ" class="headerlink" title="ActiveMQ"></a>ActiveMQ</h3><p>ActiveMQ 使用 Java 语言编写，它支持两种消息模型：点对点模型（即队列）、发布/订阅模型（主题）。在这两种模型中，消息发送者均不会关心消息最终会被那个接受者取走。点对点模型可以有多个接受者（通过轮询依次发送向接受者发送消息），因为不知道存储在队列中的消息会被哪个接受者取走，也就意味着接受者必须有相同的实现。发布/订阅模型会将消息发送到一个主题下，订阅该主题的接受者都会接受到消息。ActiveMQ 只支持 KahaDB message store、AMQ message store、JDBC message store、Memory message store 等少量的存储器，不支持 hadoop、hdfs、hbase 等分布式系统。</p>
+<h3 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h3><p>RabbitMQ 使用 Erlang 语言编写，遵循 AMQP 高级消息队列协议（Advanced Message Queuing Protocol）（一个网络协议）。在 AMQP 协议中，发布者发送的消息会经由交换机转交给消息队列（基于路由规则转发消息），最终消息会被订阅了该消息队列的消费者获取或者主动推送给消息者。交换机有多种类型，并且一个消息队列会和一个交换机进行绑定（同一个交换机可以绑定多个消息队列），再由交换机路由到特定的消息队列中。有直连交换机，通过指定路由键将消息推送到消息队列上；有扇型交换机，将消息广播到与交换机绑定的所有消息队列上；有主题交换机，主题键允许模糊匹配；头交换机，作为路由策略的头属性值可以是整数或字典等。消息队列有两种：持久化队列能将消息固化到磁盘中；暂存队列在消息使用完成后会被销毁。为了避免丢包现象，AMQP 允许使用消息确认机制，在消费者输送确认回执后，才将消息从队列中删除。</p>
+<img src="/2020/01/24/java/异步消息/amqp.png">
+<h3 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h3><p>Kafka 依赖 Zookeeper 注册中心协调生产者和消费者。它自有一套协议，使用 pull 模式处理消息，追求高吞吐量，不支持事务，适合数据采集作业，可视为一个日志系统。消息按主题发送，每个主题可以有多个分区，对应的消息者也以 ConsumerGroup 组合呈现。一个组合下的消费者可以读取多个主题分区，但是一个主题分区在同一个消费者组合中只能被一个消费者处理。kafka 队列中的内容按策略存储一定时间，消费者可以指定偏移量来读取数据，即下次可以接着上次内容后读取。</p>
+<img src="/2020/01/24/java/异步消息/kafka.png">
+<h3 id="RocketMQ"><a href="#RocketMQ" class="headerlink" title="RocketMQ"></a>RocketMQ</h3><p>RocketMQ 是阿里开源的消息中间件，前身是 MetaQ，今生是 Aliware MQ（可参考 <a href="https://blog.csdn.net/cainiao_xiaowu/article/details/94554771" target="_blank" rel="noopener">MetaMQ RocketMQ的前世今生</a>）。它使用 Java 编程，具有高吞吐量、高可用性、适合大规模分布式系统应用等特点。在阿里内部，它被广泛用于交易、充值等业务系统，以及日志流式处理、binglog 分发等数据采集场景。RocketMQ 以 name server 作为注册中心，broker 代理采用主从模式部署，无论 producer 还是 consumer 都会通过发送心跳包的方式从 name server 中读写信息。RocketMQ 的最大特点是支持分布式事务。事务开始阶段，producer 会发送 SEND_OK 消息给 MQ，执行成功时发送 COMMIT_MESSAGE；consumer 会调用 MQ 事务状态服务，以感知事务执行成功与否，保持事务一致性。</p>
+<p>JMS（Java Message Service） 定义了使用消息代理的通用接口，其意义类似于 JDBC。spring 抽象了 JmsTemplate 模板，以便于发送和接受队列或主题消息；提供了消息驱动的 POJO，即 MDB（message driven bean）。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/weixin_37641832/article/details/83270778" target="_blank" rel="noopener">深入理解AMQP协议</a><br><a href="https://www.cnblogs.com/wuhenzhidu/p/10781101.html" target="_blank" rel="noopener">RabbitMQ指南</a><br><a href="https://blog.csdn.net/konglongaa/article/details/52208273" target="_blank" rel="noopener">关于消息队列的使用—-ActiveMQ，RabbitMQ，ZeroMQ，Kafka，MetaMQ，RocketMQ</a><br><a href="https://blog.csdn.net/lifaming15/article/details/79942793" target="_blank" rel="noopener">activemq、rabbitmq、kafka原理和比较</a><br><a href="https://www.jianshu.com/p/2838890f3284" target="_blank" rel="noopener">Rocketmq 原理&amp;最佳实践</a><br><a href="http://www.sohu.com/a/149487721_610275" target="_blank" rel="noopener">Aliware-MQ技术架构与最佳实践</a></p>
+]]></content>
+      <categories>
+        <category>java</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>数据技术</title>
     <url>/2020/01/18/%E5%A4%A7%E6%95%B0%E6%8D%AE/%E6%95%B0%E6%8D%AE%E6%8A%80%E6%9C%AF/</url>
     <content><![CDATA[<blockquote class="blockquote-center"><p>数据仓库（Data Warehouse）是一个面向主题的（Subject Oriented）、集成的（Integrate）、相对稳定的（Non-Volatile）、反映历史变化（Time Variant）的数据集合，用于支持管理决策。</p>
@@ -3580,14 +3601,11 @@
       </tags>
   </entry>
   <entry>
-    <title>rc-align</title>
-    <url>/2019/02/01/antd/react-component/rc-align/</url>
-    <content><![CDATA[<h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
+    <title>dom-align</title>
+    <url>/2019/02/01/antd/react-component/dom-align/</url>
+    <content><![CDATA[<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
 <li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
-</li>
-<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
-</li>
+<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
 </ul>
 ]]></content>
       <categories>
@@ -3600,11 +3618,14 @@
       </tags>
   </entry>
   <entry>
-    <title>dom-align</title>
-    <url>/2019/02/01/antd/react-component/dom-align/</url>
-    <content><![CDATA[<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
+    <title>rc-align</title>
+    <url>/2019/02/01/antd/react-component/rc-align/</url>
+    <content><![CDATA[<h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
 <li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
+<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
+</li>
+<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
+</li>
 </ul>
 ]]></content>
       <categories>

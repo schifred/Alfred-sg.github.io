@@ -153,17 +153,26 @@
   </entry>
   <entry>
     <title>异步消息</title>
-    <url>/2020/01/24/java/%E5%BC%82%E6%AD%A5%E6%B6%88%E6%81%AF/</url>
-    <content><![CDATA[<p>使用 RMI、Hession、Burlap、Http invoker、web 服务等的同步消息需要等待阻塞任务完成，才能运行其他程序。同时，在同步消息模式下，接受消息的客户端与远程服务耦合：客户端需要远程服务接口的变更而变更；客户端需要感知远程服务的网络地址；客户端会随着远程服务的不可用而不可用。异步消息是无阻塞的，且不会造成消息发送者和接受者的强耦合。异步消息通常基于 message broker 消息代理实现，通过代理将消息投放到 destination 目的地。在这过程中，消息发送者会被解析出来，可以处理其他任务。</p>
-<h2 id="消息代理"><a href="#消息代理" class="headerlink" title="消息代理"></a>消息代理</h2><p>常见的消息代理有 ActiveMQ、RabbitMQ、Kafka、RocketMQ，它们也称为消息中间件。</p>
-<h3 id="ActiveMQ"><a href="#ActiveMQ" class="headerlink" title="ActiveMQ"></a>ActiveMQ</h3><p>ActiveMQ 使用 Java 语言编写，它支持两种消息模型：点对点模型（即队列）、发布/订阅模型（主题）。在这两种模型中，消息发送者均不会关心消息最终会被那个接受者取走。点对点模型可以有多个接受者（通过轮询依次发送向接受者发送消息），因为不知道存储在队列中的消息会被哪个接受者取走，也就意味着接受者必须有相同的实现。发布/订阅模型会将消息发送到一个主题下，订阅该主题的接受者都会接受到消息。ActiveMQ 只支持 KahaDB message store、AMQ message store、JDBC message store、Memory message store 等少量的存储器，不支持 hadoop、hdfs、hbase 等分布式系统。</p>
-<h3 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h3><p>RabbitMQ 使用 Erlang 语言编写，遵循 AMQP 高级消息队列协议（Advanced Message Queuing Protocol）（一个网络协议）。在 AMQP 协议中，发布者发送的消息会经由交换机转交给消息队列（基于路由规则转发消息），最终消息会被订阅了该消息队列的消费者获取或者主动推送给消息者。交换机有多种类型，并且一个消息队列会和一个交换机进行绑定（同一个交换机可以绑定多个消息队列），再由交换机路由到特定的消息队列中。有直连交换机，通过指定路由键将消息推送到消息队列上；有扇型交换机，将消息广播到与交换机绑定的所有消息队列上；有主题交换机，主题键允许模糊匹配；头交换机，作为路由策略的头属性值可以是整数或字典等。消息队列有两种：持久化队列能将消息固化到磁盘中；暂存队列在消息使用完成后会被销毁。为了避免丢包现象，AMQP 允许使用消息确认机制，在消费者输送确认回执后，才将消息从队列中删除。</p>
-<img src="/2020/01/24/java/异步消息/amqp.png">
+    <url>/2020/01/21/java/%E5%BC%82%E6%AD%A5%E6%B6%88%E6%81%AF/</url>
+    <content><![CDATA[<p>使用 RMI、Hession、Burlap、Http invoker、web 服务等的同步消息需要等待阻塞任务完成，才能运行其他程序。同时，在同步消息模式下，接受消息的客户端与远程服务耦合：客户端需要远程服务接口的变更而变更；客户端需要感知远程服务的网络地址；客户端会随着远程服务的不可用而不可用。异步消息是无阻塞的，且不会造成消息发送者和接受者的强耦合。异步消息通常基于 message broker 消息代理实现，通过代理将消息投放到 destination 目的地。在这过程中，消息发送者会被解析出来，可以处理其他任务。异步消息一般用于四种场景：异步处理（如注册账户后发送邮件）、应用解耦（如下单业务中库存系统通过 MQ 与订单系统关联）、流量削峰（如秒杀系统先将前端消息存入 MQ）、日志处理（如 kafka 缓存采集日志）。</p>
+<h2 id="消息代理"><a href="#消息代理" class="headerlink" title="消息代理"></a>消息代理</h2><p>常见的消息代理有 ActiveMQ、RabbitMQ、Kafka、RocketMQ、ZeroMQ，它们也称为消息中间件。</p>
+<h3 id="ActiveMQ"><a href="#ActiveMQ" class="headerlink" title="ActiveMQ"></a>ActiveMQ</h3><p>ActiveMQ 使用 Java 语言编写，遵循 JMS 规范。它支持两种消息模型：点对点模型（即队列）、发布/订阅模型（主题）。在这两种模型中，消息发送者均不会关心消息最终会被那个接受者取走。点对点模型可以有多个接受者（通过轮询依次发送向接受者发送消息），因为不知道存储在队列中的消息会被哪个接受者取走，也就意味着接受者必须有相同的实现。发布/订阅模型会将消息发送到一个主题下，订阅该主题的接受者都会接受到消息。ActiveMQ 只支持 KahaDB message store、AMQ message store、JDBC message store、Memory message store 等少量的存储器，不支持 hadoop、hdfs、hbase 等分布式系统。</p>
+<p>JMS（Java Message Service） 规范定义了使用消息代理的通用接口，其意义类似于 JDBC。</p>
+<img src="/2020/01/21/java/异步消息/jms.png">
+<p>spring 抽象了 JmsTemplate 模板。在配置类中以 ConnectionFactory 为参数，创建 JmsTemplate 实例，并作为 bean 装填在上下文中。应用中即可使用 jmsOperations.send、jmsOperations.receive 收发消息，且可对消息进行转换。spring 又提供了消息驱动的 POJO，允许以消息监听器的形式调用这个 bean 中的方法。详情可以参考 《spring 实战》。</p>
+<h3 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h3><p>RabbitMQ 使用 Erlang 语言编写，遵循 AMQP 高级消息队列协议（Advanced Message Queuing Protocol）（一个网络协议）。在 AMQP 协议中，发布者发送的消息会经由交换机转交给消息队列（基于路由规则转发消息），最终消息会被订阅了该消息队列的消费者获取或者主动推送给消息者。此处队列可视为消息通道。交换机有多种类型，并且一个消息队列会和一个交换机进行绑定（同一个交换机可以绑定多个消息队列），再由交换机路由到特定的消息队列中。有直连交换机，通过指定路由键将消息推送到消息队列上；有扇型交换机，将消息广播到与交换机绑定的所有消息队列上；有主题交换机，主题键允许模糊匹配；头交换机，作为路由策略的头属性值可以是整数或字典等。消息队列有两种：持久化队列能将消息固化到磁盘中；暂存队列在消息使用完成后会被销毁。为了避免丢包现象，AMQP 允许使用消息确认机制，在消费者输送确认回执后，才将消息从队列中删除。</p>
+<img src="/2020/01/21/java/异步消息/amqp.png">
+<p>AMQP 是一个线路层级的协议，指定消息的格式，这样消息就能跨 AMQP 实现以及跨语言和平台；JMS 只是一个 API 规范。spring AMQP 抽象了 RabbitTemplate 模板用于收发消息。在 spring boot 项目中发送消息时，首先需要在配置类中装配队列、交换机，并将队列和交换机进行绑定；然后通过自动装配的 RabbitTemplate#convertAndSend 发送消息。接受消息既可以通过 RabbitTemplate#receive 或 AMQP POJO，又可以通过 @RabbitListener 注解实现。详情可以参看 <a href="https://blog.csdn.net/qq_35387940/article/details/100514134" target="_blank" rel="noopener">Springboot 整合 RabbitMQ</a>。</p>
 <h3 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h3><p>Kafka 依赖 Zookeeper 注册中心协调生产者和消费者。它自有一套协议，使用 pull 模式处理消息，追求高吞吐量，不支持事务，适合数据采集作业，可视为一个日志系统。消息按主题发送，每个主题可以有多个分区，对应的消息者也以 ConsumerGroup 组合呈现。一个组合下的消费者可以读取多个主题分区，但是一个主题分区在同一个消费者组合中只能被一个消费者处理。kafka 队列中的内容按策略存储一定时间，消费者可以指定偏移量来读取数据，即下次可以接着上次内容后读取。</p>
-<img src="/2020/01/24/java/异步消息/kafka.png">
-<h3 id="RocketMQ"><a href="#RocketMQ" class="headerlink" title="RocketMQ"></a>RocketMQ</h3><p>RocketMQ 是阿里开源的消息中间件，前身是 MetaQ，今生是 Aliware MQ（可参考 <a href="https://blog.csdn.net/cainiao_xiaowu/article/details/94554771" target="_blank" rel="noopener">MetaMQ RocketMQ的前世今生</a>）。它使用 Java 编程，具有高吞吐量、高可用性、适合大规模分布式系统应用等特点。在阿里内部，它被广泛用于交易、充值等业务系统，以及日志流式处理、binglog 分发等数据采集场景。RocketMQ 以 name server 作为注册中心，broker 代理采用主从模式部署，无论 producer 还是 consumer 都会通过发送心跳包的方式从 name server 中读写信息。RocketMQ 的最大特点是支持分布式事务。事务开始阶段，producer 会发送 SEND_OK 消息给 MQ，执行成功时发送 COMMIT_MESSAGE；consumer 会调用 MQ 事务状态服务，以感知事务执行成功与否，保持事务一致性。</p>
-<p>JMS（Java Message Service） 定义了使用消息代理的通用接口，其意义类似于 JDBC。spring 抽象了 JmsTemplate 模板，以便于发送和接受队列或主题消息；提供了消息驱动的 POJO，即 MDB（message driven bean）。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/weixin_37641832/article/details/83270778" target="_blank" rel="noopener">深入理解AMQP协议</a><br><a href="https://www.cnblogs.com/wuhenzhidu/p/10781101.html" target="_blank" rel="noopener">RabbitMQ指南</a><br><a href="https://blog.csdn.net/konglongaa/article/details/52208273" target="_blank" rel="noopener">关于消息队列的使用—-ActiveMQ，RabbitMQ，ZeroMQ，Kafka，MetaMQ，RocketMQ</a><br><a href="https://blog.csdn.net/lifaming15/article/details/79942793" target="_blank" rel="noopener">activemq、rabbitmq、kafka原理和比较</a><br><a href="https://www.jianshu.com/p/2838890f3284" target="_blank" rel="noopener">Rocketmq 原理&amp;最佳实践</a><br><a href="http://www.sohu.com/a/149487721_610275" target="_blank" rel="noopener">Aliware-MQ技术架构与最佳实践</a></p>
+<img src="/2020/01/21/java/异步消息/kafka.png">
+<h3 id="RocketMQ"><a href="#RocketMQ" class="headerlink" title="RocketMQ"></a>RocketMQ</h3><p><a href="https://github.com/apache/rocketmq" target="_blank" rel="noopener">RocketMQ</a> 是阿里开源的消息中间件，前身是 MetaQ，今生是 Aliware MQ（可参考 <a href="https://blog.csdn.net/cainiao_xiaowu/article/details/94554771" target="_blank" rel="noopener">MetaMQ RocketMQ的前世今生</a>）。它使用 Java 编程，具有高吞吐量、高可用性、适合大规模分布式系统应用等特点。在阿里内部，它被广泛用于交易、充值等业务系统，以及日志流式处理、binglog 分发等数据采集场景。RocketMQ 以 name server 作为注册中心，broker 代理采用主从模式部署，无论 producer 还是 consumer 都会通过发送心跳包的方式从 name server 中读写信息。</p>
+<p>RocketMQ 的最大特点是支持分布式事务。首先 RocketMQ 支持事务性消息，即该消息在抵达 consumer 时能保证其与 producer 有相同的数据一致性，实现上是等待 producer 执行完成，consumer 才进行 db 操作。事务开始阶段，producer 会发送半消息给 MQ，执行成功时发送 Commit 全消息或 Rollback 回滚消息。MQ 接受 Commit 全消息时，将消息推送给 consumer；MQ 接受 Rollback 回滚消息时，隔三天删除消息；如果因为网络问题导致 MQ 接受到 Commit 全消息或 Rollback 回滚消息，调用 MQ 的事务状态服务询问 producer 事务执行状态，条件提交或回滚。</p>
+<img src="/2020/01/21/java/异步消息/transcation.jpg">
+<p>其次，若一个主业务系统的操作会通过异步消息引起多个辅业务系统的 db 操作，那么在常规的异步消息之外，RocketMQ 会在这一系列业务操作的预期执行时间之后再发送一个异步消息，以便创建一个用于回滚的任务。该任务会询问主业务系统的事务执行状态，若失败，进一步促使辅业务系统执行回滚操作。</p>
+<img src="/2020/01/21/java/异步消息/transcation2.png">
+<p>在 spring boot 中使用 RocketMQ 可参考 <a href="https://github.com/apache/rocketmq-spring/tree/master/rocketmq-spring-boot-samples" target="_blank" rel="noopener">rocketmq-spring-boot-samples</a>。</p>
+<h3 id="ZeroMQ"><a href="#ZeroMQ" class="headerlink" title="ZeroMQ"></a>ZeroMQ</h3><p>ZeroMQ 在 socket 之上、MQ 之下，它更是一个处理消息传输的库，适用于作为分布式系统的消息通信工具。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/weixin_37641832/article/details/83270778" target="_blank" rel="noopener">深入理解 AMQP 协议</a><br><a href="http://www.yidianzixun.com/article/0KCbUbSL" target="_blank" rel="noopener">MQ概览：ActiveMQ，Kafka，MetaMQ，RocketMQ 消息中间件应用场景</a><br><a href="https://blog.csdn.net/konglongaa/article/details/52208273" target="_blank" rel="noopener">关于消息队列的使用—-ActiveMQ，RabbitMQ，ZeroMQ，Kafka，MetaMQ，RocketMQ</a><br><a href="https://blog.csdn.net/lifaming15/article/details/79942793" target="_blank" rel="noopener">activemq、rabbitmq、kafka 原理和比较</a><br><a href="https://www.cnblogs.com/Zender/p/9098410.html" target="_blank" rel="noopener">Java 消息服务-JMS</a><br><a href="https://www.cnblogs.com/wuhenzhidu/p/10781101.html" target="_blank" rel="noopener">RabbitMQ 指南</a><br><a href="https://www.cnblogs.com/williamjie/p/9481774.html" target="_blank" rel="noopener">RabbitMQ基础概念详细介绍</a><br><a href="https://blog.csdn.net/frank1998819/article/details/84767357" target="_blank" rel="noopener">MetaMQ 架构原理</a><br><a href="https://www.jianshu.com/p/2838890f3284" target="_blank" rel="noopener">Rocketmq 原理&amp;最佳实践</a><br><a href="http://www.sohu.com/a/149487721_610275" target="_blank" rel="noopener">Aliware-MQ 技术架构与最佳实践</a><br><a href="https://www.cnblogs.com/qdhxhz/p/11191399.html" target="_blank" rel="noopener">分布式事务(3)—RocketMQ实现分布式事务原理</a></p>
 ]]></content>
       <categories>
         <category>java</category>
@@ -1045,6 +1054,23 @@
       </tags>
   </entry>
   <entry>
+    <title>前端调试</title>
+    <url>/2019/11/10/frontend/%E5%89%8D%E7%AB%AF%E8%B0%83%E8%AF%95/</url>
+    <content><![CDATA[<p>基本调试可以借助 chrome 控制台实现。</p>
+<h2 id="同步刷新"><a href="#同步刷新" class="headerlink" title="同步刷新"></a>同步刷新</h2><h3 id="browser-sync"><a href="#browser-sync" class="headerlink" title="browser-sync"></a>browser-sync</h3><p>browser-sync 通过 web-socket 将变更内容透出到页面侧，因此无须刷新页面。browser-sync 提供了两个方法：init({ server }) 启动本地静态服务器，init({ proxy }) 启动代理服务器（当本地服务器通过其他方式启动时，browser-sync 选用代理模式启动）；reload 实时更新页面变动内容。</p>
+<h3 id="emmet-livestyle"><a href="#emmet-livestyle" class="headerlink" title="emmet livestyle"></a>emmet livestyle</h3><p>emmet livestyle 扩展程序（浏览器、编辑器有各自的扩展程序）允许将编辑器的变更内容自动反应在页面上，又将浏览器的变更内容自动反应在编辑器上。</p>
+<h2 id="抓包工具"><a href="#抓包工具" class="headerlink" title="抓包工具"></a>抓包工具</h2><p>charles 是 mac os 中的抓包工具，fiddler 是 windows 中的抓包工具，两者都通过将自己设置成系统的网络访问代理服务器实现。即所有请求先经过 charles、fiddler，然后再发送到远程服务器中，因此可以拦截请求、修改请求、修改响应，甚至将响应内容替换成本地资源。fiddler 还可以通过 tools - options - connection 设置监听端口，然后手机代理到该端口，就可以将手机端获得的响应资源替换成本地文件，详情可参阅 <a href="https://www.cnblogs.com/wenbodeboke/p/9770771.html" target="_blank" rel="noopener">fiddler手机抓包配置方法</a>。</p>
+<h2 id="模拟器"><a href="#模拟器" class="headerlink" title="模拟器"></a>模拟器</h2><p>Genymotion</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/xy-nb/p/web.html" target="_blank" rel="noopener">手机web前端调试页面的几种方式</a></p>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>前端监控</title>
     <url>/2019/11/10/frontend/%E5%89%8D%E7%AB%AF%E7%9B%91%E6%8E%A7/</url>
     <content><![CDATA[<h2 id="前端监控"><a href="#前端监控" class="headerlink" title="前端监控"></a>前端监控</h2><p>前端监控包含 js 错误统计、js 错误诊断、api 统计监控、前后端链路追踪、文件加载失败监控、页面访问速度、慢回话追踪等。</p>
@@ -1055,23 +1081,6 @@
 <h2 id="Bombay"><a href="#Bombay" class="headerlink" title="Bombay"></a>Bombay</h2><p><a href="https://github.com/bombayjs/bombayjs" target="_blank" rel="noopener">Bombay</a> 通过 xhr 对象或者 window.navigator.sendBeacon 上报数据。上报数据类型包含 error、behavior、health 以及其他，除了 health 尝试使用 window.navigator.sendBeacon 上报以外，其他全部使用 xhr 对象。上报数据的功能实现由 reporter 模块承担；在 reporter 模块的基础上，handlers 模块用于实际上报不同类型的数据，如 pv、health（页面停留时长）、click 点击事件、blur 失焦事件（点击和失焦事件的上报内容包含节点的路径）、performance 性能（首屏渲染时各操作的处理时长）、resource（资源加载时长）、navigation（页面跳转情况）、hashChange（单页应用跳转情况）、caughtError（js 报错，通过 window.addEventListener(‘error’, …) 实现）、promiseError（promise 错误，通过 window.addEventListener(‘unhandledrejection’, …) 实现）、resourceError（资源加载错误）、api（ajax 处理情况）、message（window.postMessage 发送消息）等。在处理单页应用的页面跳转或 ajax 请求等时，Bombay 通过 hack 机制劫持了 window.console、history.pushState、history.replaceState、window.fetch、window.XMLHttpRequest、window.onpopstate 等原生语法，以在封装后的函数执行过程中上报数据。最后，Bombay 根据用户配置项启用功能。</p>
 <p>与 mixpanel 一样，Bombay 在上报数据时需要设置 token，即避免其他应用调用上报接口。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/passkey/p/9981654.html" target="_blank" rel="noopener">监控平台前端SDK开发实践</a></p>
-]]></content>
-      <categories>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>analyst</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>前端调试</title>
-    <url>/2019/11/10/frontend/%E5%89%8D%E7%AB%AF%E8%B0%83%E8%AF%95/</url>
-    <content><![CDATA[<p>基本调试可以借助 chrome 控制台实现。</p>
-<h2 id="同步刷新"><a href="#同步刷新" class="headerlink" title="同步刷新"></a>同步刷新</h2><h3 id="browser-sync"><a href="#browser-sync" class="headerlink" title="browser-sync"></a>browser-sync</h3><p>browser-sync 通过 web-socket 将变更内容透出到页面侧，因此无须刷新页面。browser-sync 提供了两个方法：init({ server }) 启动本地静态服务器，init({ proxy }) 启动代理服务器（当本地服务器通过其他方式启动时，browser-sync 选用代理模式启动）；reload 实时更新页面变动内容。</p>
-<h3 id="emmet-livestyle"><a href="#emmet-livestyle" class="headerlink" title="emmet livestyle"></a>emmet livestyle</h3><p>emmet livestyle 扩展程序（浏览器、编辑器有各自的扩展程序）允许将编辑器的变更内容自动反应在页面上，又将浏览器的变更内容自动反应在编辑器上。</p>
-<h2 id="抓包工具"><a href="#抓包工具" class="headerlink" title="抓包工具"></a>抓包工具</h2><p>charles 是 mac os 中的抓包工具，fiddler 是 windows 中的抓包工具，两者都通过将自己设置成系统的网络访问代理服务器实现。即所有请求先经过 charles、fiddler，然后再发送到远程服务器中，因此可以拦截请求、修改请求、修改响应，甚至将响应内容替换成本地资源。fiddler 还可以通过 tools - options - connection 设置监听端口，然后手机代理到该端口，就可以将手机端获得的响应资源替换成本地文件，详情可参阅 <a href="https://www.cnblogs.com/wenbodeboke/p/9770771.html" target="_blank" rel="noopener">fiddler手机抓包配置方法</a>。</p>
-<h2 id="模拟器"><a href="#模拟器" class="headerlink" title="模拟器"></a>模拟器</h2><p>Genymotion</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/xy-nb/p/web.html" target="_blank" rel="noopener">手机web前端调试页面的几种方式</a></p>
 ]]></content>
       <categories>
         <category>前端</category>

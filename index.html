@@ -829,7 +829,7 @@
 <img src="/2020/01/21/java/异步消息/jms.png">
 <p>spring 抽象了 JmsTemplate 模板。在配置类中以 ConnectionFactory 为参数，创建 JmsTemplate 实例，并作为 bean 装填在上下文中。应用中即可使用 jmsOperations.send、jmsOperations.receive 收发消息，且可对消息进行转换。spring 又提供了消息驱动的 POJO，允许以消息监听器的形式调用这个 bean 中的方法。详情可以参考 《spring 实战》。</p>
 <h3 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h3><p>RabbitMQ 使用 Erlang 语言编写，遵循 AMQP 高级消息队列协议（Advanced Message Queuing Protocol）（一个网络协议）。在 AMQP 协议中，发布者发送的消息会经由交换机转交给消息队列（基于路由规则转发消息），最终消息会被订阅了该消息队列的消费者获取或者主动推送给消息者。此处队列可视为消息通道。交换机有多种类型，并且一个消息队列会和一个交换机进行绑定（同一个交换机可以绑定多个消息队列），再由交换机路由到特定的消息队列中。有直连交换机，通过指定路由键将消息推送到消息队列上；有扇型交换机，将消息广播到与交换机绑定的所有消息队列上；有主题交换机，主题键允许模糊匹配；头交换机，作为路由策略的头属性值可以是整数或字典等。消息队列有两种：持久化队列能将消息固化到磁盘中；暂存队列在消息使用完成后会被销毁。为了避免丢包现象，AMQP 允许使用消息确认机制，在消费者输送确认回执后，才将消息从队列中删除。</p>
-<img src="/2020/01/21/java/异步消息/amqp.png">
+<img src="/2020/01/21/java/异步消息/amqp.jpeg">
 <p>AMQP 是一个线路层级的协议，指定消息的格式，这样消息就能跨 AMQP 实现以及跨语言和平台；JMS 只是一个 API 规范。spring AMQP 抽象了 RabbitTemplate 模板用于收发消息。在 spring boot 项目中发送消息时，首先需要在配置类中装配队列、交换机，并将队列和交换机进行绑定；然后通过自动装配的 RabbitTemplate#convertAndSend 发送消息。接受消息既可以通过 RabbitTemplate#receive 或 AMQP POJO，又可以通过 @RabbitListener 注解实现。详情可以参看 <a href="https://blog.csdn.net/qq_35387940/article/details/100514134" target="_blank" rel="noopener">Springboot 整合 RabbitMQ</a>。</p>
 <h3 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h3><p>Kafka 依赖 Zookeeper 注册中心协调生产者和消费者。它自有一套协议，使用 pull 模式处理消息，追求高吞吐量，不支持事务，适合数据采集作业，可视为一个日志系统。消息按主题发送，每个主题可以有多个分区，对应的消息者也以 ConsumerGroup 组合呈现。一个组合下的消费者可以读取多个主题分区，但是一个主题分区在同一个消费者组合中只能被一个消费者处理。kafka 队列中的内容按策略存储一定时间，消费者可以指定偏移量来读取数据，即下次可以接着上次内容后读取。</p>
 <img src="/2020/01/21/java/异步消息/kafka.png">

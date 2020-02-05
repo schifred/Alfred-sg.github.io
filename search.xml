@@ -28,6 +28,40 @@
       </tags>
   </entry>
   <entry>
+    <title>钉钉对接启示录</title>
+    <url>/2020/02/05/%E5%AE%9E%E8%B7%B5/%E9%92%89%E9%92%89%E5%AF%B9%E6%8E%A5%E5%90%AF%E7%A4%BA%E5%BD%95/</url>
+    <content><![CDATA[<p>前端部分须安装 <a href="https://www.npmjs.com/package/dingtalk-jsapi" target="_blank" rel="noopener">dingtalk-jsapi</a>。</p>
+<h2 id="内部应用"><a href="#内部应用" class="headerlink" title="内部应用"></a>内部应用</h2><h3 id="免登"><a href="#免登" class="headerlink" title="免登"></a>免登</h3><p>钉钉免登总流程：</p>
+<ol>
+<li>使用 dingtalk-jsapi 获取<a href="https://ding-doc.dingtalk.com/doc#/dev/about" target="_blank" rel="noopener">免登授权码 auth_code</a>。</li>
+<li>通过应用的唯一标识 appkey 和应用密钥 appsecret <a href="https://open-dev.dingtalk.com/apiExplorer#/?devType=org&amp;api=/gettoken" target="_blank" rel="noopener">获取 access_token</a>。</li>
+<li>通过 auth_code 和 access_token <a href="https://open-dev.dingtalk.com/apiExplorer#/?devType=org&amp;api=/user/getuserinfo" target="_blank" rel="noopener">获取 userid</a>。</li>
+<li>通过 userid 和 access_token <a href="https://open-dev.dingtalk.com/apiExplorer#/?devType=org&amp;api=/user/get" target="_blank" rel="noopener">获取 userinfo</a>。</li>
+</ol>
+<p>前端流程：</p>
+<ol>
+<li>获取 auth_code。</li>
+<li>auth_code 发送到后台，换区 userinfo。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">dd.runtime.permission.requestAuthCode(&#123;</span><br><span class="line">  corpId, <span class="comment">// 企业ID</span></span><br><span class="line">  onSuccess(result) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(result);</span><br><span class="line">  &#125;,</span><br><span class="line">  onFail(error) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(error);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="鉴权"><a href="#鉴权" class="headerlink" title="鉴权"></a>鉴权</h3><p><a href="https://ding-doc.dingtalk.com/doc#/dev/uwa7vs" target="_blank" rel="noopener">钉钉总流程</a>：</p>
+<ol>
+<li>通过应用的唯一标识 appkey 和应用密钥 appsecret <a href="https://open-dev.dingtalk.com/apiExplorer#/?devType=org&amp;api=/gettoken" target="_blank" rel="noopener">获取 access_token</a>。</li>
+<li>根据 access_token <a href="https://open-dev.dingtalk.com/apiExplorer#/?devType=org&amp;api=/get_jsapi_ticket" target="_blank" rel="noopener">获取 jsapi_ticket</a>。</li>
+<li>根据 jsapi_ticket, 随机串 nonceStr, 时间戳 timeStamp, 页面 url 计算签名 signature。</li>
+<li>根据 随机串 nonceStr，应用标识 agentId，时间戳 timeStamp，企业ID corpId，签名 signature 进行鉴权（调用 dd.config）。</li>
+</ol>
+<p>鉴权后，可调用 dingtalk-jsapi 中的方法。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">dd.config(&#123;</span><br><span class="line">  agentId: <span class="string">''</span>, <span class="comment">// 必填，微应用ID</span></span><br><span class="line">  corpId: <span class="string">''</span>,<span class="comment">//必填，企业ID</span></span><br><span class="line">  timeStamp: <span class="string">''</span>, <span class="comment">// 必填，生成签名的时间戳</span></span><br><span class="line">  nonceStr: <span class="string">''</span>, <span class="comment">// 必填，生成签名的随机串</span></span><br><span class="line">  signature: <span class="string">''</span>, <span class="comment">// 必填，签名</span></span><br><span class="line">  type: <span class="number">0</span>, <span class="comment">// 选填。0表示微应用的jsapi,1表示服务窗的jsapi；不填默认为0</span></span><br><span class="line">  jsApiList: [</span><br><span class="line">    <span class="string">'runtime.info'</span>,</span><br><span class="line">    <span class="string">'biz.contact.choose'</span>,<span class="comment">// 鉴权后可调用</span></span><br><span class="line">    <span class="string">'device.notification.confirm'</span>,</span><br><span class="line">    <span class="string">'device.notification.alert'</span>,</span><br><span class="line">    <span class="string">'device.notification.prompt'</span>,</span><br><span class="line">    <span class="string">'biz.ding.post'</span>,</span><br><span class="line">    <span class="string">'biz.util.openLink'</span>,</span><br><span class="line">  ]<span class="comment">// 必填，需要使用的jsapi列表，注意：不要带dd。</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>实践</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>maven</title>
     <url>/2020/02/04/java/maven/</url>
     <content><![CDATA[<p>maven 使用 pom.xml 文件声明依赖；jar 包资源使用 groupId、artifactId、version 定位。maven 下载依赖会先从本地找起，然后私服镜像，最后是 maven 官方的中央仓库。</p>

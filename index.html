@@ -463,6 +463,613 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/28/antd/聊聊组件库的构成/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/28/antd/聊聊组件库的构成/" itemprop="url">聊聊 Ant Design 组件库的构成</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-28T00:00:00+08:00">2020-02-28</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/02/28/antd/聊聊组件库的构成/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/28/antd/聊聊组件库的构成/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="底层功能组件"><a href="#底层功能组件" class="headerlink" title="底层功能组件"></a>底层功能组件</h2><h3 id="rc-align"><a href="#rc-align" class="headerlink" title="rc-align"></a>rc-align</h3><h3 id="rc-trigger"><a href="#rc-trigger" class="headerlink" title="rc-trigger"></a>rc-trigger</h3><p><a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 作为触发器，它抽象了弹层触发的逻辑。功能点包含：</p>
+<ul>
+<li>触发节点：children 触发节点。</li>
+<li>弹层内容：popup 弹层内容；getPopupContainer 获得弹层容器。</li>
+<li>渲染、销毁时机：forceRender 弹层未显示时予以绘制；destroyPopupOnHide 弹层隐藏时销毁。</li>
+<li>弹层显示、隐藏时机：action 何种用户行为展示；mouseEnterDelay 鼠标移入后延迟展示；mouseLeaveDelay 鼠标移出时延迟隐藏；popupVisible 受控显示弹层；defaultPopupVisible 弹层默认状况。</li>
+<li>弹层位置：alignPoint 跟随鼠标位置动态变动；popupAlign 弹层位置；builtinPlacements 触发元素和弹层的对齐关系隐射 { topLeft: { points: [‘tl’, ‘tl’] }} 两元素左上角对齐；popupPlacement 设置对齐位置。</li>
+<li>弹层样式：popupClassName 样式名；getPopupClassNameFromAlign；popupStyle 样式；prefixCls 样式名前缀。zIndex 弹层 zIndex；stretch 弹层大小随触发元素动态变更。</li>
+<li>弹层动效：popupTransitionName 弹层动效；maskTransitionName 蒙层动效。</li>
+<li>蒙层：mask 是否显示蒙层；maskClosable 点击蒙层关闭弹层；getDocument 文档节点，绑定点击隐藏冒牌事件。</li>
+<li>弹层交互：onPopupVisibleChange 弹层显示时回调；onPopupAlign 弹层位置调整时回调。</li>
+<li>ref 引用：getRootDomNode 获取触发节点的 dom 元素；getPopupDomNode 获取弹层的 dom 元素。</li>
+</ul>
+<h2 id="通用组件"><a href="#通用组件" class="headerlink" title="通用组件"></a>通用组件</h2><h3 id="按钮-Button"><a href="#按钮-Button" class="headerlink" title="按钮 Button"></a>按钮 Button</h3><ul>
+<li>功能特性：<ul>
+<li>绘制按钮。</li>
+<li>绘制按钮组。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>type 按钮类型：primary 主按钮、默认按钮、dashed 虚线按钮、danger 危险按钮和 link 链接按钮。其中，link 按钮以 a 节点渲染，其他按钮以 button 按钮渲染。</li>
+<li>disabled、loading 按钮状态：默认正常状态、disabled 不可用状态、loading 加载中状态。加载中状态按钮将额外绘制加载图标。</li>
+<li>shape 按钮形状：默认小圆角按钮、circle 圆形按钮、round 全圆角按钮。</li>
+<li>size 按钮尺寸：large 大尺寸按钮、默认中尺寸按钮、small 小尺寸按钮。</li>
+<li>block 按钮：100% 宽度构成块状按钮。</li>
+<li>ghost 按钮：背景透明的按钮。</li>
+<li>icon 图标：按钮内置图标。</li>
+<li>按钮内容为双汉字，在双汉字之间插入空格。通过 ConfigProvider 的 autoInsertSpaceInButton 属性可以避免这一行为。</li>
+</ul>
+</li>
+</ul>
+<h3 id="图标-Icon"><a href="#图标-Icon" class="headerlink" title="图标 Icon"></a>图标 Icon</h3><p>图标基于 <a href="https://github.com/ant-design/ant-design-icons" target="_blank" rel="noopener">ant-design-icons</a> 制作。</p>
+<ul>
+<li>功能特性：<ul>
+<li>绘制内置 svg 图标。</li>
+<li>component 设置自定义 svg 图标渲染组件，自定义 svg 图标通过 <a href="https://www.npmjs.com/package/@svgr/webpack" target="_blank" rel="noopener">@svgr/webpack</a> 加载，参看 <a href="https://ant.design/components/icon-cn/#%E8%87%AA%E5%AE%9A%E4%B9%89-SVG-%E5%9B%BE%E6%A0%87" target="_blank" rel="noopener">自定义 SVG 图标</a>。</li>
+<li>tabIndex 限制 tab 按键点选顺序。</li>
+<li>viewbox 截取 svg 图片，参看 <a href="https://www.jianshu.com/p/4422c05ff0f2" target="_blank" rel="noopener">秒懂 svg 图片的 viewbox</a>。</li>
+<li>onClick 点击交互等。</li>
+<li>Icon.createFromIconfontCN 绘制 iconfont 图标，参看 <a href="https://ant.design/components/icon-cn/#%E8%87%AA%E5%AE%9A%E4%B9%89-font-%E5%9B%BE%E6%A0%87" target="_blank" rel="noopener">自定义 font 图标</a>。</li>
+<li>Icon.setTwoToneColor 设置双色图标的主色。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>theme 图标主题风格：outlined 默认描线、filled 实心、twoTone 双色。</li>
+<li>type 图标类型：图标类型和 theme 主题风格构成按钮的编码类型，用于查询确切的 svg 图标。</li>
+<li>spin 旋转图标。</li>
+<li>rotate 旋转角度：基于 transform 样式制作。</li>
+<li>twoToneColor 双色图标的主色。</li>
+<li>className、style 设置 svg 图标颜色等。</li>
+</ul>
+</li>
+</ul>
+<h3 id="排版-Typography"><a href="#排版-Typography" class="headerlink" title="排版 Typography"></a>排版 Typography</h3><ul>
+<li>功能特性：<ul>
+<li>绘制 Title 标题、Text 文本、Paragraph 段落。</li>
+<li>editable 编辑功能。编辑按钮使用 TransButton 组件包裹，便于使用 tab、enter 按键交互以及支持失焦、聚焦事件。编辑按钮点击时将绘制 Textarea。交互行为支持 editable.onStart、editable.onChange。</li>
+<li>copyable 复制功能。copy 功能借助 <a href="https://github.com/sudodoki/copy-to-clipboard" target="_blank" rel="noopener">copy-to-clipboard</a> 库实现。复制按钮同样使用 TransButton 组件包裹。交互行为支持 copyable.onCopy；copyable.text 可设置复制内容。</li>
+<li>ellipsis 文本省略，ellipsis.expandable 设置折叠展开功能。对于溢出的文本，ant-design 会借助 raf 在下一帧省略文本内容。文本省略采用两种方案实现：首先尝试使用 css 样式（-webkit-line-clamp、text-overflow 属性）；其次使用两分法查询待显示的文本内容，同时会合并文本节点。ant-design 同时会借助 rc-resize-observer 在屏幕大小改变调整显示文本。交互行为支持 ellipsis.onExpand。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>Title 标题按 level 设置不同级别，分别用 h1、h2、h3、h4 节点渲染。</li>
+<li>Text 文本使用 span 节点绘制；Paragraph 段落使用 div 节点绘制。</li>
+<li>type 文字类型：默认主要文字、secondary 次要文字浅灰色、warning 警告文字橘黄色、danger 错误文字红色。disabled 失效文字。mark 使用 mark 节点渲染。code 使用 code 节点渲染。underline 使用 u 节点渲染。delete 使用 del 节点渲染。strong 使用 strong 节点渲染。</li>
+</ul>
+</li>
+</ul>
+<h2 id="布局组件"><a href="#布局组件" class="headerlink" title="布局组件"></a>布局组件</h2><h3 id="栅格-Grid"><a href="#栅格-Grid" class="headerlink" title="栅格 Grid"></a>栅格 Grid</h3><ul>
+<li>功能特性：<ul>
+<li>提供栅格布局功能。栅格布局基于 less 函数制作，并运用了 MediaQuery 样式特性。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>flex 布局：Row 组件默认使用 block 绘制，可以基于 type 属性使用 flex 布局。flex 布局下，Row#justify 属性设置元素的水平对齐方式；Row#align 属性设置元素的垂直对齐方式；Col#order 属性设置元素的展示顺序。</li>
+<li>Row#gutter 栅格间距（Row 组件设置左右减半负边距，Col 组件设置左右边距），间距可以根据屏幕大小动态调整。屏幕大小通过 enquire.js 库嗅探，以回调形式重绘组件。间距通过 Context 机制传入 Col 组件中。</li>
+</ul>
+</li>
+</ul>
+<h3 id="布局-Layout"><a href="#布局-Layout" class="headerlink" title="布局 Layout"></a>布局 Layout</h3><ul>
+<li>功能特性：<ul>
+<li>页面布局，包含 Header 头部、Content 内容、Sider 侧边栏、Footer 尾部。侧边栏可以展开折叠，由 Layout 组件通过收集折叠的侧边栏标识传入子组件中。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>渲染时，Layout 组件使用 section 节点；Header 使用 header 节点；Content 使用 main 节点；Footer 使用 footer 节点。Layout 采用 flex 布局，主轴为垂直方向。</li>
+<li>Sider#collapsible 激活侧边栏的展开折叠功能。其一可以通过触发按钮展开折叠侧边栏，其二基于 window.matchMedia 方式响应式展开折叠（触发按钮有两种，Sider 组件的展开折叠按钮、Sider 外围通过 Layout 获取状态的展开折叠按钮）。侧边栏内容由子组件渲染，侧边栏的展开折叠状态通过 Context 机制传递。</li>
+<li>Sider#theme 设置侧边栏的样式主题。</li>
+</ul>
+</li>
+</ul>
+<h2 id="导航组件"><a href="#导航组件" class="headerlink" title="导航组件"></a>导航组件</h2><h3 id="固钉-Affix"><a href="#固钉-Affix" class="headerlink" title="固钉 Affix"></a>固钉 Affix</h3><ul>
+<li>功能特性：<ul>
+<li>绘制固钉。固钉会随着 target 节点的事件或者屏幕大小的调整改变位置。固钉的位置调整首先取决于 target 节点和固钉的渲染内容，因此 ant-design 首先会等待渲染完成，借助 raf （封装成方法的装饰器 throttleByAnimationFrameDecorator）调用 setState 重绘，重绘阶段经由 componentDidUpdate 生命周期计算固钉的偏移量等样式，再次使用 setState 进行重绘。依据屏幕大小的动态调整借助于 rc-resize-observer 库；依据 target 节点事件的动态调整借助于 rc-util 库绑定事件。</li>
+</ul>
+</li>
+</ul>
+<h3 id="面包屑-Breadcrumb"><a href="#面包屑-Breadcrumb" class="headerlink" title="面包屑 Breadcrumb"></a>面包屑 Breadcrumb</h3><p>Breadcrumb 组件测试脚本通过 MemoryRouter 组件实现。</p>
+<ul>
+<li>功能特性：<ul>
+<li>绘制面包屑。面包屑内容既可以使用 Breadcrumb.Item 组件渲染，又可以基于 routes 路由属性渲染（基于路由渲染时，额外可以使用 itemRender 渲染函数获取面包屑元素）。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>separator 分隔符，既可以通过 Breadcrumb#separator 属性设置，又可以通过 Breadcrumb.Separator 组件渲染。</li>
+<li>Breadcrumb.Item#href 链接，设置后将使用 a 节点渲染，不然使用 span 节点渲染。</li>
+<li>Breadcrumb.Item#overlay 下拉菜单的内容，下拉菜单通过 DropDown 组件渲染，展示位置在正下方。</li>
+</ul>
+</li>
+</ul>
+<h3 id="下拉菜单-DropDown"><a href="#下拉菜单-DropDown" class="headerlink" title="下拉菜单 DropDown"></a>下拉菜单 DropDown</h3><ul>
+<li>功能特性<ul>
+<li>提供下拉菜单的渲染容器。下拉菜单的触发节点 DropDown#children 和下拉菜单 DropDown#overlay 的内容都由开发者提供，一般菜单内容为 Menu 组件渲染内容。DropDown 会为下拉菜单内容传入 selectable=false, focusable=true 以及 expandIcon 图标属性。渲染容器基于 <a href="http://react-component.github.io/dropdown/" target="_blank" rel="noopener">rc-dropdown</a> 库实现，rc-dropdown 内部使用 <a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 库。</li>
+<li>DropDown.Button 不止于提供下拉菜单的渲染容器，同时也将触发节点设置为按钮。它的实现借助于 Button、DropDown 组件。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>DropDown#getPopupContainer：基于 rc-trigger 库设置下拉菜单的渲染父节点，作为定位节点。</li>
+<li>DropDown#align：基于 rc-trigger 库设置下拉菜单位置调整依据。</li>
+<li>DropDown#placement：基于 rc-trigger 库设置下拉菜单的弹出位置。</li>
+<li>DropDown#transitionName：基于 rc-trigger 库设置下拉菜单展示隐藏时的动效。</li>
+<li>DropDown#trigger：基于 rc-trigger 库设置触发下拉菜单的行为 click、hover、contextMenu。当由 contextMenu 鼠标右键触发时，基于 rc-trigger 特性菜单位置也会跟随鼠标移动。</li>
+<li>DropDown#forceRender、DropDown#mouseEnterDelay、DropDown#mouseLeaveDelay 等：均基于 rc-trigger 库实现。</li>
+</ul>
+</li>
+</ul>
+<h3 id="导航菜单-Menu"><a href="#导航菜单-Menu" class="headerlink" title="导航菜单 Menu"></a>导航菜单 Menu</h3><p>详情参考 <a href="/2018/12/10/antd/Menu/">菜单组件源码分析</a>。</p>
+<ul>
+<li>功能特性：<ul>
+<li>渲染菜单。菜单的基本要素包含 Menu 菜单容器、SubMenu 子菜单、MenuItem 菜单项。菜单以 context 机制对外承接 Sider 侧边栏组件，对内透传折叠、主题状态到 SubMenu、MenuItem 组件。菜单渲染基于 <a href="https://github.com/react-component/menu" target="_blank" rel="noopener">rc-menu</a>、Tooltip 组件。</li>
+<li>Menu 菜单容器，组织菜单顶层的展示模式、展开折叠内容及动效。</li>
+<li>SubMenu 子菜单。</li>
+<li>MenuItem 菜单项，以 Tooltip 组件绘制。</li>
+</ul>
+</li>
+<li>样式特性：<ul>
+<li>Menu#mode 展示模式：vertical 垂直、horizontal 水平、inline 子菜单内嵌三种。在内嵌子菜单模式下，展开的子菜单通过 state.openKeys, state.inlineOpenKeys 交换实现。</li>
+<li>Menu#theme 主题：light 浅色、dark 深色两种。</li>
+<li>Menu#openKeys、Menu#defaultOpenKeys 展开的子菜单；Menu#onOpenChange 展开的子菜单变更时调用；Menu#subMenuCloseDelay、Menu#subMenuOpenDelay 子菜单展开、折叠时延；</li>
+<li>Menu#selectedKeys、Menu#defaultSelectedKeys 选中的菜单项；Menu#onSelect、Menu#onDeSelect 菜单项选中、取消选中时调用；Menu#selectable    是否可选；Menu#multiple 是否多选。</li>
+<li>Menu#forceSubMenuRender 在子菜单展示之前就渲染进 DOM。</li>
+<li>Menu#inlineCollapsed 内嵌模式下菜单是否收起；Menu#inlineIndent 内嵌模式下菜单缩进宽度。</li>
+<li>Menu#onClick 菜单项点击时触发。</li>
+<li>Menu#overflowedIndicator 菜单折叠时图标。</li>
+</ul>
+</li>
+</ul>
+<h3 id="Pagination-分页器"><a href="#Pagination-分页器" class="headerlink" title="Pagination 分页器"></a>Pagination 分页器</h3><p>分页器基于 <a href="https://github.com/react-component/pagination" target="_blank" rel="noopener">rc-pagination</a> 渲染。分页器分为非简洁模式和简洁模式两种。非简洁模式有三部分构成：总页数、翻页列表、每页显示条数。简洁模式只有翻页功能，没有总页数、每页显示条数。内置状态包含 current 当前页码、pageSize 每页显示条目数。外置状态 total 总页数用于更新当前页码。翻页功能包含跳转上/下一页；跳转前/后三（或五）页（当前页码在总页码中间态时）。操作方法基于简单改变 current、pageSize 延伸出跳转上/下一页、通过按键改变页码等方法。改变每页显示的 Select 组件由 rc-pagination 通过 props 属性传值。</p>
+<h3 id="PageHeader-页头"><a href="#PageHeader-页头" class="headerlink" title="PageHeader 页头"></a>PageHeader 页头</h3><p>页头组合了 Breadcrumb 面包屑、Avatar 头像、Tag 标签等组件，用于绘制页头。</p>
+<h3 id="Steps-步骤条"><a href="#Steps-步骤条" class="headerlink" title="Steps 步骤条"></a>Steps 步骤条</h3><p>步骤条基于 <a href="https://github.com/react-component/steps" target="_blank" rel="noopener">rc-steps</a> 渲染。Steps 组件主要包含一些样式特性，状态管理逻辑基本没有。当浏览器支持 flex 布局时，Step 采用 flex 布局渲染；不支持时，Step 采用百分比渲染：默认类型的 Steps 会用 margin 值为最后一个元素预留宽度（通过定时器计算最后一个元素的宽度，更新 state 以重绘），导航类型的 Steps 通过百分比均分宽度。</p>
+<h2 id="数据录入"><a href="#数据录入" class="headerlink" title="数据录入"></a>数据录入</h2><h3 id="AutoComplete-自动完成"><a href="#AutoComplete-自动完成" class="headerlink" title="AutoComplete 自动完成"></a>AutoComplete 自动完成</h3><p>自动完成组件基于 Select、Input 组件制作，主要逻辑也由 Select 组件承担。</p>
+<h3 id="Checkbox-复选框、Radio-单选框"><a href="#Checkbox-复选框、Radio-单选框" class="headerlink" title="Checkbox 复选框、Radio 单选框"></a>Checkbox 复选框、Radio 单选框</h3><p>Checkbox 复选框、Radio 单选框可以参考 <a href="/2018/11/27/antd/Radio,%20Checkbox/">Radio, Checkbox</a>。</p>
+<h3 id="Cascader-级联选择"><a href="#Cascader-级联选择" class="headerlink" title="Cascader 级联选择"></a>Cascader 级联选择</h3><h4 id="rc-cascader"><a href="#rc-cascader" class="headerlink" title="rc-cascader"></a>rc-cascader</h4><p>级联选择基于 <a href="https://github.com/react-component/cascader" target="_blank" rel="noopener">rc-cascader</a> 制作。rc-cascader 的实现又基于 <a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 抽象弹层逻辑、<a href="https://github.com/afc163/array-tree-filter" target="_blank" rel="noopener">array-tree-filter</a> 扁平化、过滤树形数据。</p>
+<p>实际的触发节点 props.children 通过 React.cloneElement 绑定 onKeyDown 键盘事件。如果 props.children 定义了 onKeyDown 方法，则取用该方法进行处理；如果没有，则使用 rc-cascader 内置的处理逻辑，包含 up/down 上下选、left/backspace 回选、right 向前选、esc/tab 隐藏等功能。</p>
+<p>在 rc-cascader 中，array-tree-filter 负责根据级联选择的动态 value 值计算待展示的弹层菜单列表（即弹层菜单中，第二列起的次级列表，其与树结构首层混合，构成当前下拉菜单中展示的完整内容）。菜单中每个选项根据 label 值渲染内容，同时可以包含展开、加载中按钮；选项支持的交互行为包含双击隐藏弹层、点击选中、鼠标移入移出选中。选中的选项存入本地缓存中，在弹层显示状态更新时，用于使选项列表滚动至选中元素上（通过节点的 scrollTop 属性设置）。选项选中逻辑为：如果选中选项为否值或 disabled 状态，直接返回；如果级联选择开启了远程加载 loadData 功能，且选中选项不是叶子节点，首先基于 changeOnSelect 向外透出选中列表，然后更新级联选择的 state.activeValue 状态值并加载远程数据；如果只使用本地数据，且选中选项是叶子节点，向外透出选中列表并更新 state.value 状态值；如果只使用本地数据，根据 expandTrigger 触发行为向外透传选中列表、条件隐藏弹层，并更新 state。value 状态值。</p>
+<h4 id="Cascader"><a href="#Cascader" class="headerlink" title="Cascader"></a>Cascader</h4><p>Cascader 组件在 rc-cascader 的基础上，默认使用输入框作为触发节点，也可以使用 props.children 替换。输入框有只读态、showSearch 搜索态两种：只读态基于  rc-cascader 点击展开弹层；搜索态阻止点击事件冒泡、支持失焦行为、键盘事件阻止 space/backspace 按键隐藏弹层、change 事件改编 inputValue 值（渲染时更新弹层选项列表）。选中的值在输入框中的表现通过固定定位的 span 节点渲染。输入框内可设置 allowClear 清空图标、suffixIcon 后缀图标。</p>
+<p>输入框触发器能基于 SizeContext 获得外层传入的 size 尺寸。Cascader 对外提供的 ref 引用，可以使用 focus、blur 方法获得或失去焦点；input 属性即输入框节点。</p>
+<p>全量的选项列表会通过扁平化处理。在渲染时，Cascader 会基于输入框的值进行筛选；筛选内容有最大展示条目限制；筛选内容有最大展示条目限制；选项内容可排序（以上，均可通过 props.showSearch 设置）。当没有（匹配的）选项时，展示空态。</p>
+<p>弹层位置可基于 props.popupPlacement 或通过 ConfigContext 传入的 direction 设置（右下或左下对齐）。弹层大小可基于 props.showSearch.matchInputWidth 设置为与输入框等宽。弹层容器可基于 props.getPopupContainer 或通过 ConfigContext 传入的 getPopupContainer 设置。</p>
+<p>Cascader 组件的值、弹层显示状态均是受控的；对外回调接口包含 onChange、onPopupVisibleChange。</p>
+<h3 id="DatePicker-日期选择框"><a href="#DatePicker-日期选择框" class="headerlink" title="DatePicker 日期选择框"></a>DatePicker 日期选择框</h3>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/09/frontend/前端技术汇总贴/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/09/frontend/前端技术汇总贴/" itemprop="url">前端技术汇总贴</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-09T00:00:00+08:00">2020-02-09</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/02/09/frontend/前端技术汇总贴/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/09/frontend/前端技术汇总贴/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><p><a href="https://segmentfault.com/a/1190000017946900" target="_blank" rel="noopener">立即收藏！这应该是你见过的最全前端下载总结</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/08/frontend/前端规范/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/08/frontend/前端规范/" itemprop="url">前端规范</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-08T00:00:00+08:00">2020-02-08</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/02/08/frontend/前端规范/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/08/frontend/前端规范/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="git"><a href="#git" class="headerlink" title="git"></a>git</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cnpm install -g commitizen <span class="comment"># cli 工具</span></span><br><span class="line">cnpm install -g conventional-changelog <span class="comment"># 基于 commit message 生成 change log</span></span><br><span class="line">cnpm install validate-commit-msg --save-dev <span class="comment"># 检查项目的 commit message 是否符合 Angular 规范。基于 husky 添加配置 package.json#scripts -&gt; "commitmsg": "validate-commit-msg"</span></span><br><span class="line">commitizen init cz-conventional-changelog --save --save-exact <span class="comment"># 项目目录，支持 Angular 的 commit message 格式</span></span><br><span class="line">git cz <span class="comment"># 提交 commit message，替代 git commit</span></span><br><span class="line">conventional-changelog -p angular -i CHANGELOG.md -w <span class="comment"># 生成 change log</span></span><br></pre></td></tr></table></figure>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.jianshu.com/p/201bd81e7dc9?utm_source=oschina-app" target="_blank" rel="noopener">git commit 规范指南</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/05/实践/钉钉对接启示录/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -754,307 +1361,6 @@
 <li>idea 操作 reimport 导入依赖、</li>
 </ol>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/whgk/p/7112560.html" target="_blank" rel="noopener">maven 到底是个啥玩意</a><br><a href="https://www.jianshu.com/p/4ae682e679ad" target="_blank" rel="noopener">maven生命周期</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/31/antd/聊聊组件库的构成/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/31/antd/聊聊组件库的构成/" itemprop="url">聊聊 Ant Design 组件库的构成</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-31T00:00:00+08:00">2020-01-31</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/01/31/antd/聊聊组件库的构成/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/31/antd/聊聊组件库的构成/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="底层功能组件"><a href="#底层功能组件" class="headerlink" title="底层功能组件"></a>底层功能组件</h2><h3 id="rc-align"><a href="#rc-align" class="headerlink" title="rc-align"></a>rc-align</h3><h3 id="rc-trigger"><a href="#rc-trigger" class="headerlink" title="rc-trigger"></a>rc-trigger</h3><p><a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 作为触发器，它抽象了弹层触发的逻辑。功能点包含：</p>
-<ul>
-<li>触发节点：children 触发节点。</li>
-<li>弹层内容：popup 弹层内容；getPopupContainer 获得弹层容器。</li>
-<li>渲染、销毁时机：forceRender 弹层未显示时予以绘制；destroyPopupOnHide 弹层隐藏时销毁。</li>
-<li>弹层显示、隐藏时机：action 何种用户行为展示；mouseEnterDelay 鼠标移入后延迟展示；mouseLeaveDelay 鼠标移出时延迟隐藏；popupVisible 受控显示弹层；defaultPopupVisible 弹层默认状况。</li>
-<li>弹层位置：alignPoint 跟随鼠标位置动态变动；popupAlign 弹层位置；builtinPlacements 触发元素和弹层的对齐关系隐射 { topLeft: { points: [‘tl’, ‘tl’] }} 两元素左上角对齐；popupPlacement 设置对齐位置。</li>
-<li>弹层样式：popupClassName 样式名；getPopupClassNameFromAlign；popupStyle 样式；prefixCls 样式名前缀。zIndex 弹层 zIndex；stretch 弹层大小随触发元素动态变更。</li>
-<li>弹层动效：popupTransitionName 弹层动效；maskTransitionName 蒙层动效。</li>
-<li>蒙层：mask 是否显示蒙层；maskClosable 点击蒙层关闭弹层；getDocument 文档节点，绑定点击隐藏冒牌事件。</li>
-<li>弹层交互：onPopupVisibleChange 弹层显示时回调；onPopupAlign 弹层位置调整时回调。</li>
-</ul>
-<h2 id="通用组件"><a href="#通用组件" class="headerlink" title="通用组件"></a>通用组件</h2><h3 id="按钮-Button"><a href="#按钮-Button" class="headerlink" title="按钮 Button"></a>按钮 Button</h3><ul>
-<li>功能特性：<ul>
-<li>绘制按钮。</li>
-<li>绘制按钮组。</li>
-</ul>
-</li>
-<li>样式特性：<ul>
-<li>type 按钮类型：primary 主按钮、默认按钮、dashed 虚线按钮、danger 危险按钮和 link 链接按钮。其中，link 按钮以 a 节点渲染，其他按钮以 button 按钮渲染。</li>
-<li>disabled、loading 按钮状态：默认正常状态、disabled 不可用状态、loading 加载中状态。加载中状态按钮将额外绘制加载图标。</li>
-<li>shape 按钮形状：默认小圆角按钮、circle 圆形按钮、round 全圆角按钮。</li>
-<li>size 按钮尺寸：large 大尺寸按钮、默认中尺寸按钮、small 小尺寸按钮。</li>
-<li>block 按钮：100% 宽度构成块状按钮。</li>
-<li>ghost 按钮：背景透明的按钮。</li>
-<li>icon 图标：按钮内置图标。</li>
-<li>按钮内容为双汉字，在双汉字之间插入空格。通过 ConfigProvider 的 autoInsertSpaceInButton 属性可以避免这一行为。</li>
-</ul>
-</li>
-</ul>
-<h3 id="图标-Icon"><a href="#图标-Icon" class="headerlink" title="图标 Icon"></a>图标 Icon</h3><p>图标基于 <a href="https://github.com/ant-design/ant-design-icons" target="_blank" rel="noopener">ant-design-icons</a> 制作。</p>
-<ul>
-<li>功能特性：<ul>
-<li>绘制内置 svg 图标。</li>
-<li>component 设置自定义 svg 图标渲染组件，自定义 svg 图标通过 <a href="https://www.npmjs.com/package/@svgr/webpack" target="_blank" rel="noopener">@svgr/webpack</a> 加载，参看 <a href="https://ant.design/components/icon-cn/#%E8%87%AA%E5%AE%9A%E4%B9%89-SVG-%E5%9B%BE%E6%A0%87" target="_blank" rel="noopener">自定义 SVG 图标</a>。</li>
-<li>tabIndex 限制 tab 按键点选顺序。</li>
-<li>viewbox 截取 svg 图片，参看 <a href="https://www.jianshu.com/p/4422c05ff0f2" target="_blank" rel="noopener">秒懂 svg 图片的 viewbox</a>。</li>
-<li>onClick 点击交互等。</li>
-<li>Icon.createFromIconfontCN 绘制 iconfont 图标，参看 <a href="https://ant.design/components/icon-cn/#%E8%87%AA%E5%AE%9A%E4%B9%89-font-%E5%9B%BE%E6%A0%87" target="_blank" rel="noopener">自定义 font 图标</a>。</li>
-<li>Icon.setTwoToneColor 设置双色图标的主色。</li>
-</ul>
-</li>
-<li>样式特性：<ul>
-<li>theme 图标主题风格：outlined 默认描线、filled 实心、twoTone 双色。</li>
-<li>type 图标类型：图标类型和 theme 主题风格构成按钮的编码类型，用于查询确切的 svg 图标。</li>
-<li>spin 旋转图标。</li>
-<li>rotate 旋转角度：基于 transform 样式制作。</li>
-<li>twoToneColor 双色图标的主色。</li>
-<li>className、style 设置 svg 图标颜色等。</li>
-</ul>
-</li>
-</ul>
-<h3 id="排版-Typography"><a href="#排版-Typography" class="headerlink" title="排版 Typography"></a>排版 Typography</h3><ul>
-<li>功能特性：<ul>
-<li>绘制 Title 标题、Text 文本、Paragraph 段落。</li>
-<li>editable 编辑功能。编辑按钮使用 TransButton 组件包裹，便于使用 tab、enter 按键交互以及支持失焦、聚焦事件。编辑按钮点击时将绘制 Textarea。交互行为支持 editable.onStart、editable.onChange。</li>
-<li>copyable 复制功能。copy 功能借助 <a href="https://github.com/sudodoki/copy-to-clipboard" target="_blank" rel="noopener">copy-to-clipboard</a> 库实现。复制按钮同样使用 TransButton 组件包裹。交互行为支持 copyable.onCopy；copyable.text 可设置复制内容。</li>
-<li>ellipsis 文本省略，ellipsis.expandable 设置折叠展开功能。对于溢出的文本，ant-design 会借助 raf 在下一帧省略文本内容。文本省略采用两种方案实现：首先尝试使用 css 样式（-webkit-line-clamp、text-overflow 属性）；其次使用两分法查询待显示的文本内容，同时会合并文本节点。ant-design 同时会借助 rc-resize-observer 在屏幕大小改变调整显示文本。交互行为支持 ellipsis.onExpand。</li>
-</ul>
-</li>
-<li>样式特性：<ul>
-<li>Title 标题按 level 设置不同级别，分别用 h1、h2、h3、h4 节点渲染。</li>
-<li>Text 文本使用 span 节点绘制；Paragraph 段落使用 div 节点绘制。</li>
-<li>type 文字类型：默认主要文字、secondary 次要文字浅灰色、warning 警告文字橘黄色、danger 错误文字红色。disabled 失效文字。mark 使用 mark 节点渲染。code 使用 code 节点渲染。underline 使用 u 节点渲染。delete 使用 del 节点渲染。strong 使用 strong 节点渲染。</li>
-</ul>
-</li>
-</ul>
-<h2 id="布局组件"><a href="#布局组件" class="headerlink" title="布局组件"></a>布局组件</h2><h3 id="栅格-Grid"><a href="#栅格-Grid" class="headerlink" title="栅格 Grid"></a>栅格 Grid</h3><ul>
-<li>功能特性：<ul>
-<li>提供栅格布局功能。栅格布局基于 less 函数制作，并运用了 MediaQuery 样式特性。</li>
-</ul>
-</li>
-<li>样式特性：<ul>
-<li>flex 布局：Row 组件默认使用 block 绘制，可以基于 type 属性使用 flex 布局。flex 布局下，Row#justify 属性设置元素的水平对齐方式；Row#align 属性设置元素的垂直对齐方式；Col#order 属性设置元素的展示顺序。</li>
-<li>Row#gutter 栅格间距（Row 组件设置左右减半负边距，Col 组件设置左右边距），间距可以根据屏幕大小动态调整。屏幕大小通过 enquire.js 库嗅探，以回调形式重绘组件。间距通过 Context 机制传入 Col 组件中。</li>
-</ul>
-</li>
-</ul>
-<h3 id="布局-Layout"><a href="#布局-Layout" class="headerlink" title="布局 Layout"></a>布局 Layout</h3><ul>
-<li>功能特性：<ul>
-<li>页面布局，包含 Header 头部、Content 内容、Sider 侧边栏、Footer 尾部。侧边栏可以展开折叠，由 Layout 组件通过收集折叠的侧边栏标识传入子组件中。</li>
-</ul>
-</li>
-<li>样式特性：<ul>
-<li>渲染时，Layout 组件使用 section 节点；Header 使用 header 节点；Content 使用 main 节点；Footer 使用 footer 节点。Layout 采用 flex 布局，主轴为垂直方向。</li>
-<li>Sider#collapsible 激活侧边栏的展开折叠功能。其一可以通过触发按钮展开折叠侧边栏，其二基于 window.matchMedia 方式响应式展开折叠（触发按钮有两种，Sider 组件的展开折叠按钮、Sider 外围通过 Layout 获取状态的展开折叠按钮）。侧边栏内容由子组件渲染，侧边栏的展开折叠状态通过 Context 机制传递。</li>
-<li>Sider#theme 设置侧边栏的样式主题。</li>
-</ul>
-</li>
-</ul>
-<h2 id="导航组件"><a href="#导航组件" class="headerlink" title="导航组件"></a>导航组件</h2><h3 id="固钉-Affix"><a href="#固钉-Affix" class="headerlink" title="固钉 Affix"></a>固钉 Affix</h3><ul>
-<li>功能特性：<ul>
-<li>绘制固钉。固钉会随着 target 节点的事件或者屏幕大小的调整改变位置。固钉的位置调整首先取决于 target 节点和固钉的渲染内容，因此 ant-design 首先会等待渲染完成，借助 raf （封装成方法的装饰器 throttleByAnimationFrameDecorator）调用 setState 重绘，重绘阶段经由 componentDidUpdate 生命周期计算固钉的偏移量等样式，再次使用 setState 进行重绘。依据屏幕大小的动态调整借助于 rc-resize-observer 库；依据 target 节点事件的动态调整借助于 rc-util 库绑定事件。</li>
-</ul>
-</li>
-</ul>
-<h3 id="面包屑-Breadcrumb"><a href="#面包屑-Breadcrumb" class="headerlink" title="面包屑 Breadcrumb"></a>面包屑 Breadcrumb</h3><p>Breadcrumb 组件测试脚本通过 MemoryRouter 组件实现。</p>
-<ul>
-<li>功能特性：<ul>
-<li>绘制面包屑。面包屑内容既可以使用 Breadcrumb.Item 组件渲染，又可以基于 routes 路由属性渲染（基于路由渲染时，额外可以使用 itemRender 渲染函数获取面包屑元素）。</li>
-</ul>
-</li>
-<li>样式特性：<ul>
-<li>separator 分隔符，既可以通过 Breadcrumb#separator 属性设置，又可以通过 Breadcrumb.Separator 组件渲染。</li>
-<li>Breadcrumb.Item#href 链接，设置后将使用 a 节点渲染，不然使用 span 节点渲染。</li>
-<li>Breadcrumb.Item#overlay 下拉菜单的内容，下拉菜单通过 DropDown 组件渲染，展示位置在正下方。</li>
-</ul>
-</li>
-</ul>
-<h3 id="下拉菜单-DropDown"><a href="#下拉菜单-DropDown" class="headerlink" title="下拉菜单 DropDown"></a>下拉菜单 DropDown</h3><ul>
-<li>功能特性<ul>
-<li>提供下拉菜单的渲染容器。下拉菜单的触发节点 DropDown#children 和下拉菜单 DropDown#overlay 的内容都由开发者提供，一般菜单内容为 Menu 组件渲染内容。DropDown 会为下拉菜单内容传入 selectable=false, focusable=true 以及 expandIcon 图标属性。渲染容器基于 <a href="http://react-component.github.io/dropdown/" target="_blank" rel="noopener">rc-dropdown</a> 库实现，rc-dropdown 内部使用 <a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 库。</li>
-<li>DropDown.Button 不止于提供下拉菜单的渲染容器，同时也将触发节点设置为按钮。它的实现借助于 Button、DropDown 组件。</li>
-</ul>
-</li>
-<li>样式特性：<ul>
-<li>DropDown#getPopupContainer：基于 rc-trigger 库设置下拉菜单的渲染父节点，作为定位节点。</li>
-<li>DropDown#align：基于 rc-trigger 库设置下拉菜单位置调整依据。</li>
-<li>DropDown#placement：基于 rc-trigger 库设置下拉菜单的弹出位置。</li>
-<li>DropDown#transitionName：基于 rc-trigger 库设置下拉菜单展示隐藏时的动效。</li>
-<li>DropDown#trigger：基于 rc-trigger 库设置触发下拉菜单的行为 click、hover、contextMenu。当由 contextMenu 鼠标右键触发时，基于 rc-trigger 特性菜单位置也会跟随鼠标移动。</li>
-<li>DropDown#forceRender、DropDown#mouseEnterDelay、DropDown#mouseLeaveDelay 等：均基于 rc-trigger 库实现。</li>
-</ul>
-</li>
-</ul>
-<h3 id="导航菜单-Menu"><a href="#导航菜单-Menu" class="headerlink" title="导航菜单 Menu"></a>导航菜单 Menu</h3><p>详情参考 <a href="/2018/12/10/antd/Menu/">菜单组件源码分析</a>。</p>
-<ul>
-<li>功能特性：<ul>
-<li>渲染菜单。菜单的基本要素包含 Menu 菜单容器、SubMenu 子菜单、MenuItem 菜单项。菜单以 context 机制对外承接 Sider 侧边栏组件，对内透传折叠、主题状态到 SubMenu、MenuItem 组件。菜单渲染基于 <a href="https://github.com/react-component/menu" target="_blank" rel="noopener">rc-menu</a>、Tooltip 组件。</li>
-<li>Menu 菜单容器，组织菜单顶层的展示模式、展开折叠内容及动效。</li>
-<li>SubMenu 子菜单。</li>
-<li>MenuItem 菜单项，以 Tooltip 组件绘制。</li>
-</ul>
-</li>
-<li>样式特性：<ul>
-<li>Menu#mode 展示模式：vertical 垂直、horizontal 水平、inline 子菜单内嵌三种。在内嵌子菜单模式下，展开的子菜单通过 state.openKeys, state.inlineOpenKeys 交换实现。</li>
-<li>Menu#theme 主题：light 浅色、dark 深色两种。</li>
-<li>Menu#openKeys、Menu#defaultOpenKeys 展开的子菜单；Menu#onOpenChange 展开的子菜单变更时调用；Menu#subMenuCloseDelay、Menu#subMenuOpenDelay 子菜单展开、折叠时延；</li>
-<li>Menu#selectedKeys、Menu#defaultSelectedKeys 选中的菜单项；Menu#onSelect、Menu#onDeSelect 菜单项选中、取消选中时调用；Menu#selectable    是否可选；Menu#multiple 是否多选。</li>
-<li>Menu#forceSubMenuRender 在子菜单展示之前就渲染进 DOM。</li>
-<li>Menu#inlineCollapsed 内嵌模式下菜单是否收起；Menu#inlineIndent 内嵌模式下菜单缩进宽度。</li>
-<li>Menu#onClick 菜单项点击时触发。</li>
-<li>Menu#overflowedIndicator 菜单折叠时图标。</li>
-</ul>
-</li>
-</ul>
-<h3 id="Pagination-分页器"><a href="#Pagination-分页器" class="headerlink" title="Pagination 分页器"></a>Pagination 分页器</h3><p>分页器基于 <a href="https://github.com/react-component/pagination" target="_blank" rel="noopener">rc-pagination</a> 渲染。分页器分为非简洁模式和简洁模式两种。非简洁模式有三部分构成：总页数、翻页列表、每页显示条数。简洁模式只有翻页功能，没有总页数、每页显示条数。内置状态包含 current 当前页码、pageSize 每页显示条目数。外置状态 total 总页数用于更新当前页码。翻页功能包含跳转上/下一页；跳转前/后三（或五）页（当前页码在总页码中间态时）。操作方法基于简单改变 current、pageSize 延伸出跳转上/下一页、通过按键改变页码等方法。改变每页显示的 Select 组件由 rc-pagination 通过 props 属性传值。</p>
-<h3 id="PageHeader-页头"><a href="#PageHeader-页头" class="headerlink" title="PageHeader 页头"></a>PageHeader 页头</h3><p>页头组合了 Breadcrumb 面包屑、Avatar 头像、Tag 标签等组件，用于绘制页头。</p>
-<h3 id="Steps-步骤条"><a href="#Steps-步骤条" class="headerlink" title="Steps 步骤条"></a>Steps 步骤条</h3><p>步骤条基于 <a href="https://github.com/react-component/steps" target="_blank" rel="noopener">rc-steps</a> 渲染。Steps 组件主要包含一些样式特性，状态管理逻辑基本没有。当浏览器支持 flex 布局时，Step 采用 flex 布局渲染；不支持时，Step 采用百分比渲染：默认类型的 Steps 会用 margin 值为最后一个元素预留宽度（通过定时器计算最后一个元素的宽度，更新 state 以重绘），导航类型的 Steps 通过百分比均分宽度。</p>
-<h2 id="数据录入"><a href="#数据录入" class="headerlink" title="数据录入"></a>数据录入</h2><h3 id="AutoComplete-自动完成"><a href="#AutoComplete-自动完成" class="headerlink" title="AutoComplete 自动完成"></a>AutoComplete 自动完成</h3><p>自动完成组件基于 Select、Input 组件制作，主要逻辑也由 Select 组件承担。</p>
-<h3 id="Checkbox-复选框、Radio-单选框"><a href="#Checkbox-复选框、Radio-单选框" class="headerlink" title="Checkbox 复选框、Radio 单选框"></a>Checkbox 复选框、Radio 单选框</h3><p>Checkbox 复选框、Radio 单选框可以参考 <a href="/2018/11/27/antd/Radio,%20Checkbox/">Radio, Checkbox</a>。</p>
-<h3 id="Cascader-级联选择"><a href="#Cascader-级联选择" class="headerlink" title="Cascader 级联选择"></a>Cascader 级联选择</h3><p>级联选择基于 <a href="https://github.com/react-component/cascader" target="_blank" rel="noopener">rc-cascader</a> 制作。</p>
-<p>rc-cascader 的实现基于 <a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 抽象弹层逻辑、<a href="https://github.com/afc163/array-tree-filter" target="_blank" rel="noopener">array-tree-filter</a> 扁平化、过滤树形数据。在 rc-cascader 中，array-tree-filter 负责根据级联选择器动态 value 值计算待展示的选项列表（第二列起的次级列表，再与树结构第一层混合，构成当前展示的选项列表）。</p>
 
           
         
@@ -1765,379 +2071,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/18/大数据/数据技术/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/18/大数据/数据技术/" itemprop="url">数据技术</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-18T00:00:00+08:00">2020-01-18</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/大数据/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/01/18/大数据/数据技术/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/18/大数据/数据技术/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote class="blockquote-center"><p>数据仓库（Data Warehouse）是一个面向主题的（Subject Oriented）、集成的（Integrate）、相对稳定的（Non-Volatile）、反映历史变化（Time Variant）的数据集合，用于支持管理决策。</p>
-</blockquote>
-<ul>
-<li>OLTP：On-Line Transaction Processing，联机事务处理，辅助业务操作，用于产生数据。OLTP 能将源数据即时传送到计算中心进行处理，并在短时间内给出结果。</li>
-<li>OLAP：On-Line Analytical Processing，联机分析处理，辅助决策分析，用于分析数据。</li>
-<li>ETL：Extract-Transform-Load，数据从来源端经过抽取（extract）、转换（transform）、加载（load）至目的端的过程。</li>
-</ul>
-<img src="/2020/01/18/大数据/数据技术/lambda.png">
-<p>上图为数据仓库架构发展过程中的第二阶段 —— Lambda 架构。第三阶段 Kappa 架构借助 Flink 等实时流处理引擎，移除了离线批处理 etl 任务。数据仓库构架的发展过程可以参看 <a href="https://yq.aliyun.com/articles/691541" target="_blank" rel="noopener">数据仓库介绍与实时数仓案例</a>。</p>
-<ul>
-<li>ODS：OperationalData Store，操作数据层，保存从业务系统或埋点系统采集过来的原始数据。</li>
-<li>DWD：Data Warehouse Detail，明细数据层，根据主题定义好事实与维度表，保存最细粒度的事实数据。该层数据的生产作业包含：字段名、枚举等数据标准统一；数据脱敏，专门建设敏感数据库存储敏感数据；分库分表等多源数据整合；数据模型统基于业务流程建模。</li>
-<li>DWS：Data Warehouse Summary，汇总数据层，在 DWD 层基础上根据不同的业务需求分主题轻度汇总。DWS 层可拆分为 DWB 轻度汇总数据和 DWS 重度汇总数据。</li>
-<li>DM：Data Market，数据集市层，主要为业务需求提供服务，其包含应用产品所需数据、需求报表、指标等，DM 层还可为业务部门创建专用数据库以及数据探索库。</li>
-</ul>
-<p>下图为阿里大数据系统的架构图：</p>
-<img src="/2020/01/18/大数据/数据技术/ali.jpg">
-<h2 id="数据同步"><a href="#数据同步" class="headerlink" title="数据同步"></a>数据同步</h2><p>数据同步的方式：</p>
-<ul>
-<li>直连同步：通过 ODBC、JDBC 等标准接口将源系统的数据导入到目标系统，对业务系统的性能影响较大（虽然业务系统可以采用主备分离的模式）。</li>
-<li>数据文件同步：通过 FTP 服务器将源系统的数据导入到目标系统。为避免丢包或传输错误，业务系统一般还会发送校验文件，并对数据增加压缩和加密功能。</li>
-<li>数据库日志解析同步：在操作系统层面获取归档日志，将其解析到目标文件数据文件中，可用于增量更新。日志解析同步需要部署一个 agent 系统从源系统抽取数据。该同步机制会导致增量更新的数据丢失调凌晨附近的数据，即数据飘逸和遗漏。</li>
-</ul>
-<h3 id="DataX"><a href="#DataX" class="headerlink" title="DataX"></a>DataX</h3><p>阿里内部使用 <a href="https://github.com/alibaba/DataX" target="_blank" rel="noopener">DataX</a> 作离线数据同步。它能实现包括 MySQL、Oracle、SqlServer、Postgre、HDFS、Hive、ADS、HBase、TableStore(OTS)、MaxCompute(ODPS)、DRDS 等各种异构数据源之间高效的数据同步功能。DataX 面对的主要问题是，从源系统到数仓或从数仓到目标系统，数据流进各个系统时的格式并不统一，因此 Datax 需要将数据转换成格式统一的中间状态。</p>
-<p>DataX 采用 Framework + Plugin 开放式架构实现。Plugin 用于转换不同数据库或文件系统的数据格式，包含 ReadPlugin、WritePlugin 两类，作为 Reader 数据采集模块和 Writer 数据写入模块的实现内容。Framework 将数据同步作业拆分成多个子任务，并处理缓冲、流程控制、并发、上下文加载等高速数据交换等技术问题，再通过 Chanel 交换 Reader、Writer 的数据。</p>
-<img src="/2020/01/18/大数据/数据技术/datax.jpeg">
-<p>更多内容可参考 <a href="https://blog.csdn.net/u014646662/article/details/82792725" target="_blank" rel="noopener">DataX3.0 简介</a>。</p>
-<h3 id="TimeTunnel"><a href="#TimeTunnel" class="headerlink" title="TimeTunnel"></a>TimeTunnel</h3><p>阿里内部使用 TimeTunnel 作实时数据同步。它所实现的主要功能包含，通过消息订阅模式从源系统的 binlog 日志读取出增量数据，随后订阅数据的目标系统将读取这些数据。</p>
-<p>TimeTunnel 是基于生产者、消费者和 Topic 消息标识实现的消息中间件。它通过 <a href="https://www.jianshu.com/p/53864dc3f7b4" target="_blank" rel="noopener">HBase</a> 持久化消息数据。在下图的组件架构中：TTManager 负责对外提供队列申请、删除、查询和集群的管理接⼝；对内发现故障，发起队列迁移。Client 是一组访问接口，包含安全认证 api、发布 api 和订阅 api。Router 为 Client、Broker 提供路由服务，路由到 Broker 时须鉴权。Zookeeper 提供状态同步功能，存储 Client、Broker 的状态。Broker 负责消息队列的读写操作，承担实际的流量，它会从 HBase 取发数据。</p>
-<img src="/2020/01/18/大数据/数据技术/TimeTunnel.png">
-<p>更多内容可参考 <a href="https://blog.csdn.net/pelick/article/details/26265663" target="_blank" rel="noopener">淘宝实时数据传输平台: TimeTunnel介绍</a>。</p>
-<h2 id="数据计算"><a href="#数据计算" class="headerlink" title="数据计算"></a>数据计算</h2><p>收集到原始数据后，数据还需要被整合和计算，才能发挥大数据的商业和业务价值。阿里为数据计算层提供了两大体系：MaxCompute 离线存储及计算平台、StreamCompute 实时计算平台。</p>
-<h3 id="MaxCompute"><a href="#MaxCompute" class="headerlink" title="MaxCompute"></a>MaxCompute</h3><p><a href="https://helpcdn.aliyun.com/document_detail/27800.html" target="_blank" rel="noopener">MaxCompute</a> 采用分布式计算模型，能满足 100GB 以上规模的存储及计算需求。它支持 SQL 查询、UDF 用户自定义函数、Java MapReduce 编程模型、Graph 图计算处理框架。</p>
-<img src="/2020/01/18/大数据/数据技术/maxcompute.png">
-<p>MaxCompute 由四部分组成：MaxCompute Client 客户端；MaxCompute Front End 接入层；MaxCompute Server 逻辑层；MaxCompute Core 存储与计算层。其中，客户端提供了 RESTful API、Java SDK、Command Line Tool、为 ETL/BI 提供的可视化 IDE 工具。接入层提供 HTTP 服务、缓存、负载均衡、用户认证等功能。逻辑层负责实现用户空间和对象的管理、命令的解析与执行逻辑、数据对象的访问控制和授权等功能。它有三种角色：Worker 对接 RESTful API、SQL 等，生成 MaxCompute Instance 并交由 Scheduler 处理；Scheduler 负责 MaxCompute Instance 的调度和拆解，询问计算层的资源占用情况；Exector 负责 MaxCompute Instance 的执行，向计算层提交计算任务。计算层即 Apsara Core 飞天内核，运行在和控制层相互独立的计算集群上，它包含 Pangu 分布式文件系统、Fuxi 资源调度系统、Nuwa 命名空间服务、Zhongkui 安全服务、Shennong 监控模块、Open Table Service 开放结构化数据服务（用于存储元数据）等。</p>
-<img src="/2020/01/18/大数据/数据技术/apsara.png">
-<p>更多内容可参考 <a href="https://yq.aliyun.com/articles/78108" target="_blank" rel="noopener">阿里巴巴飞天大数据平台MaxCompute（原名ODPS）全套攻略</a>、<a href="https://yq.aliyun.com/articles/61529?spm=a2c4e.11153940.0.0.4f886797FazeNv" target="_blank" rel="noopener">MaxCompute 2.0 生态开放之路及最新发展</a>、<a href="http://www.sohu.com/a/129170041_612370" target="_blank" rel="noopener">MaxCompute 2.0 性能优化揭秘</a>、<a href="https://yq.aliyun.com/articles/690510?spm=a2c4e.11153940.0.0.737b1ffbAsWx17" target="_blank" rel="noopener">MaxCompute，基于Serverless的高可靠大数据服务</a>、<a href="https://www.cnblogs.com/barrywxx/p/10739834.html" target="_blank" rel="noopener">阿里云大数据计算服务 - MaxCompute (原名 ODPS)</a>、<a href="https://www.jianshu.com/p/4104e7d5316f" target="_blank" rel="noopener">当我们用 MaxCompute 的时候，我们在用什么？</a>。</p>
-<h3 id="实时计算"><a href="#实时计算" class="headerlink" title="实时计算"></a>实时计算</h3><p>数据时效性一般分为三种：延迟以天计算的离线数据、延迟以小时计算的准实时数据、延迟以秒计算的实时数据。离线数据和准实时数据都可以在批处理系统（如 Hadoop、MaxCompute、Spark 等系统）中实现；实时数据则需要流处理系统（如 Storm、S4、Spark Streaming、Flink、StreamCompute 等系统）来实现。区别于批处理系统周期性调度任务，流处理系统的任务是常驻的，并需要满足高时效性、高性能的要求。流处理系统不能完全替代批处理系统，因为它的计算成本加大，且需要解决复杂的业务逻辑（数据处理需要上下文关系，数据抵达时间的不确定性导致流处理系统可能获取不到前置数据）。</p>
-<p>流处理系统所需要的数据可以通过 TimeTunnel、Kafka 等数据中间件或 MetaQ、Notify 等消息系统实现。其中，使用数据中间件能获得较高的吞吐量，一般用于应对数据量较大的业务系统；消息系统一般用作业务系统数据库变更的消息中转。</p>
-<p>下图是 flink 的架构图：</p>
-<img src="/2020/01/18/大数据/数据技术/flink.png">
-<p>更多内容可参考 <a href="https://help.aliyun.com/document_detail/110778.html?spm=a2c4g.11186623.6.554.2c6d15eaTRijei" target="_blank" rel="noopener">什么是阿里云实时计算</a>、<a href="https://yq.aliyun.com/articles/674448?spm=a2c4e.11153959.teamhomeleft.33.27f717f74CDX29" target="_blank" rel="noopener">Streaming System 第一章：Streaming 101</a>、<a href="https://www.cnblogs.com/code2one/p/10123112.html" target="_blank" rel="noopener">Flink架构及其工作原理</a>。</p>
-<h2 id="数据服务"><a href="#数据服务" class="headerlink" title="数据服务"></a>数据服务</h2><p>阿里的数据开放服务经历了四个阶段：DWSOA、OpenAPI、SmartDQ 和 OneService。</p>
-<img src="/2020/01/18/大数据/数据技术/dataservice.jpg">
-<ul>
-<li>DWSOA：烟囱式一个需求一个或者几个接口。</li>
-<li>OpenApi：同类数据（如会员数据）合并成一张逻辑表，对外透出一个接口，通过接口参数定位具体数据。</li>
-<li>SmartDQ：逻辑表的取数据逻辑通过 SQL （作为领域专用语言 DSL）描述，SmartDQ 通过解析 SQL、生成执行计划、执行 SQL、合并数据、限制结果，最终透出数据。</li>
-<li>OneService：在 SmartDQ 基础上，满足不同场景的数据需求，OneService-SmartDQ 简单的查询场景、OneService-Lego 个性化业务场景、 OneService-iPush 实时数据推送场景、OneService-uTiming 定时任务场景。</li>
-</ul>
-<p>在 SmartDQ 中，逻辑表通过多个数据源的物理表汇总而成，多个逻辑表挂在一个主题下。服务层主要包含两大模块：元数据配置维护物理表到逻辑表的映射；主处理模块会解析 DSL、构建逻辑 Query、构建物理 Query、拆分 Query、执行 SQL、合并结果。</p>
-<img src="/2020/01/18/大数据/数据技术/smartdq.png">
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《大数据之路——阿里巴巴大数据实践》<br><a href="https://www.cnblogs.com/shengyang17/p/10527700.html" target="_blank" rel="noopener">数仓</a><br><a href="https://www.jianshu.com/p/da62fb0c6a0b" target="_blank" rel="noopener">说说数仓</a><br><a href="https://blog.51cto.com/abezoo/2399546" target="_blank" rel="noopener">大数据环境下数仓设计</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/12/java/我看 spring beans/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/12/java/我看 spring beans/" itemprop="url">我看 spring beans</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-12T00:00:00+08:00">2020-01-12</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/01/12/java/我看 spring beans/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/12/java/我看 spring beans/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>先介绍两个重要的概念（详情可以参看 <a href="https://www.cnblogs.com/xingzc/p/9138256.html" target="_blank" rel="noopener">BeanFactory 和 FactoryBean 的区别</a>）：</p>
-<ul>
-<li>BeanFactory：作为接口，定义了 Spring IOC 容器最底层的编程规范，职能包含实例化、定位、配置应用程序中的 bean 及建立 bean 之间的依赖。</li>
-<li>FactoryBean：用于实例化 bean。Spring 有两种 bean：通过反射机制使用 class 创建的 bean，如添加了 @Component 注解的 bean；通过实现了 FactoryBean 接口的类创建 bean，在 FactoryBean#getObject 会创建所需要的类实例。</li>
-</ul>
-<p>在 spring 中，应用上下文 ApplicationContext 在 refresh 方法执行期间，会创建 BeanFactory 实例并注册 BeanDefiniton（定义了 bean 的基础属性：scope 是否单例、lazyInit 是否懒加载等）；然后通过调用 BeanFactory#getBean 方法可以创建 bean。ApplicationContext#getBeanFactory 可用于获取 BeanFactory 实例；ApplicationContext#getBean 可用于获取 bean。</p>
-<img src="/2020/01/12/java/我看%20spring%20beans/bean.png">
-<h2 id="ApplicationContext"><a href="#ApplicationContext" class="headerlink" title="ApplicationContext"></a>ApplicationContext</h2><p>作为应用上下文，ApplicationContext#refresh 执行过程既会创建 BeanFactory、注册 BeanDefiniton，又集成了国际化、事件广播机制。该接口有以下实现类：</p>
-<ul>
-<li>AnnotationConfigApplicationContext：从一或多个配置类中加载上下文定义，适用于 java 注解方式加载 bean</li>
-<li>ClassPathXmlApplicationContext：从类路径下的一或多个 xml 配置文件中加载上下文定义，适用于 xml 配置方式</li>
-<li>FileSystemXmlApplicationContext：从文件系统下的一或多个 xml 配置文件中加载上下文定义</li>
-<li>AnnotationConfigWebApplicationContext：专门为 web 应用准备的，适用于注解方式</li>
-<li>XmlWebApplicationContext：从 web 应用下的一或多个xml配置文件加载上下文定义，适用于 xml 配置方式</li>
-</ul>
-<p>以下是 AnnotationConfigApplicationContext 的使用情形：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ManConfig</span> </span>&#123;</span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Man <span class="title">man</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> Man();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// 调用 ApplicationContext#refresh 方法，注册 BeanDefiniton</span></span><br><span class="line">		ApplicationContext context = <span class="keyword">new</span> AnnotationConfigApplicationContext(ManConfig.class);</span><br><span class="line">		<span class="comment">// 获取 bean</span></span><br><span class="line">		Man man = context.getBean(Man.class);</span><br><span class="line">		man.driveCar();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>实际上，在 AnnotationConfigApplicationContext 实例化过程中，即会调用 refresh 方法。对于非懒加载的 bean，refresh 方法执行期间即会予以加载。当然，在 AnnotationConfigApplicationContext 实例化过程中，它会扫描 basePackages 以便筛选出添加了 @Component 注解的类。refresh 源码见下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractApplicationContext</span> <span class="keyword">extends</span> <span class="title">DefaultResourceLoader</span></span></span><br><span class="line"><span class="class">		<span class="keyword">implements</span> <span class="title">ConfigurableApplicationContext</span> </span>&#123;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refresh</span><span class="params">()</span> <span class="keyword">throws</span> BeansException, IllegalStateException </span>&#123;</span><br><span class="line">		<span class="keyword">synchronized</span> (<span class="keyword">this</span>.startupShutdownMonitor) &#123;</span><br><span class="line">			<span class="comment">// 设置环境变量、容器开关和激活标志等</span></span><br><span class="line">			prepareRefresh();</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 调用子类实现的 refreshBeanFactory 方法创建 BeanFactory 实例，并加载 BeanDefiniton</span></span><br><span class="line">      <span class="comment">// BeanFactory 实例如 AbstractRefreshableApplicationContext 中的 DefaultListableBeanFactory 实例</span></span><br><span class="line">			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 配置 BeanFactory 所用的类加载器、bean 表达式解析器、属性编辑器等</span></span><br><span class="line">			prepareBeanFactory(beanFactory);</span><br><span class="line"></span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">// 执行子类的 postProcessBeanFactory，可用于（通过应用的配置文件）修改 BeanDefiniton</span></span><br><span class="line">				postProcessBeanFactory(beanFactory);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 执行 BeanFactoryPostProcessor#postProcessBeanFactory，可用于修改 BeanDefiniton</span></span><br><span class="line">				invokeBeanFactoryPostProcessors(beanFactory);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 注册 bean 初始化钩子 BeanPostProcessor</span></span><br><span class="line">				registerBeanPostProcessors(beanFactory);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 加载 MessageSource 这个特殊的 bean，用于国际化处理</span></span><br><span class="line">				initMessageSource();</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 初始化 ApplicationEventMulticaster 这个特殊的 bean，用于事件广播</span></span><br><span class="line">				initApplicationEventMulticaster();</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 执行子类的 onRefresh 方法，初始化特殊的 bean</span></span><br><span class="line">				onRefresh();</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 加载 ApplicationListener（特殊的 bean 或通过上下文加载），执行 earlyApplicationEvents 前置事件</span></span><br><span class="line">				registerListeners();</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 加载 ConversionService 这个特殊的 bean</span></span><br><span class="line">				<span class="comment">// BeanFactory 添加 EmbeddedValueResolver，用于解析配置文件的属性</span></span><br><span class="line">				<span class="comment">// 加载 LoadTimeWeaverAware 这个特殊的 bean，允许织入第三方模块，如 AspectJ</span></span><br><span class="line">				<span class="comment">// 将 BeanFactory 中的 TempClassLoader 置为 null，终止其工作</span></span><br><span class="line">				<span class="comment">// 执行 BeanFactory#freezeConfiguration，冻结 BeanDefiniton</span></span><br><span class="line">				<span class="comment">// 执行 BeanFactory#preInstantiateSingletons，调用 getBean 方法提前加载无需懒加载的 bean</span></span><br><span class="line">				finishBeanFactoryInitialization(beanFactory);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 完成刷新过程，发布应用事件</span></span><br><span class="line">				finishRefresh();</span><br><span class="line">			&#125; <span class="keyword">catch</span> (BeansException ex) &#123;</span><br><span class="line">				<span class="keyword">if</span> (logger.isWarnEnabled()) &#123;</span><br><span class="line">					logger.warn(<span class="string">"Exception encountered during context initialization - "</span> +</span><br><span class="line">							<span class="string">"cancelling refresh attempt: "</span> + ex);</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				destroyBeans();</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 将容器激活标识置为否值</span></span><br><span class="line">				cancelRefresh(ex);</span><br><span class="line"></span><br><span class="line">				<span class="keyword">throw</span> ex;</span><br><span class="line">			&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">				<span class="comment">// 重置缓存，因为 bean 所用及的元数据将不必使用</span></span><br><span class="line">				resetCommonCaches();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="BeanFactory"><a href="#BeanFactory" class="headerlink" title="BeanFactory"></a>BeanFactory</h2><p>BeanFactory 接口的默认实现类的 DefaultListableBeanFactory。以下是相关类图：</p>
-<img src="/2020/01/12/java/我看%20spring%20beans/beanfactory.png">
-<p>AbstractBeanFactory 类是 BeanFactory 接口的抽象实现类，在它的 getBean 方法执行期间，如果 bean 还没创建，它就会创建这个 bean；如果已经创建了这个 bean，并且这个 bean 是单例，spring 就会从缓存中获取这个 bean。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br></pre></td><td class="code"><pre><span class="line">public abstract <span class="class"><span class="keyword">class</span> <span class="title">AbstractBeanFactory</span> <span class="keyword">extends</span> <span class="title">FactoryBeanRegistrySupport</span> <span class="title">implements</span> <span class="title">ConfigurableBeanFactory</span> </span>&#123;</span><br><span class="line">	@Override</span><br><span class="line">	public <span class="built_in">Object</span> getBean(<span class="built_in">String</span> name) throws BeansException &#123;</span><br><span class="line">		<span class="keyword">return</span> doGetBean(name, <span class="literal">null</span>, <span class="literal">null</span>, <span class="literal">false</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	protected &lt;T&gt; T doGetBean(final <span class="built_in">String</span> name, @Nullable final Class&lt;T&gt; requiredType,</span><br><span class="line">			@Nullable final <span class="built_in">Object</span>[] args, boolean typeCheckOnly) throws BeansException &#123;</span><br><span class="line">		final <span class="built_in">String</span> beanName = transformedBeanName(name);</span><br><span class="line">		<span class="built_in">Object</span> bean;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 获取缓存的单例 bean</span></span><br><span class="line">		<span class="built_in">Object</span> sharedInstance = getSingleton(beanName);</span><br><span class="line">		<span class="keyword">if</span> (sharedInstance != <span class="literal">null</span> &amp;&amp; args == <span class="literal">null</span>) &#123;</span><br><span class="line">			<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">				<span class="keyword">if</span> (isSingletonCurrentlyInCreation(beanName)) &#123;</span><br><span class="line">					logger.trace(<span class="string">"Returning eagerly cached instance of singleton bean '"</span> + beanName +</span><br><span class="line">							<span class="string">"' that is not fully initialized yet - a consequence of a circular reference"</span>);</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					logger.trace(<span class="string">"Returning cached instance of singleton bean '"</span> + beanName + <span class="string">"'"</span>);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="comment">// （完成 FactoryBean 相关处理，）获取 bean 实例</span></span><br><span class="line">			bean = getObjectForBeanInstance(sharedInstance, name, beanName, <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// 单例正在（循环引用）创建过程中，报错</span></span><br><span class="line">			<span class="keyword">if</span> (isPrototypeCurrentlyInCreation(beanName)) &#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> BeanCurrentlyInCreationException(beanName);</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 当 IOC 容器 BeanFactory 中不存在 BeanDefinition，向上查找祖先容器</span></span><br><span class="line">			BeanFactory parentBeanFactory = getParentBeanFactory();</span><br><span class="line">			<span class="keyword">if</span> (parentBeanFactory != <span class="literal">null</span> &amp;&amp; !containsBeanDefinition(beanName)) &#123;</span><br><span class="line">				<span class="built_in">String</span> nameToLookup = originalBeanName(name);</span><br><span class="line">				<span class="keyword">if</span> (parentBeanFactory <span class="keyword">instanceof</span> AbstractBeanFactory) &#123;</span><br><span class="line">					<span class="keyword">return</span> ((AbstractBeanFactory) parentBeanFactory).doGetBean(</span><br><span class="line">							nameToLookup, requiredType, args, typeCheckOnly);</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> (args != <span class="literal">null</span>) &#123;</span><br><span class="line">					<span class="keyword">return</span> (T) parentBeanFactory.getBean(nameToLookup, args);</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> (requiredType != <span class="literal">null</span>) &#123;</span><br><span class="line">					<span class="keyword">return</span> parentBeanFactory.getBean(nameToLookup, requiredType);</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					<span class="keyword">return</span> (T) parentBeanFactory.getBean(nameToLookup);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (!typeCheckOnly) &#123;</span><br><span class="line">				markBeanAsCreated(beanName);</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">// 合并祖先容器的 BeanDefinition</span></span><br><span class="line">				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);</span><br><span class="line">				checkMergedBeanDefinition(mbd, beanName, args);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 获取（或创建）依赖 bean</span></span><br><span class="line">				<span class="built_in">String</span>[] dependsOn = mbd.getDependsOn();</span><br><span class="line">				<span class="keyword">if</span> (dependsOn != <span class="literal">null</span>) &#123;</span><br><span class="line">					<span class="keyword">for</span> (<span class="built_in">String</span> dep : dependsOn) &#123;</span><br><span class="line">						<span class="keyword">if</span> (isDependent(beanName, dep)) &#123;</span><br><span class="line">							<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbd.getResourceDescription(), beanName,</span><br><span class="line">									<span class="string">"Circular depends-on relationship between '"</span> + beanName + <span class="string">"' and '"</span> + dep + <span class="string">"'"</span>);</span><br><span class="line">						&#125;</span><br><span class="line">						registerDependentBean(dep, beanName);</span><br><span class="line">						<span class="keyword">try</span> &#123;</span><br><span class="line">							getBean(dep);</span><br><span class="line">						&#125;</span><br><span class="line">						<span class="keyword">catch</span> (NoSuchBeanDefinitionException ex) &#123;</span><br><span class="line">							<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbd.getResourceDescription(), beanName,</span><br><span class="line">									<span class="string">"'"</span> + beanName + <span class="string">"' depends on missing bean '"</span> + dep + <span class="string">"'"</span>, ex);</span><br><span class="line">						&#125;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 创建单例 bean</span></span><br><span class="line">				<span class="keyword">if</span> (mbd.isSingleton()) &#123;</span><br><span class="line">					sharedInstance = getSingleton(beanName, () -&gt; &#123;</span><br><span class="line">						<span class="keyword">try</span> &#123;</span><br><span class="line">							<span class="keyword">return</span> createBean(beanName, mbd, args);</span><br><span class="line">						&#125;</span><br><span class="line">						<span class="keyword">catch</span> (BeansException ex) &#123;</span><br><span class="line">							destroySingleton(beanName);</span><br><span class="line">							<span class="keyword">throw</span> ex;</span><br><span class="line">						&#125;</span><br><span class="line">					&#125;);</span><br><span class="line">					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> (mbd.isPrototype()) &#123;</span><br><span class="line">					<span class="built_in">Object</span> prototypeInstance = <span class="literal">null</span>;</span><br><span class="line">					<span class="keyword">try</span> &#123;</span><br><span class="line">						beforePrototypeCreation(beanName);</span><br><span class="line">						prototypeInstance = createBean(beanName, mbd, args);</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">finally</span> &#123;</span><br><span class="line">						afterPrototypeCreation(beanName);</span><br><span class="line">					&#125;</span><br><span class="line">					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					<span class="built_in">String</span> scopeName = mbd.getScope();</span><br><span class="line">					final Scope scope = <span class="keyword">this</span>.scopes.get(scopeName);</span><br><span class="line">					<span class="keyword">if</span> (scope == <span class="literal">null</span>) &#123;</span><br><span class="line">						<span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"No Scope registered for scope name '"</span> + scopeName + <span class="string">"'"</span>);</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">try</span> &#123;</span><br><span class="line">						<span class="built_in">Object</span> scopedInstance = scope.get(beanName, () -&gt; &#123;</span><br><span class="line">							beforePrototypeCreation(beanName);</span><br><span class="line">							<span class="keyword">try</span> &#123;</span><br><span class="line">								<span class="keyword">return</span> createBean(beanName, mbd, args);</span><br><span class="line">							&#125;</span><br><span class="line">							<span class="keyword">finally</span> &#123;</span><br><span class="line">								afterPrototypeCreation(beanName);</span><br><span class="line">							&#125;</span><br><span class="line">						&#125;);</span><br><span class="line">						bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">catch</span> (IllegalStateException ex) &#123;</span><br><span class="line">						<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(beanName,</span><br><span class="line">								<span class="string">"Scope '"</span> + scopeName + <span class="string">"' is not active for the current thread; consider "</span> +</span><br><span class="line">								<span class="string">"defining a scoped proxy for this bean if you intend to refer to it from a singleton"</span>,</span><br><span class="line">								ex);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125; <span class="keyword">catch</span> (BeansException ex) &#123;</span><br><span class="line">				cleanupAfterBeanCreationFailure(beanName);</span><br><span class="line">				<span class="keyword">throw</span> ex;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 类型转换</span></span><br><span class="line">		<span class="keyword">if</span> (requiredType != <span class="literal">null</span> &amp;&amp; !requiredType.isInstance(bean)) &#123;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				T convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);</span><br><span class="line">				<span class="keyword">if</span> (convertedBean == <span class="literal">null</span>) &#123;</span><br><span class="line">					<span class="keyword">throw</span> <span class="keyword">new</span> BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">return</span> convertedBean;</span><br><span class="line">			&#125; <span class="keyword">catch</span> (TypeMismatchException ex) &#123;</span><br><span class="line">				<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">					logger.trace(<span class="string">"Failed to convert bean '"</span> + name + <span class="string">"' to required type '"</span> +</span><br><span class="line">							ClassUtils.getQualifiedName(requiredType) + <span class="string">"'"</span>, ex);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> (T) bean;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.codercto.com/a/3624.html" target="_blank" rel="noopener">Spring 源码解析：高级容器的扩展内幕</a><br><a href="https://www.cnblogs.com/yoci/p/10642553.html" target="_blank" rel="noopener">SpringBean 工作原理详解</a><br><a href="https://www.cnblogs.com/Jolivan/p/9168108.html" target="_blank" rel="noopener">Spring-BeanFactory基本工作流程</a><br><a href="https://www.cnblogs.com/Jolivan/p/9226289.html" target="_blank" rel="noopener">Spring 创建 bean 机制</a><br><a href="https://www.jianshu.com/p/39edfa250e4e" target="_blank" rel="noopener">spring容器之创建bean实例</a><br><a href="https://blog.csdn.net/zwjyyy1203/article/details/89576084" target="_blank" rel="noopener">使用 BeanPostProcessor 制作 ab 脚本的 bean</a><br><a href="https://www.jianshu.com/p/3d099ea43b0e" target="_blank" rel="noopener">使用BeanFactoryPostProcessor——这种姿势不要用</a><br><a href="https://blog.csdn.net/cgj296645438/article/details/80119319" target="_blank" rel="noopener">postProcessBeanFactory方法分析</a><br><a href="https://blog.csdn.net/sid1109217623/article/details/84065725" target="_blank" rel="noopener">Spring源码分析-MessageSource</a><br><a href="https://www.cnblogs.com/jyyzzjl/p/5476546.html" target="_blank" rel="noopener">ApplicationEventMulticaster 事件广播</a><br><a href="https://www.jianshu.com/p/151e0b67c5b6" target="_blank" rel="noopener">Spring 事件机制初始化流程</a><br><a href="https://www.jianshu.com/p/9d8e4fb5b162" target="_blank" rel="noopener">Spring源码finishBeanFactoryInitialization和getBean</a><br><a href="https://www.cnblogs.com/arax/p/8551720.html" target="_blank" rel="noopener">Spring数据转换–ConversionService</a><br><a href="https://www.cnblogs.com/wade-luffy/p/6078446.html" target="_blank" rel="noopener">AOP静态代理-代码织入</a><br><a href="https://www.jianshu.com/p/7e845db823cf" target="_blank" rel="noopener">DetaultListableBeanFactory分层关系解析一</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2187,7 +2120,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">126</span>
+                    <span class="site-state-item-count">128</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

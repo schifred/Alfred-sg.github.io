@@ -299,6 +299,352 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/21/java/JDBC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/21/java/JDBC/" itemprop="url">JDBC</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-21T00:00:00+08:00">2019-11-21</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/11/21/java/JDBC/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/21/java/JDBC/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Java 数据库连接（JDBC）API 用于对接不同的数据库 —— 由遵守不同网络协议的数据库厂商提供第三方驱动程序，再由 Java 提供一个驱动管理器和一套 API，驱动程序就会注册到驱动管理器中，在此基础上，调用 API 即能访问驱动管理器，最后通过驱动程序与实际的数据库通信。驱动程序的实现经历过多次演进，目前以纯 Java 语言实现，它能将 JDBC 请求直接翻译成数据库相关的协议。</p>
+<img src="/2019/11/21/java/JDBC/jdbc.jpeg">
+<p>使用 JDBC 的前置操作包含：获悉数据库 url 地址如 jdbc:mysql://127.0.0.1:3306/test?characterEncoding=UTF-8；下载驱动程序 jar 文件并注册到驱动管理器上（部分驱动不需要注册）；下载并启动特定数据库。完成前置操作后，就可以连接数据库并执行 sql 了。典型的 JDBC 调用操作如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用户名或密码可以放在配置文件中或远程管理中心中</span></span><br><span class="line">String url = <span class="string">"jdbc:mysql://127.0.0.1:3306/test?characterEncoding=UTF-8"</span>;</span><br><span class="line">String username = <span class="string">"admin"</span>;</span><br><span class="line">String password = <span class="string">"123456"</span>;</span><br><span class="line">Connection conn = DriverManager.getConnection(url, username, password);</span><br><span class="line"></span><br><span class="line">Statement stat = conn.createStatement();</span><br><span class="line">stat.executeUpdate(<span class="string">"CREATE TABLE Greeting (Message CHAR(20))"</span>);</span><br></pre></td></tr></table></figure>
+<p>JDBC 接口设计包含如下内容：</p>
+<ol>
+<li>以 Connection 抽象数据库连接，通过 DriverManager.getConnection 创建。连接通过 connection.close 关闭，避免长连接占用有限的数据库资源（数据库有最大并发连接数、最大并发语句数）（与此同时，频繁建立和关闭数据库连接也是高昂的消耗，因此 web 容器或应用服务器开发商会提供连接池机制。连接池保持与数据库的长连接，不存在物理关闭，sql 操作可以重用连接池）。</li>
+<li>以 Statement 抽象针对数据库的表操作，通过 connection.createStatement 创建，同样能通过调用 close 方法关闭。Statement 对象实现 executeQuery, executeUpdate, execute 方法用于增删改查操作。</li>
+<li>以 ResultSet 抽象查询结果集，并缓存在 Statement 对象中，可通过 statement.getResultSet 获取（每个结果集只能获取一次）。部分结果集允许单条 Select 语句查出多个结果集，通过 statement.getMoreResults 使 getResultSet 指向下一条数据。</li>
+<li>ResultSet 可以便捷地访问列数据，主要抽象操作包含 getXxx(int columnNumber), getXxx(String columnName), getObject(int columnNumber, Class<t>type), getObject(String columnLabel, Class<t>type) 等。Xxx 为 String, Int, Double, Date, Blob, Clob。</t></t></li>
+<li>Statement 再进一步，以 PreparedStatement 抽象预编译的表操作，通过 connection.PrepareStatement 创建。它能复用基本的 sql 语句（此时为预备语句）并对编译结果作缓存，? 部分语句可在特定场合下填充为实际值（如 where name = ? 查询特定人员）。preparedStatement.setXxx, preparedStatement.clearParameters 可用于设置或清除参数（即实际值）。</li>
+<li>支持通过 ResultSet 滚动查询、更新操作。</li>
+<li>以 RowSet 缓存查询结果。</li>
+<li>支持查询元数据。</li>
+<li>支持事务操作。6、7、8、9 均见下文。</li>
+</ol>
+<p>JDBC 另外解决的问题包含：（日期格式等出入库时）转义；获取自动生成的主键。</p>
+<h2 id="可滚动、可更新"><a href="#可滚动、可更新" class="headerlink" title="可滚动、可更新"></a>可滚动、可更新</h2><p>部分数据库的驱动程序支持结果集可滚动、可更新，即直接通过 ResultSet 翻查上一条或下一条数据，更新 ResultSet 数据内容即可更新表数据。在执行结果集滚动、更新操作前，首先需要通过 DatabaseMetaData 接口的 supportsResultSetType, supportsResultSetConcurrency 方法进行判断。</p>
+<h2 id="行集"><a href="#行集" class="headerlink" title="行集"></a>行集</h2><p>可滚动、可更新操作需要与数据库保持连接，消耗数据库资源，因此 JDBC 又推出了扩展自 ResultSet 的行集 RowSet 接口。RowSet 接口有以下子接口：CachedRowSet 缓存行集、WebRowSet 缓存行集（保存为 XML）、FilteredRowSet / JoinRowSet 可操作行集（select、join 操作）、JdbcRowSet 继承 get、set 方法的 “bean”。RowSet 允许将 ResultSet 数据填充到行集中；直接执行 sql 语句；设置分页；重新与数据库建立连接，并将数据回写到数据库中（回写时会校验原始值是否与数据库中存储值相同，保证一致性；回写复杂结果一般是不允许的）。RowSet 的典型操作如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 或 CachedRowSet crs = new com.sun.rowset.CachedRowSetImpl();</span></span><br><span class="line">RowSetFactory factory = RowSetProvider.newFactory();</span><br><span class="line">CachedRowSet crs = factory.createCachedRowSet();</span><br><span class="line">crs.setCommand(<span class="string">"SELECT * FROM Books WHERE PUBLISHER = ?"</span>);</span><br><span class="line">crs.setString(<span class="number">1</span>, publisherName);</span><br><span class="line">crs.execute();</span><br></pre></td></tr></table></figure>
+<h2 id="元数据"><a href="#元数据" class="headerlink" title="元数据"></a>元数据</h2><p>JDBC 可用于获取元数据：数据库元数据信息、结果集的元数据信息以及预备语句的元数据信息。数据库元数据信息包含表及字段信息、数据库支持的功能。典型操作如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Connection conn = DriverManager.getConnection(url, username, password);</span><br><span class="line">DatabaseMetaData meta = conn.getMetaData();</span><br><span class="line">ResultSet mrs = meta.getTables(<span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">new</span> String[]&#123; <span class="string">"Table"</span> &#125;);<span class="comment">// 获取所有表信息</span></span><br></pre></td></tr></table></figure>
+<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>一组语句构成一个事务。在一组语句执行过程中，如果中间某个语句执行失败，那么就需要对之前的所有操作进行回滚 rollback。数据库连接默认处于自动提交模式，即 sql 语句一旦被执行就会被提交 commit，无法对其回滚。因此在使用之前，首先需要关闭自动提交模式 setAutoCommit(false)。部分数据库支持更为细致的回滚操作：通过在一组语句执行过程中设置保存点 setSavepoint，就允许后续的回滚操作撤回到保存点位置。同时 JDBC 允许对数据库进行批量更新操作，通过 conn.addBatch, conn.executeBatch 执行。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《Java 核心技术卷二》<br><a href="https://docs.oracle.com/en/database/oracle/oracle-database/19/jjdbc/toc.htm" target="_blank" rel="noopener">JDBC Developer’s Guide</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/18/手册/mysql使用指南/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/18/手册/mysql使用指南/" itemprop="url">mysql 使用文档</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-18T00:00:00+08:00">2019-11-18</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/sql/" itemprop="url" rel="index"><span itemprop="name">sql</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/11/18/手册/mysql使用指南/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/18/手册/mysql使用指南/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><ul>
+<li>TINYINT：1 字节整数</li>
+<li>SMALLINT：2 字节整数</li>
+<li>MEDIUMINT：3 字节整数</li>
+<li>INT、INTEGER：4 字节整数</li>
+<li>BIGINT：8 字节整数</li>
+<li>FLOAT：4 字节单精度浮点数</li>
+<li>FLOAT：8 字节双精度浮点数</li>
+<li>DECIMAL(M,D)：小数</li>
+<li>DATE：年月日日期</li>
+<li>TIME：时分秒时间</li>
+<li>YEAR：年份</li>
+<li>DATETIME：年月日时分秒</li>
+<li>TIMESTAMP：年月日时分秒 + 时间戳</li>
+<li>CHAR：定长字符串，0-255 字节</li>
+<li>VARCHAR：变长字符串，0-65535 字节</li>
+<li>TINYBLOB：不超过 255 个字符的二进制字符串，0-255 字节</li>
+<li>TINYTEXT：短文本字符串，0-255 字节</li>
+<li>BLOB：二进制形式的长文本数据，0-65535 字节</li>
+<li>TEXT：长文本数据，0-65535 字节</li>
+<li>MEDIUMBLOB：二进制形式的中等长度文本数据，0-16777215 字节</li>
+<li>MEDIUMTEXT：中等长度文本数据，0-16777215 字节</li>
+<li>TLONGBLOB：二进制形式的极大文本数据，0-4294967295 字节</li>
+<li>LONGTEXT：极大文本数据，0-4294967295 字节</li>
+</ul>
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">CREATE DATABASE RUNOOB;<span class="comment"># 创建数据库</span></span><br><span class="line">DROP DATABASE RUNOOB;<span class="comment"># 删除数据库</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建数据表</span></span><br><span class="line">CREATE TABLE IF NOT EXISTS `runoob_tbl`(</span><br><span class="line">   `runoob_id` INT UNSIGNED AUTO_INCREMENT,</span><br><span class="line">   `runoob_title` VARCHAR(100) NOT NULL,</span><br><span class="line">   `runoob_author` VARCHAR(40) NOT NULL,</span><br><span class="line">   `submission_date` DATE,</span><br><span class="line">   PRIMARY KEY ( `runoob_id` )</span><br><span class="line">)ENGINE=InnoDB DEFAULT CHARSET=utf8;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除数据表</span></span><br><span class="line">DROP TABLE table_name;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 插入数据</span></span><br><span class="line">INSERT INTO table_name ( field1, field2,...fieldN )</span><br><span class="line">                       VALUES</span><br><span class="line">                       ( value1, value2,...valueN );</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询数据</span></span><br><span class="line">SELECT column_name,column_name</span><br><span class="line">FROM table_name</span><br><span class="line">[WHERE Clause]</span><br><span class="line">[LIMIT N][ OFFSET M]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新数据</span></span><br><span class="line">UPDATE table_name SET field1=new-value1, field2=new-value2</span><br><span class="line">[WHERE Clause]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除数据</span></span><br><span class="line">DELETE FROM table_name [WHERE Clause]</span><br><span class="line"></span><br><span class="line"><span class="comment"># LIKE 通常与 % 配合使用，</span></span><br><span class="line">SELECT field1, field2,...fieldN </span><br><span class="line">FROM table_name</span><br><span class="line">WHERE field1 LIKE condition1 [AND [OR]] filed2 = <span class="string">'somevalue'</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># UNION 求并集</span></span><br><span class="line">ELECT expression1, expression2, ... expression_n</span><br><span class="line">FROM tables</span><br><span class="line">[WHERE conditions]</span><br><span class="line">UNION [ALL | DISTINCT]</span><br><span class="line">SELECT expression1, expression2, ... expression_n</span><br><span class="line">FROM tables</span><br><span class="line">[WHERE conditions];</span><br><span class="line"></span><br><span class="line"><span class="comment"># 排序</span></span><br><span class="line">SELECT field1, field2,...fieldN FROM table_name1, table_name2...</span><br><span class="line">ORDER BY field1 [ASC [DESC][默认 ASC]], [field2...] [ASC [DESC][默认 ASC]]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分组</span></span><br><span class="line">SELECT column_name, <span class="keyword">function</span>(column_name)</span><br><span class="line">FROM table_name</span><br><span class="line">WHERE column_name operator value</span><br><span class="line">GROUP BY column_name;</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/17/读书笔记/数据模型/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1026,6 +1372,7 @@
 <h2 id="同步刷新"><a href="#同步刷新" class="headerlink" title="同步刷新"></a>同步刷新</h2><h3 id="browser-sync"><a href="#browser-sync" class="headerlink" title="browser-sync"></a>browser-sync</h3><p>browser-sync 通过 web-socket 将变更内容透出到页面侧，因此无须刷新页面。browser-sync 提供了两个方法：init({ server }) 启动本地静态服务器，init({ proxy }) 启动代理服务器（当本地服务器通过其他方式启动时，browser-sync 选用代理模式启动）；reload 实时更新页面变动内容。</p>
 <h3 id="emmet-livestyle"><a href="#emmet-livestyle" class="headerlink" title="emmet livestyle"></a>emmet livestyle</h3><p>emmet livestyle 扩展程序（浏览器、编辑器有各自的扩展程序）允许将编辑器的变更内容自动反应在页面上，又将浏览器的变更内容自动反应在编辑器上。</p>
 <h2 id="抓包工具"><a href="#抓包工具" class="headerlink" title="抓包工具"></a>抓包工具</h2><p>charles 是 mac os 中的抓包工具，fiddler 是 windows 中的抓包工具，两者都通过将自己设置成系统的网络访问代理服务器实现。即所有请求先经过 charles、fiddler，然后再发送到远程服务器中，因此可以拦截请求、修改请求、修改响应，甚至将响应内容替换成本地资源。fiddler 还可以通过 tools - options - connection 设置监听端口，然后手机代理到该端口，就可以将手机端获得的响应资源替换成本地文件，详情可参阅 <a href="https://www.cnblogs.com/wenbodeboke/p/9770771.html" target="_blank" rel="noopener">fiddler手机抓包配置方法</a>。</p>
+<h3 id="charles"><a href="#charles" class="headerlink" title="charles"></a>charles</h3><p>官方网址：<a href="https://www.charlesproxy.com/" target="_blank" rel="noopener">https://www.charlesproxy.com/</a><br>破解jar包获取地址：<a href="https://www.zzzmode.com/mytools/charles/" target="_blank" rel="noopener">https://www.zzzmode.com/mytools/charles/</a><br>charles 参考文档：<a href="https://www.jianshu.com/p/0bc767840e42" target="_blank" rel="noopener">CharlesMac破解版安装以及使用</a></p>
 <h2 id="模拟器"><a href="#模拟器" class="headerlink" title="模拟器"></a>模拟器</h2><p>Genymotion</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/xy-nb/p/web.html" target="_blank" rel="noopener">手机web前端调试页面的几种方式</a></p>
 
@@ -1578,348 +1925,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/27/编辑器/uform/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/27/编辑器/uform/" itemprop="url">uform</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-27T00:00:00+08:00">2019-10-27</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/10/27/编辑器/uform/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/27/编辑器/uform/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>通常对表单的抽象分为状态管理和视图组件两部分。按我的理解，uform 的三层结构与 redux + redux-react + react 组件或 mobx + mobx-react + react 组件的构成模式相仿。</p>
-<img src="/2019/10/27/编辑器/uform/uform.png">
-<ul>
-<li>@uform/core：状态管理层，抽象通用 form 表单、field 字段的状态管理逻辑。</li>
-<li>@uform/react：抽象视图层，其一桥接状态管理器和视图组件，其二用于注册组件或容器等。</li>
-<li>@uform/antd, @uform/next：视图组件层，对接特定的视图组件库。</li>
-</ul>
-<h2 id="uform-core"><a href="#uform-core" class="headerlink" title="@uform/core"></a>@uform/core</h2><p>在不借助 redux 等状态管理器的前提下，针对业务逻辑抽象状态管理的做法是：OOP 编程方式抽象状态管理类，并提供统一的副作用接口驱动视图重绘。多个 store 之间可以通过消息总线通信；或者相互持有实例；或者在视图层组织交互逻辑。在这种设计思想下，store 状态管理类和 view 视图组件类即如下图：</p>
-<img src="/2019/10/27/编辑器/uform/store.png">
-<p>不同于 redux 等适用于全领域的状态管理器，表单的状态管理有其特点，所涉及的状态包含表单数据、脏值状态、校验状态、错误状态、编辑状态（在表单编辑器中）、props 等。表单状态管理分为两层：Form 表单层级、Field 字段层级。rc-form 的状态管理没有到字段层级，FormItem 组件从子字段中获取校验信息等数据。更为精细的状态管理需要到字段层级，这样就可以不用重绘表单，而是重绘字段组件。因为字段组件的类型众多，业务实体也可能以字段组件的形式呈现，所以，一般使用通用的 Field 模型抽象字段的状态管理逻辑。</p>
-<img src="/2019/10/27/编辑器/uform/form_field.png">
-<p>在 uform 中，Field 实例以 field.context 属性持有 Form 实例。Form、Field 实例对外通信均可以通过 Broadcast 绑定订阅函数达成，典型的订阅函数即利用 setState 以驱动组件重绘。不同的是，Form 实例用于构造对外交互接口，允许用户挂载多个订阅函数；Field 实例只允许挂载一个订阅函数 —— 变异的 setState，既驱动字段组件重绘，又驱动表单状态更新。Form 内部的事件机制通过 <a href="https://www.jianshu.com/p/f92ce317b07b" target="_blank" rel="noopener">rxjs 的 Subject</a> 实现，支持通过初始化选项绑定事件回调，其被称为 effect 副作用，包含 onFormReset、onFormSubmit、onFieldInit、onFieldChange、onFieldInputChange 这几类。</p>
-<p>表单数据状态变更只有一种模式：通过 Form 提供的接口更新，Field 接口不对外暴露。因为字段组件的绑定事件挂载了 mutators.change（mutators 由封装 Form 接口实现），所以当用户交互行为驱动字段更新时，首先会更新 Form 表单数据，其次间接更新相关的 Field 数据，其次 Field 数据变更引起字段组件重绘，最后触发表单层面 onFieldChange 副作用执行。通过 effect 副作用更新字段数据的执行逻辑也是这样的。uform 通过 syncUpdateMode 属性区分同步更新字段和异步更新字段两种模式：同步模式直接使用 raf 更新字段；异步模式通过 raf 在下一次绘制时批量更新字段。</p>
-<p>Form 实例提供三种更新状态的方式： 用于构造 mutators 的 form.setValue；在 effect 场景中使用的 form.setFormState、form.setFieldState。setValue 较为简单，即首先使用 Field 实例更新字段的状态，其次当字段存在脏值时予以重绘，其次触发 onFieldInputChange 副作用，最后校验表单并触发执行表单层面的订阅函数、onFieldChange 副作用。setFormState、setFieldState 并不会触发 onFieldInputChange 副作用，但这两个方法都会通过 formNotify 触发 onFieldChange 副作用。</p>
-<p>setFormState 流程图：<br><img src="/2019/10/27/编辑器/uform/setFormState.png"></p>
-<p>setFieldState 流程图：<br><img src="/2019/10/27/编辑器/uform/setFieldState.png"></p>
-<p>如上文所说，uform 不止于管理表单数据、校验状态等状态（两者均通过 field.notify 驱动字段组件的重绘），还包含 props、editable 可编辑状态等数据。在提升性能方面，精准的字段状态管理可以只驱动字段的重绘，而不是表单的重绘；uform 又使用 raf 在启动重绘。至于功能上的联动显示隐藏，uform 一方面可以通过 setFieldState 更新字段的 visible, display 状态；另一方面可以通过 react 语法在特定条件下构建字段组件实例（通过 props.onChange 方法监听并插入字段组件）。在后一种情况下，uform 允许使用 updateFieldStateFromBuffer 更新新增字段的状态。</p>
-<h2 id="uform-react"><a href="#uform-react" class="headerlink" title="@uform/react"></a>@uform/react</h2><p>与 rc-form 一样，uform 也使用高阶组件 StateForm、StateField 将状态管理器注入到表单及字段组件中；但是子组件表单没法通过 props.form 访问 Form 实例，StateForm 会通过 context 将 Form 实例直接传给字段 StateField。表单的高阶组件主要在于将 Form 实例的订阅函数等通过 props 透出到表单外围、通过 props 更新 Form 实例的状态、将 Form 实例透传给内部子组件；字段的高阶组件主要在于通过 props 更新 Field 实例的状态、构建 mutators 监听字段组件的变更以实时更新字段的状态。</p>
-<p>StateForm 会通过 registerFormWrapper 函数注册成原始表单的外层容器；registerFormWrapper 函数还可用于注册其他容器。注册完成后，通过 OriginForm 可以获取集成外围容器的表单组件。与 registerFormWrapper 功能相仿，registerFieldMiddleware 用于为字段组件添加外围容器（外围容器的功能如在 antd 中为字段组件包裹上 FormItem 组件）。registerFormField 用于注册字段组件，如 input，radio 等。因为对于不同的字段组件，其值可能会有不同的 props 属性表现（如 props.value、props.checked 等），编辑状态与不可编辑状态也可能会使用不同的字段组件，@uform/react 提供 connect 用于转换 props 或处理 schema。在 registerFormField 时，一般会配合使用 connect。</p>
-<p>uform 中的字段渲染比较特别，分为两种模式：SchemaMarkup 传入 props.schema，直接予以渲染；通过 SchemaField 描述 SchemaForm 包含的字段组件，收集 schema 后予以渲染。@uform/antd 透出的 SchemaForm 即基于 SchemaMarkup；Field 即基于 SchemaField。以下是源码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line">const SchemaForm = SchemaMarkup()(</span><br><span class="line">  React.forwardRef((props: ISchemaFormProps, ref: React.Ref&lt;any&gt;) =&gt; &#123;</span><br><span class="line">    // 这个时候就有 schema 数据</span><br><span class="line">    const &#123; children, className, ...others &#125; = props</span><br><span class="line">    return (</span><br><span class="line">      &lt;OriginForm</span><br><span class="line">        className=&#123;`rs-uform $&#123;className || &apos;&apos;&#125;`&#125;</span><br><span class="line">        &#123;...others&#125;</span><br><span class="line">        ref=&#123;ref&#125;</span><br><span class="line">      &gt;</span><br><span class="line">        &lt;div className=&quot;rs-uform-content&quot;&gt;</span><br><span class="line">          &#123;/* 从 schema 取出数据渲染 */&#125;</span><br><span class="line">          &lt;FormField name=&quot;&quot; path=&#123;[]&#125; schemaPath=&#123;[]&#125; /&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">        &#123;children&#125;</span><br><span class="line">      &lt;/OriginForm&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">// 虚拟组件，仅用于收集 schema</span><br><span class="line">const SchemaField = props =&gt; &#123;</span><br><span class="line">  const parent = useContext(MarkupContext)</span><br><span class="line">  if (schemaIs(parent, &apos;object&apos;)) &#123;</span><br><span class="line">    const name = props.name || getRadomName()</span><br><span class="line">    parent.properties = parent.properties || &#123;&#125;</span><br><span class="line">    parent.properties[name] = clone(</span><br><span class="line">      props,</span><br><span class="line">      filterSchemaPropertiesAndReactChildren</span><br><span class="line">    )</span><br><span class="line">    return (</span><br><span class="line">      &lt;MarkupContext.Provider value=&#123;parent.properties[name]&#125;&gt;</span><br><span class="line">        &#123;props.children&#125;</span><br><span class="line">      &lt;/MarkupContext.Provider&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125; else if (schemaIs(parent, &apos;array&apos;)) &#123;</span><br><span class="line">    parent.items = clone(props, filterSchemaPropertiesAndReactChildren)</span><br><span class="line">    return (</span><br><span class="line">      &lt;MarkupContext.Provider value=&#123;parent.items&#125;&gt;</span><br><span class="line">        &#123;props.children&#125;</span><br><span class="line">      &lt;/MarkupContext.Provider&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    return props.children || &lt;React.Fragment /&gt;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const SchemaMarkup = createHOC((options, SchemaForm) =&gt; &#123;</span><br><span class="line">  return class extends Component&lt;ISchemaFormProps&gt; &#123;</span><br><span class="line">    public static displayName = &apos;SchemaMarkupParser&apos;</span><br><span class="line"></span><br><span class="line">    public portalRoot = document.createElement(&apos;div&apos;)</span><br><span class="line"></span><br><span class="line">    public render() &#123;</span><br><span class="line">      const &#123;</span><br><span class="line">        children,</span><br><span class="line">        initialValues,</span><br><span class="line">        defaultValue,</span><br><span class="line">        value,</span><br><span class="line">        schema,</span><br><span class="line">        ...others</span><br><span class="line">      &#125; = this.props</span><br><span class="line"></span><br><span class="line">      let alreadyHasSchema = false</span><br><span class="line">      let finalSchema = &#123;&#125;</span><br><span class="line">      if (schema) &#123;</span><br><span class="line">        alreadyHasSchema = true</span><br><span class="line">        finalSchema = schema</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        finalSchema = &#123; type: &apos;object&apos; &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      nonameId = 0</span><br><span class="line"></span><br><span class="line">      return (</span><br><span class="line">        &lt;React.Fragment&gt;</span><br><span class="line">          &#123;!alreadyHasSchema &amp;&amp;</span><br><span class="line">            // 只是为了去收集 schema 数据</span><br><span class="line">            createPortal(</span><br><span class="line">              &lt;MarkupContext.Provider value=&#123;finalSchema&#125;&gt;</span><br><span class="line">                &#123;children&#125;</span><br><span class="line">              &lt;/MarkupContext.Provider&gt;,</span><br><span class="line">              this.portalRoot</span><br><span class="line">            )&#125;</span><br><span class="line">          &#123;/* 收集后的 schema 用于渲染 */&#125;</span><br><span class="line">          &lt;SchemaForm</span><br><span class="line">            &#123;...others&#125;</span><br><span class="line">            defaultValue=&#123;defaultValue&#125;</span><br><span class="line">            value=&#123;value&#125;</span><br><span class="line">            initialValues=&#123;initialValues&#125;</span><br><span class="line">            schema=&#123;finalSchema&#125;</span><br><span class="line">          &gt;</span><br><span class="line">            &#123;children&#125;</span><br><span class="line">          &lt;/SchemaForm&gt;</span><br><span class="line">        &lt;/React.Fragment&gt;</span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<p>@uform/react 封装了三种抽象组件：array 列表组件、object 多属性组件、slot 插槽组件（渲染 schema.renderChildren）。registerFieldRenderer 函数用于增强 schema 的解析能力，默认 schema[‘x-render’] 可以作为字段组件的渲染函数。</p>
-<p>借助于通过 createContext 机制传递 Broadcast 实例，StateForm、StateField 会持有相同的 Broadcast 实例。这个 Broadcast 实例可以作为组件层级的通信总线。@uform/react 另外借助了 <a href="https://github.com/janryWang/react-eva" target="_blank" rel="noopener">react-eva</a> 可用于以 actions、effects 形式操控表单。</p>
-<h2 id="uform-antd"><a href="#uform-antd" class="headerlink" title="@uform/antd"></a>@uform/antd</h2><p>@uform/antd、@uform/next 主要利用 @uform/react 提供的 registerFormWrapper、registerFieldMiddleware、registerFormField + connect 完成表单外围容器、字段外围容器、字段组件的注册。如在 @uform/antd 中，会通过 registerFormWrapper 为表单包裹上 antd 的 Form 组件；通过 registerFieldMiddleware 为字段包裹上 FormItem 组件；通过 registerFormField + connect 注册 input，radio 等字段组件。</p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>uform 有其设计和实现上的复杂性，本文暂未深入挖掘子字段、path、列表组件等内容。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/25/读书笔记/数据服务/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/25/读书笔记/数据服务/" itemprop="url">大数据之路 —— 数据服务章</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-25T00:00:00+08:00">2019-10-25</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/读书笔记/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/10/25/读书笔记/数据服务/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/25/读书笔记/数据服务/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="架构演进"><a href="#架构演进" class="headerlink" title="架构演进"></a>架构演进</h2><p>阿里巴巴的数据开放服务经历了四个阶段：DWSOA、OpenAPI、SmartDQ 和 OneService。</p>
-<img src="/2019/10/25/读书笔记/数据服务/dataservice.jpg">
-<ul>
-<li>DWSOA：将业务方对数据的需求通过 SOA 服务提供除去（接口内部实现数据计算逻辑）。接口开发、测试、上线繁复，灵活性不高，扩展性差，复用率低。</li>
-<li>OpenApi：同类数据（如会员数据）合并成一张逻辑表，对外透出一个接口，通过接口参数定位具体数据。接口数量随着类目数量也逐渐增多。</li>
-<li>SmartDQ：逻辑表的取数据逻辑通过 SQL （作为领域专用语言 DSL）描述，SmartDQ 通过解析 SQL、生成执行计划、执行 SQL、合并数据、限制结果，最终透出数据。SmartDQ 通过跨异构数据源适配器对接不同的数据库，并且封装了分布式查询功能，无需关心底层物理表是不是分库分表。应用层，SmartDQ 提供接口配置管理，且集成监控、限流、计费、权限能力。缺点是 SQL 无法解决复杂的业务逻辑，即提供个性化的数据内容。</li>
-<li>OneService：OneService 在 SmartDQ 的基础上，切分数据使用场景，主要包含以下几类：个性化的垂直业务场景、实时数据推送服务、定时任务服务。介于此，OneService 提供多种服务类型满足不同场景，分别是 OneService-SmartDQ、OneService-Lego、OneService-iPush、OneService-uTiming。OneService-Lego 采用插件化开发模式，一类需求一个插件，用于满足个性化的垂直业务场景。OneService-iPush 通过 websocket 或 long-polling 实时推送数据。OneService-uTiming 提供定时任务、即时任务两种模式。</li>
-</ul>
-<p>在 OneService 阶段；数据生产者推送数据入库，服务提供者根据规范快速创建、发布、监控、下线服务；服务调用者可以在门户网站中快速检索、申请、调用服务。</p>
-<p>SmartDQ 架构图：</p>
-<img src="/2019/10/25/读书笔记/数据服务/SmartDQ.png">
-<p>OneService 架构图：</p>
-<img src="/2019/10/25/读书笔记/数据服务/OneService.png">
-<h2 id="架构细节"><a href="#架构细节" class="headerlink" title="架构细节"></a>架构细节</h2><img src="/2019/10/25/读书笔记/数据服务/SmartDQ_Detail.jpeg">
-<p>逻辑表通过多个数据源的物理表汇总而成，多个逻辑表挂在一个主题下。服务层元数据中心用于进行元数据配置，并维护物理表到逻辑表的映射。同时，服务层会把元数据加载到本地缓存中，以便进行后续的模型解析。</p>
-<p>元数据分三套环境：日常、预发、线上。元数据经预发布经验证后，才可以正式发布。元数据的权限级别在逻辑表层级。当某用户修改逻辑表及其下的物理表资源时，禁止其他用户修改。技术上，元数据缓存采用增量更新。</p>
-<p>主处理模块首先会通过解析 DSL（即 SQL 描述）获得查询树；其次遍历查询树，混入元数据模型中的逻辑表信息，获得逻辑 Query；其次通过元数据模型中物理表和逻辑表的映射关系，将逻辑 Query 转成物理 Query；其次按所涉及的物理表拆分为 SubQuery；其次将 SubQuery 组装成 SQL 语句并交给 DB 执行；最后将执行结果合并，返回调用者。</p>
-<p>对于 Get 快查询和 List 慢查询，分配两套线程池，避免 Get 快查询前面有一个 List 慢查询，导致等待时间过长。在查询优化过程中，引擎会将不必要的 List 慢查询转成 Get 快查询。</p>
-<p>查询服务器分组，每个分组有明确的服务对象和保障等级。分组隔离使 A 分组的异常不会影响到 B 分组。分组策略会进行动态调整，以实现资源的最大化利用。</p>
-<p>数据安全方面，查询强制带上 LIMIT 限制，并设定必传字段，防止全表扫描。</p>
-<p>日志采集方面，采集内容包含调用时间、接口名、方法名、返回记录数等基础信息；调用者应用名、来源 IP 地址等调用者信息；调用指标、查询筛选条件等调用信息；响应时间、是否走缓存等性能指标信息；出错原因、错误类型、数据源、错误堆栈等错误信息。在有了日志的基础上，可以监控系统的健康：总体、分组或单机的性能；逻辑表被调用情况（零调用酌情予以下线处理）；慢 SQL 查找并优化；错误排查。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1969,7 +1974,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">126</span>
+                    <span class="site-state-item-count">128</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

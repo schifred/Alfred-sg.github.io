@@ -299,6 +299,379 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/18/大数据/数据技术/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/18/大数据/数据技术/" itemprop="url">数据技术</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-18T00:00:00+08:00">2020-01-18</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/大数据/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/01/18/大数据/数据技术/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/18/大数据/数据技术/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote class="blockquote-center"><p>数据仓库（Data Warehouse）是一个面向主题的（Subject Oriented）、集成的（Integrate）、相对稳定的（Non-Volatile）、反映历史变化（Time Variant）的数据集合，用于支持管理决策。</p>
+</blockquote>
+<ul>
+<li>OLTP：On-Line Transaction Processing，联机事务处理，辅助业务操作，用于产生数据。OLTP 能将源数据即时传送到计算中心进行处理，并在短时间内给出结果。</li>
+<li>OLAP：On-Line Analytical Processing，联机分析处理，辅助决策分析，用于分析数据。</li>
+<li>ETL：Extract-Transform-Load，数据从来源端经过抽取（extract）、转换（transform）、加载（load）至目的端的过程。</li>
+</ul>
+<img src="/2020/01/18/大数据/数据技术/lambda.png">
+<p>上图为数据仓库架构发展过程中的第二阶段 —— Lambda 架构。第三阶段 Kappa 架构借助 Flink 等实时流处理引擎，移除了离线批处理 etl 任务。数据仓库构架的发展过程可以参看 <a href="https://yq.aliyun.com/articles/691541" target="_blank" rel="noopener">数据仓库介绍与实时数仓案例</a>。</p>
+<ul>
+<li>ODS：OperationalData Store，操作数据层，保存从业务系统或埋点系统采集过来的原始数据。</li>
+<li>DWD：Data Warehouse Detail，明细数据层，根据主题定义好事实与维度表，保存最细粒度的事实数据。该层数据的生产作业包含：字段名、枚举等数据标准统一；数据脱敏，专门建设敏感数据库存储敏感数据；分库分表等多源数据整合；数据模型统基于业务流程建模。</li>
+<li>DWS：Data Warehouse Summary，汇总数据层，在 DWD 层基础上根据不同的业务需求分主题轻度汇总。DWS 层可拆分为 DWB 轻度汇总数据和 DWS 重度汇总数据。</li>
+<li>DM：Data Market，数据集市层，主要为业务需求提供服务，其包含应用产品所需数据、需求报表、指标等，DM 层还可为业务部门创建专用数据库以及数据探索库。</li>
+</ul>
+<p>下图为阿里大数据系统的架构图：</p>
+<img src="/2020/01/18/大数据/数据技术/ali.jpg">
+<h2 id="数据同步"><a href="#数据同步" class="headerlink" title="数据同步"></a>数据同步</h2><p>数据同步的方式：</p>
+<ul>
+<li>直连同步：通过 ODBC、JDBC 等标准接口将源系统的数据导入到目标系统，对业务系统的性能影响较大（虽然业务系统可以采用主备分离的模式）。</li>
+<li>数据文件同步：通过 FTP 服务器将源系统的数据导入到目标系统。为避免丢包或传输错误，业务系统一般还会发送校验文件，并对数据增加压缩和加密功能。</li>
+<li>数据库日志解析同步：在操作系统层面获取归档日志，将其解析到目标文件数据文件中，可用于增量更新。日志解析同步需要部署一个 agent 系统从源系统抽取数据。该同步机制会导致增量更新的数据丢失调凌晨附近的数据，即数据飘逸和遗漏。</li>
+</ul>
+<h3 id="DataX"><a href="#DataX" class="headerlink" title="DataX"></a>DataX</h3><p>阿里内部使用 <a href="https://github.com/alibaba/DataX" target="_blank" rel="noopener">DataX</a> 作离线数据同步。它能实现包括 MySQL、Oracle、SqlServer、Postgre、HDFS、Hive、ADS、HBase、TableStore(OTS)、MaxCompute(ODPS)、DRDS 等各种异构数据源之间高效的数据同步功能。DataX 面对的主要问题是，从源系统到数仓或从数仓到目标系统，数据流进各个系统时的格式并不统一，因此 Datax 需要将数据转换成格式统一的中间状态。</p>
+<p>DataX 采用 Framework + Plugin 开放式架构实现。Plugin 用于转换不同数据库或文件系统的数据格式，包含 ReadPlugin、WritePlugin 两类，作为 Reader 数据采集模块和 Writer 数据写入模块的实现内容。Framework 将数据同步作业拆分成多个子任务，并处理缓冲、流程控制、并发、上下文加载等高速数据交换等技术问题，再通过 Chanel 交换 Reader、Writer 的数据。</p>
+<img src="/2020/01/18/大数据/数据技术/datax.jpeg">
+<p>更多内容可参考 <a href="https://blog.csdn.net/u014646662/article/details/82792725" target="_blank" rel="noopener">DataX3.0 简介</a>。</p>
+<h3 id="TimeTunnel"><a href="#TimeTunnel" class="headerlink" title="TimeTunnel"></a>TimeTunnel</h3><p>阿里内部使用 TimeTunnel 作实时数据同步。它所实现的主要功能包含，通过消息订阅模式从源系统的 binlog 日志读取出增量数据，随后订阅数据的目标系统将读取这些数据。</p>
+<p>TimeTunnel 是基于生产者、消费者和 Topic 消息标识实现的消息中间件。它通过 <a href="https://www.jianshu.com/p/53864dc3f7b4" target="_blank" rel="noopener">HBase</a> 持久化消息数据。在下图的组件架构中：TTManager 负责对外提供队列申请、删除、查询和集群的管理接⼝；对内发现故障，发起队列迁移。Client 是一组访问接口，包含安全认证 api、发布 api 和订阅 api。Router 为 Client、Broker 提供路由服务，路由到 Broker 时须鉴权。Zookeeper 提供状态同步功能，存储 Client、Broker 的状态。Broker 负责消息队列的读写操作，承担实际的流量，它会从 HBase 取发数据。</p>
+<img src="/2020/01/18/大数据/数据技术/TimeTunnel.png">
+<p>更多内容可参考 <a href="https://blog.csdn.net/pelick/article/details/26265663" target="_blank" rel="noopener">淘宝实时数据传输平台: TimeTunnel介绍</a>。</p>
+<h2 id="数据计算"><a href="#数据计算" class="headerlink" title="数据计算"></a>数据计算</h2><p>收集到原始数据后，数据还需要被整合和计算，才能发挥大数据的商业和业务价值。阿里为数据计算层提供了两大体系：MaxCompute 离线存储及计算平台、StreamCompute 实时计算平台。</p>
+<h3 id="MaxCompute"><a href="#MaxCompute" class="headerlink" title="MaxCompute"></a>MaxCompute</h3><p><a href="https://helpcdn.aliyun.com/document_detail/27800.html" target="_blank" rel="noopener">MaxCompute</a> 采用分布式计算模型，能满足 100GB 以上规模的存储及计算需求。它支持 SQL 查询、UDF 用户自定义函数、Java MapReduce 编程模型、Graph 图计算处理框架。</p>
+<img src="/2020/01/18/大数据/数据技术/maxcompute.png">
+<p>MaxCompute 由四部分组成：MaxCompute Client 客户端；MaxCompute Front End 接入层；MaxCompute Server 逻辑层；MaxCompute Core 存储与计算层。其中，客户端提供了 RESTful API、Java SDK、Command Line Tool、为 ETL/BI 提供的可视化 IDE 工具。接入层提供 HTTP 服务、缓存、负载均衡、用户认证等功能。逻辑层负责实现用户空间和对象的管理、命令的解析与执行逻辑、数据对象的访问控制和授权等功能。它有三种角色：Worker 对接 RESTful API、SQL 等，生成 MaxCompute Instance 并交由 Scheduler 处理；Scheduler 负责 MaxCompute Instance 的调度和拆解，询问计算层的资源占用情况；Exector 负责 MaxCompute Instance 的执行，向计算层提交计算任务。计算层即 Apsara Core 飞天内核，运行在和控制层相互独立的计算集群上，它包含 Pangu 分布式文件系统、Fuxi 资源调度系统、Nuwa 命名空间服务、Zhongkui 安全服务、Shennong 监控模块、Open Table Service 开放结构化数据服务（用于存储元数据）等。</p>
+<img src="/2020/01/18/大数据/数据技术/apsara.png">
+<p>更多内容可参考 <a href="https://yq.aliyun.com/articles/78108" target="_blank" rel="noopener">阿里巴巴飞天大数据平台MaxCompute（原名ODPS）全套攻略</a>、<a href="https://yq.aliyun.com/articles/61529?spm=a2c4e.11153940.0.0.4f886797FazeNv" target="_blank" rel="noopener">MaxCompute 2.0 生态开放之路及最新发展</a>、<a href="http://www.sohu.com/a/129170041_612370" target="_blank" rel="noopener">MaxCompute 2.0 性能优化揭秘</a>、<a href="https://yq.aliyun.com/articles/690510?spm=a2c4e.11153940.0.0.737b1ffbAsWx17" target="_blank" rel="noopener">MaxCompute，基于Serverless的高可靠大数据服务</a>、<a href="https://www.cnblogs.com/barrywxx/p/10739834.html" target="_blank" rel="noopener">阿里云大数据计算服务 - MaxCompute (原名 ODPS)</a>、<a href="https://www.jianshu.com/p/4104e7d5316f" target="_blank" rel="noopener">当我们用 MaxCompute 的时候，我们在用什么？</a>。</p>
+<h3 id="实时计算"><a href="#实时计算" class="headerlink" title="实时计算"></a>实时计算</h3><p>数据时效性一般分为三种：延迟以天计算的离线数据、延迟以小时计算的准实时数据、延迟以秒计算的实时数据。离线数据和准实时数据都可以在批处理系统（如 Hadoop、MaxCompute、Spark 等系统）中实现；实时数据则需要流处理系统（如 Storm、S4、Spark Streaming、Flink、StreamCompute 等系统）来实现。区别于批处理系统周期性调度任务，流处理系统的任务是常驻的，并需要满足高时效性、高性能的要求。流处理系统不能完全替代批处理系统，因为它的计算成本加大，且需要解决复杂的业务逻辑（数据处理需要上下文关系，数据抵达时间的不确定性导致流处理系统可能获取不到前置数据）。</p>
+<p>流处理系统所需要的数据可以通过 TimeTunnel、Kafka 等数据中间件或 MetaQ、Notify 等消息系统实现。其中，使用数据中间件能获得较高的吞吐量，一般用于应对数据量较大的业务系统；消息系统一般用作业务系统数据库变更的消息中转。</p>
+<p>下图是 flink 的架构图：</p>
+<img src="/2020/01/18/大数据/数据技术/flink.png">
+<p>更多内容可参考 <a href="https://help.aliyun.com/document_detail/110778.html?spm=a2c4g.11186623.6.554.2c6d15eaTRijei" target="_blank" rel="noopener">什么是阿里云实时计算</a>、<a href="https://yq.aliyun.com/articles/674448?spm=a2c4e.11153959.teamhomeleft.33.27f717f74CDX29" target="_blank" rel="noopener">Streaming System 第一章：Streaming 101</a>、<a href="https://www.cnblogs.com/code2one/p/10123112.html" target="_blank" rel="noopener">Flink架构及其工作原理</a>。</p>
+<h2 id="数据服务"><a href="#数据服务" class="headerlink" title="数据服务"></a>数据服务</h2><p>阿里的数据开放服务经历了四个阶段：DWSOA、OpenAPI、SmartDQ 和 OneService。</p>
+<img src="/2020/01/18/大数据/数据技术/dataservice.jpg">
+<ul>
+<li>DWSOA：烟囱式一个需求一个或者几个接口。</li>
+<li>OpenApi：同类数据（如会员数据）合并成一张逻辑表，对外透出一个接口，通过接口参数定位具体数据。</li>
+<li>SmartDQ：逻辑表的取数据逻辑通过 SQL （作为领域专用语言 DSL）描述，SmartDQ 通过解析 SQL、生成执行计划、执行 SQL、合并数据、限制结果，最终透出数据。</li>
+<li>OneService：在 SmartDQ 基础上，满足不同场景的数据需求，OneService-SmartDQ 简单的查询场景、OneService-Lego 个性化业务场景、 OneService-iPush 实时数据推送场景、OneService-uTiming 定时任务场景。</li>
+</ul>
+<p>在 SmartDQ 中，逻辑表通过多个数据源的物理表汇总而成，多个逻辑表挂在一个主题下。服务层主要包含两大模块：元数据配置维护物理表到逻辑表的映射；主处理模块会解析 DSL、构建逻辑 Query、构建物理 Query、拆分 Query、执行 SQL、合并结果。</p>
+<img src="/2020/01/18/大数据/数据技术/smartdq.png">
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《大数据之路——阿里巴巴大数据实践》<br><a href="https://www.cnblogs.com/shengyang17/p/10527700.html" target="_blank" rel="noopener">数仓</a><br><a href="https://www.jianshu.com/p/da62fb0c6a0b" target="_blank" rel="noopener">说说数仓</a><br><a href="https://blog.51cto.com/abezoo/2399546" target="_blank" rel="noopener">大数据环境下数仓设计</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/12/java/我看 spring beans/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/12/java/我看 spring beans/" itemprop="url">我看 spring beans</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-12T00:00:00+08:00">2020-01-12</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/01/12/java/我看 spring beans/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/12/java/我看 spring beans/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>先介绍两个重要的概念（详情可以参看 <a href="https://www.cnblogs.com/xingzc/p/9138256.html" target="_blank" rel="noopener">BeanFactory 和 FactoryBean 的区别</a>）：</p>
+<ul>
+<li>BeanFactory：作为接口，定义了 Spring IOC 容器最底层的编程规范，职能包含实例化、定位、配置应用程序中的 bean 及建立 bean 之间的依赖。</li>
+<li>FactoryBean：用于实例化 bean。Spring 有两种 bean：通过反射机制使用 class 创建的 bean，如添加了 @Component 注解的 bean；通过实现了 FactoryBean 接口的类创建 bean，在 FactoryBean#getObject 会创建所需要的类实例。</li>
+</ul>
+<p>在 spring 中，应用上下文 ApplicationContext 在 refresh 方法执行期间，会创建 BeanFactory 实例并注册 BeanDefiniton（定义了 bean 的基础属性：scope 是否单例、lazyInit 是否懒加载等）；然后通过调用 BeanFactory#getBean 方法可以创建 bean。ApplicationContext#getBeanFactory 可用于获取 BeanFactory 实例；ApplicationContext#getBean 可用于获取 bean。</p>
+<img src="/2020/01/12/java/我看%20spring%20beans/bean.png">
+<h2 id="ApplicationContext"><a href="#ApplicationContext" class="headerlink" title="ApplicationContext"></a>ApplicationContext</h2><p>作为应用上下文，ApplicationContext#refresh 执行过程既会创建 BeanFactory、注册 BeanDefiniton，又集成了国际化、事件广播机制。该接口有以下实现类：</p>
+<ul>
+<li>AnnotationConfigApplicationContext：从一或多个配置类中加载上下文定义，适用于 java 注解方式加载 bean</li>
+<li>ClassPathXmlApplicationContext：从类路径下的一或多个 xml 配置文件中加载上下文定义，适用于 xml 配置方式</li>
+<li>FileSystemXmlApplicationContext：从文件系统下的一或多个 xml 配置文件中加载上下文定义</li>
+<li>AnnotationConfigWebApplicationContext：专门为 web 应用准备的，适用于注解方式</li>
+<li>XmlWebApplicationContext：从 web 应用下的一或多个xml配置文件加载上下文定义，适用于 xml 配置方式</li>
+</ul>
+<p>以下是 AnnotationConfigApplicationContext 的使用情形：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ManConfig</span> </span>&#123;</span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Man <span class="title">man</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> Man();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// 调用 ApplicationContext#refresh 方法，注册 BeanDefiniton</span></span><br><span class="line">		ApplicationContext context = <span class="keyword">new</span> AnnotationConfigApplicationContext(ManConfig.class);</span><br><span class="line">		<span class="comment">// 获取 bean</span></span><br><span class="line">		Man man = context.getBean(Man.class);</span><br><span class="line">		man.driveCar();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实际上，在 AnnotationConfigApplicationContext 实例化过程中，即会调用 refresh 方法。对于非懒加载的 bean，refresh 方法执行期间即会予以加载。当然，在 AnnotationConfigApplicationContext 实例化过程中，它会扫描 basePackages 以便筛选出添加了 @Component 注解的类。refresh 源码见下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractApplicationContext</span> <span class="keyword">extends</span> <span class="title">DefaultResourceLoader</span></span></span><br><span class="line"><span class="class">		<span class="keyword">implements</span> <span class="title">ConfigurableApplicationContext</span> </span>&#123;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refresh</span><span class="params">()</span> <span class="keyword">throws</span> BeansException, IllegalStateException </span>&#123;</span><br><span class="line">		<span class="keyword">synchronized</span> (<span class="keyword">this</span>.startupShutdownMonitor) &#123;</span><br><span class="line">			<span class="comment">// 设置环境变量、容器开关和激活标志等</span></span><br><span class="line">			prepareRefresh();</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 调用子类实现的 refreshBeanFactory 方法创建 BeanFactory 实例，并加载 BeanDefiniton</span></span><br><span class="line">      <span class="comment">// BeanFactory 实例如 AbstractRefreshableApplicationContext 中的 DefaultListableBeanFactory 实例</span></span><br><span class="line">			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 配置 BeanFactory 所用的类加载器、bean 表达式解析器、属性编辑器等</span></span><br><span class="line">			prepareBeanFactory(beanFactory);</span><br><span class="line"></span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">// 执行子类的 postProcessBeanFactory，可用于（通过应用的配置文件）修改 BeanDefiniton</span></span><br><span class="line">				postProcessBeanFactory(beanFactory);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 执行 BeanFactoryPostProcessor#postProcessBeanFactory，可用于修改 BeanDefiniton</span></span><br><span class="line">				invokeBeanFactoryPostProcessors(beanFactory);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 注册 bean 初始化钩子 BeanPostProcessor</span></span><br><span class="line">				registerBeanPostProcessors(beanFactory);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 加载 MessageSource 这个特殊的 bean，用于国际化处理</span></span><br><span class="line">				initMessageSource();</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 初始化 ApplicationEventMulticaster 这个特殊的 bean，用于事件广播</span></span><br><span class="line">				initApplicationEventMulticaster();</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 执行子类的 onRefresh 方法，初始化特殊的 bean</span></span><br><span class="line">				onRefresh();</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 加载 ApplicationListener（特殊的 bean 或通过上下文加载），执行 earlyApplicationEvents 前置事件</span></span><br><span class="line">				registerListeners();</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 加载 ConversionService 这个特殊的 bean</span></span><br><span class="line">				<span class="comment">// BeanFactory 添加 EmbeddedValueResolver，用于解析配置文件的属性</span></span><br><span class="line">				<span class="comment">// 加载 LoadTimeWeaverAware 这个特殊的 bean，允许织入第三方模块，如 AspectJ</span></span><br><span class="line">				<span class="comment">// 将 BeanFactory 中的 TempClassLoader 置为 null，终止其工作</span></span><br><span class="line">				<span class="comment">// 执行 BeanFactory#freezeConfiguration，冻结 BeanDefiniton</span></span><br><span class="line">				<span class="comment">// 执行 BeanFactory#preInstantiateSingletons，调用 getBean 方法提前加载无需懒加载的 bean</span></span><br><span class="line">				finishBeanFactoryInitialization(beanFactory);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 完成刷新过程，发布应用事件</span></span><br><span class="line">				finishRefresh();</span><br><span class="line">			&#125; <span class="keyword">catch</span> (BeansException ex) &#123;</span><br><span class="line">				<span class="keyword">if</span> (logger.isWarnEnabled()) &#123;</span><br><span class="line">					logger.warn(<span class="string">"Exception encountered during context initialization - "</span> +</span><br><span class="line">							<span class="string">"cancelling refresh attempt: "</span> + ex);</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				destroyBeans();</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 将容器激活标识置为否值</span></span><br><span class="line">				cancelRefresh(ex);</span><br><span class="line"></span><br><span class="line">				<span class="keyword">throw</span> ex;</span><br><span class="line">			&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">				<span class="comment">// 重置缓存，因为 bean 所用及的元数据将不必使用</span></span><br><span class="line">				resetCommonCaches();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="BeanFactory"><a href="#BeanFactory" class="headerlink" title="BeanFactory"></a>BeanFactory</h2><p>BeanFactory 接口的默认实现类的 DefaultListableBeanFactory。以下是相关类图：</p>
+<img src="/2020/01/12/java/我看%20spring%20beans/beanfactory.png">
+<p>AbstractBeanFactory 类是 BeanFactory 接口的抽象实现类，在它的 getBean 方法执行期间，如果 bean 还没创建，它就会创建这个 bean；如果已经创建了这个 bean，并且这个 bean 是单例，spring 就会从缓存中获取这个 bean。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br></pre></td><td class="code"><pre><span class="line">public abstract <span class="class"><span class="keyword">class</span> <span class="title">AbstractBeanFactory</span> <span class="keyword">extends</span> <span class="title">FactoryBeanRegistrySupport</span> <span class="title">implements</span> <span class="title">ConfigurableBeanFactory</span> </span>&#123;</span><br><span class="line">	@Override</span><br><span class="line">	public <span class="built_in">Object</span> getBean(<span class="built_in">String</span> name) throws BeansException &#123;</span><br><span class="line">		<span class="keyword">return</span> doGetBean(name, <span class="literal">null</span>, <span class="literal">null</span>, <span class="literal">false</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	protected &lt;T&gt; T doGetBean(final <span class="built_in">String</span> name, @Nullable final Class&lt;T&gt; requiredType,</span><br><span class="line">			@Nullable final <span class="built_in">Object</span>[] args, boolean typeCheckOnly) throws BeansException &#123;</span><br><span class="line">		final <span class="built_in">String</span> beanName = transformedBeanName(name);</span><br><span class="line">		<span class="built_in">Object</span> bean;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 获取缓存的单例 bean</span></span><br><span class="line">		<span class="built_in">Object</span> sharedInstance = getSingleton(beanName);</span><br><span class="line">		<span class="keyword">if</span> (sharedInstance != <span class="literal">null</span> &amp;&amp; args == <span class="literal">null</span>) &#123;</span><br><span class="line">			<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">				<span class="keyword">if</span> (isSingletonCurrentlyInCreation(beanName)) &#123;</span><br><span class="line">					logger.trace(<span class="string">"Returning eagerly cached instance of singleton bean '"</span> + beanName +</span><br><span class="line">							<span class="string">"' that is not fully initialized yet - a consequence of a circular reference"</span>);</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					logger.trace(<span class="string">"Returning cached instance of singleton bean '"</span> + beanName + <span class="string">"'"</span>);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="comment">// （完成 FactoryBean 相关处理，）获取 bean 实例</span></span><br><span class="line">			bean = getObjectForBeanInstance(sharedInstance, name, beanName, <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// 单例正在（循环引用）创建过程中，报错</span></span><br><span class="line">			<span class="keyword">if</span> (isPrototypeCurrentlyInCreation(beanName)) &#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> BeanCurrentlyInCreationException(beanName);</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 当 IOC 容器 BeanFactory 中不存在 BeanDefinition，向上查找祖先容器</span></span><br><span class="line">			BeanFactory parentBeanFactory = getParentBeanFactory();</span><br><span class="line">			<span class="keyword">if</span> (parentBeanFactory != <span class="literal">null</span> &amp;&amp; !containsBeanDefinition(beanName)) &#123;</span><br><span class="line">				<span class="built_in">String</span> nameToLookup = originalBeanName(name);</span><br><span class="line">				<span class="keyword">if</span> (parentBeanFactory <span class="keyword">instanceof</span> AbstractBeanFactory) &#123;</span><br><span class="line">					<span class="keyword">return</span> ((AbstractBeanFactory) parentBeanFactory).doGetBean(</span><br><span class="line">							nameToLookup, requiredType, args, typeCheckOnly);</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> (args != <span class="literal">null</span>) &#123;</span><br><span class="line">					<span class="keyword">return</span> (T) parentBeanFactory.getBean(nameToLookup, args);</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> (requiredType != <span class="literal">null</span>) &#123;</span><br><span class="line">					<span class="keyword">return</span> parentBeanFactory.getBean(nameToLookup, requiredType);</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					<span class="keyword">return</span> (T) parentBeanFactory.getBean(nameToLookup);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (!typeCheckOnly) &#123;</span><br><span class="line">				markBeanAsCreated(beanName);</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">// 合并祖先容器的 BeanDefinition</span></span><br><span class="line">				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);</span><br><span class="line">				checkMergedBeanDefinition(mbd, beanName, args);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 获取（或创建）依赖 bean</span></span><br><span class="line">				<span class="built_in">String</span>[] dependsOn = mbd.getDependsOn();</span><br><span class="line">				<span class="keyword">if</span> (dependsOn != <span class="literal">null</span>) &#123;</span><br><span class="line">					<span class="keyword">for</span> (<span class="built_in">String</span> dep : dependsOn) &#123;</span><br><span class="line">						<span class="keyword">if</span> (isDependent(beanName, dep)) &#123;</span><br><span class="line">							<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbd.getResourceDescription(), beanName,</span><br><span class="line">									<span class="string">"Circular depends-on relationship between '"</span> + beanName + <span class="string">"' and '"</span> + dep + <span class="string">"'"</span>);</span><br><span class="line">						&#125;</span><br><span class="line">						registerDependentBean(dep, beanName);</span><br><span class="line">						<span class="keyword">try</span> &#123;</span><br><span class="line">							getBean(dep);</span><br><span class="line">						&#125;</span><br><span class="line">						<span class="keyword">catch</span> (NoSuchBeanDefinitionException ex) &#123;</span><br><span class="line">							<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbd.getResourceDescription(), beanName,</span><br><span class="line">									<span class="string">"'"</span> + beanName + <span class="string">"' depends on missing bean '"</span> + dep + <span class="string">"'"</span>, ex);</span><br><span class="line">						&#125;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 创建单例 bean</span></span><br><span class="line">				<span class="keyword">if</span> (mbd.isSingleton()) &#123;</span><br><span class="line">					sharedInstance = getSingleton(beanName, () -&gt; &#123;</span><br><span class="line">						<span class="keyword">try</span> &#123;</span><br><span class="line">							<span class="keyword">return</span> createBean(beanName, mbd, args);</span><br><span class="line">						&#125;</span><br><span class="line">						<span class="keyword">catch</span> (BeansException ex) &#123;</span><br><span class="line">							destroySingleton(beanName);</span><br><span class="line">							<span class="keyword">throw</span> ex;</span><br><span class="line">						&#125;</span><br><span class="line">					&#125;);</span><br><span class="line">					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> (mbd.isPrototype()) &#123;</span><br><span class="line">					<span class="built_in">Object</span> prototypeInstance = <span class="literal">null</span>;</span><br><span class="line">					<span class="keyword">try</span> &#123;</span><br><span class="line">						beforePrototypeCreation(beanName);</span><br><span class="line">						prototypeInstance = createBean(beanName, mbd, args);</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">finally</span> &#123;</span><br><span class="line">						afterPrototypeCreation(beanName);</span><br><span class="line">					&#125;</span><br><span class="line">					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					<span class="built_in">String</span> scopeName = mbd.getScope();</span><br><span class="line">					final Scope scope = <span class="keyword">this</span>.scopes.get(scopeName);</span><br><span class="line">					<span class="keyword">if</span> (scope == <span class="literal">null</span>) &#123;</span><br><span class="line">						<span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"No Scope registered for scope name '"</span> + scopeName + <span class="string">"'"</span>);</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">try</span> &#123;</span><br><span class="line">						<span class="built_in">Object</span> scopedInstance = scope.get(beanName, () -&gt; &#123;</span><br><span class="line">							beforePrototypeCreation(beanName);</span><br><span class="line">							<span class="keyword">try</span> &#123;</span><br><span class="line">								<span class="keyword">return</span> createBean(beanName, mbd, args);</span><br><span class="line">							&#125;</span><br><span class="line">							<span class="keyword">finally</span> &#123;</span><br><span class="line">								afterPrototypeCreation(beanName);</span><br><span class="line">							&#125;</span><br><span class="line">						&#125;);</span><br><span class="line">						bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">catch</span> (IllegalStateException ex) &#123;</span><br><span class="line">						<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(beanName,</span><br><span class="line">								<span class="string">"Scope '"</span> + scopeName + <span class="string">"' is not active for the current thread; consider "</span> +</span><br><span class="line">								<span class="string">"defining a scoped proxy for this bean if you intend to refer to it from a singleton"</span>,</span><br><span class="line">								ex);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125; <span class="keyword">catch</span> (BeansException ex) &#123;</span><br><span class="line">				cleanupAfterBeanCreationFailure(beanName);</span><br><span class="line">				<span class="keyword">throw</span> ex;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 类型转换</span></span><br><span class="line">		<span class="keyword">if</span> (requiredType != <span class="literal">null</span> &amp;&amp; !requiredType.isInstance(bean)) &#123;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				T convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);</span><br><span class="line">				<span class="keyword">if</span> (convertedBean == <span class="literal">null</span>) &#123;</span><br><span class="line">					<span class="keyword">throw</span> <span class="keyword">new</span> BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">return</span> convertedBean;</span><br><span class="line">			&#125; <span class="keyword">catch</span> (TypeMismatchException ex) &#123;</span><br><span class="line">				<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">					logger.trace(<span class="string">"Failed to convert bean '"</span> + name + <span class="string">"' to required type '"</span> +</span><br><span class="line">							ClassUtils.getQualifiedName(requiredType) + <span class="string">"'"</span>, ex);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> (T) bean;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.codercto.com/a/3624.html" target="_blank" rel="noopener">Spring 源码解析：高级容器的扩展内幕</a><br><a href="https://www.cnblogs.com/yoci/p/10642553.html" target="_blank" rel="noopener">SpringBean 工作原理详解</a><br><a href="https://www.cnblogs.com/Jolivan/p/9168108.html" target="_blank" rel="noopener">Spring-BeanFactory基本工作流程</a><br><a href="https://www.cnblogs.com/Jolivan/p/9226289.html" target="_blank" rel="noopener">Spring 创建 bean 机制</a><br><a href="https://www.jianshu.com/p/39edfa250e4e" target="_blank" rel="noopener">spring容器之创建bean实例</a><br><a href="https://blog.csdn.net/zwjyyy1203/article/details/89576084" target="_blank" rel="noopener">使用 BeanPostProcessor 制作 ab 脚本的 bean</a><br><a href="https://www.jianshu.com/p/3d099ea43b0e" target="_blank" rel="noopener">使用BeanFactoryPostProcessor——这种姿势不要用</a><br><a href="https://blog.csdn.net/cgj296645438/article/details/80119319" target="_blank" rel="noopener">postProcessBeanFactory方法分析</a><br><a href="https://blog.csdn.net/sid1109217623/article/details/84065725" target="_blank" rel="noopener">Spring源码分析-MessageSource</a><br><a href="https://www.cnblogs.com/jyyzzjl/p/5476546.html" target="_blank" rel="noopener">ApplicationEventMulticaster 事件广播</a><br><a href="https://www.jianshu.com/p/151e0b67c5b6" target="_blank" rel="noopener">Spring 事件机制初始化流程</a><br><a href="https://www.jianshu.com/p/9d8e4fb5b162" target="_blank" rel="noopener">Spring源码finishBeanFactoryInitialization和getBean</a><br><a href="https://www.cnblogs.com/arax/p/8551720.html" target="_blank" rel="noopener">Spring数据转换–ConversionService</a><br><a href="https://www.cnblogs.com/wade-luffy/p/6078446.html" target="_blank" rel="noopener">AOP静态代理-代码织入</a><br><a href="https://www.jianshu.com/p/7e845db823cf" target="_blank" rel="noopener">DetaultListableBeanFactory分层关系解析一</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/04/java/我看 spring mvc/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1743,329 +2116,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/21/java/Java知识点/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/21/java/Java知识点/" itemprop="url">java 知识点</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-21T00:00:00+08:00">2019-12-21</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/12/21/java/Java知识点/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/21/java/Java知识点/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h2><p>java 注解与 js 装饰器拥有相当不同的实现方式：java 有编译过程，因此可以使用语法约定注解的意义，脱离了编译过程，注解将毫无意义；js 引擎却没有对装饰器给予有效支持，因此 js 装饰器在 babel 等工具中表现为使用高阶函数封装原类或方法。java 注解本质上都是集成了 java.lang.Annotation 的接口，接口名前加 @interface 标识声明。有以下四种元注解可以标识注解的目标、生命周期、是否包含在 JavaDoc 文档中、是否允许子类继承，分别是 @Target、@Retention、@Documented、@Inherited。</p>
-<p>@Target 注解包含以下值：</p>
-<ul>
-<li>ElementType.TYPE：允许被修饰的注解作用在类、接口和枚举上</li>
-<li>ElementType.FIELD：允许作用在属性字段上</li>
-<li>ElementType.METHOD：允许作用在方法上</li>
-<li>ElementType.PARAMETER：允许作用在方法参数上</li>
-<li>ElementType.CONSTRUCTOR：允许作用在构造器上</li>
-<li>ElementType.LOCAL_VARIABLE：允许作用在本地局部变量上</li>
-<li>ElementType.ANNOTATION_TYPE：允许作用在注解上</li>
-<li>ElementType.PACKAGE：允许作用在包上</li>
-</ul>
-<p>@Retention 注解包含以下值：</p>
-<ul>
-<li>RetentionPolicy.SOURCE：当前注解编译期可见，不会写入 class 文件</li>
-<li>RetentionPolicy.CLASS：类加载阶段丢弃，会写入 class 文件</li>
-<li>RetentionPolicy.RUNTIME：永久保存，可以反射获取</li>
-</ul>
-<p>更多内容参考 <a href="https://www.cnblogs.com/yangming1996/p/9295168.html" target="_blank" rel="noopener">JAVA 注解的基本原理</a>。</p>
-<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>java 文件经编译器编译成 class 文件，class 文件由虚拟机加载并创建对应的 java.lang.Class 对象实例。虚拟机提供了三种类加载器：Bootstrap 启动类加载器、Extension 扩展类加载器、System 系统类加载器。启动类加载器主要加载的虚拟机自身所需的类（使用 C++ 实现），包含 &lt;JAVA_HOME&gt;/lib 路径下的核心类库以及 -Xbootclasspath 参数指定路径下的 jar 包。扩展类加载器负责加载”标准的扩展“，包含 &lt;JAVA_HOME&gt;/lib/ext 目录下或者由系统变量 -Djava.ext.dir 指定路径中的类库。系统类加载器负责加载系统类路径 java -classpath 或 -D java.class.path 指定路径下的类库。虚拟机对 class 文件采用按需加载的方式，并使用双亲委派模式，即先有父类加载器处理，如果加载失败，再交由子类加载器处理。类加载器的典型使用如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建 URL 资源</span></span><br><span class="line">URL url = <span class="keyword">new</span> URL(<span class="string">"file:///path/to/plugin.jar"</span>);</span><br><span class="line"><span class="comment">// 2. 创建 URLClassLoader 实例，URLClassLoader 会通过给定的 URL 加载类</span></span><br><span class="line">URLClassLoader pluginLoader = <span class="keyword">new</span> URLClassLoader(<span class="keyword">new</span> URL[] &#123; url &#125;);</span><br><span class="line"><span class="comment">// 3. 加载指定包下的类</span></span><br><span class="line">Class&lt;?&gt; cl = pluginLoader.loadClass(<span class="string">"mypackage.MyClass"</span>);</span><br></pre></td></tr></table></figure>
-<p>自定义的加载器可以通过集成 ClassLoader 实现。ClassLoader#loadClass 方法的职责是将类的加载操作委托给父类加载器，当父类加载器无法加载时，就会转而使用 ClassLoader#findClass。因此自定义的加载逻辑推荐实现在 ClassLoader#findClass 方法中。</p>
-<p>每个线程都由对类加载器的引用，称为上下文类加载器。主线程的上下文加载器是系统类加载器。当新线程创建时，它的上下文类加载器会被设置成创建该线程的上下文类加载器。线程的上下文类加载器可以通过 thread#setContextClassLoader 方法改写。</p>
-<p>更多内容参考 <a href="https://www.cnblogs.com/mybatis/p/9396135.html" target="_blank" rel="noopener">深入理解Java类加载器</a>。</p>
-<h2 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h2><p>java 的反射机制用于动态获取任意一个对象的方法和属性等信息以及动态调用对象方法。更多内容参考 <a href="https://www.jianshu.com/p/9be58ee20dee" target="_blank" rel="noopener">Java高级特性——反射</a>。</p>
-<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/21/java/RMI/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/21/java/RMI/" itemprop="url">RMI</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-21T00:00:00+08:00">2019-12-21</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/12/21/java/RMI/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/21/java/RMI/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="RMI"><a href="#RMI" class="headerlink" title="RMI"></a>RMI</h2><p>分布式编程即当客户端调用某方法时，产生一个请求发送到服务器上，然后取回响应。RMI（远程方法调用）的实现思路植根于：在客户端和服务端均安装代理，由客户端代理将客户端方法调用转换成请求（包含服务器地址、所调用方法、传参等信息），服务端代理通过请求执行服务端方法，并向客户端发送响应。服务端接口实例（实现 Remote 接口、扩展 UnicastRemoteObject 类）须通过 InitialContext 实例注册到 RMI 注册表中，客户端就可以通过 InitialContext#list 或 InitialContext#lookup 方法获取到代理对象（称为存根）。</p>
-<h2 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h2><h2 id="web-服务"><a href="#web-服务" class="headerlink" title="web 服务"></a>web 服务</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://cloud.tencent.com/developer/article/1353191" target="_blank" rel="noopener">RMI与RPC的区别</a><br><a href="https://blog.csdn.net/mingtianhaiyouwo/article/details/50513577" target="_blank" rel="noopener">Java RMI 简介及其优劣势总结</a><br><a href="https://blog.csdn.net/kouzhaokui/article/details/89176541" target="_blank" rel="noopener">EJB到底是什么？</a><br><a href="https://www.jianshu.com/p/7d6853140e13" target="_blank" rel="noopener">什么是RPC？</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2115,7 +2165,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">126</span>
+                    <span class="site-state-item-count">128</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

@@ -561,9 +561,9 @@
       
         
           
-            <h2 id="底层功能组件"><a href="#底层功能组件" class="headerlink" title="底层功能组件"></a>底层功能组件</h2><h3 id="rc-align"><a href="#rc-align" class="headerlink" title="rc-align"></a>rc-align</h3><h4 id="hooks"><a href="#hooks" class="headerlink" title="hooks"></a>hooks</h4><p>useMergedState(defaultStateValue, option) 主要用于表单项的 value 值状态处理，也可以用于其他状态处理。逻辑上，首先以 option.value、option.defaultValue、defaultStateValue 的顺序设置内部 value 状态值，该 value 值经 option.postState 转变后透出使用；同时透出的有 triggerChange 方法既能改变内部 value 状态值，又能触发 onChange 回调。</p>
+            <h2 id="底层功能组件"><a href="#底层功能组件" class="headerlink" title="底层功能组件"></a>底层功能组件</h2><h3 id="rc-util"><a href="#rc-util" class="headerlink" title="rc-util"></a>rc-util</h3><h4 id="hooks"><a href="#hooks" class="headerlink" title="hooks"></a>hooks</h4><p>useMergedState(defaultStateValue, option) 主要用于表单项的 value 值状态处理，也可以用于其他状态处理。逻辑上，首先以 option.value、option.defaultValue、defaultStateValue 的顺序设置内部 value 状态值，该 value 值经 option.postState 转变后透出使用；同时透出的有 triggerChange 方法既能改变内部 value 状态值，又能触发 onChange 回调。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">useControlledState</span>&lt;<span class="title">T</span>, <span class="title">R</span> = <span class="title">T</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  defaultStateValue: T | ((</span>) =&gt; <span class="title">T</span>),</span></span><br><span class="line"><span class="function">  <span class="title">option</span>?: </span>&#123;</span><br><span class="line">    defaultValue?: T | <span class="function">(<span class="params">(</span>) =&gt;</span> T);</span><br><span class="line">    value?: T;</span><br><span class="line">    onChange?: <span class="function">(<span class="params">value: T, prevValue: T</span>) =&gt;</span> <span class="keyword">void</span>;</span><br><span class="line">    postState?: <span class="function">(<span class="params">value: T</span>) =&gt;</span> T;</span><br><span class="line">  &#125;,</span><br><span class="line">): [R, (value: T) =&gt; <span class="keyword">void</span>] &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; defaultValue, value, onChange, postState &#125; = option || &#123;&#125;;</span><br><span class="line">  <span class="keyword">const</span> [innerValue, setInnerValue] = React.useState&lt;T&gt;<span class="function">(<span class="params">(</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (value !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (defaultValue !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">typeof</span> defaultValue === <span class="string">'function'</span></span><br><span class="line">        ? (defaultValue <span class="keyword">as</span> any)()</span><br><span class="line">        : defaultValue;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">typeof</span> defaultStateValue === <span class="string">'function'</span></span><br><span class="line">      ? (defaultStateValue <span class="keyword">as</span> any)()</span><br><span class="line">      : defaultStateValue;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> mergedValue = value !== <span class="literal">undefined</span> ? value : innerValue;</span><br><span class="line">  <span class="keyword">if</span> (postState) &#123;</span><br><span class="line">    mergedValue = postState(mergedValue);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">triggerChange</span>(<span class="params">newValue: T</span>) </span>&#123;</span><br><span class="line">    setInnerValue(newValue);</span><br><span class="line">    <span class="keyword">if</span> (mergedValue !== newValue &amp;&amp; onChange) &#123;</span><br><span class="line">      onChange(newValue, mergedValue);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> [(mergedValue <span class="keyword">as</span> unknown) <span class="keyword">as</span> R, triggerChange];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="rc-trigger"><a href="#rc-trigger" class="headerlink" title="rc-trigger"></a>rc-trigger</h3><p><a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 作为触发器，它抽象了弹层触发的逻辑。功能点包含：</p>
+<h3 id="rc-align"><a href="#rc-align" class="headerlink" title="rc-align"></a>rc-align</h3><h3 id="rc-trigger"><a href="#rc-trigger" class="headerlink" title="rc-trigger"></a>rc-trigger</h3><p><a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 作为触发器，它抽象了弹层触发的逻辑。功能点包含：</p>
 <ul>
 <li>触发节点：children 触发节点。</li>
 <li>弹层内容：popup 弹层内容；getPopupContainer 获得弹层容器。</li>
@@ -724,6 +724,180 @@
 <p>弹层位置可基于 props.popupPlacement 或通过 ConfigContext 传入的 direction 设置（右下或左下对齐）。弹层大小可基于 props.showSearch.matchInputWidth 设置为与输入框等宽。弹层容器可基于 props.getPopupContainer 或通过 ConfigContext 传入的 getPopupContainer 设置。</p>
 <p>Cascader 组件的值、弹层显示状态均是受控的；对外回调接口包含 onChange、onPopupVisibleChange。</p>
 <h3 id="DatePicker-日期选择框"><a href="#DatePicker-日期选择框" class="headerlink" title="DatePicker 日期选择框"></a>DatePicker 日期选择框</h3>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/13/antd/DatePicker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/13/antd/DatePicker/" itemprop="url">DatePicker</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-13T00:00:00+08:00">2020-02-13</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/02/13/antd/DatePicker/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/13/antd/DatePicker/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>新版的 <a href="http://github.com/react-component/picker" target="_blank" rel="noopener">DatePicker</a> 基于 react-hooks 制作，让我们一步步揭开它的面纱。</p>
+<p>DatePicker 分为 Picker 单值选择器、RangePicker 范围选择器两类。</p>
+<h2 id="公共模块"><a href="#公共模块" class="headerlink" title="公共模块"></a>公共模块</h2><p>除了时间处理模块可切换使用 day.js 或 moment 以外。Picker、RangePicker 复用了以下三个组件：</p>
+<ul>
+<li>PickerTrigger: 抽象了弹层展示逻辑的组件，基于 <a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 制作，可设置 PickerPanel 的样式和对齐位置等。</li>
+<li>PanelContext: 传递给 PickerPanel 的 context 内容包含 operationRef 面板操作的 ref 值、hideHeader 是否隐藏头部、panelRef 存储面板的 dom 元素、hidePrevBtn、hideNextBtn、onDateMouseEnter、onDateMouseLeave、onSelect 拣选日期时间后回调、hideRanges、open 面板展开状态、defaultOpenValue 面板默认值。</li>
+<li>PickerPanel: 作为弹层内容的公共容器，向上对接 Picker、RangePicker，获得 panelContext、rangeContext；向下对接实际面板 DecadePanel、YearPanel、MonthPanel、WeekPanel、DatePanel、DatetimePanel、TimePanel 等组件。</li>
+</ul>
+<p>PickerTrigger、PanelContext 不作介绍。以下仅介绍 PickerPanel。</p>
+<h3 id="PickerPanel"><a href="#PickerPanel" class="headerlink" title="PickerPanel"></a>PickerPanel</h3><img src="/2020/02/13/antd/DatePicker/DatePanel.png">
+<p>以 DatePanel 为例，面板既可选择时间，又可切换展示模式（切换为年面板或月面板）。因此，PickerPanel 内置了四种状态值：innerMode 用于记录面板当前的模式（由模式获得实际的展示面板）；sourceMode 用于记录面板之前的模式；mergedValue 用于存储面板的选中值；viewDate 用于存储当前面板的展示值。</p>
+<p>当 DatePanel 等实际面板调用 props.onPanelChange 时，就会执行 PickerPanel 中的 onInternalPanelChange 方法，切换 innerMode 面板模式，并记录历史值 sourceMode，并将时间值和面板模式传递给外围。</p>
+<p>当 DatePanel 等实际面板调用 props.onSelect 时，就会执行 PickerPanel 中的 setViewDate、triggerSelect 方法，同步更新 mergedValue、viewDate，并将时间值传递给外围。</p>
+<p>PickerPanel 通过赋值 operationRef.current 属性，允许上游的 Picker、RangePicker 组件间接调用实际面板的 onKeyDown、onClose 方法。</p>
+<p>PickerPanel 额外负责绘制面板尾部内容。</p>
+<h3 id="DatePanel"><a href="#DatePanel" class="headerlink" title="DatePanel"></a>DatePanel</h3><p>实际面板仅以 DatePanel 举例说明。</p>
+<p>DatePanel 面板中 Header 头部使用公共的组件。通过传递 props.onSuperPrev、props.onPrev、props.onNext、props.onSuperNext 控制 Header 头部是否显示上、下一步等按钮。Header 头部文本通过格式化 viewDate 计算获得。</p>
+<p>DatePanel 面板中 DateBody 内容基于 viewDate 计算起始日期，然后步进计算展示单元内容。每个单元都会与对应的日期挂钩，点击时会调用 props.onSelect 方法将日期透出外围。</p>
+<h2 id="Picker"><a href="#Picker" class="headerlink" title="Picker"></a>Picker</h2><p>Picker 主要负责组织顶层逻辑、渲染实际的触发器。触发器为 input 输入框，可以包含后缀图标、clearNode 清除图标。</p>
+<p>作为顶层容器，Picker 包含四种状态：mergedValue 记录受控模式下的外部传入值以及日期选择器的最终值；selectedValue 记录由 PickerPanel、input、clearNode 引起的动态变更值（表现值），初始值与 mergedValue 等值；text 记录输入框中的展示值，通过 selectedValue 格式化处理后获得；mergedOpen 记录 PickerPanel 的展开折叠状态。</p>
+<p>selectedValue 初始值与 mergedValue 等值。当 mergedValue 变更或 mergedOpen 变更为否值时，selectedValue 将被刷新为 mergedValue；PickerPanel、input、clearNode 都将刷新 selectedValue 以及 mergedValue。triggerChange(newValue) 即作为变更 selectedValue、mergedValue 的同一调用接口，它会将选中的时间值以及格式化后的时间值传递给外围。PickerPanel 变更面板表现值时，将调用 </p>
+<p>triggerOpen(newOpen, preventChangeEvent) 负责变更 mergedOpen。若 newOpen、preventChangeEvent 同时为否值，triggerOpen 内部会调用 triggerChange 更新选中值。</p>
+<p>input 与 Picker 的对接较为复杂，需要支持的交互行为包含：鼠标点击时获得焦点并展示 PickerPanel；一般按键时展示 PickerPanel，直到按键结束时调用 triggerChange（Tab 按键行为可传递给 PickerPanel）；失焦时隐藏 PickerPanel，（如果点击发生在输入框外围）调用 setSelectedValue 将 selectedValue 更新为 mergedValue，重新计算输入框展示值。以下为其源码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> [inputProps, &#123; focused, typing &#125;] = usePickerInput(&#123;</span><br><span class="line">  blurToCancel: needConfirmButton,</span><br><span class="line">  open: mergedOpen,</span><br><span class="line">  triggerOpen,</span><br><span class="line">  forwardKeyDown,</span><br><span class="line">  isClickOutside: <span class="function"><span class="params">target</span> =&gt;</span></span><br><span class="line">    !elementsContains(</span><br><span class="line">      [panelDivRef.current, inputDivRef.current],</span><br><span class="line">      target <span class="keyword">as</span> HTMLElement,</span><br><span class="line">    ),</span><br><span class="line">  onSubmit: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    triggerChange(selectedValue);</span><br><span class="line">    triggerOpen(<span class="literal">false</span>, <span class="literal">true</span>);</span><br><span class="line">    resetText();</span><br><span class="line">  &#125;,</span><br><span class="line">  onCancel: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    triggerOpen(<span class="literal">false</span>, <span class="literal">true</span>);</span><br><span class="line">    setSelectedValue(mergedValue);</span><br><span class="line">    resetText();</span><br><span class="line">  &#125;,</span><br><span class="line">  onFocus,</span><br><span class="line">  onBlur,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">usePickerInput</span>(<span class="params">&#123;</span></span></span><br><span class="line"><span class="function"><span class="params">  open,</span></span></span><br><span class="line"><span class="function"><span class="params">  isClickOutside,</span></span></span><br><span class="line"><span class="function"><span class="params">  triggerOpen,</span></span></span><br><span class="line"><span class="function"><span class="params">  forwardKeyDown,</span></span></span><br><span class="line"><span class="function"><span class="params">  blurToCancel,</span></span></span><br><span class="line"><span class="function"><span class="params">  onSubmit,</span></span></span><br><span class="line"><span class="function"><span class="params">  onCancel,</span></span></span><br><span class="line"><span class="function"><span class="params">  onFocus,</span></span></span><br><span class="line"><span class="function"><span class="params">  onBlur,</span></span></span><br><span class="line"><span class="function"><span class="params">&#125;: &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">  open: boolean;</span></span></span><br><span class="line"><span class="function"><span class="params">  isClickOutside: (clickElement: EventTarget | null</span>) =&gt; <span class="title">boolean</span>;</span></span><br><span class="line"><span class="function">  <span class="title">triggerOpen</span>: (<span class="params">open: boolean</span>) =&gt; <span class="title">void</span>;</span></span><br><span class="line"><span class="function">  <span class="title">forwardKeyDown</span>: (<span class="params">e: React.KeyboardEvent&lt;HTMLInputElement&gt;</span>) =&gt; <span class="title">boolean</span>;</span></span><br><span class="line"><span class="function">  <span class="title">blurToCancel</span>?: <span class="title">boolean</span>;</span></span><br><span class="line"><span class="function">  <span class="title">onSubmit</span>: (<span class="params"></span>) =&gt; <span class="title">void</span>;</span></span><br><span class="line"><span class="function">  <span class="title">onCancel</span>: (<span class="params"></span>) =&gt; <span class="title">void</span>;</span></span><br><span class="line"><span class="function">  <span class="title">onFocus</span>?: <span class="title">React</span>.<span class="title">FocusEventHandler</span>&lt;<span class="title">HTMLInputElement</span>&gt;;</span></span><br><span class="line"><span class="function">  <span class="title">onBlur</span>?: <span class="title">React</span>.<span class="title">FocusEventHandler</span>&lt;<span class="title">HTMLInputElement</span>&gt;;</span></span><br><span class="line">&#125;): [</span><br><span class="line">  React.DOMAttributes&lt;HTMLInputElement&gt;,</span><br><span class="line">  &#123; <span class="attr">focused</span>: boolean; typing: boolean &#125;,</span><br><span class="line">] &#123;</span><br><span class="line">  <span class="keyword">const</span> [typing, setTyping] = React.useState(<span class="literal">false</span>);</span><br><span class="line">  <span class="keyword">const</span> [focused, setFocused] = React.useState(<span class="literal">false</span>);</span><br><span class="line">  <span class="keyword">const</span> preventBlurRef = React.useRef&lt;boolean&gt;(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> inputProps: React.DOMAttributes&lt;HTMLInputElement&gt; = &#123;</span><br><span class="line">    onMouseDown: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      setTyping(<span class="literal">true</span>);</span><br><span class="line">      triggerOpen(<span class="literal">true</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    onKeyDown: <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">switch</span> (e.which) &#123;</span><br><span class="line">        <span class="keyword">case</span> KeyCode.ENTER: &#123;</span><br><span class="line">          <span class="keyword">if</span> (!open) &#123;</span><br><span class="line">            triggerOpen(<span class="literal">true</span>);</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            onSubmit();</span><br><span class="line">            setTyping(<span class="literal">true</span>);</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          e.preventDefault();</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> KeyCode.TAB: &#123;</span><br><span class="line">          <span class="keyword">if</span> (typing &amp;&amp; open &amp;&amp; !e.shiftKey) &#123;</span><br><span class="line">            setTyping(<span class="literal">false</span>);</span><br><span class="line">            e.preventDefault();</span><br><span class="line">          &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!typing &amp;&amp; open) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!forwardKeyDown(e) &amp;&amp; e.shiftKey) &#123;</span><br><span class="line">              setTyping(<span class="literal">true</span>);</span><br><span class="line">              e.preventDefault();</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> KeyCode.ESC: &#123;</span><br><span class="line">          setTyping(<span class="literal">true</span>);</span><br><span class="line">          onCancel();</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!open &amp;&amp; ![KeyCode.SHIFT].includes(e.which)) &#123;</span><br><span class="line">        triggerOpen(<span class="literal">true</span>);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!typing) &#123;</span><br><span class="line">        forwardKeyDown(e);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    onFocus: <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">      setTyping(<span class="literal">true</span>);</span><br><span class="line">      setFocused(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (onFocus) &#123;</span><br><span class="line">        onFocus(e);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    onBlur: <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (preventBlurRef.current || !isClickOutside(<span class="built_in">document</span>.activeElement)) &#123;</span><br><span class="line">        preventBlurRef.current = <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (blurToCancel) &#123;</span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (isClickOutside(<span class="built_in">document</span>.activeElement)) &#123;</span><br><span class="line">            onCancel();</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;, <span class="number">0</span>);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        triggerOpen(<span class="literal">false</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      setFocused(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (onBlur) &#123;</span><br><span class="line">        onBlur(e);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  React.useEffect(<span class="function"><span class="params">()</span> =&gt;</span></span><br><span class="line">    addGlobalMouseDownEvent(<span class="function">(<span class="params">&#123; target &#125;: MouseEvent</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (open) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!isClickOutside(target)) &#123;</span><br><span class="line">          preventBlurRef.current = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">          <span class="built_in">window</span>.setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            preventBlurRef.current = <span class="literal">false</span>;</span><br><span class="line">          &#125;, <span class="number">0</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!focused) &#123;</span><br><span class="line">          triggerOpen(<span class="literal">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;),</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> [inputProps, &#123; focused, typing &#125;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="RangePicker"><a href="#RangePicker" class="headerlink" title="RangePicker"></a>RangePicker</h2><p>RangePicker 包含以下内部状态：activePickerIndex 当前激活的面板；mergedValue 实际值；selectedValue 选中的时间（可能包含不可选的时间）；mergedDisabled、disabledStartDate、disabledEndDate 不可选时间；rangeHoverValue 选中值范围；hoverRangedValue 鼠标悬浮选中范围；mergedModes 面板模式；mergedOpen 面板展开折叠状态。状态或方法会经由 RangeContext、PanelContext 传递给下游的实际面板 DatePanel 等。此处不作详解。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>因笔者精力有限，这篇文章仅点到为止，以备查用。个中不足处，还望包涵。</p>
+
           
         
       
@@ -1907,173 +2081,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/21/java/异步消息/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/21/java/异步消息/" itemprop="url">异步消息</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-21T00:00:00+08:00">2020-01-21</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/01/21/java/异步消息/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/21/java/异步消息/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>使用 RMI、Hession、Burlap、Http invoker、web 服务等的同步消息需要等待阻塞任务完成，才能运行其他程序。同时，在同步消息模式下，接受消息的客户端与远程服务耦合：客户端需要远程服务接口的变更而变更；客户端需要感知远程服务的网络地址；客户端会随着远程服务的不可用而不可用。异步消息是无阻塞的，且不会造成消息发送者和接受者的强耦合。异步消息通常基于 message broker 消息代理实现，通过代理将消息投放到 destination 目的地。在这过程中，消息发送者会被解析出来，可以处理其他任务。异步消息一般用于四种场景：异步处理（如注册账户后发送邮件）、应用解耦（如下单业务中库存系统通过 MQ 与订单系统关联）、流量削峰（如秒杀系统先将前端消息存入 MQ）、日志处理（如 kafka 缓存采集日志）。</p>
-<h2 id="消息代理"><a href="#消息代理" class="headerlink" title="消息代理"></a>消息代理</h2><p>常见的消息代理有 ActiveMQ、RabbitMQ、Kafka、RocketMQ、ZeroMQ，它们也称为消息中间件。</p>
-<h3 id="ActiveMQ"><a href="#ActiveMQ" class="headerlink" title="ActiveMQ"></a>ActiveMQ</h3><p>ActiveMQ 使用 Java 语言编写，遵循 JMS 规范。它支持两种消息模型：点对点模型（即队列）、发布/订阅模型（主题）。在这两种模型中，消息发送者均不会关心消息最终会被那个接受者取走。点对点模型可以有多个接受者（通过轮询依次发送向接受者发送消息），因为不知道存储在队列中的消息会被哪个接受者取走，也就意味着接受者必须有相同的实现。发布/订阅模型会将消息发送到一个主题下，订阅该主题的接受者都会接受到消息。ActiveMQ 只支持 KahaDB message store、AMQ message store、JDBC message store、Memory message store 等少量的存储器，不支持 hadoop、hdfs、hbase 等分布式系统。</p>
-<p>JMS（Java Message Service） 规范定义了使用消息代理的通用接口，其意义类似于 JDBC。</p>
-<img src="/2020/01/21/java/异步消息/jms.png">
-<p>spring 抽象了 JmsTemplate 模板。在配置类中以 ConnectionFactory 为参数，创建 JmsTemplate 实例，并作为 bean 装填在上下文中。应用中即可使用 jmsOperations.send、jmsOperations.receive 收发消息，且可对消息进行转换。spring 又提供了消息驱动的 POJO，允许以消息监听器的形式调用这个 bean 中的方法。详情可以参考 《spring 实战》。</p>
-<h3 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h3><p>RabbitMQ 使用 Erlang 语言编写，遵循 AMQP 高级消息队列协议（Advanced Message Queuing Protocol）（一个网络协议）。在 AMQP 协议中，发布者发送的消息会经由交换机转交给消息队列（基于路由规则转发消息），最终消息会被订阅了该消息队列的消费者获取或者主动推送给消息者。此处队列可视为消息通道。交换机有多种类型，并且一个消息队列会和一个交换机进行绑定（同一个交换机可以绑定多个消息队列），再由交换机路由到特定的消息队列中。有直连交换机，通过指定路由键将消息推送到消息队列上；有扇型交换机，将消息广播到与交换机绑定的所有消息队列上；有主题交换机，主题键允许模糊匹配；头交换机，作为路由策略的头属性值可以是整数或字典等。消息队列有两种：持久化队列能将消息固化到磁盘中；暂存队列在消息使用完成后会被销毁。为了避免丢包现象，AMQP 允许使用消息确认机制，在消费者输送确认回执后，才将消息从队列中删除。</p>
-<img src="/2020/01/21/java/异步消息/amqp.jpeg">
-<p>AMQP 是一个线路层级的协议，指定消息的格式，这样消息就能跨 AMQP 实现以及跨语言和平台；JMS 只是一个 API 规范。spring AMQP 抽象了 RabbitTemplate 模板用于收发消息。在 spring boot 项目中发送消息时，首先需要在配置类中装配队列、交换机，并将队列和交换机进行绑定；然后通过自动装配的 RabbitTemplate#convertAndSend 发送消息。接受消息既可以通过 RabbitTemplate#receive 或 AMQP POJO，又可以通过 @RabbitListener 注解实现。详情可以参看 <a href="https://blog.csdn.net/qq_35387940/article/details/100514134" target="_blank" rel="noopener">Springboot 整合 RabbitMQ</a>。</p>
-<h3 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h3><p>Kafka 依赖 Zookeeper 注册中心协调生产者和消费者。它自有一套协议，使用 pull 模式处理消息，追求高吞吐量，不支持事务，适合数据采集作业，可视为一个日志系统。消息按主题发送，每个主题可以有多个分区，对应的消息者也以 ConsumerGroup 组合呈现。一个组合下的消费者可以读取多个主题分区，但是一个主题分区在同一个消费者组合中只能被一个消费者处理。kafka 队列中的内容按策略存储一定时间，消费者可以指定偏移量来读取数据，即下次可以接着上次内容后读取。</p>
-<img src="/2020/01/21/java/异步消息/kafka.png">
-<h3 id="RocketMQ"><a href="#RocketMQ" class="headerlink" title="RocketMQ"></a>RocketMQ</h3><p><a href="https://github.com/apache/rocketmq" target="_blank" rel="noopener">RocketMQ</a> 是阿里开源的消息中间件，前身是 MetaQ，今生是 Aliware MQ（可参考 <a href="https://blog.csdn.net/cainiao_xiaowu/article/details/94554771" target="_blank" rel="noopener">MetaMQ RocketMQ的前世今生</a>）。它使用 Java 编程，具有高吞吐量、高可用性、适合大规模分布式系统应用等特点。在阿里内部，它被广泛用于交易、充值等业务系统，以及日志流式处理、binglog 分发等数据采集场景。RocketMQ 以 name server 作为注册中心，broker 代理采用主从模式部署，无论 producer 还是 consumer 都会通过发送心跳包的方式从 name server 中读写信息。</p>
-<p>RocketMQ 的最大特点是支持分布式事务。首先 RocketMQ 支持事务性消息，即该消息在抵达 consumer 时能保证其与 producer 有相同的数据一致性，实现上是等待 producer 执行完成，consumer 才进行 db 操作。事务开始阶段，producer 会发送半消息给 MQ，执行成功时发送 Commit 全消息或 Rollback 回滚消息。MQ 接受 Commit 全消息时，将消息推送给 consumer；MQ 接受 Rollback 回滚消息时，隔三天删除消息；如果因为网络问题导致 MQ 接受到 Commit 全消息或 Rollback 回滚消息，调用 MQ 的事务状态服务询问 producer 事务执行状态，条件提交或回滚。</p>
-<img src="/2020/01/21/java/异步消息/transcation.jpg">
-<p>其次，若一个主业务系统的操作会通过异步消息引起多个辅业务系统的 db 操作，那么在常规的异步消息之外，RocketMQ 会在这一系列业务操作的预期执行时间之后再发送一个异步消息，以便创建一个用于回滚的任务。该任务会询问主业务系统的事务执行状态，若失败，进一步促使辅业务系统执行回滚操作。</p>
-<img src="/2020/01/21/java/异步消息/transcation2.png">
-<p>在 spring boot 中使用 RocketMQ 可参考 <a href="https://github.com/apache/rocketmq-spring/tree/master/rocketmq-spring-boot-samples" target="_blank" rel="noopener">rocketmq-spring-boot-samples</a>。</p>
-<h3 id="ZeroMQ"><a href="#ZeroMQ" class="headerlink" title="ZeroMQ"></a>ZeroMQ</h3><p>ZeroMQ 在 socket 之上、MQ 之下，它更是一个处理消息传输的库，适用于作为分布式系统的消息通信工具。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/weixin_37641832/article/details/83270778" target="_blank" rel="noopener">深入理解 AMQP 协议</a><br><a href="http://www.yidianzixun.com/article/0KCbUbSL" target="_blank" rel="noopener">MQ概览：ActiveMQ，Kafka，MetaMQ，RocketMQ 消息中间件应用场景</a><br><a href="https://blog.csdn.net/konglongaa/article/details/52208273" target="_blank" rel="noopener">关于消息队列的使用—-ActiveMQ，RabbitMQ，ZeroMQ，Kafka，MetaMQ，RocketMQ</a><br><a href="https://blog.csdn.net/lifaming15/article/details/79942793" target="_blank" rel="noopener">activemq、rabbitmq、kafka 原理和比较</a><br><a href="https://www.cnblogs.com/Zender/p/9098410.html" target="_blank" rel="noopener">Java 消息服务-JMS</a><br><a href="https://www.cnblogs.com/wuhenzhidu/p/10781101.html" target="_blank" rel="noopener">RabbitMQ 指南</a><br><a href="https://www.cnblogs.com/williamjie/p/9481774.html" target="_blank" rel="noopener">RabbitMQ基础概念详细介绍</a><br><a href="https://blog.csdn.net/frank1998819/article/details/84767357" target="_blank" rel="noopener">MetaMQ 架构原理</a><br><a href="https://www.jianshu.com/p/2838890f3284" target="_blank" rel="noopener">Rocketmq 原理&amp;最佳实践</a><br><a href="http://www.sohu.com/a/149487721_610275" target="_blank" rel="noopener">Aliware-MQ 技术架构与最佳实践</a><br><a href="https://www.cnblogs.com/qdhxhz/p/11191399.html" target="_blank" rel="noopener">分布式事务(3)—RocketMQ实现分布式事务原理</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2123,7 +2130,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">128</span>
+                    <span class="site-state-item-count">129</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

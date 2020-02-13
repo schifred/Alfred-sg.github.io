@@ -299,6 +299,163 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Grid/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/25/antd/Grid/" itemprop="url">Grid 栅格</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-25T00:00:00+08:00">2018-11-25</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/antd-组件库/" itemprop="url" rel="index"><span itemprop="name">antd 组件库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/25/antd/Grid/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/25/antd/Grid/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>antd 提供的 24 栅格系统由 Row, Col 组件实现。</p>
+<h2 id="Row"><a href="#Row" class="headerlink" title="Row"></a>Row</h2><p>栅格布局组件 Row 用于设定整行 row 内各组 col 的布局风格。当 props.type 为 ‘flex’ 时，意味着整行采用 flex 布局。在 flex 布局的基础上，props.justify 通过 justify-content 样式影响各 col 元素的水平排列方式；props.align 通过 align-items 样式影响各 col 元素的垂直对齐方式。props.gutter 用于设定各 col 元素的间隔，间隔单位可以是 ‘px’ 或 ‘rem’。Row 支持以对象形式配置 props.gutter，如 { xs, sm, md, lg, xl, xxl }。其中，xs 为 576 px 以下屏幕；sm 为 576 - 768 px 尺寸屏幕；md 为 768 - 992 px 尺寸屏幕；lg 为 992 - 1200 px 尺寸屏幕；xl 为 1200 - 1600 px 尺寸屏幕；xxl 为 1600 px 以上屏幕；</p>
+<p>在响应式处理上，Row 组件借助 <a href="https://github.com/WickyNilliams/enquire.js" target="_blank" rel="noopener">enquire.js</a> 库实现。其场景如以 { md: 8, lg: 16 } 对象配置 props.gutter，那么，当屏幕尺寸小于 768px 时，就需要将各 col 元素的间隔从 16 px 调整为 8px。Row 组件对这一场景的实现机制为，在 componentDidMount 生命周期使用 enquire.js 库绑定监听函数，以使得当屏幕尺寸变更时，state.screen 当前屏幕状态也会相应得到更新；随后在 render 阶段，由 getGutter 方法获得当前屏幕尺寸下的 col 元素间隔 gutter，并借助 <a href="https://github.com/jamiebuilds/create-react-context" target="_blank" rel="noopener">create-react-context</a> 库将 gutter 注入到 Col 组件中。以下是该机制实现的源码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">componentDidMount() &#123;</span><br><span class="line">  <span class="built_in">Object</span>.keys(responsiveMap)</span><br><span class="line">    .map(<span class="function">(<span class="params">screen: Breakpoint</span>) =&gt;</span> enquire.register(responsiveMap[screen], &#123;</span><br><span class="line">        match: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">true</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        unmatch: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.props.gutter !== <span class="string">'object'</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.setState(<span class="function">(<span class="params">prevState</span>) =&gt;</span> (&#123;</span><br><span class="line">            screens: &#123;</span><br><span class="line">              ...prevState.screens,</span><br><span class="line">              [screen]: <span class="literal">false</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">// Keep a empty destory to avoid triggering unmatch when unregister</span></span><br><span class="line">        destroy() &#123;&#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getGutter(): number | <span class="literal">undefined</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; gutter &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> gutter === <span class="string">'object'</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt;= responsiveArray.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> breakpoint: Breakpoint = responsiveArray[i];</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.state.screens[breakpoint] &amp;&amp; gutter[breakpoint] !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> gutter[breakpoint];</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> gutter <span class="keyword">as</span> number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在样式处理方面，整行 row 采用 border-box 盒模型，相对定位，并嵌套使用 .clearfix 样式规则以清除浮动以及 :before, :after 伪类的内容。其余均较为简单，可参见<a href="https://github.com/ant-design/ant-design/blob/master/components/form/style/index.less" target="_blank" rel="noopener">源码</a>。</p>
+<h2 id="Col"><a href="#Col" class="headerlink" title="Col"></a>Col</h2><p>Col 组件主要通过样式类以设定 col 元素的大小和偏移情况。如当配置了 props.offset 属性为 4 时，将相应添加 ant-col-xs-offset-4, ant-col-sm-offset-4, ant-col-md-offset-4, ant-col-lg-offset-4, ant-col-xl-offset-4, ant-col-xll-offset-4 样式类。因此，Col 组件的逻辑主要是将 props 转化成样式类，其实现的重点仍在于 less 样式文件。</p>
+<p>当然，各 col 元素的间隔 gutter 由 Row 组件传入。以下是其源码实现，RowContext 通过 create-react-context 库创建，即通过 context 属性传递数据，但只有 Col 组件能加以访问。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Row</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Provider value=&#123;&#123; gutter &#125;&#125;&gt;</span><br><span class="line">      &lt;div &#123;...otherProps&#125; className=&#123;classes&#125; style=&#123;rowStyle&#125;&gt;</span><br><span class="line">        &#123;children&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>RowContext.Provider&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Col</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;RowContext.Consumer&gt;</span><br><span class="line">      &#123;(&#123; gutter &#125;) =&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> style = others.style;</span><br><span class="line">        <span class="keyword">if</span> (gutter <span class="keyword">as</span> number &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          style = &#123;</span><br><span class="line">            paddingLeft: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            paddingRight: (gutter <span class="keyword">as</span> number) / <span class="number">2</span>,</span><br><span class="line">            ...style,</span><br><span class="line">          &#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> &lt;div &#123;...others&#125; style=&#123;style&#125; className=&#123;classes&#125;&gt;&#123;children&#125;&lt;/div&gt;;</span><br><span class="line">      &#125;&#125;</span><br><span class="line">    &lt;<span class="regexp">/RowContext.Consumer&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>在 less 文件中，antd 使用自调用的混合函数创建从 .ant-col-1 到 .ant-col-24 的样式规则。以下是相关源码。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// style/theme/default.less</span></span><br><span class="line"><span class="variable">@grid-columns:</span> <span class="number">24</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// mixin.less</span></span><br><span class="line"><span class="comment">// index 由 1 到 24，构建样式规则</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>() &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-xs-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-sm-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-md-@&#123;index&#125;, .@&#123;ant-prefix&#125;-col-lg-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123;</span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">position</span>: relative;</span><br><span class="line">      <span class="comment">// Prevent columns from collapsing when empty</span></span><br><span class="line">      <span class="attribute">min-height</span>: <span class="number">1px</span>;</span><br><span class="line">      <span class="attribute">padding-left</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">      <span class="attribute">padding-right</span>: (<span class="variable">@grid-gutter-width</span> / <span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>) &#123;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>) &#123; <span class="comment">// initial</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="variable">@item</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> =&lt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// general</span></span><br><span class="line">    <span class="variable">@item:</span> <span class="string">~".@&#123;ant-prefix&#125;-col@&#123;class&#125;-@&#123;index&#125;"</span>;</span><br><span class="line">    <span class="selector-class">.col</span>((<span class="variable">@index</span> + <span class="number">1</span>), <span class="string">~"@&#123;list&#125;, @&#123;item&#125;"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="variable">@index</span>, <span class="variable">@list</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="variable">@grid-columns</span>) &#123; <span class="comment">// terminal</span></span><br><span class="line">    <span class="variable">@&#123;list&#125;</span> &#123;</span><br><span class="line">      <span class="attribute">float</span>: left;</span><br><span class="line">      <span class="attribute">flex</span>: <span class="number">0</span> <span class="number">0</span> auto;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.col</span>(<span class="number">1</span>); <span class="comment">// kickstart it</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index 由 24 到 1，构建样式规则</span></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">box-sizing</span>: border-box;</span><br><span class="line">    <span class="attribute">width</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: percentage((<span class="variable">@index</span> / <span class="variable">@grid-columns</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="variable">@index</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>((<span class="variable">@index</span> - <span class="number">1</span>), <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.loop-grid-columns</span>(<span class="variable">@index</span>, <span class="variable">@class</span>) <span class="keyword">when</span> (<span class="variable">@index</span> = <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: none;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-push-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">left</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-pull-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">right</span>: auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-offset-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">margin-left</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-class">.@&#123;ant-prefix&#125;</span><span class="selector-tag">-col</span><span class="variable">@&#123;class&#125;</span><span class="selector-tag">-order-</span><span class="variable">@&#123;index&#125;</span> &#123;</span><br><span class="line">    <span class="attribute">order</span>: <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(<span class="variable">@class</span>: <span class="string">~''</span>) &#123;</span><br><span class="line">  <span class="selector-class">.float-grid-columns</span>(<span class="variable">@class</span>);</span><br><span class="line">  <span class="selector-class">.loop-grid-columns</span>(<span class="variable">@grid-columns</span>, <span class="variable">@class</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// index.less</span></span><br><span class="line"><span class="selector-class">.make-grid-columns</span>();</span><br><span class="line"><span class="selector-class">.make-grid</span>();</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.make-grid</span>(-xs);</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-sm-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-sm);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-md-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-md);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-lg-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-lg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xl);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="variable">@screen-xxl-min</span>) &#123;</span><br><span class="line">  <span class="selector-class">.make-grid</span>(-xxl);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/25/antd/Layout/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2070,255 +2227,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/09/es6/Reflect, Proxy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/09/es6/Reflect, Proxy/" itemprop="url">Reflect, Proxy</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-09T00:00:00+08:00">2018-10-09</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/es6/" itemprop="url" rel="index"><span itemprop="name">es6</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/10/09/es6/Reflect, Proxy/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/10/09/es6/Reflect, Proxy/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Reflect"><a href="#Reflect" class="headerlink" title="Reflect"></a>Reflect</h2><p>ES6 提供的 API，集成语言层面的对象操作（操作与 Proxy 一一对应，且为函数形式）。</p>
-<ul>
-<li>Reflect.get(target, name, receiver): 获取属性。</li>
-<li>Reflect.set(target, name, value, receiver): 对属性赋值。</li>
-<li>Reflect.defineProperty(target, name, desc): 修改属性的描述符。</li>
-<li>Reflect.deleteProperty(target, name): 删除属性。</li>
-<li>Reflect.has(target, name): propKey in proxy 判断。</li>
-<li>Reflect.ownKeys(target): 返回对象的自有属性。</li>
-<li>Reflect.enumerate(target): 以迭代器形式获取对象的可枚举属性。</li>
-<li>Reflect.isExtensible(target): 判断对象是否可扩展。</li>
-<li>Reflect.preventExtensions(target): 使对象不可扩展。</li>
-<li>Reflect.getOwnPropertyDescriptor(target, name): 获取属性的描述符。</li>
-<li>Reflect.getPrototypeOf(target): 获取对象的 <strong>proto</strong> 属性。</li>
-<li>Reflect.setPrototypeOf(target, prototype): 设置对象的原型。</li>
-<li>Reflect.apply(target, thisArg, args): 以 thisArg 为上下文执行 target 函数。</li>
-<li>Reflect.construct(target, args): 创建 target 实例。</li>
-</ul>
-<h2 id="Proxy"><a href="#Proxy" class="headerlink" title="Proxy"></a>Proxy</h2><p>Proxy 在语言层面，拦截针对对象的操作。ES6 原生提供 Proxy 构造函数，用来生成 Proxy 实例。</p>
-<p>使用 let proxy = new Proxy(target, handler); 创建 Proxy 实例。参数 target 可以是对象，也可以是函数。handler 为设定拦截操作的集合。操作 proxy，将同时影响 target。</p>
-<p>Proxy.revocable 方法返回一个可取消的 Proxy 实例。返回值中，proxy 属性即为 Proxy 实例，revoke 方法用于取消 Proxy 实例。</p>
-<p>在 Proxy 代理的情况下，目标对象内的 this 关键字将指向 Proxy 实例。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> proto = <span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">  <span class="keyword">get</span>(target, propertyKey, receiver) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'GET '</span> + propertyKey);</span><br><span class="line">    <span class="keyword">return</span> target[propertyKey];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> obj = <span class="built_in">Object</span>.create(proto);</span><br><span class="line">obj.foo <span class="comment">// "GET foo"</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> target = &#123;&#125;;</span><br><span class="line"><span class="keyword">let</span> handler = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> &#123;proxy, revoke&#125; = <span class="built_in">Proxy</span>.revocable(target, handler);</span><br><span class="line"></span><br><span class="line">proxy.foo = <span class="number">123</span>;</span><br><span class="line">proxy.foo <span class="comment">// 123</span></span><br><span class="line"></span><br><span class="line">revoke();</span><br><span class="line">proxy.foo <span class="comment">// TypeError: Revoked</span></span><br></pre></td></tr></table></figure>
-<p>可拦截的操作包含：</p>
-<ul>
-<li>get(target, propKey, receiver): 拦截对象属性的读取。参数 reveiver 为操作行为所针对的对象，通常是 proxy 实例。</li>
-<li>set(target, propKey, value): 拦截对象属性的设置，返回布尔值。</li>
-<li>has(target, propKey): 拦截 propKey in proxy 操作，返回布尔值。</li>
-<li>delete(target, propKey): 拦截 delete proxy[propKey] 的操作，返回布尔值。</li>
-<li>ownKeys(target): 拦截 Object.getOwnPropertyNames(proxy)、Object.getOwnPropertySymbols(proxy)、Object.keys(proxy)、for…in 循环，返回目标对象自身所有的属性，Object.keys() 返回仅包括目标对象自身的可遍历属性。</li>
-<li>getOwnPropertyDescriptor(target, propKey): 拦截 Object.getOwnPropertyDescriptor(proxy, propKey)，返回属性的描述对象。</li>
-<li>defineProperty(target, propKey, propDesc): 拦截 Object.defineProperty(proxy, propKey, propDesc）、Object.defineProperties(proxy, propDescs)，返回布尔值。</li>
-<li>preventExtensions(target): 拦截 Object.preventExtensions(proxy)，返回布尔值。</li>
-<li>getPrototypeOf(target): 拦截 Object.getPrototypeOf(proxy)，返回对象。</li>
-<li>isExtensible(target): 拦截 Object.isExtensible(proxy)，返回布尔值。</li>
-<li>setPrototypeOf(target, proto): 拦截 Object.setPrototypeOf(proxy, proto)，返回布尔值。</li>
-<li>apply(target, object, args): 拦截 Proxy 实例作为函数调用的操作，比如 proxy(…args)、proxy.call(object, …args)、proxy.apply(…)。</li>
-<li>construct(target, args): 拦截 Proxy 实例作为构造函数调用的操作，比如 new proxy(…args)。</li>
-</ul>
-<h2 id="harmony-reflect"><a href="#harmony-reflect" class="headerlink" title="harmony-reflect"></a>harmony-reflect</h2><p>作为垫片，提供 Reflect 全局对象，扩展 Object 及 Proxy。</p>
-<h3 id="Reflect-1"><a href="#Reflect-1" class="headerlink" title="Reflect"></a>Reflect</h3><p>扩展或提供平台提供的 Reflect 对象。</p>
-<ul>
-<li>Reflect.get(target, name, receiver) 方法实现: 首先，若 target 为 Proxy 实例，获取并调用 handler.get 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取属性描述符，若属性描述符为 undefined，尝试通过 Object.getPrototypeOf 方法获取原型的 name 属性；其次，若属性描述符不是 undefined，尝试获取属性描述符中的 value 属性或执行 get 方法。</li>
-<li>Reflect.set(target, name, value, receiver) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.set 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取属性描述符，若属性描述符为 undefined，尝试通过 Object.getPrototypeOf 方法调用原型的 set 方法；其次，若属性描述符不是 undefined，且访问器属性 set 为真值，尝试以 receiver 为上下文调用属性描述符中的 set 方法；其次，通过 Object.getOwnPropertyDescriptor 获取 receiver 对象的属性描述符，若属性描述符为 undefined，调用 Object.defineProperty 重新设置属性描述符，更新 value 值；其次，若 receiver 对象的属性描述符不是 undefined，校验 receiver 是否可扩展，若可扩展，调用 Object.defineProperty 重新设置属性描述符。</li>
-<li>Reflect.defineProperty(target, name, desc) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.defineProperty 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取当前的属性描述符，当属性描述符的 configurable 属性为 false 时，运行原有的 Object.defineProperty 将报错，实现上将引起报错的情形全部以 return false 形式剔除，随后再调用 Object.defineProperty，重新设定属性描述符。</li>
-<li>Reflect.deleteProperty(target, name) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.deleteProperty 方法；其次，通过 Object.getOwnPropertyDescriptor 获取当前的属性描述符并判断其 configurable 属性，若属性为真，调用 delete target[name] 语句，否则返回 false。</li>
-<li>Reflect.has(target, name) 方法: 执行 name in target 语句。</li>
-<li>Reflect.ownKeys(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.ownKeys 方法；其次，调用 Object.getOwnPropertyNames 方法。</li>
-<li>Reflect.enumerate(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.enumerate 方法；其次，通过 for…in 语句获取目标的可枚举属性集合，以迭代器形式输出。</li>
-<li>Reflect.isExtensible(target) 方法: 直接调用 Object.isExtensible 方法。</li>
-<li>Reflect.preventExtensions(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.preventExtensions 方法；其次，调用 Object.preventExtensions 方法。</li>
-<li>Reflect.getOwnPropertyDescriptor(target, name) 方法: 直接调用 Object.getOwnPropertyDescriptor 方法。</li>
-<li>Reflect.getPrototypeOf(target) 方法: 直接调用 Object.getPrototypeOf 方法。</li>
-<li>Reflect.setPrototypeOf(target, prototype): 首先，若 target 为 Proxy 实例，获取并调用 handler.setPrototypeOf 方法；其次，判断目标的可扩展性，若其可扩展，以 try-catch 语句执行 Object.setPrototypeOf 方法，以捕获错误。</li>
-<li>Reflect.apply(target, thisArg, args): 调用 Function.prototype.apply.call(target, thisArg, args)。</li>
-<li>Reflect.construct(target, args, newTarget): 首先，若 target 为 Proxy 实例，获取并调用 handler.construct 方法；其次，在 newTarget 为 undefined 或与 target 等值的基础上，基于 target 并以 null 为上下文生成构造函数；否则，Object.create(newTarget.prototype) 为上文生成构造函数。</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> <span class="built_in">Reflect</span> = &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  enumerate: <span class="function"><span class="keyword">function</span>(<span class="params">target</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> handler = directProxies.get(target);</span><br><span class="line">    <span class="keyword">var</span> result;</span><br><span class="line">    <span class="keyword">if</span> (handler !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      result = handler.enumerate(handler.target);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      result = [];</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">var</span> name <span class="keyword">in</span> target) &#123; result.push(name); &#125;;      </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> l = +result.length;</span><br><span class="line">    <span class="keyword">var</span> idx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      next: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (idx === l) <span class="keyword">return</span> &#123; <span class="attr">done</span>: <span class="literal">true</span> &#125;;</span><br><span class="line">        <span class="keyword">return</span> &#123; <span class="attr">done</span>: <span class="literal">false</span>, <span class="attr">value</span>: result[idx++] &#125;;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  construct: <span class="function"><span class="keyword">function</span>(<span class="params">target, args, newTarget</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> handler = directProxies.get(target);</span><br><span class="line">    <span class="keyword">if</span> (handler !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> handler.construct(handler.target, args, newTarget);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> target !== <span class="string">"function"</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">"target is not a function: "</span> + target);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (newTarget === <span class="literal">undefined</span> || newTarget === target) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> (<span class="built_in">Function</span>.prototype.bind.apply(target, [<span class="literal">null</span>].concat(args)));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> newTarget !== <span class="string">"function"</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">"newTarget is not a function: "</span> + target);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">var</span> proto = newTarget.prototype;</span><br><span class="line">      <span class="keyword">var</span> instance = (<span class="built_in">Object</span>(proto) === proto) ? <span class="built_in">Object</span>.create(proto) : &#123;&#125;;</span><br><span class="line">      <span class="keyword">var</span> result = <span class="built_in">Function</span>.prototype.apply.call(target, instance, args);</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">Object</span>(result) === result ? result : instance;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="proxy"><a href="#proxy" class="headerlink" title="proxy"></a>proxy</h3><p>构建 const vHandler = function Validator(target, handler){} 构造函数，用于对象操作并作校验。当平台提供 Proxy api 时，vHandler 将作为 Proxy.create, Proxy.createFunction 的参数，以改写 global.Proxy(target, handler) 构造函数。生成的 proxy 实例将以 { [proxy]: vHandler } 的形式存入 WeakMap 实例 directProxies 中，用于使 Object 的部分原型方法先作代理处理，再作常规处理。</p>
-<p>Validator 实例方法（proxy 为 new Proxy(target, handler) 实例）：</p>
-<ul>
-<li>proxy.get(receiver, propKey, receiver): 若没有设置 handler.get，调用 Reflect.get 方法；若设置，以 handler 为上下文调用 handler.get，并校验 target[propKey] 的 configurable, writable, get 属性或方法，特定条件下作报错处理。</li>
-<li>proxy.set(receiver, propKey, value): 若没有设置 handler.set，调用 Reflect.set 方法；若设置，以 handler 为上下文调用 handler.set，并校验 target[propKey] 的 configurable, writable, get 属性或方法，特定条件下作报错处理。</li>
-<li>proxy.has(propKey): 若没有设置 handler.has，调用 Reflect.has 方法；若设置，以 handler 为上下文调用 handler.has，当返回结果为 false 时，并校验 target[propKey] 的 configurable 属性, 及可扩展性，特定条件下作报错处理。</li>
-<li>proxy.delete(propKey): 若没有设置 handler.deleteProperty，调用 Reflect.deleteProperty 方法；若设置，以 handler 为上下文调用 handler.deleteProperty，校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.ownKeys(): 若没有设置 handler.ownKeys，调用 Reflect.ownKeys 方法；若设置，以 handler 为上下文调用 handler.ownKeys，并校验 target 各属性的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.enumate(), proxy.iterate(): 若没有设置 handler.enumate，调用 Reflect.enumate 方法；若设置，以 handler 为上下文调用 handler.enumate，并校验 target 各属性的可扩展性，特定条件下作报错处理。返回迭代器。</li>
-<li>proxy.getPropertyDescriptor(propKey): 若 proxy.has 返回否值，返回 undefined；否则以包装 proxy.set, proxy.get 形式返回属性描述符，且 enumerable, configurable 属性均为真值。</li>
-<li>proxy.getOwnPropertyDescriptor(propKey): 若没有设置 handler.getOwnPropertyDescriptor，调用 Reflect.getOwnPropertyDescriptor 方法；若设置，以 handler 为上下文调用 handler.getOwnPropertyDescriptor，校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.defineProperty(propKey, propDesc): 若没有设置 handler.defineProperty，调用 Reflect.defineProperty 方法；若设置，以 handler 为上下文调用 handler.defineProperty，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.preventExtensions(): 若没有设置 handler.preventExtensions，调用 Reflect.preventExtensions 方法；若设置，以 handler 为上下文调用 handler.preventExtensions，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.getPrototypeOf(): 若没有设置 handler.getPrototypeOf，调用 Reflect.getPrototypeOf 方法；若设置，以 handler 为上下文调用 handler.getPrototypeOf，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.isExtensible(): 若没有设置 handler.isExtensible，调用 Reflect.isExtensible 方法；若设置，以 handler 为上下文调用 handler.isExtensible，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.setPrototypeOf(proto): 若没有设置 handler.setPrototypeOf，调用 Reflect.setPrototypeOf 方法；若设置，以 handler 为上下文调用 handler.setPrototypeOf，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
-<li>proxy.apply(target, thisBinding, args): 若没有设置 handler.apply，调用 Reflect.apply 方法；若设置，以 handler 为上下文调用 handler.apply。</li>
-<li>proxy.construct(target, args, newTarget): 若没有设置 handler.construct，调用 Reflect.construct 方法；若设置，以 handler 为上下文调用 handler.construct。</li>
-</ul>
-<h3 id="Object-扩展"><a href="#Object-扩展" class="headerlink" title="Object 扩展"></a>Object 扩展</h3><ul>
-<li>Object.preventExtensions(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 preventExtensions 方法；其次尝试调用 Object.preventExtensions 原始方法。</li>
-<li>Object.seal(subject): 密封对象，可改变现有属性，即将所有属性描述符的 configurable 置为否。</li>
-<li>Object.freeze(subject): 冻结对象，即将所有属性描述符的 configurable, writable 置为否（访问器属性的状况下仅需处理 configurable 属性）。</li>
-<li>Object.isExtensible(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 isExtensible 方法；其次尝试调用 Object.isExtensible 原始方法。</li>
-<li>Object.isSealed(subject): 判断是否密封。</li>
-<li>Object.isFrozen(subject): 判断是否冻结。</li>
-<li>Object.getOwnPropertyDescriptor(subject, name): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 getOwnPropertyDescriptor 方法；其次尝试调用 Object.getOwnPropertyDescriptor 原始方法。</li>
-<li>Object.defineProperty(subject, name, desc): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 defineProperty 方法；其次尝试调用 Object.defineProperty 原始方法。</li>
-<li>Object.defineProperties(subject, descs): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，针对属性逐个调用代理对象的 defineProperty 方法；其次尝试调用 Object.defineProperties 原始方法。</li>
-<li>Object.keys(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 ownKeys 方法，剔除其中的不可枚举项；其次尝试调用 Object.keys 原始方法。</li>
-<li>Object.getOwnPropertyNames(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 ownKeys 方法；其次尝试调用 Object.getOwnPropertyNames 原始方法。</li>
-<li>Object.getOwnPropertySymbols(subject): 平台提供 Object.getOwnPropertySymbols 原始方法的基础下封装。若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，返回空数组；其次尝试调用 Object.getOwnPropertySymbols 原始方法。</li>
-<li>Object.assign(target, …source): 平台提供 Object.assign 原始方法的基础下封装。若各参数均为代理对象，直接调用 Object.assign 原始方法；否则，遍历属性以拷贝。</li>
-<li>Object.setPrototypeOf(target, proto): 若 target 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 setPrototypeOf 方法；其次尝试调用 Object.setPrototypeOf 原始方法；其次通过 Object.defineProperty 设置target 的 <strong>proto</strong> 属性。</li>
-<li>Object.prototype.isPrototypeOf(arg): 若 arg 为代理实例，通过 vHandler.getPrototypeOf 方法向上逐层获取 arg 的原型，原型同 this 作等值比较；否则直接调用 Object.prototype.isPrototypeOf 作判断。</li>
-<li>Object.prototype.valueOf(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Object.prototype.valueOf；否则，直接执行 Object.prototype.valueOf。</li>
-<li>Object.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Object.prototype.toString；否则，直接执行 Object.prototype.toString。</li>
-<li>Function.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Function.prototype.toString；否则，直接执行 Function.prototype.toString。</li>
-<li>Date.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Date.prototype.toString；否则，直接执行 Date.prototype.toString。</li>
-<li>Object.prototype.hasOwnProperty(propKey): 若 this 为代理实例，从 directProxies 中获取代理对象的 vHandler，调动 vHandler.getOwnPropertyDescriptor，并判断返回值是否为 undefined；否则，直接执行 Object.prototype.hasOwnProperty。</li>
-<li>Array.isArray(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 target，并调用 Array.isArray 原始方法判断 target 是否为数组；其次尝试调用 Array.isArray 原始方法。</li>
-<li>Array.prototype.concat(…args): 使用 Array.prototype.slice 方法将 args 数组项中的代理实例数组拆解为普通数组，随后使用 Array.prototype.concat 原始方法拼接数组。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2368,7 +2276,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">128</span>
+                    <span class="site-state-item-count">129</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

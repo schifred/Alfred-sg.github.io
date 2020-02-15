@@ -515,7 +515,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/组件库/" itemprop="url" rel="index"><span itemprop="name">组件库</span></a></span>
 
                 
                 
@@ -561,7 +561,8 @@
       
         
           
-            <h2 id="底层功能组件"><a href="#底层功能组件" class="headerlink" title="底层功能组件"></a>底层功能组件</h2><h3 id="rc-util"><a href="#rc-util" class="headerlink" title="rc-util"></a>rc-util</h3><h4 id="hooks"><a href="#hooks" class="headerlink" title="hooks"></a>hooks</h4><p>useMergedState(defaultStateValue, option) 主要用于表单项的 value 值状态处理，也可以用于其他状态处理。逻辑上，首先以 option.value、option.defaultValue、defaultStateValue 的顺序设置内部 value 状态值，该 value 值经 option.postState 转变后透出使用；同时透出的有 triggerChange 方法既能改变内部 value 状态值，又能触发 onChange 回调。</p>
+            <h2 id="底层功能组件"><a href="#底层功能组件" class="headerlink" title="底层功能组件"></a>底层功能组件</h2><h3 id="rc-util"><a href="#rc-util" class="headerlink" title="rc-util"></a>rc-util</h3><p>KeyCode: 记录了各按键的编码，并提供按键判断工具。</p>
+<h4 id="hooks"><a href="#hooks" class="headerlink" title="hooks"></a>hooks</h4><p>useMergedState(defaultStateValue, option) 主要用于表单项的 value 值状态处理，也可以用于其他状态处理。逻辑上，首先以 option.value、option.defaultValue、defaultStateValue 的顺序设置内部 value 状态值，该 value 值经 option.postState 转变后透出使用；同时透出的有 triggerChange 方法既能改变内部 value 状态值，又能触发 onChange 回调。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">useControlledState</span>&lt;<span class="title">T</span>, <span class="title">R</span> = <span class="title">T</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  defaultStateValue: T | ((</span>) =&gt; <span class="title">T</span>),</span></span><br><span class="line"><span class="function">  <span class="title">option</span>?: </span>&#123;</span><br><span class="line">    defaultValue?: T | <span class="function">(<span class="params">(</span>) =&gt;</span> T);</span><br><span class="line">    value?: T;</span><br><span class="line">    onChange?: <span class="function">(<span class="params">value: T, prevValue: T</span>) =&gt;</span> <span class="keyword">void</span>;</span><br><span class="line">    postState?: <span class="function">(<span class="params">value: T</span>) =&gt;</span> T;</span><br><span class="line">  &#125;,</span><br><span class="line">): [R, (value: T) =&gt; <span class="keyword">void</span>] &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; defaultValue, value, onChange, postState &#125; = option || &#123;&#125;;</span><br><span class="line">  <span class="keyword">const</span> [innerValue, setInnerValue] = React.useState&lt;T&gt;<span class="function">(<span class="params">(</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (value !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (defaultValue !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">typeof</span> defaultValue === <span class="string">'function'</span></span><br><span class="line">        ? (defaultValue <span class="keyword">as</span> any)()</span><br><span class="line">        : defaultValue;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">typeof</span> defaultStateValue === <span class="string">'function'</span></span><br><span class="line">      ? (defaultStateValue <span class="keyword">as</span> any)()</span><br><span class="line">      : defaultStateValue;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> mergedValue = value !== <span class="literal">undefined</span> ? value : innerValue;</span><br><span class="line">  <span class="keyword">if</span> (postState) &#123;</span><br><span class="line">    mergedValue = postState(mergedValue);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">triggerChange</span>(<span class="params">newValue: T</span>) </span>&#123;</span><br><span class="line">    setInnerValue(newValue);</span><br><span class="line">    <span class="keyword">if</span> (mergedValue !== newValue &amp;&amp; onChange) &#123;</span><br><span class="line">      onChange(newValue, mergedValue);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> [(mergedValue <span class="keyword">as</span> unknown) <span class="keyword">as</span> R, triggerChange];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="rc-align"><a href="#rc-align" class="headerlink" title="rc-align"></a>rc-align</h3><h3 id="rc-trigger"><a href="#rc-trigger" class="headerlink" title="rc-trigger"></a>rc-trigger</h3><p><a href="https://github.com/react-component/trigger" target="_blank" rel="noopener">rc-trigger</a> 作为触发器，它抽象了弹层触发的逻辑。功能点包含：</p>
 <ul>
@@ -723,7 +724,208 @@
 <p>全量的选项列表会通过扁平化处理。在渲染时，Cascader 会基于输入框的值进行筛选；筛选内容有最大展示条目限制；筛选内容有最大展示条目限制；选项内容可排序（以上，均可通过 props.showSearch 设置）。当没有（匹配的）选项时，展示空态。</p>
 <p>弹层位置可基于 props.popupPlacement 或通过 ConfigContext 传入的 direction 设置（右下或左下对齐）。弹层大小可基于 props.showSearch.matchInputWidth 设置为与输入框等宽。弹层容器可基于 props.getPopupContainer 或通过 ConfigContext 传入的 getPopupContainer 设置。</p>
 <p>Cascader 组件的值、弹层显示状态均是受控的；对外回调接口包含 onChange、onPopupVisibleChange。</p>
-<h3 id="DatePicker-日期选择框"><a href="#DatePicker-日期选择框" class="headerlink" title="DatePicker 日期选择框"></a>DatePicker 日期选择框</h3>
+<h3 id="DatePicker-日期选择框"><a href="#DatePicker-日期选择框" class="headerlink" title="DatePicker 日期选择框"></a>DatePicker 日期选择框</h3><p>DatePicker 组件基于 <a href="http://xzfyu.com/2020/02/13/antd/DatePicker/" target="_blank" rel="noopener">rc-picker</a> 制作，它指定 moment 作为时间处理工具，并从上下文中获取 locale、size 属性等，以提供时间选择的功能。</p>
+<h3 id="Form-表单"><a href="#Form-表单" class="headerlink" title="Form 表单"></a>Form 表单</h3><p>可参考 <a href="http://xzfyu.com/2018/11/04/antd/Form/" target="_blank" rel="noopener">Form</a>。</p>
+<h3 id="InputNumber-数字输入框"><a href="#InputNumber-数字输入框" class="headerlink" title="InputNumber 数字输入框"></a>InputNumber 数字输入框</h3><h3 id="Input-输入框"><a href="#Input-输入框" class="headerlink" title="Input 输入框"></a>Input 输入框</h3>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/15/frontend/single-spa 实现前端微服务/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/15/frontend/single-spa 实现前端微服务/" itemprop="url">single-spa 实现前端微服务</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-15T00:00:00+08:00">2020-02-15</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/02/15/frontend/single-spa 实现前端微服务/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/15/frontend/single-spa 实现前端微服务/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="文档及示例"><a href="#文档及示例" class="headerlink" title="文档及示例"></a>文档及示例</h2><p><a href="https://single-spa.js.org" target="_blank" rel="noopener">single-spa</a> 具有以下功能特性：在无须刷新页面的前提下，同一个页面可使用不同的框架；基于不同框架实现的前端应用可以独立部署；制作新内容时可以使用不同的框架；支持应用内脚本的懒加载。</p>
+<p>single-spa 借鉴了组件生命周期的思想，它为应用设置了针对路由的生命周期。当应用匹配路由/处于激活状态时，应用会把自身的内容挂载到页面上；反之则卸载。典型的 single-spa 由 html 页面、应用注册脚本、应用脚本自身构成。应用注册内容包含：name 应用名；loadingFunction 应用脚本加载函数；activityFunction 应用激活态判断函数。single-spa 又约定应用脚本包含以下生命周期：load 当应用匹配路由时就会加载脚本（非函数，只是一种状态）、bootstrap 引导函数（对接 html，应用内容首次挂载到页面前调用）、mount 挂载函数、unmount 卸载函数（须移除事件绑定等内容）、unload 非必要（unload 之后会重新启动 bootstrap 流程；借助 unload 可实现热更新）。生命周期函数获得参数包含 name 应用名、singleSpa 实例、mountParcel 手动挂载函数、customProps 自定义信息；它必须返回 Promise 或其本身为 async 函数；bootstrap、mount、unmount 生命周期函数不可缺省；生命周期函数可以指定多个，它们会构成异步调用链，逐个调用。官网中的实例如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. html 页面</span></span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">  &lt;script src=<span class="string">"single-spa-config.js"</span>&gt;&lt;/script&gt;</span><br><span class="line">&lt;<span class="regexp">/body&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>html&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 应用注册脚本</span></span><br><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> singleSpa <span class="keyword">from</span> <span class="string">'single-spa'</span>;</span><br><span class="line"><span class="keyword">const</span> appName = <span class="string">'app1'</span>;</span><br><span class="line"><span class="keyword">const</span> loadingFunction = <span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./app1/app1.js'</span>);<span class="comment">// loadingFunction，须返回 promise</span></span><br><span class="line"><span class="keyword">const</span> activityFunction = <span class="function"><span class="params">location</span> =&gt;</span> location.pathname.startsWith(<span class="string">'/app1'</span>);<span class="comment">// activityFunction，纯函数</span></span><br><span class="line"><span class="keyword">const</span> customProps = &#123;&#125;;</span><br><span class="line">singleSpa.registerApplication(appName, loadingFunction, activityFunction, customProps);<span class="comment">// customProps 可以不填</span></span><br><span class="line">singleSpa.start();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 应用脚本 app1.js，可以在另一个仓库中</span></span><br><span class="line"><span class="keyword">let</span> domEl;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> &#123;</span><br><span class="line">    name,        <span class="comment">// The name of the application</span></span><br><span class="line">    singleSpa,   <span class="comment">// The singleSpa instance</span></span><br><span class="line">    mountParcel, <span class="comment">// Function for manually mounting </span></span><br><span class="line">    customProps  <span class="comment">// Additional custom information</span></span><br><span class="line">  &#125; = props;     <span class="comment">// Props are given to every lifecycle</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>);</span><br><span class="line">      domEl.id = <span class="string">'app1'</span>;</span><br><span class="line">      <span class="built_in">document</span>.body.appendChild(domEl);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">mount</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl.textContent = <span class="string">'App 1 is mounted!'</span></span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">unmount</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl.textContent = <span class="string">''</span>;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="快速对接框架"><a href="#快速对接框架" class="headerlink" title="快速对接框架"></a>快速对接框架</h3><p>在官方提供的示例项目 <a href="https://github.com/single-spa/single-spa-examples" target="_blank" rel="noopener">single-spa-examples</a> 中，single-spa 提供了便捷的引导、挂载、卸载工具（如 single-spa-angular、single-spa-angularjs、single-spa-ember、single-spa-inferno、single-spa-preact、single-spa-react、single-spa-svelte、single-spa-vue），便于对接各种框架。具体可参考官方的示例项目或官方文档 <a href="https://single-spa.js.org/docs/starting-from-scratch" target="_blank" rel="noopener">Starting From Scratch</a>。以下为 single-spa-react 的使用示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> ReactDOM <span class="keyword">from</span> <span class="string">'react-dom'</span>;</span><br><span class="line"><span class="keyword">import</span> singleSpaReact <span class="keyword">from</span> <span class="string">'single-spa-react'</span>;</span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./containers/App.js'</span>;</span><br><span class="line"><span class="keyword">const</span> reactLifecycles = singleSpaReact(&#123;</span><br><span class="line">  React,</span><br><span class="line">  ReactDOM,</span><br><span class="line">  rootComponent: App,<span class="comment">// 应用顶层组件</span></span><br><span class="line">  domElementGetter,<span class="comment">// 挂载应用的页面 dom 元素</span></span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> bootstrap = [</span><br><span class="line">  reactLifecycles.bootstrap,</span><br><span class="line">];</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> mount = [</span><br><span class="line">  reactLifecycles.mount,</span><br><span class="line">];</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> unmount = [</span><br><span class="line">  reactLifecycles.unmount,</span><br><span class="line">];</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">domElementGetter</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">document</span>.getElementById(<span class="string">"root"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="拆分部署"><a href="#拆分部署" class="headerlink" title="拆分部署"></a>拆分部署</h3><p>single-app 推荐的应用拆分部署策略有如下三种：</p>
+<ol>
+<li>将所有应用置于同一个包下。构建时间将会变慢，构建和部署都绑定在一起，这就需要固定的发布计划，而不是临时发布。</li>
+<li>创建根应用程序，以 npm 方式安装子应用。子应用程序有单独的存储仓库，每次更新时需要发版。根应用在单个 spa 应用更改时都需要重新安装、重建和重新部署。根应用和各个子应用也可以使用 monorepo 方法（借助 lerna 等）组织。</li>
+<li>创建根应用程序，以动态模块加载的方式加载子应用。独立发布的子应用提供一个活动 url 资源地址，随后在根应用中借助模块加载器（如 SystemJS）动态加载。</li>
+</ol>
+<h3 id="超时"><a href="#超时" class="headerlink" title="超时"></a>超时</h3><p>single-app 允许在应用脚本中设置超时时间，一旦超时，应用即予挂死。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span>(<span class="params">props</span>) </span>&#123;...&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">mount</span>(<span class="params">props</span>) </span>&#123;...&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">unmount</span>(<span class="params">props</span>) </span>&#123;...&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> timeouts = &#123;</span><br><span class="line">  bootstrap: &#123;</span><br><span class="line">    millis: <span class="number">5000</span>,</span><br><span class="line">    dieOnTimeout: <span class="literal">true</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  mount: &#123;</span><br><span class="line">    millis: <span class="number">5000</span>,</span><br><span class="line">    dieOnTimeout: <span class="literal">false</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  unmount: &#123;</span><br><span class="line">    millis: <span class="number">5000</span>,</span><br><span class="line">    dieOnTimeout: <span class="literal">true</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  unload: &#123;</span><br><span class="line">    millis: <span class="number">5000</span>,</span><br><span class="line">    dieOnTimeout: <span class="literal">true</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="动效"><a href="#动效" class="headerlink" title="动效"></a>动效</h3><p>应用挂载、卸载时的动效既可以在应用内部处理，又可以使用 <a href="https://github.com/frehner/singlespa-transitions" target="_blank" rel="noopener">singlespa-transitions</a> 处理。</p>
+<h3 id="包"><a href="#包" class="headerlink" title="包"></a>包</h3><p>与应用不同，包没有 activityFunction 激活函数，而是通过手动调用加载。包可以像应用程序一样大，也可以像组件一样小。官方建议在应用程序上下文中装入包，那时包将与应用程序一起卸载。包有四种生命周期：bootstrap、mount、unmount、update。使用包允许我们在跨应用中共享组件。以下是官方示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例 1：普通应用中装入包</span></span><br><span class="line"><span class="keyword">const</span> parcelConfig = &#123;</span><br><span class="line">  bootstrap() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve()</span><br><span class="line">  &#125;,</span><br><span class="line">  mount() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve()</span><br><span class="line">  &#125;,</span><br><span class="line">  unmount() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> domElement = <span class="built_in">document</span>.getElementById(<span class="string">'place-in-dom-to-mount-parcel'</span>)<span class="comment">// 挂载点</span></span><br><span class="line"><span class="keyword">const</span> parcelProps = &#123;domElement, <span class="attr">customProp1</span>: <span class="string">'foo'</span>&#125;</span><br><span class="line"><span class="keyword">const</span> parcel = singleSpa.mountRootParcel(parcelConfig, parcelProps)</span><br><span class="line">parcel.mountPromise.then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;<span class="comment">// 包挂载后触发</span></span><br><span class="line">  parcelProps.customProp1 = <span class="string">'bar'</span></span><br><span class="line">  <span class="keyword">return</span> parcel.update(parcelProps)</span><br><span class="line">&#125;)</span><br><span class="line">.then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> parcel.unmount()</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例 2：react 应用中装入包</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> ReactDom <span class="keyword">from</span> <span class="string">'react-dom'</span></span><br><span class="line"><span class="keyword">import</span> singleSpaReact <span class="keyword">from</span> <span class="string">'single-spa-react'</span></span><br><span class="line"><span class="keyword">import</span> MyParcelComponent <span class="keyword">from</span> <span class="string">'./my-parcel-component.component.js'</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> MyParcel = singleSpaReact(&#123;</span><br><span class="line">  React,</span><br><span class="line">  ReactDom,</span><br><span class="line">  rootComponent: MyParcelComponent</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> Parcel <span class="keyword">from</span> <span class="string">'single-spa-react/parcel'</span></span><br><span class="line"><span class="keyword">import</span> MyParcel <span class="keyword">from</span> <span class="string">'./myparcel.js'</span></span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">myComponent</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  render () &#123;</span><br><span class="line">    <span class="comment">// 以 Parcel 组件形式加载包</span></span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;Parcel</span><br><span class="line">        config=&#123;MyParcel&#125;</span><br><span class="line">        &#123; <span class="comment">/* optional props */</span> &#125;</span><br><span class="line">        &#123; <span class="comment">/* and any extra props you want here */</span> &#125;</span><br><span class="line">      /&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例 3：跨应用复用包</span></span><br><span class="line"><span class="comment">// app1</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> AddContactParcel = &#123;</span><br><span class="line">  bootstrap: bootstrapFn,</span><br><span class="line">  mount: mountFn,</span><br><span class="line">  unmount: unmountFn,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// app2</span></span><br><span class="line">componentDidMount() &#123;</span><br><span class="line">  SystemJS.import(<span class="string">'App1'</span>).then(<span class="function"><span class="params">App1</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> domElement = <span class="built_in">document</span>.body</span><br><span class="line">    App2MountProps.mountParcel(App1.AddContactParcel, &#123;domElement&#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><p>在实现上，single-spa 约定了应用、包的生命周期，并调度着应用、包生命周期周转（路由匹配机制）的流程。至于应用、包的加载函数、路由匹配策略及其生命周期函数则由开发者手动实现。</p>
+<h3 id="应用部分"><a href="#应用部分" class="headerlink" title="应用部分"></a>应用部分</h3><p>single-app 将应用抽象为如下形式：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  name: <span class="built_in">string</span>;<span class="comment">// 应用名</span></span><br><span class="line">  parcels: &#123;&#125;,<span class="comment">// 包</span></span><br><span class="line">  status: NOT_LOADED | LOADING_SOURCE_CODE | NOT_BOOTSTRAPPED | BOOTSTRAPPING | NOT_MOUNTED | </span><br><span class="line">    MOUNTING | UPDATING | LOAD_ERROR | MOUNTED | UNMOUNTING | SKIP_BECAUSE_BROKEN;<span class="comment">// 应用状态</span></span><br><span class="line">  customProps: &#123; [key: <span class="built_in">string</span>]: <span class="built_in">any</span> &#125;;<span class="comment">// 自定义属性</span></span><br><span class="line">  loadImpl: <span class="built_in">string</span> | <span class="function">(<span class="params">url: <span class="built_in">string</span></span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 应用模块位置或应用脚本加载函数</span></span><br><span class="line">  activeWhen: <span class="function">(<span class="params">location: <span class="built_in">string</span></span>) =&gt;</span> <span class="built_in">boolean</span>;<span class="comment">// 应用激活状态判断函数</span></span><br><span class="line">  bootstrap: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 引导函数</span></span><br><span class="line">  mount: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 挂载函数</span></span><br><span class="line">  unmount: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 卸载函数</span></span><br><span class="line">  unload: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 卸载脚本函数</span></span><br><span class="line">  timeouts: &#123; bootstrap, mount, unmount, unload &#125;;<span class="comment">// 超时设置</span></span><br><span class="line">  loadErrorTime: <span class="literal">null</span>,<span class="comment">// </span></span><br><span class="line">  devtools: &#123; overlays &#125;,<span class="comment">// 设置 window.__SINGLE_SPA_DEVTOOLS__ 的调试环境中使用</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>应用的生命周期（这些生命周期都会改变应用的状态）（如果设置了超时时间且 dieOnTimeout 为 true 时，bootstrap、mount、unmount 执行超时时会通过 Promise.reject 机制阻断后续流程）：</p>
+<ul>
+<li>load: 调用 app.loadImpl 加载脚本，并将 bootstrap、mount、unmount、unload 转化成异步调用链，设置超时时间。</li>
+<li>bootstrap: 调用 app.bootstrap 作引导处理。</li>
+<li>mount: 调用 app.mount 挂载内容，失败时 unmount。</li>
+<li>unmount: 首先对应用中的包执行 unmountThisParcel 方法，其次调用 app.unmount 卸载内容。</li>
+<li>unload: 调用 app.unload 卸载脚本，卸载后移除 app.bootstrap、app.mount、app.unmount、app.unload 等属性。unload 周期在开发者手动调用 unloadApplication 函数时触发，应用会重新退回到 NOT_LOADED 状态，需要再次执行 bootstrap 流程。</li>
+</ul>
+<p>从全局层面看，single-app 按以下流程处理应用：</p>
+<ol>
+<li>全局劫持 hashchange、popstate 事件，绑定 reroute 函数；并捕获单页应用中的绑定函数，以备后续处理。</li>
+<li>registerApplication(appName, applicationOrLoadingFn, activityFn, customProps) 注册应用。该过程将调用 reroute 函数加载应用脚本；其他使用 registerApplication 注册的应用将在等待状态，直到 reroute 递归调用时才予加载。备注：registerApplication 期间，single-app 会通过调用 ensureJQuerySupport 改写 $.on 绑定 hashchange、popstate 事件的功能，以便支持使用 window.$。</li>
+<li>start() 启动应用，该过程也将调用 reroute 函数。start 若未执行，reroute 将只加载应用脚本，但不会调用应用脚本内的 bootstrap、mount、unmount 等生命周期函数。</li>
+<li>监听到 hashchange、popstate 事件，触发 reroute 函数卸载、挂载应用。对于挂载的应用，捕获到的绑定函数会在 reroute 尾端手动调用。</li>
+</ol>
+<p>single-app 最核心的模块是 reroute，其负责调控应用脚本加载、卸载，应用内容挂载、卸载的流程。reroute 函数额外会使用 window.dispatchEvent 发送事件，以便于实现事件监听。</p>
+<ul>
+<li>若应用未启动，通过 loadApps 加载匹配路由的应用脚本。加载完成后，若有其他应用脚本在排队注册中，递归调用 reroute 加载之。</li>
+<li>若应用已启动，首先对不在用的应用脚本执行 unload、unmount 操作；然后对在用的但是未加载的应用脚本执行 load、bootstrap 操作，等到不在用的脚本 unmount 完成，再执行 mount 操作；其次对在用的同时已加载的应用脚本执行 bootstrap、mount 操作（mount 操作也要等到不在用的脚本 unmount 完成）。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * reroute 或者由 registerApplication 触发调用，或者由 hashchange、popstate 事件触发调用。多个 registerApplication 会引起 reroute 递归调用；或者路由多次变更，reroute 未执行完成，也会导致 reroute 递归调动</span></span><br><span class="line"><span class="comment"> * reroute 作为编程接口，也可以后接 then 方法拿取已挂载的应用</span></span><br><span class="line"><span class="comment"> * @param &#123;array&#125; pendingPromises reroute 在执行期间，调用 registerApplication 或变更路由，pendingPromises 非空数组</span></span><br><span class="line"><span class="comment"> * @param &#123;event&#125; eventArguments 事件对象，hashchange、popstate 事件时携带</span></span><br><span class="line"><span class="comment"> * @state appChangeUnderway 指明 reroute 在一次执行周期中，其他 reroute 将被挂起，直到本次 reroute 递归调用才予以执行</span></span><br><span class="line"><span class="comment"> * @state wasNoOp 应用是否发生变更，如加载了一个应用，卸载了一个应用</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">reroute</span>(<span class="params">pendingPromises = [], eventArguments</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (appChangeUnderway) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      peopleWaitingOnAppChange.push(&#123;</span><br><span class="line">        resolve,</span><br><span class="line">        reject,</span><br><span class="line">        eventArguments,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  appChangeUnderway = <span class="literal">true</span>;</span><br><span class="line">  <span class="keyword">let</span> wasNoOp = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// single-app 是否已 start。start 意味应用变更由路由变更引起</span></span><br><span class="line">  <span class="keyword">if</span> (isStarted()) &#123;</span><br><span class="line">    <span class="keyword">return</span> performAppChanges();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> loadApps();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 筛选出待加载的脚本并加载之。所有加载完成后，调用 finishUpAndReturn</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">loadApps</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> loadPromises = getAppsToLoad().map(toLoadPromise);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (loadPromises.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        wasNoOp = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">        .all(loadPromises)</span><br><span class="line">        .then(finishUpAndReturn)</span><br><span class="line">        .catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">          callAllEventListeners();<span class="comment">// 执行所有捕获的路由变更时间</span></span><br><span class="line">          <span class="keyword">throw</span> err;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 处理路由变更引起的应用变更</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">performAppChanges</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">window</span>.dispatchEvent(<span class="keyword">new</span> CustomEvent(<span class="string">"single-spa:before-routing-event"</span>, getCustomEventDetail()));</span><br><span class="line">      <span class="keyword">const</span> unloadPromises = getAppsToUnload().map(toUnloadPromise);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> unmountUnloadPromises = getAppsToUnmount()</span><br><span class="line">        .map(toUnmountPromise)</span><br><span class="line">        .map(<span class="function"><span class="params">unmountPromise</span> =&gt;</span> unmountPromise.then(toUnloadPromise));</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> allUnmountPromises = unmountUnloadPromises.concat(unloadPromises);</span><br><span class="line">      <span class="keyword">if</span> (allUnmountPromises.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        wasNoOp = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> unmountAllPromise = <span class="built_in">Promise</span>.all(allUnmountPromises);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 先 load，再 bootstrap，然后等待其他应用 unmount、unload 完成，再 mount</span></span><br><span class="line">      <span class="keyword">const</span> appsToLoad = getAppsToLoad();</span><br><span class="line">      <span class="keyword">const</span> loadThenMountPromises = appsToLoad.map(<span class="function"><span class="params">app</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> toLoadPromise(app)</span><br><span class="line">          .then(toBootstrapPromise)</span><br><span class="line">          .then(<span class="function"><span class="params">app</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> unmountAllPromise</span><br><span class="line">              .then(<span class="function"><span class="params">()</span> =&gt;</span> toMountPromise(app))</span><br><span class="line">          &#125;)</span><br><span class="line">      &#125;)</span><br><span class="line">      <span class="keyword">if</span> (loadThenMountPromises.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        wasNoOp = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 已 bootstrap 过，再次 bootstrap，然后等待其他应用 unmount、unload 完成，再 mount</span></span><br><span class="line">      <span class="keyword">const</span> mountPromises = getAppsToMount()</span><br><span class="line">        .filter(<span class="function"><span class="params">appToMount</span> =&gt;</span> appsToLoad.indexOf(appToMount) &lt; <span class="number">0</span>)</span><br><span class="line">        .map(<span class="function"><span class="params">appToMount</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> toBootstrapPromise(appToMount)</span><br><span class="line">            .then(<span class="function"><span class="params">()</span> =&gt;</span> unmountAllPromise)</span><br><span class="line">            .then(<span class="function"><span class="params">()</span> =&gt;</span> toMountPromise(appToMount))</span><br><span class="line">        &#125;)</span><br><span class="line">      <span class="keyword">if</span> (mountPromises.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        wasNoOp = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> unmountAllPromise</span><br><span class="line">        .catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">          callAllEventListeners();</span><br><span class="line">          <span class="keyword">throw</span> err;</span><br><span class="line">        &#125;)</span><br><span class="line">        .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="comment">// 非必须的应用已卸载，可以安心调用挂载应用的 hashchange、popstate 绑定函数</span></span><br><span class="line">          callAllEventListeners();</span><br><span class="line"></span><br><span class="line">          <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">            .all(loadThenMountPromises.concat(mountPromises))</span><br><span class="line">            .catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">              pendingPromises.forEach(<span class="function"><span class="params">promise</span> =&gt;</span> promise.reject(err));</span><br><span class="line">              <span class="keyword">throw</span> err;</span><br><span class="line">            &#125;)</span><br><span class="line">            .then(<span class="function"><span class="params">()</span> =&gt;</span> finishUpAndReturn(<span class="literal">false</span>))</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">finishUpAndReturn</span>(<span class="params">callEventListeners=true</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> returnValue = getMountedApps();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (callEventListeners) &#123;</span><br><span class="line">      callAllEventListeners();</span><br><span class="line">    &#125;</span><br><span class="line">    pendingPromises.forEach(<span class="function"><span class="params">promise</span> =&gt;</span> promise.resolve(returnValue));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> appChangeEventName = wasNoOp ? <span class="string">"single-spa:no-app-change"</span>: <span class="string">"single-spa:app-change"</span>;</span><br><span class="line">      <span class="built_in">window</span>.dispatchEvent(<span class="keyword">new</span> CustomEvent(appChangeEventName, getCustomEventDetail()));</span><br><span class="line">      <span class="built_in">window</span>.dispatchEvent(<span class="keyword">new</span> CustomEvent(<span class="string">"single-spa:routing-event"</span>, getCustomEventDetail()));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      <span class="comment">// single-spa:no-app-change 事件监听器报错，single-spa 不予处理</span></span><br><span class="line">      setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> err;</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// reroute 单次执行结束，无挂起的 reroute 时，调用 reroute 将直接执行</span></span><br><span class="line">    appChangeUnderway = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 被挂起的 reroute，需要手动触发之</span></span><br><span class="line">    <span class="keyword">if</span> (peopleWaitingOnAppChange.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> nextPendingPromises = peopleWaitingOnAppChange;</span><br><span class="line">      peopleWaitingOnAppChange = [];</span><br><span class="line">      reroute(nextPendingPromises);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> returnValue;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 手动调用挂载应用中被阻断的 haschange、popstate 绑定函数</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">callAllEventListeners</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    pendingPromises.forEach(<span class="function"><span class="params">pendingPromise</span> =&gt;</span> &#123;</span><br><span class="line">      callCapturedEventListeners(pendingPromise.eventArguments);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    callCapturedEventListeners(eventArguments);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">getCustomEventDetail</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> result = &#123;<span class="attr">detail</span>: &#123;&#125;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (eventArguments &amp;&amp; eventArguments[<span class="number">0</span>]) &#123;</span><br><span class="line">      result.detail.originalEvent = eventArguments[<span class="number">0</span>]</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="包部分"><a href="#包部分" class="headerlink" title="包部分"></a>包部分</h3><p>single-app 将包抽象为如下内部表现形式：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  id: <span class="built_in">number</span>;<span class="comment">// id</span></span><br><span class="line">  name: <span class="built_in">string</span>;<span class="comment">// 包名</span></span><br><span class="line">  parentName: <span class="built_in">string</span>;<span class="comment">// 父包名或应用名</span></span><br><span class="line">  parcels: &#123;&#125;,<span class="comment">// 包，以 &#123; id: parcel &#125; 形式存储</span></span><br><span class="line">  status: NOT_LOADED | LOADING_SOURCE_CODE | NOT_BOOTSTRAPPED | BOOTSTRAPPING | NOT_MOUNTED | </span><br><span class="line">    MOUNTING | UPDATING | LOAD_ERROR | MOUNTED | UNMOUNTING | SKIP_BECAUSE_BROKEN;<span class="comment">// 状态</span></span><br><span class="line">  customProps: &#123; [key: <span class="built_in">string</span>]: <span class="built_in">any</span> &#125;;<span class="comment">// 自定义属性，包含 domElement 挂载节点</span></span><br><span class="line">  bootstrap: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 引导函数</span></span><br><span class="line">  mount: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 挂载函数</span></span><br><span class="line">  update: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 更新函数</span></span><br><span class="line">  unmountThisParcel: <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 卸载接口，内部会调用 parcel.unmount 方法</span></span><br><span class="line">  unmount: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 卸载函数</span></span><br><span class="line">  unload: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 卸载脚本函数</span></span><br><span class="line">  timeouts: &#123; bootstrap, mount, unmount, unload &#125;;<span class="comment">// 超时设置</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>singleSpa.mountRootParcel(config, customProps)、singleSpa.mountParcel(config, customProps) 方法能将外部配置项 [config.name]、config.bootstrap、config.mount、[config.update]、config.unmount、customProps.domElement 转化成内部表现形式（config 可以包模块的加载函数）。在 singleSpa.mountRootParcel、singleSpa.mountParcel 调用期间，single-spa 会加载包模块，并为内部表现形式添加 name、bootstrap、mount、update、unmount、timeouts 等属性，并返回 { mount, unmount, getStatus, loadPromise, bootstrapPromise, mountPromise, unmountPromise } 对象，用于手动挂载或卸载包。</p>
+<p>特别注意，singleSpa.mountRootParcel 将包挂在顶部；singleSpa.mountParcel 一般以应用的 props.mountParcel 形式使用，也即作为应用下的包，其将会随着应用的销毁而销毁。</p>
+<p>从总体层面看，包加载、卸载的机制与应用相同，只是多了一个 update 生命周期，以及包的存活空间限制、包需要手动渲染。</p>
+<h3 id="single-spa-react"><a href="#single-spa-react" class="headerlink" title="single-spa-react"></a>single-spa-react</h3><p><a href="https://github.com/single-spa/single-spa-react" target="_blank" rel="noopener">single-spa-react</a> 便于 react 应用快速对接 single-app。</p>
+<p>singleSpaReact(opts) 函数能指定顶层组件及其渲染位置、渲染方式，其返回内容可作为应用或包脚本的 bootstrap、mount、unmount、update 导出。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">singleSpaReact(opts: &#123; </span><br><span class="line">  React: React;</span><br><span class="line">  ReactDOM: ReactDOM;</span><br><span class="line">  rootComponent: React.Component;<span class="comment">// 顶层组件，通过 React.createElement 加载元素</span></span><br><span class="line">  loadRootComponent: <span class="function"><span class="params">()</span> =&gt;</span> React.Component;<span class="comment">// 顶层组件加载函数，与 rootComponent 选填一项即可</span></span><br><span class="line">  suppressComponentDidCatchWarning: boolean;<span class="comment">// react16 以上版本，若 rootComponent 未实现 componentDidCatch 方法，予以警告</span></span><br><span class="line">  domElementGetter?: <span class="function"><span class="params">()</span> =&gt;</span> DOMElement;<span class="comment">// 获取挂载节点，不填会创建 id 为 `single-spa-application:$&#123;appName&#125;` 的节点进行挂载</span></span><br><span class="line">  parcelCanUpdate: boolean;<span class="comment">// 包是否可渲染</span></span><br><span class="line">  renderType?: <span class="string">'createRoot'</span> | <span class="string">'createBlockingRoot'</span> | <span class="string">'hydrate'</span>;<span class="comment">// 渲染方式，分别使用 ReactDOM.createRoot、ReactDOM.createBlockingRoot、ReactDOM.hydrate、ReactDOM.render 方法渲染</span></span><br><span class="line">&#125;): &#123;</span><br><span class="line">  bootstrap: <span class="function">(<span class="params">props</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 加载顶层组件脚本</span></span><br><span class="line">  mount: <span class="function">(<span class="params">props</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 将顶层组件渲染到页面上</span></span><br><span class="line">  unmount: <span class="function">(<span class="params">props</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 使用 ReactDOM.unmountComponentAtNode 移除顶层组件</span></span><br><span class="line">  update: <span class="function">(<span class="params">props</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 指定 parcelCanUpdate 前提下，刷新 rootComponent</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>特别的，当以 React.createContext 机制赋值 SingleSpaContext 导出时，single-spa-react 会为所有应用、包添加上下文容器 SingleSpaContext.Providev，其 value 值为 mount 生命周期的 props（包含 mountParcel 方法，指定在当前应用或包中渲染其他包）。</p>
+<p>single-spa-react 额外提供了 Parcel 组件，其接受 props.config 为包的生命周期导出模块（即 singleSpaReact 函数返回值），默认会将包渲染到组件树中；当指定 props.appendTo 属性，则会将包渲染到 props.appendTo 元素上。渲染的前提是它能获得 SingleSpaContext 传递的 mountParcel 函数（即包挂载在应用或其他包的 rootComponent 下），否则需要开发者显式指定 props.mountParcel 方法。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>造物必有迹可循，只是曲折的历史会把它打扮得较难领会。创造者不只创造为外部所用的产物，还有对内部加倍透明的历史。如果只是使用，不是创造，何必知晓历史之古。</p>
+
           
         
       
@@ -1896,191 +2098,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/23/java/从 nacos 看领域驱动设计/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/23/java/从 nacos 看领域驱动设计/" itemprop="url">从 nacos 看领域驱动设计</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-23T00:00:00+08:00">2020-01-23</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/01/23/java/从 nacos 看领域驱动设计/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/23/java/从 nacos 看领域驱动设计/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>按 <a href="https://nacos.io/zh-cn/index.html" target="_blank" rel="noopener">Nacos 官网</a> 的说法，它是一个提供便捷的服务发现、管理和配置平台。推敲 Nacos 的出产，首先它基于问题域思考所需实现的功能特性和非功能特性；再由特性思忖到逻辑架构图、领域模型、部署架构图、类视图等架构层面；再结合特性和架构图深入业务场景，完善功能实现策略；然后从开发生态这个宏观视角寻味 Nacos 需要支持的语言、技术栈；最后从市场投放这个目标视角总结 Nacos 的各种优势，并予以战略上的肯定。可以推想，Nacos 基于领域模型设计，比领域模型走得更远。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/nacosMap.jpg">
-<h2 id="一句话需求"><a href="#一句话需求" class="headerlink" title="一句话需求"></a>一句话需求</h2><p><a href="https://github.com/alibaba/nacos" target="_blank" rel="noopener">Nacos</a> 充当微服务中的注册中心和配置中心。</p>
-<p>当巨石项目被切割成多个支持动态扩展的微服务后，各个微服务的调用地址和数量都是动态可变的，注册中心的核心功能就是维护可调用的服务清单。遵循 C/S 架构，server 服务器维护着 client 可调用服务清单，并提供接口给 client 以查询其他服务信息；client 客户端一方面会将自己注册到 server 上，另一方面会从 server 上获取依赖的其他服务信息。常见的注册中心有 Eureka、Zookeeper、Consul、Dubbo。应用在不同环境中会有不同的配置，配置中心的目的即在于提供不同的配置能力。常见的配置中心有 spring cloud config、Apollo、Disconf、Diamond。</p>
-<h2 id="领域模型"><a href="#领域模型" class="headerlink" title="领域模型"></a>领域模型</h2><h3 id="注册中心"><a href="#注册中心" class="headerlink" title="注册中心"></a>注册中心</h3><p>注册中心基于以下概念：Service 服务、Service Provider 服务提供者、Service Consumer 服务消费者、Service Metadata 服务元数据、Service Registry 服务注册中心。由服务提供者提供服务、实例和元数据信息，并将这些内容添加到注册中心，再由服务消费者查询消费。服务下割集群，集群下挂载指定 ip、port 的实例（实例默认挂载在默认集群下，也可以创建虚拟集群管理实例）；服务上设分组。元数据包含服务端点、服务标签、服务版本号、服务实例权重、路由规则、安全策略等。Nacos 会对实例进行健康检查；当健康的实例占服务总实例比重小于指定阈值时，Nacos 将不会应用实例权重和路由规则，而是将可能不健康的实例推送给消费者。Nacos 团队在 <a href="https://nacos.io/en-us/blog/discovery-console.html" target="_blank" rel="noopener">Nacos服务发现控制台预览 2018.10.2</a> 这篇文章中点明了服务 - 集群 - 实例模型的界面设计。下图是包含模型结构和主要功能的领域模型。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/service.jpeg">
-<h3 id="配置中心"><a href="#配置中心" class="headerlink" title="配置中心"></a>配置中心</h3><p>配置中心基于以下概念：Configuration 配置、Configuration Management 配置管理。配置中心的主要功能在于管理应用所需的配置。单条配置（如日志级别）构成一个配置项；多个配置项通过配置集统筹；一个配置集通过配置集 id 定位；配置集上设分组，以便多个应用使用相同的配置集。对于配置管理，Nacos 还提供或规划了灰度发布、版本管理、快速回滚、监听查询、推送轨迹、权限控制、敏感配置的加密存储等功能。当配置被 client 拉取到时，Nacos 的客户端 SDK 会在本地生成配置快照，以作容灾处理；配置快照会在特定时间进行更新，但不会过期。[Nacos 帮我们解决什么问题？—— 配置管理篇] 这篇文章道明了配置中心的存在价值，上文也有简要说明。下图是包含模型结构和主要功能的领域模型。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/configuration.jpeg">
-<h3 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h3><p>namespace 命名空间用于区分不同租户和不同环境。命名空间下挂服务分组、配置分组。默认的命名空间为 public，分组默认是 DEFAULT_GROUP。Nacos 控制台可以添加新的命名空间，随后在 client 中即可配置命名空间的 id（id 须经解析以获得实际的命名空间名，然后从 server 中获得配置），指定服务所属哪个命名空间或服务使用哪个命名空间的配置。<a href="https://nacos.io/zh-cn/blog/namespace-endpoint-best-practices.html" target="_blank" rel="noopener">Namespace, endpoint 最佳实践</a> 描述着命名空间的设计背景和方案。下图是命名空间的模型结构。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/namespace.jpeg">
-<h2 id="逻辑流程"><a href="#逻辑流程" class="headerlink" title="逻辑流程"></a>逻辑流程</h2><p>上节所能感知的是 Nacos 控制台的界面形式（实现了什么），但不能感知 Nacos 的内部（怎么实现的）。本节结合下一节，所要表述的是 Nacos 是怎么实现。本节仅介绍注册中心的逻辑流程。</p>
-<p>注册中心的功能分为两部分：服务注册、服务发现。下图下半部分即服务注册的流程，标名的客户端作为服务提供者将自己注册到 Nacos，Nacos 注册中心即会生成对应的一份实例配置；服务注册成功后，服务提供者与注册中心维持心跳，以保证将最新的服务信息推送到注册中心。上半部分即服务发现的流程，其一标名的客户端作为服务消费者可以从注册中心主动获取服务实例信息；其二消费者可以订阅注册中心的服务，那样会在客户端本地维护一份服务列表（通过事件机制予以更新），客户端从本地获取服务实例信息。<a href="https://www.jianshu.com/p/61608ff86344" target="_blank" rel="noopener">Nacos 服务注册与发现原理分析</a> 这篇文章道明了服务注册与发现的主流程。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/service_register.png">
-<p><a href="https://www.infoq.cn/article/B*6vyMIKao9vAKIsJYpE?from=timeline&amp;isappinstalled=0" target="_blank" rel="noopener">Nacos 注册中心的设计原理详解</a> 这篇文章道明了 Nacos 在数据隔离、数据一致性（多注册中心的前提下）、负载均衡、健康检查、集群扩展性上的设计原理。</p>
-<h2 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h2><img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/jiagou.png">
-<p>在 nacos-core 核心中，与上文相关的模块有：</p>
-<ul>
-<li>插件机制：实现服务管理、配置管理、元数据管理三个模块可分可合能力，实现扩展点 <a href="http://blog.itpub.net/69912579/viewspace-2656555/" target="_blank" rel="noopener">SPI 服务提供发现机制</a>。</li>
-<li>事件机制：实现异步化事件通知，sdk 数据变化异步通知等逻辑。</li>
-<li>回调机制：sdk 通知数据，通过统一的模式回调用户处理。接口和数据结构需要具备可扩展性。</li>
-<li>推送通道：解决 server 与存储、server 间、server 与 sdk 间推送性能问题。</li>
-<li>寻址模式：解决 ip、域名、nameserver、广播等多种寻址模式，需要可扩展。</li>
-<li>流量管理：按照租户，分组等多个维度对请求频率，长链接个数，报文大小，请求流控进行控制。</li>
-</ul>
-<p>这些核心模块撑起了上文所说的功能模块的逻辑流程。</p>
-<p>在接口层之上、数据层之下，是 Nacos 所要支持的生态。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/shengtai.png">
-<p><a href="https://nacos.io/zh-cn/blog/alibaba-configserver.html" target="_blank" rel="noopener">阿里巴巴服务注册中心产品ConfigServer 10年技术发展回顾</a> 这篇文章道明了 Nacos 的前世今生，各阶段致力于解决的问题。<a href="https://nacos.io/zh-cn/docs/roadmap.html" target="_blank" rel="noopener">Nacos 规划</a> 简述了 Nacos 今后的发展。</p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>项目使用了 Nacos，我发现在了解 Nacos 的过程中，最有意思的是探究其破土出芽的过程。虽然这一过程有点自不量力，很多东西都不能消化吸收，但是却能助我看见领域驱动设计的应用。正好最近在看《领域驱动设计 —— 软件核心复杂性的应对之道》，工作中也在接触一个探索型项目，总结一套可交流的建模语言、构建产品的一般流程很有价值似的。通过上述文字，我所能领会到的构建产品的一般流程为：</p>
-<ul>
-<li>一句话描述需求，阐明核心功能模块。</li>
-<li>构造领域模型，剖析核心流程。</li>
-<li>统筹整体架构，宏观上挖掘生态、市场。</li>
-<li>分解功能模块，分工、规划、细化。</li>
-</ul>
-<p>我觉得这样的流程可以应用工程实践上。整理这篇文章的目的大概在于此吧。至于“细节处见真章”方面，还真是让人愧不自啊。而 Nacos 在 spring 项目中的应用，可以参考官方文档 <a href="https://nacos.io/zh-cn/docs/quick-start-spring-cloud.html" target="_blank" rel="noopener">Nacos Spring Cloud 快速开始</a>，这里不作说明。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://nacos.io" target="_blank" rel="noopener">Nacos 官网</a><br><a href="https://www.jianshu.com/p/61608ff86344" target="_blank" rel="noopener">Nacos 服务注册与发现原理分析</a><br><a href="https://www.infoq.cn/article/B*6vyMIKao9vAKIsJYpE?from=timeline&amp;isappinstalled=0" target="_blank" rel="noopener">Nacos 注册中心的设计原理详解</a><br><a href="https://nacos.io/zh-cn/blog/address-server.html" target="_blank" rel="noopener">Nacos 环境隔离</a><br><a href="http://blog.itpub.net/69922229/viewspace-2644195/" target="_blank" rel="noopener">Nacos Sync 的设计原理和规划</a><br><a href="https://nacos.io/zh-cn/blog/access%20control%20design.html" target="_blank" rel="noopener">Nacos 权限控制设计方案</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2130,7 +2147,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">129</span>
+                    <span class="site-state-item-count">130</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2141,7 +2158,7 @@
                 
                 <div class="site-state-item site-state-categories">
                   <a href="/categories/index.html">
-                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-count">38</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>

@@ -299,6 +299,261 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/工程化/jest测试/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/26/工程化/jest测试/" itemprop="url">jest测试</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-26T00:00:00+08:00">2019-12-26</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/12/26/工程化/jest测试/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/26/工程化/jest测试/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><a href="https://jestjs.io/docs/zh-Hans/getting-started" target="_blank" rel="noopener">jest 断言库</a> 支持两种测试模式：功能测试、快照测试。通过添加 <a href="https://github.com/facebook/jest/tree/master/packages/babel-jest" target="_blank" rel="noopener">babel-jest</a> 依赖以及 babel.config.js 配置，可以在工程中使用 babel 转译 es6 语法或者 ts 语法，可参看 <a href="https://jestjs.io/docs/zh-Hans/getting-started" target="_blank" rel="noopener">Getting Started</a>。jest 也可以用于使用 <a href="https://webpack.js.org/" target="_blank" rel="noopener">webpack</a> 来管理资源、 样式和编译的项目，可参看 <a href="https://jestjs.io/docs/zh-Hans/webpack" target="_blank" rel="noopener">Using with webpack</a>。jest 支持的断言方法可参见 <a href="https://jestjs.io/docs/zh-Hans/expect" target="_blank" rel="noopener">Expect</a>。以下仅以异步 async/await 函数说明功能测试用例的编写：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">test(<span class="string">'the data is peanut butter'</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> data = <span class="keyword">await</span> fetchData();</span><br><span class="line">  expect(data).toBe(<span class="string">'peanut butter'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'the fetch fails with an error'</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  expect.assertions(<span class="number">1</span>);</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">await</span> fetchData();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    expect(e).toMatch(<span class="string">'error'</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'the data is peanut butter'</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> expect(fetchData()).resolves.toBe(<span class="string">'peanut butter'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">test(<span class="string">'the fetch fails with an error'</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> expect(fetchData()).rejects.toThrow(<span class="string">'error'</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>快照测试的功能在于当期望每次渲染的 ui 内容一致时，可以使用快照进行对比。第一次执行测试时，就会生成一个快照；下次测试时，重新生成的快照就会与之前的快照进行对比，如果两份快照有差别，就表示测试失败；如果无差别，就标识测试成功。为了避免 ui 的实际渲染，可以使用 react-test-renderer 等模拟渲染库来生成虚拟的 react 渲染树。jest –updateSnapshot 命令可用于重新生成快照。快照测试也可以用于测试 json 数据；对于动态 json 数据，可以使用匹配器的方式进行快照测试。快照测试可参看 <a href="https://jestjs.io/docs/zh-Hans/snapshot-testing" target="_blank" rel="noopener">Snapshot Testing</a>、<a href="https://benmccormick.org/2016/09/19/testing-with-jest-snapshots-first-impressions/" target="_blank" rel="noopener">Testing with Jest Snapshots: First Impressions</a>、<a href="https://jestjs.io/blog/2016/07/27/jest-14.html" target="_blank" rel="noopener">Jest 14.0: React Tree Snapshot Testing</a>。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> Link <span class="keyword">from</span> <span class="string">'../Link.react'</span>;</span><br><span class="line"><span class="keyword">import</span> renderer <span class="keyword">from</span> <span class="string">'react-test-renderer'</span>;</span><br><span class="line"></span><br><span class="line">it(<span class="string">'renders correctly'</span>, () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> tree = renderer</span><br><span class="line">    .create(<span class="xml"><span class="tag">&lt;<span class="name">Link</span> <span class="attr">page</span>=<span class="string">"http://www.facebook.com"</span>&gt;</span>Facebook<span class="tag">&lt;/<span class="name">Link</span>&gt;</span></span>)</span><br><span class="line">    .toJSON();</span><br><span class="line">  expect(tree).toMatchSnapshot();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>jest 允许使用 beforeEach、afterEach、beforeAll、afterAll 函数在测试之前或之后作一些前置或后置处理。beforeEach、afterEach 在每个测试用例执行前都会调用；beforeAll、afterAll 在每个测试用例执行前只会被调用一次。test 函数可以用来构建测试用例；describe 函数可以用来构建多个 test 构成的测试套件。beforeEach、afterEach、beforeAll、afterAll 函数如果写在 describe 测试套件内，则只对这个测试套件有效。可参考 <a href="https://jestjs.io/docs/zh-Hans/setup-teardown" target="_blank" rel="noopener">Setup and Teardown</a>。</p>
+<p>jest.fn 可用于构建一个模拟函数（模拟函数的功能，如 jest.fn(x =&gt; 42 + x)，可作为回调测试功能脚本）；可用于构建一个模拟类（如 new jest.fn()），测试实例；可使用 mockReturnValueOnce、mockReturnValue 直接构建返回值。jest.mock(modulePath) 可用于模拟模块（如 jest.mock(‘axios’).get.mockResolvedValue(resp) 用于模拟 ajax 请求返回值）。可参考 <a href="https://jestjs.io/docs/zh-Hans/mock-functions" target="_blank" rel="noopener">Mock Functions</a>。编写模拟脚本可参考 <a href="https://jestjs.io/docs/zh-Hans/manual-mocks" target="_blank" rel="noopener">Manual Mocks</a>。</p>
+<p>jest-changed-files 库可用于查看哪些文件作了修改或项目中包含的 git 仓库。jest-diff 库可用于比较对象。jest-docblock 可抽取并解析 js 脚本头部的注释。jest-get-type 库可用于获取数据的类型。jest-validate 库可用于校验用户提交。jest-worker 库可用于并行化执行任务。pretty-format 库可用于对象格式转换。可参考 <a href="https://jestjs.io/docs/zh-Hans/jest-platform" target="_blank" rel="noopener">Jest Platform</a>。jest 社区提供了 <a href="https://github.com/jest-community/vscode-jest" target="_blank" rel="noopener">vscode-jest</a>、<a href="https://github.com/jest-community/jest-extended" target="_blank" rel="noopener">jest-extended</a>、<a href="https://github.com/jest-community/eslint-plugin-jest" target="_blank" rel="noopener">eslint-plugin-jest</a>、<a href="https://github.com/jest-community/awesome-jest" target="_blank" rel="noopener">awesome-jest</a> 库。</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ul>
+<li>verbose：每个测试脚本是否独立打印。</li>
+<li>setupFiles：指定测试脚本执行前用于构建测试环境的模块。</li>
+<li>moduleFileExtensions：测试脚本所加载的模块扩展名。</li>
+<li>modulePathIgnorePatterns：忽略的模块正则。</li>
+<li>testPathIgnorePatterns：忽略的测试正则。</li>
+<li>testRegex：测试文件正则。</li>
+<li>collectCoverageFrom：覆盖率测试所需包含的文件。</li>
+<li>moduleNameMapper：正则到模块名的 map 映射，这些模块将不会被模拟，无论启动自动模拟与否。</li>
+<li>transform：正则到 transformer 转译器的 map 映射。转译器负责将使用最新语法写成的脚本（包含 ts、es6）转换成 es5 语法。jest 官网提供的自定义转译器如 <a href="https://jestjs.io/docs/zh-Hans/tutorial-react#custom-transformers" target="_blank" rel="noopener">babel-transformer</a>，用于替换 <a href="https://github.com/facebook/jest/tree/master/packages/babel-jest" target="_blank" rel="noopener">babel-jest</a>。</li>
+<li>transformIgnorePatterns：转译器忽略的文件正则。</li>
+<li>snapshotSerializers：快照序列化模块。</li>
+<li>testURL：测试用的 jsdom 环境，应用于获取 location.href。</li>
+<li>globals：测试用的全局变量。</li>
+</ul>
+<h2 id="api"><a href="#api" class="headerlink" title="api"></a>api</h2><h3 id="Globals"><a href="#Globals" class="headerlink" title="Globals"></a>Globals</h3><ul>
+<li>beforeAll(fn, timeout)、afterAll(fn, timeout)：测试脚本调用前执行一次。</li>
+<li>beforeEach(fn, timeout)、afterEach(fn, timeout)：每个测试脚本调用时均执行一次。</li>
+<li>describe(name, fn)、describe.each(table)(name, fn, timeout)、describe.only(name, fn)、describe.only.each(table)(name, fn)、describe.skip(name, fn)、escribe.skip.each(table)(name, fn)：测试套件。</li>
+<li>test(name, fn, timeout)、test.each(table)(name, fn, timeout)：编写测试脚本，test 可以使用 it 替换。</li>
+<li>test.only(name, fn, timeout)、test.only.each(table)(name, fn)：只执行某测试脚本。</li>
+<li>test.skip(name, fn)、test.skip.each(table)(name, fn)：跳过的测试脚本。</li>
+<li>test.todo(name)：待添加的测试脚本，高亮显示。</li>
+</ul>
+<h3 id="Expect"><a href="#Expect" class="headerlink" title="Expect"></a>Expect</h3><ul>
+<li>expect.extend(matchers)：设置额外的匹配器 { [matcherName]: () =&gt; ({ message: Function, pass: boolean }) }，匹配器可以是 async 函数。匹配器可以通过 expect(value)[matcherName] 调用。</li>
+<li>expect.addSnapshotSerializer(serializer)：添加快照序列化函数。</li>
+<li>expect(value)：value 为实际值。</li>
+<li>expect(value).resolves、expect(value).rejects：promise 返回值。</li>
+<li>expect(value).not：取反，如 expect.not.arrayContaining(array)。</li>
+<li>except(mockFn).toBe(value)：判断相符。</li>
+<li>except(mockFn).toHaveBeenCalled()、except(mockFn).toBeCalled()：判断模拟函数被调用。</li>
+<li>except(mockFn).toHaveBeenCalledTimes(number)、except(mockFn).toBeCalledTimes(number)：判断模拟函数以指定参数被调用次数。</li>
+<li>except(mockFn).toHaveBeenCalledWith(arg1, arg2, …)、except(mockFn).toBeCalledWith(arg1, arg2, …)：判断模拟函数以指定参数调用。</li>
+<li>except(mockFn).toHaveBeenLastCalledWith(arg1, arg2, …)、except(mockFn).lastCalledWith(arg1, arg2, …)：判断模拟函数最后一次以指定参数调用。</li>
+<li>except(mockFn).toHaveBeenNthCalledWith(nthCall, arg1, arg2, ….)、except(mockFn).nthCalledWith(nthCall, arg1, arg2, …)：判断模拟函数以指定参数形式调用。</li>
+<li>except(mockFn).toHaveReturned()、except(mockFn).toReturn()：判断模拟函数正常返回。</li>
+<li>except(mockFn).toHaveReturnedTimes(number)、except(mockFn).toReturnTimes(number)：判断模拟函数返回值次数。</li>
+<li>except(mockFn).toHaveReturnedWith(value)、except(mockFn).toReturnWith(value)：判断模拟函数返回了指定值。</li>
+<li>except(mockFn).toHaveLastReturnedWith(value)：判断模拟函数的最后一个返回值。</li>
+<li>except(mockFn).toHaveNthReturnedWith(nthCall, value)：判断模拟函数第 n 次返回结果是否为某值。</li>
+<li>except(value).toHaveLength(number)：判断长度。</li>
+<li>except(value).toHaveProperty(keyPath, value?)：判断对象是否包含某属性。</li>
+<li>except(value).toBeCloseTo(number, numDigits?)、except(value).toBeGreaterThan(number)、except(value).toBeGreaterThanOrEqual(number)、except(value).toBeLessThan(number)、except(value).toBeLessThanOrEqual(number)：比较数值。</li>
+<li>except(value).toBeInstanceOf(Class)：判断是否实例。</li>
+<li>except(value).toBeNull()、except(value).toBeTruthy()、except(value).toBeFalsy()、except(value).toBeDefined()、except(value).toBeUndefined()、except(value).toBeNaN()：匹配 null、true、false、undefined 或 NaN 等。</li>
+<li>except(value).toContain(item)、except(value).toContainEqual(item)：判断数组是否包含某元素。</li>
+<li>except(value).toMatch(regexpOrString)：匹配正则或字符串。</li>
+<li>except(value).toMatchObject(object)：匹配对象。</li>
+<li>except(value).toMatchSnapshot(propertyMatchers?, hint?)、except(value).toMatchInlineSnapshot(propertyMatchers?, inlineSnapshot)：匹配快照。</li>
+<li>expect(value).toEqual(value)、expect(value).toStrictEqual(value)：期望等值，toStrictEqual 方法额外会比较 undefined 值等。</li>
+<li>expect(value).toThrow(error?)：期望报错。</li>
+<li>expect(value).toThrowErrorMatchingSnapshot(hint?)、expect(value).toThrowErrorMatchingInlineSnapshot(inlineSnapshot)：期望报错内容与快照相符。</li>
+</ul>
+<h3 id="Mock-Functions"><a href="#Mock-Functions" class="headerlink" title="Mock Functions"></a>Mock Functions</h3><p>模拟函数 Mock Functions 也被称为 spies，它可用于监控函数的行为，不止于测试输出。jest.fn() 可用于创建模拟函数，如果参数没有传入实现，那么将返回默认值 undefined。以下 api 列表中，mockFn 等价于 jest.fn()：</p>
+<ul>
+<li>mockFn.mockImplementation(fn)、mockFn.mockImplementationOnce(fn)：设置模拟函数的实现，等价于 jest.fn(fn)。</li>
+<li>mockFn.mockReturnThis()：模拟返回 this。</li>
+<li>mockFn.mockReturnValue(value)、mockFn.mockReturnValueOnce(value)：模拟返回值。</li>
+<li>mockFn.mockResolvedValue(value)、mockFn.mockResolvedValueOnce(value)：模拟 promise 返回值。</li>
+<li>mockFn.mockRejectedValue(value)、mockFn.mockRejectedValueOnce(value)：模拟 promise 拒绝值。</li>
+<li>mockFn.mockName(value)、mockFn.getMockName()：作为引用替代 jest.fn()。</li>
+<li>mockFn.mock.calls：获取 jest.fn 调用时获得的参数，[[ arg1, arg2 ], [arg3]] 形式。</li>
+<li>mockFn.mock.results：获取 jest.fn 的返回值，[{ type, value }] 形式。type 值可以是 ‘return’、’throw’、’incomplete’。</li>
+<li>mockFn.mock.instances：获取以 jest.fn 作为构造函数的实例。</li>
+<li>mockFn.mockClear：重置 mockFn.mock.calls、mockFn.mock.instances。</li>
+<li>mockFn.mockReset：重置 mockFn.mock.calls、mockFn.mock.instances 以及返回值或实现 implementation。</li>
+<li>mockFn.mockRestore：重置 mockFn.mock.calls、mockFn.mock.instances 以及返回值和实现 implementation。</li>
+</ul>
+<h3 id="Jest-Object"><a href="#Jest-Object" class="headerlink" title="Jest Object"></a>Jest Object</h3><ul>
+<li>jest.disableAutomock、jest.enableAutomock：是否对外部引入的模块开启自动模拟功能。自动模拟功能一旦开启，模块导出方法将包含 _isMockFunction 属性，测试时须为真值；若非真值，则测试失败。</li>
+<li>jest.genMockFromModule(modulePath)：加载模块，模块在加载时会按自动模拟机制带上 mock 属性，测试时须为真值。该方法通常可配合制作模拟模块，然后使用该方法进行加载。对于函数，该方法会创建模拟函数（该函数没有形参，且返回值也是 undefined）（该方法对 async 函数也有效）；对于类，该方法会创建新的类，且保留原有接口；对于对象，该方法会以深拷贝的方式模拟该对象；对于数组，该方法会创建一个与原数组长度相同、但元素为空值的数组；对于 string, number, bigint, boolean, null, undefined, symbol 原始类型，该方法会创建相同的模拟值。</li>
+<li>jest.mock(moduleName, factory, options)：模拟一个模块，jest 会使用自动模拟机制为模块添加模拟版本号。如果没有传入 factory，模拟模块将是返回 undefined 的函数；factory 可以作为模拟函数。</li>
+<li>jest.unmock(moduleName)：加载模块时不会使用自动模拟机制。</li>
+<li>jest.doMock(moduleName, factory, options)：当使用 babel-jest 转译时，jest.mock 会提升到测试脚本的顶部，jest.doMock 不会。jest.doMock 适合用于模拟同一模块的不同导出，该模块在测试脚本中仍需要加载。</li>
+<li>jest.dontMock(moduleName)：当使用 babel-jest 转译时，jest.unmock 会提升到测试脚本的顶部，jest.dontMock 不会。</li>
+<li>jest.setMock(moduleName, moduleExports)：指定模块返回的模拟对象。</li>
+<li>jest.requireActual(moduleName)：获取实际的模块，用于构建模拟对象。</li>
+<li>jest.requireMock(moduleName)：为模块构建一个模拟对象。</li>
+<li>jest.resetModules()：重置所有加载的模块。</li>
+<li>jest.isolateModules(fn)：创建沙箱，用于以回调形式加载模块。</li>
+<li>jest.fn(implementation)、jest.isMockFunction(fn)：创建模拟函数。</li>
+<li>jest.spyOn(object, methodName)：追踪 object[methodName] 方法的调用情况。若想为 object[methodName] 创建模拟函数，可以使用 jest.spyOn(object, methodName).mockImplementation(() =&gt; customImplementation)、object[methodName] = jest.fn(() =&gt; customImplementation)。</li>
+<li>jest.spyOn(object, methodName, accessType?)：监听访问器的调用情况，accessType 可以是 get 或者 set。</li>
+<li>jest.clearAllMocks()、jest.resetAllMocks()：重置 mock.calls、mock.instances。</li>
+<li>jest.restoreAllMocks()：将模拟函数重置为初始值。</li>
+<li>jest.useFakeTimers()：模拟 setTimeout, setInterval, clearTimeout, clearInterval, nextTick, setImmediate, clearImmediate。</li>
+<li>jest.useRealTimers()：采用实际的 setTimeout, setInterval, clearTimeout, clearInterval, nextTick, setImmediate, clearImmediate。</li>
+<li>jest.runAllTicks()：等价于使用 process.nextTick 执行 micro-task 队列。</li>
+<li>jest.runAllTimers()：等价于使用 setTimeout, setInterval, setImmediate 执行 macro-task 队列以及  process.nextTick 执行 micro-task 队列。</li>
+<li>jest.runAllImmediates()：等价于调用 setImmediate。</li>
+<li>jest.advanceTimersByTime(msToRun)、jest.runTimersToTime(msToRun)：等价于使用 setTimeout, setInterval, setImmediate 执行 macro-task 队列。</li>
+<li>jest.runOnlyPendingTimers()：等价于使用 setTimeout, setInterval 执行被中断的 macro-task 队列（新添加的 macro-task 依旧不会执行）。</li>
+<li>jest.advanceTimersToNextTimer(steps)：提前执行下一个 timeout 或 interval。</li>
+<li>jest.clearAllTimers()：中止所有计时器。</li>
+<li>jest.getTimerCount()：获取待执行的计时器个数。</li>
+<li>jest.setTimeout(timeout)：设置计时。</li>
+<li>jest.retryTimes(count)：定时器重试。</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.aliued.com/?p=4095" target="_blank" rel="noopener">React应用下的单元测试</a><br><a href="http://www.voidcn.com/article/p-ftetcszg-btt.html" target="_blank" rel="noopener">JavaScript – 使用Jest和Webpack别名进行测试</a><br><a href="https://www.cnblogs.com/zaking/p/10582228.html" target="_blank" rel="noopener">在vue中如何配置Jest</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/22/antd/聊聊组件库中样式文件组织/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1806,160 +2061,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/25/frontend/自动化部署/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/25/frontend/自动化部署/" itemprop="url">自动化部署</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-25T00:00:00+08:00">2019-11-25</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/11/25/frontend/自动化部署/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/25/frontend/自动化部署/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.imooc.com/article/268784" target="_blank" rel="noopener">Jenkins本地搭建遇到的问题 for Mac</a><br><a href="https://www.douban.com/note/407034249/" target="_blank" rel="noopener">使用git做服务器端代码的部署</a><br><a href="https://www.cnblogs.com/mycognos/p/10155978.html" target="_blank" rel="noopener">Git Hooks、GitLab CI持续集成以及使用Jenkins实现自动化任务</a><br><a href="https://www.jianshu.com/p/ac59402caa66" target="_blank" rel="noopener">持续集成 の 使用 git hook 部署代码</a><br><a href="https://www.jianshu.com/p/9afaae953247" target="_blank" rel="noopener">前端自动化发布实战总结</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2004,7 +2110,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">130</span>
+                    <span class="site-state-item-count">131</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

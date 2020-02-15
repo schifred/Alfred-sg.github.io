@@ -28,6 +28,27 @@
       </tags>
   </entry>
   <entry>
+    <title>前端技术汇总贴</title>
+    <url>/2020/06/09/frontend/%E5%89%8D%E7%AB%AF%E6%8A%80%E6%9C%AF%E6%B1%87%E6%80%BB%E8%B4%B4/</url>
+    <content><![CDATA[<h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><p><a href="https://segmentfault.com/a/1190000017946900" target="_blank" rel="noopener">立即收藏！这应该是你见过的最全前端下载总结</a></p>
+<h2 id="校验"><a href="#校验" class="headerlink" title="校验"></a>校验</h2><h3 id="身份证号"><a href="#身份证号" class="headerlink" title="身份证号"></a>身份证号</h3><p>根据〖中华人民共和国国家标准 GB 11643-1999〗中有关公民身份号码的规定，公民身份号码是特征组合码，由十七位数字本体码和一位数字校验码组成。排列顺序从左至右依次为：六位数字地址码，八位数字出生日期码，三位数字顺序码和一位数字校验码。</p>
+<ul>
+<li>地址码表示编码对象常住户口所在县(市、旗、区)的行政区划代码。</li>
+<li>出生日期码表示编码对象出生的年、月、日，其中年份用四位数字表示，年、月、日之间不用分隔符。</li>
+<li>顺序码表示同一地址码所标识的区域范围内，对同年、月、日出生的人员编定的顺序号。顺序码的奇数分给男性，偶数分给女性。</li>
+<li>校验码是根据前面十七位数字码，按照 ISO 7064:1983.MOD 11-2 校验码计算出来的检验码。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> City = &#123;</span><br><span class="line">  <span class="number">11</span>:<span class="string">"北京"</span>, <span class="number">12</span>:<span class="string">"天津"</span>, <span class="number">13</span>:<span class="string">"河北"</span>, <span class="number">14</span>:<span class="string">"山西"</span>, <span class="number">15</span>:<span class="string">"内蒙古"</span>, <span class="number">21</span>:<span class="string">"辽宁"</span>, <span class="number">22</span>:<span class="string">"吉林"</span>, <span class="number">23</span>:<span class="string">"黑龙江 "</span>,</span><br><span class="line">  <span class="number">31</span>:<span class="string">"上海"</span>, <span class="number">32</span>:<span class="string">"江苏"</span>, <span class="number">33</span>:<span class="string">"浙江"</span>, <span class="number">34</span>:<span class="string">"安徽"</span>, <span class="number">35</span>:<span class="string">"福建"</span>, <span class="number">36</span>:<span class="string">"江西"</span>, <span class="number">37</span>:<span class="string">"山东"</span>, <span class="number">41</span>:<span class="string">"河南"</span>,</span><br><span class="line">  <span class="number">42</span>:<span class="string">"湖北 "</span>, <span class="number">43</span>:<span class="string">"湖南"</span>, <span class="number">44</span>:<span class="string">"广东"</span>, <span class="number">45</span>:<span class="string">"广西"</span>, <span class="number">46</span>:<span class="string">"海南"</span>, <span class="number">50</span>:<span class="string">"重庆"</span>, <span class="number">51</span>:<span class="string">"四川"</span>, <span class="number">52</span>:<span class="string">"贵州"</span>, </span><br><span class="line">  <span class="number">53</span>:<span class="string">"云南"</span>, <span class="number">54</span>:<span class="string">"西藏"</span>, <span class="number">61</span>:<span class="string">"陕西"</span>, <span class="number">62</span>:<span class="string">"甘肃"</span>, <span class="number">63</span>:<span class="string">"青海"</span>, <span class="number">64</span>:<span class="string">"宁夏"</span>, <span class="number">65</span>:<span class="string">"新疆"</span>, <span class="number">71</span>:<span class="string">"台湾"</span>,</span><br><span class="line">  <span class="number">81</span>:<span class="string">"香港"</span>, <span class="number">82</span>:<span class="string">"澳门"</span>, <span class="number">91</span>:<span class="string">"国外"</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 15位校验规则：6位地址编码+6位出生日期+3位顺序号</span></span><br><span class="line"><span class="comment">// 18位校验规则：6位地址编码+8位出生日期+3位顺序号+1位校验位</span></span><br><span class="line"><span class="keyword">const</span> IdentityCodeRegExp = <span class="regexp">/^\d&#123;6&#125;(18|19|20)?\d&#123;2&#125;(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])\d&#123;3&#125;(\d|X)$/i</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 校验位规则     公式:∑(ai×Wi)(mod 11)</span></span><br><span class="line"><span class="comment">//   i----表示号码字符从由至左包括校验码在内的位置序号； </span></span><br><span class="line"><span class="comment">//   ai----表示第i位置上的号码字符值； </span></span><br><span class="line"><span class="comment">//   Wi----示第i位置上的加权因子，其数值依据公式Wi=2^(n-1）(mod 11)计算得出。</span></span><br><span class="line"><span class="keyword">const</span> factor = [ <span class="number">7</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">6</span>, <span class="number">3</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">2</span> ];<span class="comment">// 加权因子</span></span><br><span class="line"><span class="keyword">const</span> parity = [ <span class="number">1</span>, <span class="number">0</span>, <span class="string">'X'</span>, <span class="number">9</span>, <span class="number">8</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span> ];<span class="comment">// 校验位</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> IdentityCodeValid = <span class="function">(<span class="params">code</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span>( !code || !IdentityCodeRegExp.test(code) )&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"身份证号格式错误"</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>( !City[code.substr(<span class="number">0</span>,<span class="number">2</span>)] )&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"身份证号中地址编码错误"</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 18位身份证需要验证最后一位校验位</span></span><br><span class="line">  <span class="keyword">if</span>( code.length == <span class="number">18</span> )&#123;</span><br><span class="line">    code = code.substr(<span class="number">0</span>,<span class="number">2</span>).split(<span class="string">''</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> sum = <span class="number">0</span>;</span><br><span class="line">    code.substr(<span class="number">0</span>,<span class="number">17</span>).split(<span class="string">''</span>).forEach(<span class="function">(<span class="params">ai, i</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> wi = factor[i];</span><br><span class="line">      sum += ai * wi;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> last = parity[sum % <span class="number">11</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>( last != code[<span class="number">17</span>] )&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="string">"校验位错误"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>参考 <a href="https://www.cnblogs.com/xtqg0304/p/9529721.html" target="_blank" rel="noopener">完美身份证正则表达式</a>。</p>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>聊聊 Ant Design 组件库的构成</title>
     <url>/2020/02/28/antd/%E8%81%8A%E8%81%8A%E7%BB%84%E4%BB%B6%E5%BA%93%E7%9A%84%E6%9E%84%E6%88%90/</url>
     <content><![CDATA[<h2 id="底层功能组件"><a href="#底层功能组件" class="headerlink" title="底层功能组件"></a>底层功能组件</h2><h3 id="rc-util"><a href="#rc-util" class="headerlink" title="rc-util"></a>rc-util</h3><p>KeyCode: 记录了各按键的编码，并提供按键判断工具。</p>
@@ -204,6 +225,18 @@
       </tags>
   </entry>
   <entry>
+    <title>qiankun 微服务</title>
+    <url>/2020/02/20/frontend/qiankun%20%E5%BE%AE%E6%9C%8D%E5%8A%A1/</url>
+    <content><![CDATA[<p><a href="https://qiankun.umijs.org/zh/" target="_blank" rel="noopener">qiankun</a> 基于 single-spa</p>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>single-spa 实现前端微服务</title>
     <url>/2020/02/15/frontend/single-spa%20%E5%AE%9E%E7%8E%B0%E5%89%8D%E7%AB%AF%E5%BE%AE%E6%9C%8D%E5%8A%A1/</url>
     <content><![CDATA[<h2 id="文档及示例"><a href="#文档及示例" class="headerlink" title="文档及示例"></a>文档及示例</h2><p><a href="https://single-spa.js.org" target="_blank" rel="noopener">single-spa</a> 具有以下功能特性：在无须刷新页面的前提下，同一个页面可使用不同的框架；基于不同框架实现的前端应用可以独立部署；制作新内容时可以使用不同的框架；支持应用内脚本的懒加载。</p>
@@ -297,18 +330,6 @@
 ]]></content>
       <categories>
         <category>antd 组件库</category>
-      </categories>
-      <tags>
-        <tag>analyst</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>前端技术汇总贴</title>
-    <url>/2020/02/09/frontend/%E5%89%8D%E7%AB%AF%E6%8A%80%E6%9C%AF%E6%B1%87%E6%80%BB%E8%B4%B4/</url>
-    <content><![CDATA[<h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><p><a href="https://segmentfault.com/a/1190000017946900" target="_blank" rel="noopener">立即收藏！这应该是你见过的最全前端下载总结</a></p>
-]]></content>
-      <categories>
-        <category>前端</category>
       </categories>
       <tags>
         <tag>analyst</tag>

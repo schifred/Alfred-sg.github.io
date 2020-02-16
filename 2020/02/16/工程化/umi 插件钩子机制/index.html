@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.0.2" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="analyst,">
+
+
+<meta name="description" content="plugin hook 插件钩子在 umi 内部的表现一为 method 方法，一为 hook 钩子。简单而论，插件钩子运作机制分为两步：register 注册插件钩子、apply 执行插件钩子。插件钩子按 name 命名存入 pluginHooks[name] 中，执行期间以 reduce 机制依次执行并控制入参。以下为 umi 源码注册插件钩子、执行插件钩子的底层方法：  register(h">
+<meta name="keywords" content="analyst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="umi 插件钩子机制（修正版）">
+<meta property="og:url" content="http://yoursite.com/2020/02/16/工程化/umi 插件钩子机制/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="plugin hook 插件钩子在 umi 内部的表现一为 method 方法，一为 hook 钩子。简单而论，插件钩子运作机制分为两步：register 注册插件钩子、apply 执行插件钩子。插件钩子按 name 命名存入 pluginHooks[name] 中，执行期间以 reduce 机制依次执行并控制入参。以下为 umi 源码注册插件钩子、执行插件钩子的底层方法：  register(h">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-02-16T15:17:38.442Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="umi 插件钩子机制（修正版）">
+<meta name="twitter:description" content="plugin hook 插件钩子在 umi 内部的表现一为 method 方法，一为 hook 钩子。简单而论，插件钩子运作机制分为两步：register 注册插件钩子、apply 执行插件钩子。插件钩子按 name 命名存入 pluginHooks[name] 中，执行期间以 reduce 机制依次执行并控制入参。以下为 umi 源码注册插件钩子、执行插件钩子的底层方法：  register(h">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/02/16/工程化/umi 插件钩子机制/">
+
+
+  <title>umi 插件钩子机制（修正版） | 修子范语</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">修子范语</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Alfredo's Notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/16/工程化/umi 插件钩子机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">umi 插件钩子机制（修正版）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-16T00:00:00+08:00">2020-02-16</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/02/16/工程化/umi 插件钩子机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/16/工程化/umi 插件钩子机制/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>plugin hook 插件钩子在 umi 内部的表现一为 method 方法，一为 hook 钩子。简单而论，插件钩子运作机制分为两步：register 注册插件钩子、apply 执行插件钩子。插件钩子按 name 命名存入 pluginHooks[name] 中，执行期间以 reduce 机制依次执行并控制入参。以下为 umi 源码注册插件钩子、执行插件钩子的底层方法：</p>
+<ul>
+<li>register(hook, fn) 注册插件钩子，hook 插件钩子名，fn 插件钩子执行脚本。</li>
+<li>applyPlugins(key, opts) 依次执行插件钩子，key 插件钩子名，opts.initialValue 插件钩子链执行首参，opts.args 插件钩子链内处理参数。</li>
+<li>_applyPluginsAsync(key, opts) 异步方式依次执行插件钩子。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** PluginAPI.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 将插件钩子执行脚本添加到 pluginHooks[hook] 中</span></span><br><span class="line"><span class="comment"> * @param &#123;string&#125; hook hook 名，对应 registerMethod 中的 name</span></span><br><span class="line"><span class="comment"> * @param &#123;function&#125; fn hook 处理函数，对应 registerMethod 中的插件钩子执行脚本</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">register(hook, fn) &#123;</span><br><span class="line">  assert(</span><br><span class="line">    <span class="keyword">typeof</span> hook === <span class="string">'string'</span>,</span><br><span class="line">    <span class="string">`The first argument of api.register() must be string, but got <span class="subst">$&#123;hook&#125;</span>`</span>,</span><br><span class="line">  );</span><br><span class="line">  assert(</span><br><span class="line">    <span class="keyword">typeof</span> fn === <span class="string">'function'</span>,</span><br><span class="line">    <span class="string">`The second argument of api.register() must be function, but got <span class="subst">$&#123;fn&#125;</span>`</span>,</span><br><span class="line">  );</span><br><span class="line">  <span class="keyword">const</span> &#123; pluginHooks &#125; = <span class="keyword">this</span>.service;</span><br><span class="line">  pluginHooks[hook] = pluginHooks[hook] || [];</span><br><span class="line">  pluginHooks[hook].push(&#123;</span><br><span class="line">    fn,</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*** umi-build-dev *** Service.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 取出 pluginHooks[key] 中的 hook 脚本（对应 registerMethod 中的插件钩子执行脚本）并依次执行</span></span><br><span class="line"><span class="comment"> * @param &#123;string&#125; key hook 名，对应 registerMethod 中的 name</span></span><br><span class="line"><span class="comment"> * @param &#123;function&#125; opts 设置初始值 opts.initialValue 和传递参数 opts.args</span></span><br><span class="line"><span class="comment"> */</span> </span><br><span class="line">applyPlugins(key, opts = &#123;&#125;) &#123;</span><br><span class="line">  debug(<span class="string">`apply plugins <span class="subst">$&#123;key&#125;</span>`</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="function">(<span class="params"><span class="keyword">this</span>.pluginHooks[key] || []</span>).<span class="params">reduce</span>(<span class="params">(memo, &#123; fn &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> fn(&#123;</span><br><span class="line">        memo,</span><br><span class="line">        args: opts.args,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      <span class="built_in">console</span>.error(chalk.red(<span class="string">`Plugin apply failed: <span class="subst">$&#123;e.message&#125;</span>`</span>));</span><br><span class="line">      <span class="keyword">throw</span> e;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, opts.initialValue);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 异步方式依次执行插件钩子</span></span><br><span class="line"><span class="comment"> */</span> </span><br><span class="line"><span class="keyword">async</span> _applyPluginsAsync(key, opts = &#123;&#125;) &#123;</span><br><span class="line">  debug(<span class="string">`apply plugins async <span class="subst">$&#123;key&#125;</span>`</span>);</span><br><span class="line">  <span class="keyword">const</span> hooks = <span class="keyword">this</span>.pluginHooks[key] || [];</span><br><span class="line">  <span class="keyword">let</span> memo = opts.initialValue;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> hook <span class="keyword">of</span> hooks) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; fn &#125; = hook;</span><br><span class="line">    <span class="comment">// eslint-disable-next-line no-await-in-loop</span></span><br><span class="line">    memo = <span class="keyword">await</span> fn(&#123;</span><br><span class="line">      memo,</span><br><span class="line">      args: opts.args,</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> memo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为什么 umi 选用 reduce 机制执行插件钩子呢？那就要说一下 umi 插件钩子承担的职责了。其一，插件钩子可用于修改配置项（包含添加和修改）；第二，插件钩子可用于监听事件；第三，插件钩子可用于设置普通的处理流程。仅以 webpack 配置为例，多个下游（下一个插件钩子执行脚本）如果想修改 webpack 配置，那就需要一种缓存机制将修改后的 webpack 配置传入下游，reduce 天然具有这种能力。那为何 umi 不使用上游的返回值 memo 作为下游的入参呢？我们再以 webpack 配置为例，线上环境、日常环境的配置内容往往是不同的，因此在插件钩子执行期间需要一个环境标识加以区分，umi 往下游传递的 opts.args 正好可以放这个环境标识。这样就解释了 applyPlugins 采用上述实现的原委了。</p>
+<p>至于 umi 插件钩子为什么要承担那么多职能？笔者也摸不清头脑。</p>
+<p>umi 内部将插件钩子定义为如下四类：</p>
+<ol>
+<li>apply 类：注册时提供 apply 自定义钩子处理函数，实现定制的处理流程。没有具体的应用场景。</li>
+<li>ADD 类：注册时 type 值设为 ADD，用于添加配置项，典型如往 html 页面上添加 script 节点。</li>
+<li>MODIFY 类：注册时 type 值设为 MODIFY，用于修改配置项，典型如修改 webpack 配置。</li>
+<li>EVENT 类：注册时 type 值设为 EVENT，用于作事件处理，典型如监听 webpack 编译成功事件。</li>
+</ol>
+<p>上述四种插件钩子的实际效用又是怎样的呢？</p>
+<ol>
+<li>apply 类：没有具体的应用场景。</li>
+<li>ADD、MODIFY 类：applyPlugins 执行返回结果供使用，因此需要在 applyPlugins 执行结束后才能确切明白其功能。</li>
+<li>EVENT 类：插件钩子执行脚本即为功能实现。</li>
+</ol>
+<p>registerMethod 用于创建多态注册插件钩子的方法，该方法存为 pluginMethods[name]（实际作为 umi-plugin-* 插件中所使用的接口，如 api.addRuntimePlugin 即是 pluginMethods.addRuntimePlugin）。如上所述，插件钩子函数在 apply 类型下都是 umi 内部约定的，即 pluginMethods.addRuntimePlugin(…args) 的调用结果在 applyPlugins 阶段的表现只有两种可能，一种意义，都是变更 opts.memo 的值：</p>
+<ul>
+<li>当 args[0] 非函数，将 args[0] 塞入 opts.memo 中。</li>
+<li>当 args[0] 为函数，使用该函数处理 opts.memo、opts.args，其返回值作为新的 opts.memo。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** PluginAPI.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 生成插件钩子的注册函数 pluginMethods[name]</span></span><br><span class="line"><span class="comment"> * 同一个 name 名下可以挂多个插件钩子脚本，以 pluginHooks[name] 形式存储</span></span><br><span class="line"><span class="comment"> * 最终通过 applyPlugins 调用，以 reduce 方式依次执行，参数 opts = &#123; memo, args &#125; 以闭包形式向后传递</span></span><br><span class="line"><span class="comment"> * @param &#123;string&#125; name 插件钩子名</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; opts = &#123; type, apply &#125;</span></span><br><span class="line"><span class="comment"> *    type 插件钩子类型，umi 将根据 type 类型生成插件钩子脚本</span></span><br><span class="line"><span class="comment"> *         ADD 类型，往 opts.memo 里塞值</span></span><br><span class="line"><span class="comment"> *         MODIFY 类型，修改 opts.memo</span></span><br><span class="line"><span class="comment"> *         EVENT 类型，首参绑定函数会消费 opts.args</span></span><br><span class="line"><span class="comment"> *    apply 自定义插件钩子执行脚本，由该脚本消费 opts = &#123; memo, args &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">registerMethod(name, opts) &#123;</span><br><span class="line">  assert(!<span class="keyword">this</span>[name], <span class="string">`api.<span class="subst">$&#123;name&#125;</span> exists.`</span>);</span><br><span class="line">  assert(opts, <span class="string">`opts must supplied`</span>);</span><br><span class="line">  <span class="keyword">const</span> &#123; type, apply &#125; = opts;</span><br><span class="line">  assert(!(type &amp;&amp; apply), <span class="string">`Only be one for type and apply.`</span>);</span><br><span class="line">  assert(type || apply, <span class="string">`One of type and apply must supplied.`</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.service.pluginMethods[name] = <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (apply) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> apply(opts, ...args);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="keyword">this</span>.API_TYPE.ADD) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> (opts.memo || []).concat(</span><br><span class="line">          <span class="keyword">typeof</span> args[<span class="number">0</span>] === <span class="string">'function'</span> ? args[<span class="number">0</span>](opts.memo, opts.args) : args[<span class="number">0</span>],</span><br><span class="line">        );</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="keyword">this</span>.API_TYPE.MODIFY) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">typeof</span> args[<span class="number">0</span>] === <span class="string">'function'</span> ? args[<span class="number">0</span>](opts.memo, opts.args) : args[<span class="number">0</span>];</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="keyword">this</span>.API_TYPE.EVENT) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> args[<span class="number">0</span>](opts.args);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">`unexpected api type <span class="subst">$&#123;type&#125;</span>`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>综上，register 用于底层注册插件钩子；applyPlugins、_applyPluginsAsync 用于底层调用插件钩子；registerMethod 用于生成插件钩子的注册方法。这四个方法均不对外暴露，对外暴露的是通过 registerMethod 生成的 pluginMethods[name]。那么，umi 内部为 umi-plugin-* 插件提供了多少种插件钩子的注册方法呢？我们可以看一下如下方法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** PluginAPI.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 基于 registerMethod 生成插件钩子的注册方法 pluginMethods[name]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">_addMethods() &#123;</span><br><span class="line">  [</span><br><span class="line">    [</span><br><span class="line">      <span class="string">'chainWebpackConfig'</span>,</span><br><span class="line">      &#123;</span><br><span class="line">        type: <span class="keyword">this</span>.API_TYPE.EVENT,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">      <span class="string">'_registerConfig'</span>,</span><br><span class="line">      &#123;</span><br><span class="line">        type: <span class="keyword">this</span>.API_TYPE.ADD,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">    <span class="string">'onStart'</span>,</span><br><span class="line">    <span class="string">'onExit'</span>,</span><br><span class="line">    <span class="string">'onStartAsync'</span>,</span><br><span class="line">    <span class="string">'onRouteChange'</span>,</span><br><span class="line">    <span class="string">'onDevCompileDone'</span>,</span><br><span class="line">    <span class="string">'onBuildSuccess'</span>,</span><br><span class="line">    <span class="string">'onBuildSuccessAsync'</span>,</span><br><span class="line">    <span class="string">'onBuildFail'</span>,</span><br><span class="line">    <span class="string">'onPrintUmiError'</span>,</span><br><span class="line">    <span class="string">'addPageWatcher'</span>,</span><br><span class="line">    <span class="string">'addEntryCode'</span>,</span><br><span class="line">    <span class="string">'addEntryCodeAhead'</span>,</span><br><span class="line">    <span class="string">'addEntryImport'</span>,</span><br><span class="line">    <span class="string">'addEntryImportAhead'</span>,</span><br><span class="line">    <span class="string">'addEntryPolyfillImports'</span>,</span><br><span class="line">    <span class="string">'addRendererWrapperWithComponent'</span>,</span><br><span class="line">    <span class="string">'addRendererWrapperWithModule'</span>,</span><br><span class="line">    <span class="string">'addRouterImport'</span>,</span><br><span class="line">    <span class="string">'addRouterImportAhead'</span>,</span><br><span class="line">    <span class="string">'addVersionInfo'</span>,</span><br><span class="line">    <span class="string">'addUIPlugin'</span>,</span><br><span class="line">    <span class="string">'onUISocket'</span>,</span><br><span class="line">    <span class="string">'modifyAFWebpackOpts'</span>,</span><br><span class="line">    <span class="string">'modifyEntryRender'</span>,</span><br><span class="line">    <span class="string">'modifyEntryHistory'</span>,</span><br><span class="line">    <span class="string">'modifyRouteComponent'</span>,</span><br><span class="line">    <span class="string">'modifyRouterRootComponent'</span>,</span><br><span class="line">    <span class="string">'modifyWebpackConfig'</span>,</span><br><span class="line">    <span class="string">'_beforeServerWithApp'</span>,</span><br><span class="line">    <span class="string">'beforeDevServer'</span>,</span><br><span class="line">    <span class="string">'_beforeDevServerAsync'</span>,</span><br><span class="line">    <span class="string">'afterDevServer'</span>,</span><br><span class="line">    <span class="string">'addMiddlewareAhead'</span>,</span><br><span class="line">    <span class="string">'addMiddleware'</span>,</span><br><span class="line">    <span class="string">'addMiddlewareBeforeMock'</span>,</span><br><span class="line">    <span class="string">'addMiddlewareAfterMock'</span>,</span><br><span class="line">    <span class="string">'modifyRoutes'</span>,</span><br><span class="line">    <span class="string">'onPatchRoute'</span>,</span><br><span class="line">    <span class="string">'modifyHTMLContext'</span>,</span><br><span class="line">    <span class="string">'modifyPublicPathStr'</span>,</span><br><span class="line">    <span class="string">'addHTMLMeta'</span>,</span><br><span class="line">    <span class="string">'addHTMLLink'</span>,</span><br><span class="line">    <span class="string">'addHTMLScript'</span>,</span><br><span class="line">    <span class="string">'addHTMLStyle'</span>,</span><br><span class="line">    <span class="string">'addHTMLHeadScript'</span>,</span><br><span class="line">    <span class="string">'addUmiExports'</span>,</span><br><span class="line">    <span class="string">'modifyHTMLChunks'</span>,</span><br><span class="line">    <span class="string">'onGenerateFiles'</span>,</span><br><span class="line">    <span class="string">'onHTMLRebuild'</span>,</span><br><span class="line">    <span class="string">'modifyDefaultConfig'</span>,</span><br><span class="line">    <span class="string">'_modifyConfig'</span>,</span><br><span class="line">    <span class="string">'modifyHTMLWithAST'</span>,</span><br><span class="line">    <span class="string">'_modifyHelpInfo'</span>,</span><br><span class="line">    <span class="string">'addRuntimePlugin'</span>,</span><br><span class="line">    <span class="string">'addRuntimePluginKey'</span>,</span><br><span class="line">    <span class="string">'beforeBlockWriting'</span>,</span><br><span class="line">    <span class="string">'addBlockUIResource'</span>,</span><br><span class="line">    <span class="string">'modifyBlockUIResources'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockPackageJSONPath'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockDependencies'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockFile'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockTarget'</span>,</span><br><span class="line">    <span class="string">'_modifyCommand'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockNewRouteConfig'</span>,</span><br><span class="line">    <span class="string">'beforeBuildCompileAsync'</span>,</span><br><span class="line">  ].forEach(<span class="function"><span class="params">method</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(method)) &#123;</span><br><span class="line">      <span class="keyword">this</span>.registerMethod(...method);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> type;</span><br><span class="line">      <span class="keyword">const</span> isPrivate = method.charAt(<span class="number">0</span>) === <span class="string">'_'</span>;</span><br><span class="line">      <span class="keyword">const</span> slicedMethod = isPrivate ? method.slice(<span class="number">1</span>) : method;</span><br><span class="line">      <span class="keyword">if</span> (slicedMethod.indexOf(<span class="string">'modify'</span>) === <span class="number">0</span>) &#123;</span><br><span class="line">        type = <span class="keyword">this</span>.API_TYPE.MODIFY;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (slicedMethod.indexOf(<span class="string">'add'</span>) === <span class="number">0</span>) &#123;</span><br><span class="line">        type = <span class="keyword">this</span>.API_TYPE.ADD;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (</span><br><span class="line">        slicedMethod.indexOf(<span class="string">'on'</span>) === <span class="number">0</span> ||</span><br><span class="line">        slicedMethod.indexOf(<span class="string">'before'</span>) === <span class="number">0</span> ||</span><br><span class="line">        slicedMethod.indexOf(<span class="string">'after'</span>) === <span class="number">0</span></span><br><span class="line">      ) &#123;</span><br><span class="line">        type = <span class="keyword">this</span>.API_TYPE.EVENT;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">`unexpected method name <span class="subst">$&#123;method&#125;</span>`</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.registerMethod(method, &#123; type &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码即意味着 umi 为 umi-plugin-* 插件提供了 api.chainWebpackConfig 等 pluginMethods[name]。</p>
+<p>在内部实现上，pluginMethods[name] 表现为注册插件钩子；在外部调用表现上，pluginMethods[name] 如其 name 名所示，或者添加配置项（如 addRuntimePlugin），或者修改配置项（如 modifyWebpackConfig），或者执行事件处理函数（如 onDevCompileDone），主要分为以下几类：</p>
+<ul>
+<li>apply 类：以 umi 内置的自定义钩子函数处理 opts = { memo, args } 以及调用时获得的其他参数。</li>
+<li>ADD 类：当首参为函数，该函数以 opts.memo、opts.args 为参数，用于获取新的 opts.memo；当首参非函数，将首参填入 opts.memo 以制作新的 opts.memo（如 addRuntimePlugin）。</li>
+<li>MODIFY 类：当首参为函数，该函数以 opts.memo、opts.args 为参数，用于获取新的 opts.memo；当首参非函数，以首参作为新的 opts.memo（如 modifyWebpackConfig）。</li>
+<li>EVENT 类：首参只能为函数，作为事件的绑定函数，以该函数处理 opts.args 消息（如 onDevCompileDone）。</li>
+</ul>
+<p>在后续文章中，笔者将揭开这些方法的具体意义。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>每每回头看，以往行文的精准性老是让人心生惭愧。此前一度觉得 umi 的 plugin hooks 机制很绕，现在看来，依然觉得很绕，只是 api.addRuntimePlugin 等对外接口显得清晰了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/02/15/frontend/single-spa 实现前端微服务/" rel="next" title="single-spa 实现前端微服务">
+                <i class="fa fa-chevron-left"></i> single-spa 实现前端微服务
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/02/16/frontend/qiankun 微服务/" rel="prev" title="qiankun 微服务">
+                qiankun 微服务 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpeg" alt="Alfred">
+            
+              <p class="site-author-name" itemprop="name">Alfred</p>
+              <p class="site-description motion-element" itemprop="description">人苦不知足，既得陇，复望蜀</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">133</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    <span class="site-state-item-count">38</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Alfred-sg" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/xiu-fan-79/activities" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-globe"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">1.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Alfred</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://alfred.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2020/02/16/工程化/umi 插件钩子机制/';
+        this.page.identifier = '2020/02/16/工程化/umi 插件钩子机制/';
+        this.page.title = 'umi 插件钩子机制（修正版）';
+      };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://alfred.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script>
+  
+
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

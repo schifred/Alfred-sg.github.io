@@ -299,6 +299,174 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/29/java/docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/29/java/docker/" itemprop="url">docker</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-29T00:00:00+08:00">2019-12-29</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/后端/" itemprop="url" rel="index"><span itemprop="name">后端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/12/29/java/docker/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/29/java/docker/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="虚拟机和容器"><a href="#虚拟机和容器" class="headerlink" title="虚拟机和容器"></a>虚拟机和容器</h2><p>虚拟机和容器都是为了将实体机拆分成多块，以便分块运行不同的应用。</p>
+<img src="/2019/12/29/java/docker/vm&container.png">
+<p>虚拟机技术（xem、kvm、vmware、virtualbox）需要模拟整台机器，包括硬件、操作系统等。虚拟机一旦开启，预分配给它的资源将全部被占用。虚拟机上再运行应用，并安装必要的二进制包和库。</p>
+<p>容器技术能和宿主机共享硬件资源及操作系统，能实现资源的动态分配。容器内部安装依赖和应用，在宿主机中以分离的进程运行。Docker 基于 Linux 容器封装。Linux 容器没有模拟一个操作系统，而是对进程套了一层保护层，它所使用的资源都是虚拟的，这样就能与底层系统进行隔离。Docker 支持将软件编译成镜像（image）（镜像是一个包含一堆只读层的文件系统），并在镜像中做好对软件的配置，镜像经发布后，使用者就可以下载并运行这个镜像（运行中的镜像也被称为容器 Container）（容器也是多层机构的文件系统，只是最上面那层支持读写操作）。通过镜像可以实现交付环境的一致性；Dockerfile 用于记录容器构建过程，可以在集群中实现快速分发和部署。</p>
+<p>各大云计算平台（PaaS 平台即服务，提供存储、数据库、网络、负载均衡、自动扩展等功能）均支持 Docker 容器技术，比如阿里云、百度云、Cloud Foundry、HeroKu、DigitalOcean、OpenShift、Apache Stratos、Apache MesOS、Deis、Windows Server、Azure 等。</p>
+<h2 id="Docker-命令"><a href="#Docker-命令" class="headerlink" title="Docker 命令"></a>Docker 命令</h2><p>Docker 使用 C/S 结构（客户端/服务器）打造。客户端和服务器可以运行在同一个 Host 上，客户端也可以通过 socket 或 REST API 与远程的服务器通信。典型的客户端就是命令行工具。服务端接受到请求后，会使用路由分发工具请求交给具体的处理器，如 graphdriver 用来执行容器镜像的本地化操作；networkdriver 用来执行容器网络环境的配置；execdriver 用来执行容器内部运行的执行工作；或者从 Docker Registry 上获取镜像。</p>
+<img src="/2019/12/29/java/docker/CS.png">
+<img src="/2019/12/29/java/docker/client-server.jpg">
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># CentOS 安装 docker</span></span><br><span class="line">sudo yum update</span><br><span class="line">sudo yum install docker</span><br><span class="line"><span class="comment"># Ubuntu 安装 docker</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get docker.io</span><br><span class="line"></span><br><span class="line">docker -v</span><br><span class="line">docker search image-name <span class="comment"># 检索镜像 https://registry.hub.docker.com</span></span><br><span class="line">docker pull image-name <span class="comment"># 下载镜像</span></span><br><span class="line">docker images <span class="comment"># 本地镜像列表，包含镜像 id</span></span><br><span class="line">docker rmi image-id <span class="comment"># 通过镜像 id 删除镜像</span></span><br><span class="line">docker rmi <span class="variable">$&#123;docker images -g&#125;</span> <span class="comment"># 删除所有镜像</span></span><br><span class="line">docker run --name container-name -d image-name <span class="comment"># 以指定容器名运行镜像</span></span><br><span class="line">docker ps <span class="comment"># 容器列表，包含容器 id、占用端口号</span></span><br><span class="line">docker stop container-name <span class="comment"># 停止容器</span></span><br><span class="line">docker stop container-id <span class="comment"># 停止容器</span></span><br><span class="line">docker start container-name <span class="comment"># 启动容器</span></span><br><span class="line">docker start container-id <span class="comment"># 启动容器</span></span><br><span class="line">docker run -d -p 6378:6379 --name port-redis redis <span class="comment"># 将 docker 容器的端口映射到宿主机端口 6378，容器端口无法对外提供访问</span></span><br><span class="line">docker rm container-id <span class="comment"># 删除容器</span></span><br><span class="line">docker rm <span class="variable">$&#123;docker ps -a -q&#125;</span> <span class="comment"># 删除所有容器</span></span><br><span class="line">docker logs container-name <span class="comment"># 容器日志</span></span><br><span class="line">docker logs container-id <span class="comment"># 容器日志</span></span><br><span class="line">docker <span class="built_in">exec</span> -it container-id bash <span class="comment"># 登录容器，执行常规的 linux 操作</span></span><br><span class="line">docker <span class="built_in">exec</span> -it container-name bash <span class="comment"># 登录容器，执行常规的 linux 操作</span></span><br></pre></td></tr></table></figure>
+<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><p>Dockerfile 配置文件用于构建 Docker 镜像，包含四大内容：</p>
+<ul>
+<li>FROM：基础镜像（父镜像）信息指令</li>
+<li>MAINTAINER：维护者信息指令</li>
+<li>RUN、EVN、ADD、WORKDIR 等：镜像操作指令</li>
+<li>CMD、ENTRYPOINT、USER 等：容器启动指令</li>
+</ul>
+<p>典型的 Dockerfile 文件如下（编写完 Dockerfile 后，可以通过 docker build 编译创建镜像）（jar 包也可以在应用中添加 docker-maven-plugin 插件，并指定 DOCKER_HOST 环境变量为服务器地址，再使用 mvn clean package docker:build -DskipTests 构建）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">FROM java:8 <span class="comment"># 拉取基础镜像</span></span><br><span class="line">VOLUME /tmp <span class="comment"># 创建一个可以从本地主机或其他容器挂载的挂载点，一般用来存放数据库和需要保持的数据等</span></span><br><span class="line">RUN mkdir /app <span class="comment"># 执行命令</span></span><br><span class="line">ADD config-1.0.0-SNAPSHOT.jar /app/app.jar <span class="comment"># 赋值</span></span><br><span class="line">ADD runboot.sh /app/ <span class="comment"># 赋值</span></span><br><span class="line">RUN bash -c <span class="string">'touch /app/app.jar'</span> <span class="comment"># 执行命令，另一种格式是 RUN ["bash", "-c", "touch /app/app.jar"]</span></span><br><span class="line">WORKDIR /app <span class="comment"># 设置当前工作路径</span></span><br><span class="line">RUN chmod a+x runboot.sh </span><br><span class="line">EXPOSE 8888 <span class="comment"># 指定对外开放的端口</span></span><br><span class="line">CMD /app/runboot.sh <span class="comment"># 启动容器时的默认行为，一个 Dockerfile 里只能有一个 CMD 指令</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># /app/runboot.sh</span></span><br><span class="line">sleep 10</span><br><span class="line">java -Djava.security.egd=file:/dev/./urandim -jar /app/app.jar</span><br></pre></td></tr></table></figure>
+<h2 id="Docker-Compose"><a href="#Docker-Compose" class="headerlink" title="Docker Compose"></a>Docker Compose</h2><p>Docker Compose 可用来定义和运行多容器应用，即使用 docker-compose.yml 定义多容器，然后执行 docker-compose up -d 启动多应用。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/deng624796905/article/details/86493330" target="_blank" rel="noopener">这可能是最为详细的Docker入门吐血总结</a><br><a href="https://zhuanlan.zhihu.com/p/89587030" target="_blank" rel="noopener">终于有人把 Docker 讲清楚了，万字详解！</a><br><a href="http://c.biancheng.net/docker/" target="_blank" rel="noopener">Docker教程：Docker入门实践（精讲版）</a><br><a href="http://www.dockerinfo.net/document" target="_blank" rel="noopener">Docker中文文档</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/29/java/我看 spring 事务机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1898,181 +2066,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/01/java/spring security/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/01/java/spring security/" itemprop="url">spring security</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-01T00:00:00+08:00">2019-12-01</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/12/01/java/spring security/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/01/java/spring security/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="认证和授权"><a href="#认证和授权" class="headerlink" title="认证和授权"></a>认证和授权</h2><p>认证即校验用户的身份。认证的方式有：</p>
-<ul>
-<li>使用回话 ID 作匿名认证，此时用户不需要登录，使用场景如论坛中匿名访问帖子；</li>
-<li>密码认证（对所有用户，密码都是相同的）；用户名 + 密码认证；</li>
-<li>使用 WWW-Authenticate、Authenticate 作基本认证。当服务器接收到一个缺少凭证请求，返回 WWW-Authenticate 响应头；接收响应的浏览器就会弹出模拟窗口，促使用户输入用户名和密码；用户名和密码又会以 base64 编码，并作为 Authenticate 请求头的内容，发送到服务器；等认证成功后，服务器就会返回一个正常的响应。基本认证允许用户将凭证内嵌在 URL 或命令行客户端中，形式如 Wget 或 cURL，具体的值如 <a href="http://username:password@www.example.com，那么凭证会自动转换成" target="_blank" rel="noopener">http://username:password@www.example.com，那么凭证会自动转换成</a> Authenticate 头。基本认证可以使用 https 协议提高安全性。</li>
-<li>摘要认证。首先客户端发起请求，服务端返回 WWW-Authenticate 响应头中会包含 algorithm（创建哈希值的算法，”MD5” 或 “MD5-sess”）、qop（保护的质量，”auth” 或 “auth-int” 或 “auth,auth-int）、opaque（随机字符串数据，作完整性校验）、nonce（服务器随机数，在两个 401 响应之间永远不会重复，客户端需要发送相同的随机数）。然后客户端再次发送请求，Authenticate 请求头中会包含 algorithm、qop、opaque、nonce 以及 username、uri、nc、cnonce（期望值，每次请求都会重新生成，且不能与 nc 重复）、response。当服务端接受到请求时，将重新计算所有的哈希值，如果最后的哈希值能匹配 response 参数中的值时，认证就通过了。nc、cnonce 在每次发送的请求均会不同，这样可以阻止重放，避免被黑客获知信息。</li>
-<li>windows 认证，即使用 windows 域控制器进行验证。IE、Chrome 支持 windows 验证。这一技术已过时，这里列举的目的在于可以使用终端凭证验证用户。</li>
-<li>客户端证书认证，最安全的认证协议之一。首先在注册（通常是创建用户名和密码）时，服务器将告知浏览器生成公钥和私钥，浏览器存储私钥，将公钥发送给服务器。自此之后，公钥可以作为服务器识别浏览器的标识，且浏览器会使用私钥对通信进行签名。服务器接收到 https 请求后，将使用服务器 SSL 证书标识自身，并将自己的公钥和使用私钥签名的数据发送给浏览器。</li>
-<li>智能卡，就是一个特殊的集成电路，如 ID 卡或磁性员工卡。</li>
-<li>生物识别，就是使用指纹、声纹、虹膜扫描、DNA 或用户的其他生物身份去认证用户。</li>
-<li>基于声明的认证，如 OAuth、SAML 协议都基于声明的认证机制。用户在访问应用时，应用将重定向到 Auth URL，然后用户携带凭证访问第三方认证提供者（如登录），第三方提供者将提供令牌给用户；用户再携带令牌访问应用，应用会将令牌发送给第三方认证机构作验证，通过认证后便能获取到应用上的资源。基于声明的认证将在下文详解。</li>
-<li>多因素认证，即在以上认证的基础上，添加随机数验证（如手机校验码）等手段。</li>
-</ul>
-<p>权限模型通常基于活动（用户可操作行为）、角色（用户可操作行为集）、用户组（某类用户可操作行为），阿里的 ACL 权限模型即基于此设计。详细内容另作专题剖析。java.security.Principal 接口可用于实现鉴权操作。当用户通过认证后，程式将用户身份标识存入 Principal 中，应用代码就可以通过检查 Principal（存在于安全上下文中）包含的标识来判断用户是否通过了认证。Principal 也可以保存用户被授权操作的活动，应用代码就可以通过检查 Principal 获得用户的可执行行为。基于声明的授权指的是由第三方认证用户的身份，再由应用识别用户的权限。</p>
-<h2 id="Spring-Security"><a href="#Spring-Security" class="headerlink" title="Spring Security"></a>Spring Security</h2><p>Spring Security 提供了认证和授权服务，也可以防止 csrf 攻击，并提供 jsp 或 Thymeleaf 模板展示用户授权内容等。它基于 spring AOP 以及 servlet 规范中的 filter 机制实现，能够在 Web 请求和方法调用级别处理身份认证和授权。说到底，Spring Security 处理 web 请求的过滤器仍是基于 spring 框架实现的，即通过 AbstractSecurityWebApplicationInitializer 实现 WebApplicationInitializer 接口，并在 onStartup 方法执行过程中使用 servletContext.addFilter 挂载过滤器，内置过滤器是使用 DelegatingFilterProxy 挂载的 SecurityFilterChain，允许用户添加定制的过滤器。</p>
-<img src="/2019/12/01/java/spring%20security/spring-security-filter.png">
-<p>以下是 spring security 加载和配置过滤器的主要实现源码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 利用 spring 机制将 SpringSecurityFilterChain 等过滤器注册到 servlet 中</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractSecurityWebApplicationInitializer</span> <span class="keyword">implements</span> <span class="title">WebApplicationInitializer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">onStartup</span><span class="params">(ServletContext servletContext)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.beforeSpringSecurityFilterChain(servletContext);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.configurationClasses != <span class="keyword">null</span>) &#123;</span><br><span class="line">            AnnotationConfigWebApplicationContext rootAppContext = <span class="keyword">new</span> AnnotationConfigWebApplicationContext();</span><br><span class="line">            rootAppContext.register(<span class="keyword">this</span>.configurationClasses);</span><br><span class="line">            servletContext.addListener(<span class="keyword">new</span> ContextLoaderListener(rootAppContext));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.enableHttpSessionEventPublisher()) &#123;</span><br><span class="line">            servletContext.addListener(<span class="string">"org.springframework.security.web.session.HttpSessionEventPublisher"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        servletContext.setSessionTrackingModes(<span class="keyword">this</span>.getSessionTrackingModes());</span><br><span class="line">        <span class="keyword">this</span>.insertSpringSecurityFilterChain(servletContext);</span><br><span class="line">        <span class="keyword">this</span>.afterSpringSecurityFilterChain(servletContext);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">insertSpringSecurityFilterChain</span><span class="params">(ServletContext servletContext)</span> </span>&#123;</span><br><span class="line">        String filterName = <span class="string">"springSecurityFilterChain"</span>;</span><br><span class="line">        DelegatingFilterProxy springSecurityFilterChain = <span class="keyword">new</span> DelegatingFilterProxy(filterName);</span><br><span class="line">        String contextAttribute = <span class="keyword">this</span>.getWebApplicationContextAttribute();</span><br><span class="line">        <span class="keyword">if</span> (contextAttribute != <span class="keyword">null</span>) &#123;</span><br><span class="line">            springSecurityFilterChain.setContextAttribute(contextAttribute);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.registerFilter(servletContext, <span class="keyword">true</span>, filterName, springSecurityFilterChain);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">registerFilter</span><span class="params">(ServletContext servletContext, <span class="keyword">boolean</span> insertBeforeOtherFilters, String filterName, Filter filter)</span> </span>&#123;</span><br><span class="line">        Dynamic registration = servletContext.addFilter(filterName, filter);</span><br><span class="line">        <span class="keyword">if</span> (registration == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Duplicate Filter registration for '"</span> + filterName + <span class="string">"'. Check to ensure the Filter is only configured once."</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            registration.setAsyncSupported(<span class="keyword">this</span>.isAsyncSecuritySupported());</span><br><span class="line">            EnumSet&lt;DispatcherType&gt; dispatcherTypes = <span class="keyword">this</span>.getSecurityDispatcherTypes();</span><br><span class="line">            registration.addMappingForUrlPatterns(dispatcherTypes, !insertBeforeOtherFilters, <span class="keyword">new</span> String[]&#123;<span class="string">"/*"</span>&#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过 @Configuration 为 spring-security 添加过滤器、权限规则等</span></span><br><span class="line"><span class="meta">@Order</span>(<span class="number">100</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSecurityConfigurerAdapter</span> <span class="keyword">implements</span> <span class="title">WebSecurityConfigurer</span>&lt;<span class="title">WebSecurity</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(<span class="keyword">final</span> WebSecurity web)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> HttpSecurity http = <span class="keyword">this</span>.getHttp();</span><br><span class="line">        web.addSecurityFilterChainBuilder(http).postBuildAction(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                FilterSecurityInterceptor securityInterceptor = (FilterSecurityInterceptor)http.getSharedObject(FilterSecurityInterceptor.class);</span><br><span class="line">                web.securityInterceptor(securityInterceptor);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> HttpSecurity <span class="title">getHttp</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.http != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.http;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            DefaultAuthenticationEventPublisher eventPublisher = (DefaultAuthenticationEventPublisher)<span class="keyword">this</span>.objectPostProcessor.postProcess(<span class="keyword">new</span> DefaultAuthenticationEventPublisher());</span><br><span class="line">            <span class="keyword">this</span>.localConfigureAuthenticationBldr.authenticationEventPublisher(eventPublisher);</span><br><span class="line">            AuthenticationManager authenticationManager = <span class="keyword">this</span>.authenticationManager();</span><br><span class="line">            <span class="keyword">this</span>.authenticationBuilder.parentAuthenticationManager(authenticationManager);</span><br><span class="line">            <span class="keyword">this</span>.authenticationBuilder.authenticationEventPublisher(eventPublisher);</span><br><span class="line">            Map&lt;Class&lt;? extends Object&gt;, Object&gt; sharedObjects = <span class="keyword">this</span>.createSharedObjects();</span><br><span class="line">            <span class="keyword">this</span>.http = <span class="keyword">new</span> HttpSecurity(<span class="keyword">this</span>.objectPostProcessor, <span class="keyword">this</span>.authenticationBuilder, sharedObjects);</span><br><span class="line">            <span class="keyword">if</span> (!<span class="keyword">this</span>.disableDefaults) &#123;</span><br><span class="line">                ((HttpSecurity)((DefaultLoginPageConfigurer)((HttpSecurity)((HttpSecurity)((HttpSecurity)((HttpSecurity)((HttpSecurity)((HttpSecurity)((HttpSecurity)((HttpSecurity)<span class="keyword">this</span>.http.csrf().and()).addFilter(<span class="keyword">new</span> WebAsyncManagerIntegrationFilter()).exceptionHandling().and()).headers().and()).sessionManagement().and()).securityContext().and()).requestCache().and()).anonymous().and()).servletApi().and()).apply(<span class="keyword">new</span> DefaultLoginPageConfigurer())).and()).logout();</span><br><span class="line">                ClassLoader classLoader = <span class="keyword">this</span>.context.getClassLoader();</span><br><span class="line">                <span class="comment">// 通过 AbstractHttpConfigurer 子类加载过滤器</span></span><br><span class="line">                List&lt;AbstractHttpConfigurer&gt; defaultHttpConfigurers = SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, classLoader);</span><br><span class="line">                Iterator var6 = defaultHttpConfigurers.iterator();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">while</span>(var6.hasNext()) &#123;</span><br><span class="line">                    AbstractHttpConfigurer configurer = (AbstractHttpConfigurer)var6.next();</span><br><span class="line">                    <span class="keyword">this</span>.http.apply(configurer);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 执行 configure(HttpSecurity http) 加载用户配置</span></span><br><span class="line">            <span class="keyword">this</span>.configure(<span class="keyword">this</span>.http);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.http;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> AuthenticationManager <span class="title">authenticationManager</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">this</span>.authenticationManagerInitialized) &#123;</span><br><span class="line">            <span class="comment">// 执行 configure(AuthenticationManagerBuilder auth) 加载用户配置</span></span><br><span class="line">            <span class="keyword">this</span>.configure(<span class="keyword">this</span>.localConfigureAuthenticationBldr);</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.disableLocalConfigureAuthenticationBldr) &#123;</span><br><span class="line">                <span class="comment">// 构建 AuthenticationManagerBuilder 实例，AuthenticationManagerBuilder 实例拥有 authenticationProviders 属性管理 AuthenticationProvider 实例</span></span><br><span class="line">                <span class="keyword">this</span>.authenticationManager = <span class="keyword">this</span>.authenticationConfiguration.getAuthenticationManager();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">this</span>.authenticationManager = (AuthenticationManager)<span class="keyword">this</span>.localConfigureAuthenticationBldr.build();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">this</span>.authenticationManagerInitialized = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.authenticationManager;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>实际上，HttpSecurity 也是基于 filter 实现的，通过 configure 方法配置规则就是配置过滤器。基于 filter，Spring Security 提供以下三个接口用于鉴权：</p>
-<ul>
-<li>Authentication：扩展自 Principal，包含 getIdentity 方法返回一个代表 Principal 标识的 Object（通常是用户名）；getCredentials 方法返回用于验证用户身份的凭证（只在认证过程中使用，认证结束后被擦除）；isAuthenticated 方法返回是否通过认证；setAuthenticated 修改认证结果（通常也只在认证过程中使用）。</li>
-<li>GrantedAuthentication：用以判断用户包含的角色、权限信息。Authentication 接口中的 getAuthorities 方法可用于获取用户的 GrantedAuthentication。</li>
-<li>AuthenticationProvider：认证服务的提供者，包含 authenticate 方法以未认证的 Authentication 作为参数，该方法将把 Authentication 标识为已认证，并返回已认证的但完全不同的 Authentication。</li>
-</ul>
-<p>Spring Security 既能使用内建的系统如 CAS、JAAS、LDAP、OpenID 鉴权，又能对接 JDBC 或自己的服务或仓库用于鉴权。</p>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>因为对 spring 机制的不熟悉以及 Spring Security 应用场景有限，笔者的行文仅点到为止。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.zijin.net/news/tech/1190163.html" target="_blank" rel="noopener">Spring高级篇—Spring Security入门原理及实战</a><br><a href="https://www.jianshu.com/p/e715cc993bf0" target="_blank" rel="noopener">Spring Boot Security 详解</a><br><a href="https://blog.csdn.net/liushangzaibeijing/article/details/81220610" target="_blank" rel="noopener">springSecurity安全框架的学习和原理解读</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2122,7 +2115,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">133</span>
+                    <span class="site-state-item-count">134</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

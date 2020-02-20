@@ -621,6 +621,200 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/14/react/react fiber/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/03/14/react/react fiber/" itemprop="url">react fiber</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-14T00:00:00+08:00">2020-03-14</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/03/14/react/react fiber/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/03/14/react/react fiber/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前情荟萃"><a href="#前情荟萃" class="headerlink" title="前情荟萃"></a>前情荟萃</h2><blockquote class="blockquote-center"><p>The crux of the change is transitioning from processing updates in a synchronous, recursive way to relying on asynchronous scheduling and prioritization of interface changes. </p>
+</blockquote>
+<p><a href="https://makersden.io/blog/look-inside-fiber/" target="_blank" rel="noopener">A look inside React Fiber</a> 指明，react 演进出 fiber 架构的关键点在于渲染策略的变更，从原先的 Stack Reconciler 同步递归模式转变为 Fiber Reconciler 基于优先级的异步调度模式。这样就能避免其他文章所说的，Stack Reconciler 模式中的 JS 运算、页面布局和页面绘制将长期占用主线程，页面出现掉帧的现象。<a href="https://zhuanlan.zhihu.com/p/98295862" target="_blank" rel="noopener">深入理解 React Fiber</a> 引用了 Andrew Clark’s 的笔记，指出 Fiber Reconciler 包含如下特性：</p>
+<ul>
+<li>为不同类型的任务赋予优先级</li>
+<li>任务的暂停与恢复</li>
+<li>如果任务不再需要，可以中止</li>
+<li>复用之前已完成的工作</li>
+</ul>
+<p><a href="https://segmentfault.com/a/1190000018250127?utm_source=tag-newest" target="_blank" rel="noopener">React Fiber 原理介绍</a> 说明了 Reconciler 在 React 中的层次结构：</p>
+<ul>
+<li>Virtual DOM 层：描述页面的元素构成，即 render 函数返回的结果。<a href="https://zhuanlan.zhihu.com/p/57346388" target="_blank" rel="noopener">[译]深入React fiber架构及源码</a> 坚持认为 Virtual DOM 实际上指的是不可改变的 React 元素树。</li>
+<li>Reconciler 层：执行 reconciliation 流程，通过 diff 算法等将组件状态变化反应为视图内容，并触发 side-effects（调用生命周期方法、更新 ref）等。</li>
+<li>Renderer 层：根据不同的平台，渲染出真实的内容，比较常见的是 ReactDOM 和 ReactNative。</li>
+</ul>
+<p>推想 <a href="https://zhuanlan.zhihu.com/p/57346388" target="_blank" rel="noopener">[译]深入React fiber架构及源码</a> 提及的，React 渲染期间各种数据结构的流向比如：用户侧创建 Class 或 Function 组件、Host组件（如 DOM 节点）、Protals 等；通过 React.createElement 创建 React 元素树；基于 React 元素树创建 fiber 节点树（也称为 internal instances 内部实例树）；最后由 fiber 节点树获得具体平台相关的 public instance（也称为 Host instance，如真实的 DOM 树）。</p>
+<p>fiber 节点树不像剥离 diff 算法后的 Virtual DOM 只是一种表现，其内部还集成了操作树的算法。<a href="https://zhuanlan.zhihu.com/p/57346388" target="_blank" rel="noopener">[译]深入React fiber架构及源码</a> 中称：</p>
+<blockquote class="blockquote-center"><p>fiber 作为一种数据结构，用于代表某些 worker，换句话说，就是一个 work 单元，Fiber 架构提供了一种可跟踪、调度、暂停和中止 work 的便捷方式。</p>
+</blockquote>
+<p>首次渲染时，fiber 节点基于 React 元素创建（<a href="https://github.com/facebook/react/blob/769b1f270e1251d9dbdce0fcbd9e92e502d059b8/packages/react-reconciler/src/ReactFiber.js#L414" target="_blank" rel="noopener">createFiberFromTypeAndProps</a> 执行期间）；更新时，fiber 节点将被重用，只更新部分属性，或者伴随着 React 元素的移除而销毁（基于 key 键）。</p>
+<p>渲染完成的 fiber 节点树称为 current tree。当更新时，current tree 会维持不变，对于每个 fiber 节点，会依据 render 返回的 React 元素创建一个备用的 alternate fiber 节点。这些节点构成 workInProgress tree。当更新相关流程都走完后，workInProgress tree 会被刷新到页面上，并成为新的 current tree。</p>
+<p>按 <a href="https://zhuanlan.zhihu.com/p/57346388" target="_blank" rel="noopener">[译]深入React fiber架构及源码</a> 描绘的，side effects 是组件 render 以外的流程。纯 render 可视为仅消费 state、props 获取 UI 的函数。其他如订阅 state 手动修改 DOM 节点、调用生命周期函数都视为 side effects。具体到不同类型的 fiber，side effects 可能包含：Host 组件（如 DOM 元素）的增删改节点操作；class 组件的更新 ref、调用生命周期。官方对 side effects 的描述为：</p>
+<blockquote class="blockquote-center"><p>You’ve likely performed data fetching, subscriptions, or manually changing the DOM from React components before. We call these operations “side effects” (or “effects” for short) because they can affect other components and can’t be done during rendering.</p>
+</blockquote>
+<p><a href="https://zhuanlan.zhihu.com/p/57346388" target="_blank" rel="noopener">[译]深入React fiber架构及源码</a> 指出，React 渲染分为 render 阶段、commit 阶段。</p>
+<p>render 阶段在首次渲染时生成 current tree；再次渲染时基于更新后的 state 值生成部分节点带有 side effects 标识的 workInProgress tree（render 阶段执行完成后也称为 finishedWork tree）。带有 side effects 标识的 fiber 节点会构成 effects list 线性列表，前一个 fiber 节点的 nextEffect 指向后一个 fiber 节点。render 阶段可以异步执行。</p>
+<p>render 阶段使用 DFS 深度优先搜索算法遍历 fiber 节点树。在源码中由以下函数构成：</p>
+<ul>
+<li>workLoopSync、workLoopConcurrent：使用 while 语句遍历 fiber 节点树（workInProgress tree）。</li>
+<li>performUnitOfWork：while </li>
+<li>beginWork：对当前 fiber 节点做处理，并将 fiber.child 返回到上游。</li>
+<li>completeUnitOfWork：while </li>
+<li>completeWork：while </li>
+</ul>
+<p>render 阶段执行的生命周期方法有：</p>
+<ul>
+<li>[UNSAFE_]componentWillMount (deprecated)</li>
+<li>[UNSAFE_]componentWillReceiveProps (deprecated)</li>
+<li>getDerivedStateFromProps</li>
+<li>shouldComponentUpdate</li>
+<li>[UNSAFE_]componentWillUpdate (deprecated)</li>
+<li>render</li>
+</ul>
+<p>## </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A Fiber is work on a Component that needs to be done or was done. There can</span></span><br><span class="line"><span class="comment">// be more than one per component.</span></span><br><span class="line"><span class="keyword">export</span> type Fiber = &#123;|</span><br><span class="line">  <span class="comment">// These first fields are conceptually members of an Instance. This used to</span></span><br><span class="line">  <span class="comment">// be split into a separate type and intersected with the other Fiber fields,</span></span><br><span class="line">  <span class="comment">// but until Flow fixes its intersection bugs, we've merged them into a</span></span><br><span class="line">  <span class="comment">// single type.</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// An Instance is shared between all versions of a component. We can easily</span></span><br><span class="line">  <span class="comment">// break this out into a separate object to avoid copying so much to the</span></span><br><span class="line">  <span class="comment">// alternate versions of the tree. We put this on a single object for now to</span></span><br><span class="line">  <span class="comment">// minimize the number of objects created during the initial render.</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// fiber 节点的类型，对应 React 元素的类型</span></span><br><span class="line">  tag: WorkTag,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// fiber 节点的唯一标识，即 diff 算法中用于识别节点的 key 键</span></span><br><span class="line">  key: <span class="literal">null</span> | string,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// The value of element.type which is used to preserve the identity during</span></span><br><span class="line">  <span class="comment">// reconciliation of this child.</span></span><br><span class="line">  elementType: any,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// The resolved function/class/ associated with this fiber.</span></span><br><span class="line">  type: any,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// The local state associated with this fiber.</span></span><br><span class="line">  stateNode: any,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Conceptual aliases</span></span><br><span class="line">  <span class="comment">// parent : Instance -&gt; return The parent happens to be the same as the</span></span><br><span class="line">  <span class="comment">// return fiber since we've merged the fiber and instance.</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Remaining fields belong to Fiber</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// The Fiber to return to after finishing processing this one.</span></span><br><span class="line">  <span class="comment">// This is effectively the parent, but there can be multiple parents (two)</span></span><br><span class="line">  <span class="comment">// so this is only the parent of the thing we're currently processing.</span></span><br><span class="line">  <span class="comment">// It is conceptually the same as the return address of a stack frame.</span></span><br><span class="line">  <span class="keyword">return</span>: Fiber | <span class="literal">null</span>,</span><br><span class="line"></span><br><span class="line">  child: Fiber | <span class="literal">null</span>,<span class="comment">// 子节点</span></span><br><span class="line">  sibling: Fiber | <span class="literal">null</span>,<span class="comment">// 兄弟节点</span></span><br><span class="line">  index: number,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// The ref last used to attach this node.</span></span><br><span class="line">  <span class="comment">// I'll avoid adding an owner field for prod and model that as functions.</span></span><br><span class="line">  ref:</span><br><span class="line">    | <span class="literal">null</span></span><br><span class="line">    | <span class="function">(<span class="params">((handle: mixed</span>) =&gt;</span> <span class="keyword">void</span>) &amp; &#123;<span class="attr">_stringRef</span>: ?string, ...&#125;)</span><br><span class="line">    | RefObject,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 更新后的 props，作为输出透出到页面侧</span></span><br><span class="line">  pendingProps: any,</span><br><span class="line">  <span class="comment">// 待更新的 props</span></span><br><span class="line">  memoizedProps: any,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// state 更新、回调函数队列</span></span><br><span class="line">  updateQueue: UpdateQueue&lt;any&gt; | <span class="literal">null</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 更新后的 state，作为输出透出到页面侧</span></span><br><span class="line">  memoizedState: any,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Dependencies (contexts, events) for this fiber, if it has any</span></span><br><span class="line">  dependencies: Dependencies | <span class="literal">null</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Bitfield that describes properties about the fiber and its subtree. E.g.</span></span><br><span class="line">  <span class="comment">// the ConcurrentMode flag indicates whether the subtree should be async-by-</span></span><br><span class="line">  <span class="comment">// default. When a fiber is created, it inherits the mode of its</span></span><br><span class="line">  <span class="comment">// parent. Additional flags can be set at creation time, but after that the</span></span><br><span class="line">  <span class="comment">// value should remain unchanged throughout the fiber's lifetime, particularly</span></span><br><span class="line">  <span class="comment">// before its child fibers are created.</span></span><br><span class="line">  mode: TypeOfMode,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Effect</span></span><br><span class="line">  effectTag: SideEffectTag,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Singly linked list fast path to the next fiber with side-effects.</span></span><br><span class="line">  nextEffect: Fiber | <span class="literal">null</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// The first and last fiber with side-effect within this subtree. This allows</span></span><br><span class="line">  <span class="comment">// us to reuse a slice of the linked list when we reuse the work done within</span></span><br><span class="line">  <span class="comment">// this fiber.</span></span><br><span class="line">  firstEffect: Fiber | <span class="literal">null</span>,</span><br><span class="line">  lastEffect: Fiber | <span class="literal">null</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Represents a time in the future by which this work should be completed.</span></span><br><span class="line">  <span class="comment">// Does not include work found in its subtree.</span></span><br><span class="line">  expirationTime: ExpirationTime,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// This is used to quickly determine if a subtree has no pending changes.</span></span><br><span class="line">  childExpirationTime: ExpirationTime,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// This is a pooled version of a Fiber. Every fiber that gets updated will</span></span><br><span class="line">  <span class="comment">// eventually have a pair. There are cases when we can clean up pairs to save</span></span><br><span class="line">  <span class="comment">// memory if we need to.</span></span><br><span class="line">  alternate: Fiber | <span class="literal">null</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Time spent rendering this Fiber and its descendants for the current update.</span></span><br><span class="line">  <span class="comment">// This tells us how well the tree makes use of sCU for memoization.</span></span><br><span class="line">  <span class="comment">// It is reset to 0 each time we render and only updated when we don't bailout.</span></span><br><span class="line">  <span class="comment">// This field is only set when the enableProfilerTimer flag is enabled.</span></span><br><span class="line">  actualDuration?: number,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// If the Fiber is currently active in the "render" phase,</span></span><br><span class="line">  <span class="comment">// This marks the time at which the work began.</span></span><br><span class="line">  <span class="comment">// This field is only set when the enableProfilerTimer flag is enabled.</span></span><br><span class="line">  actualStartTime?: number,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Duration of the most recent render time for this Fiber.</span></span><br><span class="line">  <span class="comment">// This value is not updated when we bailout for memoization purposes.</span></span><br><span class="line">  <span class="comment">// This field is only set when the enableProfilerTimer flag is enabled.</span></span><br><span class="line">  selfBaseDuration?: number,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Sum of base times for all descendants of this Fiber.</span></span><br><span class="line">  <span class="comment">// This value bubbles up during the "complete" phase.</span></span><br><span class="line">  <span class="comment">// This field is only set when the enableProfilerTimer flag is enabled.</span></span><br><span class="line">  treeBaseDuration?: number,</span><br><span class="line">|&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://zhuanlan.zhihu.com/p/57346388" target="_blank" rel="noopener">[译]深入React fiber架构及源码</a><br><a href="https://www.zcfy.cc/original/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react" target="_blank" rel="noopener">Inside Fiber: in-depth overview of the new reconciliation algorithm in React</a><br><a href="https://makersden.io/blog/look-inside-fiber/" target="_blank" rel="noopener">A look inside React Fiber</a><br><a href="https://segmentfault.com/a/1190000018250127?utm_source=tag-newest" target="_blank" rel="noopener">React Fiber 原理介绍</a><br><a href="https://zhuanlan.zhihu.com/p/26027085" target="_blank" rel="noopener">React Fiber 是什么</a><br><a href="https://blog.csdn.net/sinat_17775997/article/details/93383254" target="_blank" rel="noopener">浅谈 React Fiber</a><br><a href="https://zhuanlan.zhihu.com/p/98295862" target="_blank" rel="noopener">深入理解 React Fiber</a><br><a href="https://www.cnblogs.com/Darlietoothpaste/p/9941117.html" target="_blank" rel="noopener">React Fiber源码分析</a><br><a href="http://www.ayqy.net/blog/dive-into-react-fiber/" target="_blank" rel="noopener">完全理解React Fiber</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/28/antd/聊聊组件库的构成/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1796,7 +1990,7 @@
           
             <h2 id="文档及示例"><a href="#文档及示例" class="headerlink" title="文档及示例"></a>文档及示例</h2><p><a href="https://single-spa.js.org" target="_blank" rel="noopener">single-spa</a> 具有以下功能特性：在无须刷新页面的前提下，同一个页面可使用不同的框架；基于不同框架实现的前端应用可以独立部署；制作新内容时可以使用不同的框架；支持应用内脚本的懒加载。</p>
 <p>single-spa 借鉴了组件生命周期的思想，它为应用设置了针对路由的生命周期。当应用匹配路由/处于激活状态时，应用会把自身的内容挂载到页面上；反之则卸载。典型的 single-spa 由 html 页面、应用注册脚本、应用脚本自身构成。应用注册内容包含：name 应用名；loadingFunction 应用脚本加载函数；activityFunction 应用激活态判断函数。single-spa 又约定应用脚本包含以下生命周期：load 当应用匹配路由时就会加载脚本（非函数，只是一种状态）、bootstrap 引导函数（对接 html，应用内容首次挂载到页面前调用）、mount 挂载函数、unmount 卸载函数（须移除事件绑定等内容）、unload 非必要（unload 之后会重新启动 bootstrap 流程；借助 unload 可实现热更新）。生命周期函数获得参数包含 name 应用名、singleSpa 实例、mountParcel 手动挂载函数、customProps 自定义信息；它必须返回 Promise 或其本身为 async 函数；bootstrap、mount、unmount 生命周期函数不可缺省；生命周期函数可以指定多个，它们会构成异步调用链，逐个调用。官网中的实例如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. html 页面</span></span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">  &lt;script src=<span class="string">"single-spa-config.js"</span>&gt;&lt;/script&gt;</span><br><span class="line">&lt;<span class="regexp">/body&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>html&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 应用注册脚本</span></span><br><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> singleSpa <span class="keyword">from</span> <span class="string">'single-spa'</span>;</span><br><span class="line"><span class="keyword">const</span> appName = <span class="string">'app1'</span>;</span><br><span class="line"><span class="keyword">const</span> loadingFunction = <span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./app1/app1.js'</span>);<span class="comment">// loadingFunction，须返回 promise</span></span><br><span class="line"><span class="keyword">const</span> activityFunction = <span class="function"><span class="params">location</span> =&gt;</span> location.pathname.startsWith(<span class="string">'/app1'</span>);<span class="comment">// activityFunction，纯函数</span></span><br><span class="line"><span class="keyword">const</span> customProps = &#123;&#125;;</span><br><span class="line">singleSpa.registerApplication(appName, loadingFunction, activityFunction, customProps);<span class="comment">// customProps 可以不填</span></span><br><span class="line">singleSpa.start();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 应用脚本 app1.js，可以在另一个仓库中</span></span><br><span class="line"><span class="keyword">let</span> domEl;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> &#123;</span><br><span class="line">    name,        <span class="comment">// The name of the application</span></span><br><span class="line">    singleSpa,   <span class="comment">// The singleSpa instance</span></span><br><span class="line">    mountParcel, <span class="comment">// Function for manually mounting </span></span><br><span class="line">    customProps  <span class="comment">// Additional custom information</span></span><br><span class="line">  &#125; = props;     <span class="comment">// Props are given to every lifecycle</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>);</span><br><span class="line">      domEl.id = <span class="string">'app1'</span>;</span><br><span class="line">      <span class="built_in">document</span>.body.appendChild(domEl);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">mount</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl.textContent = <span class="string">'App 1 is mounted!'</span></span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">unmount</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl.textContent = <span class="string">''</span>;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. html 页面</span></span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">  &lt;script src=<span class="string">"single-spa-config.js"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;<span class="regexp">/body&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>html&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 应用注册脚本</span></span><br><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> singleSpa <span class="keyword">from</span> <span class="string">'single-spa'</span>;</span><br><span class="line"><span class="keyword">const</span> appName = <span class="string">'app1'</span>;</span><br><span class="line"><span class="keyword">const</span> loadingFunction = <span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./app1/app1.js'</span>);<span class="comment">// loadingFunction，须返回 promise</span></span><br><span class="line"><span class="keyword">const</span> activityFunction = <span class="function"><span class="params">location</span> =&gt;</span> location.pathname.startsWith(<span class="string">'/app1'</span>);<span class="comment">// activityFunction，纯函数</span></span><br><span class="line"><span class="keyword">const</span> customProps = &#123;&#125;;</span><br><span class="line">singleSpa.registerApplication(appName, loadingFunction, activityFunction, customProps);<span class="comment">// customProps 可以不填</span></span><br><span class="line">singleSpa.start();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 应用脚本 app1.js，可以在另一个仓库中</span></span><br><span class="line"><span class="keyword">let</span> domEl;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> &#123;</span><br><span class="line">    name,        <span class="comment">// The name of the application</span></span><br><span class="line">    singleSpa,   <span class="comment">// The singleSpa instance</span></span><br><span class="line">    mountParcel, <span class="comment">// Function for manually mounting </span></span><br><span class="line">    customProps  <span class="comment">// Additional custom information</span></span><br><span class="line">  &#125; = props;     <span class="comment">// Props are given to every lifecycle</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>);</span><br><span class="line">      domEl.id = <span class="string">'app1'</span>;</span><br><span class="line">      <span class="built_in">document</span>.body.appendChild(domEl);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">mount</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl.textContent = <span class="string">'App 1 is mounted!'</span></span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">unmount</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl.textContent = <span class="string">''</span>;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="快速对接框架"><a href="#快速对接框架" class="headerlink" title="快速对接框架"></a>快速对接框架</h3><p>在官方提供的示例项目 <a href="https://github.com/single-spa/single-spa-examples" target="_blank" rel="noopener">single-spa-examples</a> 中，single-spa 提供了便捷的引导、挂载、卸载工具（如 single-spa-angular、single-spa-angularjs、single-spa-ember、single-spa-inferno、single-spa-preact、single-spa-react、single-spa-svelte、single-spa-vue），便于对接各种框架。具体可参考官方的示例项目或官方文档 <a href="https://single-spa.js.org/docs/starting-from-scratch" target="_blank" rel="noopener">Starting From Scratch</a>。以下为 single-spa-react 的使用示例：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> ReactDOM <span class="keyword">from</span> <span class="string">'react-dom'</span>;</span><br><span class="line"><span class="keyword">import</span> singleSpaReact <span class="keyword">from</span> <span class="string">'single-spa-react'</span>;</span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./containers/App.js'</span>;</span><br><span class="line"><span class="keyword">const</span> reactLifecycles = singleSpaReact(&#123;</span><br><span class="line">  React,</span><br><span class="line">  ReactDOM,</span><br><span class="line">  rootComponent: App,<span class="comment">// 应用顶层组件</span></span><br><span class="line">  domElementGetter,<span class="comment">// 挂载应用的页面 dom 元素</span></span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> bootstrap = [</span><br><span class="line">  reactLifecycles.bootstrap,</span><br><span class="line">];</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> mount = [</span><br><span class="line">  reactLifecycles.mount,</span><br><span class="line">];</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> unmount = [</span><br><span class="line">  reactLifecycles.unmount,</span><br><span class="line">];</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">domElementGetter</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">document</span>.getElementById(<span class="string">"root"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="拆分部署"><a href="#拆分部署" class="headerlink" title="拆分部署"></a>拆分部署</h3><p>single-app 推荐的应用拆分部署策略有如下三种：</p>
@@ -2054,156 +2248,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/08/frontend/前端规范/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/08/frontend/前端规范/" itemprop="url">前端规范</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-08T00:00:00+08:00">2020-02-08</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/02/08/frontend/前端规范/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/08/frontend/前端规范/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="git"><a href="#git" class="headerlink" title="git"></a>git</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cnpm install -g commitizen <span class="comment"># cli 工具</span></span><br><span class="line">cnpm install -g conventional-changelog <span class="comment"># 基于 commit message 生成 change log</span></span><br><span class="line">cnpm install validate-commit-msg --save-dev <span class="comment"># 检查项目的 commit message 是否符合 Angular 规范。基于 husky 添加配置 package.json#scripts -&gt; "commitmsg": "validate-commit-msg"</span></span><br><span class="line">commitizen init cz-conventional-changelog --save --save-exact <span class="comment"># 项目目录，支持 Angular 的 commit message 格式</span></span><br><span class="line">git cz <span class="comment"># 提交 commit message，替代 git commit</span></span><br><span class="line">conventional-changelog -p angular -i CHANGELOG.md -w <span class="comment"># 生成 change log</span></span><br></pre></td></tr></table></figure>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.jianshu.com/p/201bd81e7dc9?utm_source=oschina-app" target="_blank" rel="noopener">git commit 规范指南</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2253,7 +2297,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">134</span>
+                    <span class="site-state-item-count">135</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

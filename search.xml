@@ -49,6 +49,35 @@
       </tags>
   </entry>
   <entry>
+    <title>js 事件循环</title>
+    <url>/2020/03/04/frontend/js%20%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/</url>
+    <content><![CDATA[<h2 id="事件循环基本"><a href="#事件循环基本" class="headerlink" title="事件循环基本"></a>事件循环基本</h2><p>js 是一门单线程非阻塞脚本语言。即便浏览器推出的 web worker 也只允许子线程承担计算任务，而不能操纵 dom 节点（因为主、子线程同时操纵 dom 会造成不一致）。</p>
+<p>执行栈可用于解释 js 引擎对同步脚本的处理。即当函数首次被调用时，js 引擎就会为该过程创建执行上下文，并将该执行上下文压入执行栈中。执行上下文也称为执行环境，包含函数的私有作用域、父级作用域、参数、作用域中的变量以及 this 指向。当函数执行完毕后，js 引擎会在执行栈中销毁该执行上下文，并将执行栈定位到前一个执行上下文。执行上下文典型如下：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">executionContextObj = &#123;</span><br><span class="line">  scopeChain: &#123;<span class="comment">// 作用域链，对象形式，包含所有变量对象、所有父级执行上下文中的变量对象</span></span><br><span class="line">    <span class="comment">/* variableObject + all parent execution context's variableObject */</span> </span><br><span class="line">  &#125;,</span><br><span class="line">  variableObject: &#123;<span class="comment">// 变量对象，对象形式，包含函数形参、函数内部的变量以及函数声明(但不包含表达式)</span></span><br><span class="line">    <span class="comment">/* function arguments / parameters, inner variable and function declarations */</span> </span><br><span class="line">    <span class="built_in">arguments</span>: &#123;</span><br><span class="line">      <span class="number">0</span>: <span class="number">22</span>,<span class="comment">// 实参</span></span><br><span class="line">      length: <span class="number">1</span></span><br><span class="line">    &#125;,</span><br><span class="line">    realArg: <span class="number">22</span>,<span class="comment">// 调用期间获得的实参</span></span><br><span class="line">    afunction: pointer to <span class="function"><span class="keyword">function</span> <span class="title">afunction</span>(<span class="params"></span>),// 内部声明的函数，以指针形式引用</span></span><br><span class="line"><span class="function">    <span class="title">aVariable</span>: <span class="title">undefined</span>,// 内部变量 <span class="title">aVariable</span>，创建阶段声明上移，为 <span class="title">undefined</span></span></span><br><span class="line"><span class="function">    <span class="title">functionExp</span>: <span class="title">undefined</span>,// 内部以变量 <span class="title">functionExp</span> 声明的函数变量，创建阶段声明上移，为 <span class="title">undefined</span></span></span><br><span class="line"><span class="function">  &#125;,</span></span><br><span class="line"><span class="function">  <span class="title">this</span>: </span>&#123;&#125;<span class="comment">// this 关键字</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>js 引擎对异步任务的处理则借助 callback queue 事件队列实现。即当主线程中的同步任务执行完毕时，js 引擎会去检查事件队列，并取出执行。异步任务有其优先级，在浏览器环境中，有 micro task 微任务、macro task 宏任务两类。微任务包含 Promise、MutaionObserver；宏任务包含 setTimeout、setInterval、setImmediate、requestAnimationFrame。浏览器先执行微任务，再执行宏任务。交互行为作为特殊的异步任务，通过收发消息的方式实现，详情可参考 <a href="https://www.cnblogs.com/xiaohuochai/p/8527618.html" target="_blank" rel="noopener">深入理解javascript中的事件循环event-loop</a>。</p>
+<h2 id="node-中的事件循环"><a href="#node-中的事件循环" class="headerlink" title="node 中的事件循环"></a>node 中的事件循环</h2><p>在 node 环境中，node 使用 v8 引擎解释 js 脚本，然后使用 libuv 引擎处理事件循环以及其他异步行为。在启动阶段，node 就会初始化 event loop 事件循环。下图描绘了 node 处理事件循环的各阶段，每个阶段都有一个先进先出的回调队列待执行：</p>
+<figure class="highlight md"><table><tr><td class="code"><pre><span class="line">   ┌───────────────────────────┐</span><br><span class="line">┌─&gt;│           timers          │</span><br><span class="line">│  └─────────────┬─────────────┘</span><br><span class="line">│  ┌─────────────┴─────────────┐</span><br><span class="line">│  │     pending callbacks     │</span><br><span class="line">│  └─────────────┬─────────────┘</span><br><span class="line">│  ┌─────────────┴─────────────┐</span><br><span class="line">│  │       idle, prepare       │</span><br><span class="line">│  └─────────────┬─────────────┘      ┌───────────────┐</span><br><span class="line">│  ┌─────────────┴─────────────┐      │   incoming:   │</span><br><span class="line">│  │           poll            │&lt;─────┤  connections, │</span><br><span class="line">│  └─────────────┬─────────────┘      │   data, etc.  │</span><br><span class="line">│  ┌─────────────┴─────────────┐      └───────────────┘</span><br><span class="line">│  │           check           │</span><br><span class="line">│  └─────────────┬─────────────┘</span><br><span class="line">│  ┌─────────────┴─────────────┐</span><br><span class="line">└──┤      close callbacks      │</span><br><span class="line">   └───────────────────────────┘</span><br></pre></td></tr></table></figure>
+<ul>
+<li>poll：I/O 事件完毕后，会进入 poll 阶段（同步模式会阻塞在 poll 阶段）。它首先会计算阻塞时间，然后执行 poll 队列，直到队列耗尽或超过阈值。然后检查脚本中是否有 setImmediate，如果有，进入 check 阶段。最后检查是否达到了定时器的指定时间，如果是，进入 timers 阶段。</li>
+<li>check：执行 setImmediate 回调。其特殊意义在于，如果 poll 阶段队列为空，可以使用 setImmediate 使程序进入 check 阶段，而不至于阻塞在 poll 阶段。</li>
+<li>close callbacks：调用如 socket.on(‘close’, …) 等回调。</li>
+<li>timers：调用 setTimeout、setInterval 等回调。定时器通常会滞后于用户设定时间，因为它需要等待 timers 阶段之前的任务执行完成。技术上，定时器的执行时机由 poll 阶段控制。</li>
+<li>pending callbacks：调用如某些系统操作（如TCP错误类型）的回调。</li>
+<li>idle, prepare：node 内部使用。</li>
+</ul>
+<p>需注意，在非 I/O 循环中调用 setImmediate、setTimeout，两者的执行时机是不确定的；在 I/O 循环中，setImmediate 总是先于 setTimeout。</p>
+<p>process.nextTick 在事件循环算法之外，它将在事件循环的任意阶段继续执行前得到调用。无限递归的 process.nextTick 有可能会饿死 I/O，无法使事件循环达到 loop 阶段。node 为什么将 process.nextTick 设计为当前操作之后、事件循环之前呢？其目的是这样设计能使同步执行的回调通过 process.nextTick 转化成异步执行。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 同步脚本</span></span><br><span class="line"><span class="keyword">let</span> bar;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">someAsyncApiCall</span>(<span class="params">callback</span>) </span>&#123; callback(); &#125;</span><br><span class="line"></span><br><span class="line">someAsyncApiCall(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'bar'</span>, bar); <span class="comment">// undefined</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">bar = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 借助 process.nextTick 实现异步</span></span><br><span class="line"><span class="keyword">let</span> bar;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">someAsyncApiCall</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  process.nextTick(callback);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">someAsyncApiCall(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'bar'</span>, bar); <span class="comment">// 1</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">bar = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/mqliutie/p/4422247.html" target="_blank" rel="noopener">JavaScript中执行环境和栈</a><br><a href="https://blog.csdn.net/qq_33572444/article/details/79106935" target="_blank" rel="noopener">详解JavaScript中的Event Loop（事件循环）机制</a><br><a href="https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/" target="_blank" rel="noopener">The Node.js Event Loop, Timers, and process.nextTick()</a></p>
+]]></content>
+      <categories>
+        <category>frontend</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>进程与线程踩点</title>
     <url>/2020/02/29/%E8%AE%A1%E7%AE%97%E6%9C%BA/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本篇基于《现代操作系统》整理。虽然笔者也不甚理解，但是这篇总结可以为后续深入探究 node 进程、java 并发、react 调度算法打个桩，从中也确实增进了对进程、中断等的理解。</p>
@@ -376,7 +405,7 @@
   </entry>
   <entry>
     <title>react fiber 搜罗整理篇</title>
-    <url>/2020/02/22/react/react%20fiber%20%E6%90%9C%E7%BD%97%E6%95%B4%E7%90%86%E7%AF%87/</url>
+    <url>/2020/02/22/react/react16%E6%BA%90%E7%A0%81/react%20fiber%20%E6%90%9C%E7%BD%97%E6%95%B4%E7%90%86%E7%AF%87/</url>
     <content><![CDATA[<h2 id="fiber-出台的原委和特性"><a href="#fiber-出台的原委和特性" class="headerlink" title="fiber 出台的原委和特性"></a>fiber 出台的原委和特性</h2><blockquote class="blockquote-center"><p>The crux of the change is transitioning from processing updates in a synchronous, recursive way to relying on asynchronous scheduling and prioritization of interface changes. </p>
 </blockquote>
 <p><a href="https://makersden.io/blog/look-inside-fiber/" target="_blank" rel="noopener">A look inside React Fiber</a> 指明，react 演进出 fiber 架构的关键点在于渲染策略的变更，从原先的 Stack Reconciler 同步递归模式转变为 Fiber Reconciler 基于优先级的异步调度模式。这样就能避免其他文章所说的，Stack Reconciler 模式中的 JS 运算、页面布局和页面绘制将长期占用主线程，页面出现掉帧的现象。依照官方文档 <a href="https://reactjs.org/docs/codebase-overview.html#fiber-reconciler" target="_blank" rel="noopener">Codebase Overview</a>，Fiber Reconciler 包含如下特性：</p>
@@ -426,7 +455,7 @@
 <p><a href="https://github.com/acdlite/react-fiber-architecture" target="_blank" rel="noopener">React Fiber Architecture</a> 中的以下描述也说明了两阶段的主要内容：</p>
 <blockquote class="blockquote-center"><p> reconciliation：The algorithm React uses to diff one tree with another to determine which parts need to be changed.<br>update：A change in the data used to render a React app. Usually the result of <code>setState</code>. Eventually results in a re-render.</p>
 </blockquote>
-<img src="/2020/02/22/react/react%20fiber%20搜罗整理篇/lifecycle.png">
+<img src="/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/lifecycle.png">
 <h3 id="render-阶段"><a href="#render-阶段" class="headerlink" title="render 阶段"></a>render 阶段</h3><p>首次渲染时，reconciler 基于 React 元素创建 fiber，最终形成 fiber 节点树 current tree。当更新时，reconciler 会遍历 current tree，复用 fiber.alternate 备用节点，生成 work-in-progress tree。因为单个 fiber 也是 unit of work，work-in-progress tree 也可以称为任务单元树。</p>
 <p>reconciler 会通过 performSyncWorkOnRoot、performConcurrentWorkOnRoot 函数启动 <a href="https://github.com/facebook/react/blob/v16.12.0/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1459" target="_blank" rel="noopener">work-loop 循环</a> 。该循环会使用深度优先算法处理 work-in-progress tree，只有经过更新的 fiber 节点才会被处理。work-loop 循环有以下四种处理函数：</p>
 <ul>
@@ -436,7 +465,7 @@
 <li>completeWork：context 出栈等操作。</li>
 </ul>
 <p>performUnitOfWork、completeUnitOfWork 主要用于迭代 fiber 节点，主要更新活动由 beginWork、completeWork 完成。以下是这四种函数迭代节点的流程：</p>
-<img src="/2020/02/22/react/react%20fiber%20搜罗整理篇/loop-work.gif">
+<img src="/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/loop-work.gif">
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">workLoopSync</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> (workInProgress !== <span class="literal">null</span>) &#123;</span><br><span class="line">    workInProgress = performUnitOfWork(workInProgress);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">performUnitOfWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> next = beginWork(workInProgress);</span><br><span class="line">  <span class="keyword">if</span> (next === <span class="literal">null</span>) &#123;</span><br><span class="line">    next = completeUnitOfWork(workInProgress);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> next;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">beginWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'work performed for '</span> + workInProgress.name);</span><br><span class="line">  <span class="keyword">return</span> workInProgress.child;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">completeUnitOfWork</span>(<span class="params">unitOfWork</span>) </span>&#123;</span><br><span class="line">  workInProgress = unitOfWork;</span><br><span class="line">  <span class="keyword">do</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> current = workInProgress.alternate;</span><br><span class="line">    <span class="keyword">const</span> returnFiber = workInProgress.return;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((workInProgress.effectTag &amp; Incomplete) === NoEffect) &#123;</span><br><span class="line">      <span class="keyword">let</span> next = completeWork(current, workInProgress, renderExpirationTime);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (next !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (returnFiber !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> next = unwindWork(workInProgress, renderExpirationTime);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (next !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (siblingFiber !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">// If there is more work to do in this returnFiber, do that next.</span></span><br><span class="line">      <span class="keyword">return</span> siblingFiber;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Otherwise, return to the parent</span></span><br><span class="line">    workInProgress = returnFiber;</span><br><span class="line">  &#125; <span class="keyword">while</span> (workInProgress !== <span class="literal">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">completeWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'work completed for '</span> + workInProgress.name);</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>综上，更新时会生成部分节点带有 side effects 标识的 work-in-progress tree。effects list 链表会向上归并到父节点上，它会指示需要插入、更新或删除哪些节点，以及哪些组件需要调用其生命周期方法。current tree、work-in-progress tree、effects list 就是 render 阶段的所有产物（work-in-progress tree 在此时也被称为 finished-work tree）。</p>
 <h3 id="commit-阶段"><a href="#commit-阶段" class="headerlink" title="commit 阶段"></a>commit 阶段</h3><p>commit 阶段的主要工作在于将 effects list 链表应用到 fiber 节点树上。这部分工作由 finishSyncRender、finishConcurrentRender 函数启动。主要功能则由 <a href="https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1720" target="_blank" rel="noopener">commitRootImpl.js</a> 完成。<a href="https://www.zcfy.cc/original/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react" target="_blank" rel="noopener">Inside Fiber: in-depth overview of the new reconciliation algorithm in React</a> 指出它包含如下操作：</p>
@@ -1444,20 +1473,6 @@
       </tags>
   </entry>
   <entry>
-    <title>RMI</title>
-    <url>/2019/12/21/java/RMI/</url>
-    <content><![CDATA[<h2 id="RMI"><a href="#RMI" class="headerlink" title="RMI"></a>RMI</h2><p>分布式编程即当客户端调用某方法时，产生一个请求发送到服务器上，然后取回响应。RMI（远程方法调用）的实现思路植根于：在客户端和服务端均安装代理，由客户端代理将客户端方法调用转换成请求（包含服务器地址、所调用方法、传参等信息），服务端代理通过请求执行服务端方法，并向客户端发送响应。服务端接口实例（实现 Remote 接口、扩展 UnicastRemoteObject 类）须通过 InitialContext 实例注册到 RMI 注册表中，客户端就可以通过 InitialContext#list 或 InitialContext#lookup 方法获取到代理对象（称为存根）。</p>
-<h2 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h2><h2 id="web-服务"><a href="#web-服务" class="headerlink" title="web 服务"></a>web 服务</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://cloud.tencent.com/developer/article/1353191" target="_blank" rel="noopener">RMI与RPC的区别</a><br><a href="https://blog.csdn.net/mingtianhaiyouwo/article/details/50513577" target="_blank" rel="noopener">Java RMI 简介及其优劣势总结</a><br><a href="https://blog.csdn.net/kouzhaokui/article/details/89176541" target="_blank" rel="noopener">EJB到底是什么？</a><br><a href="https://www.jianshu.com/p/7d6853140e13" target="_blank" rel="noopener">什么是RPC？</a></p>
-]]></content>
-      <categories>
-        <category>java</category>
-      </categories>
-      <tags>
-        <tag>analyst</tag>
-        <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>java 知识点</title>
     <url>/2019/12/21/java/Java%E7%9F%A5%E8%AF%86%E7%82%B9/</url>
     <content><![CDATA[<h2 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h2><p>java 注解与 js 装饰器拥有相当不同的实现方式：java 有编译过程，因此可以使用语法约定注解的意义，脱离了编译过程，注解将毫无意义；js 引擎却没有对装饰器给予有效支持，因此 js 装饰器在 babel 等工具中表现为使用高阶函数封装原类或方法。java 注解本质上都是集成了 java.lang.Annotation 的接口，接口名前加 @interface 标识声明。有以下四种元注解可以标识注解的目标、生命周期、是否包含在 JavaDoc 文档中、是否允许子类继承，分别是 @Target、@Retention、@Documented、@Inherited。</p>
@@ -1486,6 +1501,20 @@
 <p>更多内容参考 <a href="https://www.cnblogs.com/mybatis/p/9396135.html" target="_blank" rel="noopener">深入理解Java类加载器</a>。</p>
 <h2 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h2><p>java 的反射机制用于动态获取任意一个对象的方法和属性等信息以及动态调用对象方法。更多内容参考 <a href="https://www.jianshu.com/p/9be58ee20dee" target="_blank" rel="noopener">Java高级特性——反射</a>。</p>
 <h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2>]]></content>
+      <categories>
+        <category>java</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RMI</title>
+    <url>/2019/12/21/java/RMI/</url>
+    <content><![CDATA[<h2 id="RMI"><a href="#RMI" class="headerlink" title="RMI"></a>RMI</h2><p>分布式编程即当客户端调用某方法时，产生一个请求发送到服务器上，然后取回响应。RMI（远程方法调用）的实现思路植根于：在客户端和服务端均安装代理，由客户端代理将客户端方法调用转换成请求（包含服务器地址、所调用方法、传参等信息），服务端代理通过请求执行服务端方法，并向客户端发送响应。服务端接口实例（实现 Remote 接口、扩展 UnicastRemoteObject 类）须通过 InitialContext 实例注册到 RMI 注册表中，客户端就可以通过 InitialContext#list 或 InitialContext#lookup 方法获取到代理对象（称为存根）。</p>
+<h2 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h2><h2 id="web-服务"><a href="#web-服务" class="headerlink" title="web 服务"></a>web 服务</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://cloud.tencent.com/developer/article/1353191" target="_blank" rel="noopener">RMI与RPC的区别</a><br><a href="https://blog.csdn.net/mingtianhaiyouwo/article/details/50513577" target="_blank" rel="noopener">Java RMI 简介及其优劣势总结</a><br><a href="https://blog.csdn.net/kouzhaokui/article/details/89176541" target="_blank" rel="noopener">EJB到底是什么？</a><br><a href="https://www.jianshu.com/p/7d6853140e13" target="_blank" rel="noopener">什么是RPC？</a></p>
+]]></content>
       <categories>
         <category>java</category>
       </categories>
@@ -4423,11 +4452,14 @@
       </tags>
   </entry>
   <entry>
-    <title>dom-align</title>
-    <url>/2019/02/01/antd/react-component/dom-align/</url>
-    <content><![CDATA[<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
+    <title>rc-align</title>
+    <url>/2019/02/01/antd/react-component/rc-align/</url>
+    <content><![CDATA[<h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
 <li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
+<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
+</li>
+<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
+</li>
 </ul>
 ]]></content>
       <categories>
@@ -4440,14 +4472,11 @@
       </tags>
   </entry>
   <entry>
-    <title>rc-align</title>
-    <url>/2019/02/01/antd/react-component/rc-align/</url>
-    <content><![CDATA[<h2 id="dom-align"><a href="#dom-align" class="headerlink" title="dom-align"></a>dom-align</h2><h3 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h3><ul>
+    <title>dom-align</title>
+    <url>/2019/02/01/antd/react-component/dom-align/</url>
+    <content><![CDATA[<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><ul>
 <li>utils.getWindow(node): 获取 node 节点所属的 window 对象。</li>
-<li><p>utils.getDocument(node): 获取 node 节点所属的 document 对象。</p>
-</li>
-<li><p>isAncestorFixed(element): 判断祖先元素是否固定定位。</p>
-</li>
+<li>utils.getDocument(node): 获取 node 节点所属的 document 对象。</li>
 </ul>
 ]]></content>
       <categories>

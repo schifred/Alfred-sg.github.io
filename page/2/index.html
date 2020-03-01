@@ -299,6 +299,194 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/16/工程化/umi 插件钩子机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/16/工程化/umi 插件钩子机制/" itemprop="url">umi 插件钩子机制（修正版）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-16T00:00:00+08:00">2020-02-16</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/02/16/工程化/umi 插件钩子机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/16/工程化/umi 插件钩子机制/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>plugin hook 插件钩子在 umi 内部的表现一为 method 方法，一为 hook 钩子。简单而论，插件钩子运作机制分为两步：register 注册插件钩子、apply 执行插件钩子。插件钩子按 name 命名存入 pluginHooks[name] 中，执行期间以 reduce 机制依次执行并控制入参。以下为 umi 源码注册插件钩子、执行插件钩子的底层方法：</p>
+<ul>
+<li>register(hook, fn) 注册插件钩子，hook 插件钩子名，fn 插件钩子执行脚本。</li>
+<li>applyPlugins(key, opts) 依次执行插件钩子，key 插件钩子名，opts.initialValue 插件钩子链执行首参，opts.args 插件钩子链内处理参数。</li>
+<li>_applyPluginsAsync(key, opts) 异步方式依次执行插件钩子。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** PluginAPI.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 将插件钩子执行脚本添加到 pluginHooks[hook] 中</span></span><br><span class="line"><span class="comment"> * @param &#123;string&#125; hook hook 名，对应 registerMethod 中的 name</span></span><br><span class="line"><span class="comment"> * @param &#123;function&#125; fn hook 处理函数，对应 registerMethod 中的插件钩子执行脚本</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">register(hook, fn) &#123;</span><br><span class="line">  assert(</span><br><span class="line">    <span class="keyword">typeof</span> hook === <span class="string">'string'</span>,</span><br><span class="line">    <span class="string">`The first argument of api.register() must be string, but got <span class="subst">$&#123;hook&#125;</span>`</span>,</span><br><span class="line">  );</span><br><span class="line">  assert(</span><br><span class="line">    <span class="keyword">typeof</span> fn === <span class="string">'function'</span>,</span><br><span class="line">    <span class="string">`The second argument of api.register() must be function, but got <span class="subst">$&#123;fn&#125;</span>`</span>,</span><br><span class="line">  );</span><br><span class="line">  <span class="keyword">const</span> &#123; pluginHooks &#125; = <span class="keyword">this</span>.service;</span><br><span class="line">  pluginHooks[hook] = pluginHooks[hook] || [];</span><br><span class="line">  pluginHooks[hook].push(&#123;</span><br><span class="line">    fn,</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*** umi-build-dev *** Service.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 取出 pluginHooks[key] 中的 hook 脚本（对应 registerMethod 中的插件钩子执行脚本）并依次执行</span></span><br><span class="line"><span class="comment"> * @param &#123;string&#125; key hook 名，对应 registerMethod 中的 name</span></span><br><span class="line"><span class="comment"> * @param &#123;function&#125; opts 设置初始值 opts.initialValue 和传递参数 opts.args</span></span><br><span class="line"><span class="comment"> */</span> </span><br><span class="line">applyPlugins(key, opts = &#123;&#125;) &#123;</span><br><span class="line">  debug(<span class="string">`apply plugins <span class="subst">$&#123;key&#125;</span>`</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="function">(<span class="params"><span class="keyword">this</span>.pluginHooks[key] || []</span>).<span class="params">reduce</span>(<span class="params">(memo, &#123; fn &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> fn(&#123;</span><br><span class="line">        memo,</span><br><span class="line">        args: opts.args,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      <span class="built_in">console</span>.error(chalk.red(<span class="string">`Plugin apply failed: <span class="subst">$&#123;e.message&#125;</span>`</span>));</span><br><span class="line">      <span class="keyword">throw</span> e;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, opts.initialValue);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 异步方式依次执行插件钩子</span></span><br><span class="line"><span class="comment"> */</span> </span><br><span class="line"><span class="keyword">async</span> _applyPluginsAsync(key, opts = &#123;&#125;) &#123;</span><br><span class="line">  debug(<span class="string">`apply plugins async <span class="subst">$&#123;key&#125;</span>`</span>);</span><br><span class="line">  <span class="keyword">const</span> hooks = <span class="keyword">this</span>.pluginHooks[key] || [];</span><br><span class="line">  <span class="keyword">let</span> memo = opts.initialValue;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> hook <span class="keyword">of</span> hooks) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; fn &#125; = hook;</span><br><span class="line">    <span class="comment">// eslint-disable-next-line no-await-in-loop</span></span><br><span class="line">    memo = <span class="keyword">await</span> fn(&#123;</span><br><span class="line">      memo,</span><br><span class="line">      args: opts.args,</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> memo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为什么 umi 选用 reduce 机制执行插件钩子呢？那就要说一下 umi 插件钩子承担的职责了。其一，插件钩子可用于修改配置项（包含添加和修改）；第二，插件钩子可用于监听事件；第三，插件钩子可用于设置普通的处理流程。仅以 webpack 配置为例，多个下游（下一个插件钩子执行脚本）如果想修改 webpack 配置，那就需要一种缓存机制将修改后的 webpack 配置传入下游，reduce 天然具有这种能力。那为何 umi 不使用上游的返回值 memo 作为下游的入参呢？我们再以 webpack 配置为例，线上环境、日常环境的配置内容往往是不同的，因此在插件钩子执行期间需要一个环境标识加以区分，umi 往下游传递的 opts.args 正好可以放这个环境标识。这样就解释了 applyPlugins 采用上述实现的原委了。</p>
+<p>至于 umi 插件钩子为什么要承担那么多职能？笔者也摸不清头脑。</p>
+<p>umi 内部将插件钩子定义为如下四类：</p>
+<ol>
+<li>apply 类：注册时提供 apply 自定义钩子处理函数，实现定制的处理流程。没有具体的应用场景。</li>
+<li>ADD 类：注册时 type 值设为 ADD，用于添加配置项，典型如往 html 页面上添加 script 节点。</li>
+<li>MODIFY 类：注册时 type 值设为 MODIFY，用于修改配置项，典型如修改 webpack 配置。</li>
+<li>EVENT 类：注册时 type 值设为 EVENT，用于作事件处理，典型如监听 webpack 编译成功事件。</li>
+</ol>
+<p>上述四种插件钩子的实际效用又是怎样的呢？</p>
+<ol>
+<li>apply 类：没有具体的应用场景。</li>
+<li>ADD、MODIFY 类：applyPlugins 执行返回结果供使用，因此需要在 applyPlugins 执行结束后才能确切明白其功能。</li>
+<li>EVENT 类：插件钩子执行脚本即为功能实现。</li>
+</ol>
+<p>registerMethod 用于创建多态注册插件钩子的方法，该方法存为 pluginMethods[name]（实际作为 umi-plugin-* 插件中所使用的接口，如 api.addRuntimePlugin 即是 pluginMethods.addRuntimePlugin）。如上所述，插件钩子函数在 apply 类型下都是 umi 内部约定的，即 pluginMethods.addRuntimePlugin(…args) 的调用结果在 applyPlugins 阶段的表现只有两种可能，一种意义，都是变更 opts.memo 的值：</p>
+<ul>
+<li>当 args[0] 非函数，将 args[0] 塞入 opts.memo 中。</li>
+<li>当 args[0] 为函数，使用该函数处理 opts.memo、opts.args，其返回值作为新的 opts.memo。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** PluginAPI.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 生成插件钩子的注册函数 pluginMethods[name]</span></span><br><span class="line"><span class="comment"> * 同一个 name 名下可以挂多个插件钩子脚本，以 pluginHooks[name] 形式存储</span></span><br><span class="line"><span class="comment"> * 最终通过 applyPlugins 调用，以 reduce 方式依次执行，参数 opts = &#123; memo, args &#125; 以闭包形式向后传递</span></span><br><span class="line"><span class="comment"> * @param &#123;string&#125; name 插件钩子名</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; opts = &#123; type, apply &#125;</span></span><br><span class="line"><span class="comment"> *    type 插件钩子类型，umi 将根据 type 类型生成插件钩子脚本</span></span><br><span class="line"><span class="comment"> *         ADD 类型，往 opts.memo 里塞值</span></span><br><span class="line"><span class="comment"> *         MODIFY 类型，修改 opts.memo</span></span><br><span class="line"><span class="comment"> *         EVENT 类型，首参绑定函数会消费 opts.args</span></span><br><span class="line"><span class="comment"> *    apply 自定义插件钩子执行脚本，由该脚本消费 opts = &#123; memo, args &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">registerMethod(name, opts) &#123;</span><br><span class="line">  assert(!<span class="keyword">this</span>[name], <span class="string">`api.<span class="subst">$&#123;name&#125;</span> exists.`</span>);</span><br><span class="line">  assert(opts, <span class="string">`opts must supplied`</span>);</span><br><span class="line">  <span class="keyword">const</span> &#123; type, apply &#125; = opts;</span><br><span class="line">  assert(!(type &amp;&amp; apply), <span class="string">`Only be one for type and apply.`</span>);</span><br><span class="line">  assert(type || apply, <span class="string">`One of type and apply must supplied.`</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.service.pluginMethods[name] = <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (apply) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> apply(opts, ...args);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="keyword">this</span>.API_TYPE.ADD) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> (opts.memo || []).concat(</span><br><span class="line">          <span class="keyword">typeof</span> args[<span class="number">0</span>] === <span class="string">'function'</span> ? args[<span class="number">0</span>](opts.memo, opts.args) : args[<span class="number">0</span>],</span><br><span class="line">        );</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="keyword">this</span>.API_TYPE.MODIFY) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">typeof</span> args[<span class="number">0</span>] === <span class="string">'function'</span> ? args[<span class="number">0</span>](opts.memo, opts.args) : args[<span class="number">0</span>];</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="keyword">this</span>.API_TYPE.EVENT) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> args[<span class="number">0</span>](opts.args);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">`unexpected api type <span class="subst">$&#123;type&#125;</span>`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>综上，register 用于底层注册插件钩子；applyPlugins、_applyPluginsAsync 用于底层调用插件钩子；registerMethod 用于生成插件钩子的注册方法。这四个方法均不对外暴露，对外暴露的是通过 registerMethod 生成的 pluginMethods[name]。那么，umi 内部为 umi-plugin-* 插件提供了多少种插件钩子的注册方法呢？我们可以看一下如下方法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** PluginAPI.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 基于 registerMethod 生成插件钩子的注册方法 pluginMethods[name]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">_addMethods() &#123;</span><br><span class="line">  [</span><br><span class="line">    [</span><br><span class="line">      <span class="string">'chainWebpackConfig'</span>,</span><br><span class="line">      &#123;</span><br><span class="line">        type: <span class="keyword">this</span>.API_TYPE.EVENT,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">      <span class="string">'_registerConfig'</span>,</span><br><span class="line">      &#123;</span><br><span class="line">        type: <span class="keyword">this</span>.API_TYPE.ADD,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">    <span class="string">'onStart'</span>,</span><br><span class="line">    <span class="string">'onExit'</span>,</span><br><span class="line">    <span class="string">'onStartAsync'</span>,</span><br><span class="line">    <span class="string">'onRouteChange'</span>,</span><br><span class="line">    <span class="string">'onDevCompileDone'</span>,</span><br><span class="line">    <span class="string">'onBuildSuccess'</span>,</span><br><span class="line">    <span class="string">'onBuildSuccessAsync'</span>,</span><br><span class="line">    <span class="string">'onBuildFail'</span>,</span><br><span class="line">    <span class="string">'onPrintUmiError'</span>,</span><br><span class="line">    <span class="string">'addPageWatcher'</span>,</span><br><span class="line">    <span class="string">'addEntryCode'</span>,</span><br><span class="line">    <span class="string">'addEntryCodeAhead'</span>,</span><br><span class="line">    <span class="string">'addEntryImport'</span>,</span><br><span class="line">    <span class="string">'addEntryImportAhead'</span>,</span><br><span class="line">    <span class="string">'addEntryPolyfillImports'</span>,</span><br><span class="line">    <span class="string">'addRendererWrapperWithComponent'</span>,</span><br><span class="line">    <span class="string">'addRendererWrapperWithModule'</span>,</span><br><span class="line">    <span class="string">'addRouterImport'</span>,</span><br><span class="line">    <span class="string">'addRouterImportAhead'</span>,</span><br><span class="line">    <span class="string">'addVersionInfo'</span>,</span><br><span class="line">    <span class="string">'addUIPlugin'</span>,</span><br><span class="line">    <span class="string">'onUISocket'</span>,</span><br><span class="line">    <span class="string">'modifyAFWebpackOpts'</span>,</span><br><span class="line">    <span class="string">'modifyEntryRender'</span>,</span><br><span class="line">    <span class="string">'modifyEntryHistory'</span>,</span><br><span class="line">    <span class="string">'modifyRouteComponent'</span>,</span><br><span class="line">    <span class="string">'modifyRouterRootComponent'</span>,</span><br><span class="line">    <span class="string">'modifyWebpackConfig'</span>,</span><br><span class="line">    <span class="string">'_beforeServerWithApp'</span>,</span><br><span class="line">    <span class="string">'beforeDevServer'</span>,</span><br><span class="line">    <span class="string">'_beforeDevServerAsync'</span>,</span><br><span class="line">    <span class="string">'afterDevServer'</span>,</span><br><span class="line">    <span class="string">'addMiddlewareAhead'</span>,</span><br><span class="line">    <span class="string">'addMiddleware'</span>,</span><br><span class="line">    <span class="string">'addMiddlewareBeforeMock'</span>,</span><br><span class="line">    <span class="string">'addMiddlewareAfterMock'</span>,</span><br><span class="line">    <span class="string">'modifyRoutes'</span>,</span><br><span class="line">    <span class="string">'onPatchRoute'</span>,</span><br><span class="line">    <span class="string">'modifyHTMLContext'</span>,</span><br><span class="line">    <span class="string">'modifyPublicPathStr'</span>,</span><br><span class="line">    <span class="string">'addHTMLMeta'</span>,</span><br><span class="line">    <span class="string">'addHTMLLink'</span>,</span><br><span class="line">    <span class="string">'addHTMLScript'</span>,</span><br><span class="line">    <span class="string">'addHTMLStyle'</span>,</span><br><span class="line">    <span class="string">'addHTMLHeadScript'</span>,</span><br><span class="line">    <span class="string">'addUmiExports'</span>,</span><br><span class="line">    <span class="string">'modifyHTMLChunks'</span>,</span><br><span class="line">    <span class="string">'onGenerateFiles'</span>,</span><br><span class="line">    <span class="string">'onHTMLRebuild'</span>,</span><br><span class="line">    <span class="string">'modifyDefaultConfig'</span>,</span><br><span class="line">    <span class="string">'_modifyConfig'</span>,</span><br><span class="line">    <span class="string">'modifyHTMLWithAST'</span>,</span><br><span class="line">    <span class="string">'_modifyHelpInfo'</span>,</span><br><span class="line">    <span class="string">'addRuntimePlugin'</span>,</span><br><span class="line">    <span class="string">'addRuntimePluginKey'</span>,</span><br><span class="line">    <span class="string">'beforeBlockWriting'</span>,</span><br><span class="line">    <span class="string">'addBlockUIResource'</span>,</span><br><span class="line">    <span class="string">'modifyBlockUIResources'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockPackageJSONPath'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockDependencies'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockFile'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockTarget'</span>,</span><br><span class="line">    <span class="string">'_modifyCommand'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockNewRouteConfig'</span>,</span><br><span class="line">    <span class="string">'beforeBuildCompileAsync'</span>,</span><br><span class="line">  ].forEach(<span class="function"><span class="params">method</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(method)) &#123;</span><br><span class="line">      <span class="keyword">this</span>.registerMethod(...method);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> type;</span><br><span class="line">      <span class="keyword">const</span> isPrivate = method.charAt(<span class="number">0</span>) === <span class="string">'_'</span>;</span><br><span class="line">      <span class="keyword">const</span> slicedMethod = isPrivate ? method.slice(<span class="number">1</span>) : method;</span><br><span class="line">      <span class="keyword">if</span> (slicedMethod.indexOf(<span class="string">'modify'</span>) === <span class="number">0</span>) &#123;</span><br><span class="line">        type = <span class="keyword">this</span>.API_TYPE.MODIFY;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (slicedMethod.indexOf(<span class="string">'add'</span>) === <span class="number">0</span>) &#123;</span><br><span class="line">        type = <span class="keyword">this</span>.API_TYPE.ADD;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (</span><br><span class="line">        slicedMethod.indexOf(<span class="string">'on'</span>) === <span class="number">0</span> ||</span><br><span class="line">        slicedMethod.indexOf(<span class="string">'before'</span>) === <span class="number">0</span> ||</span><br><span class="line">        slicedMethod.indexOf(<span class="string">'after'</span>) === <span class="number">0</span></span><br><span class="line">      ) &#123;</span><br><span class="line">        type = <span class="keyword">this</span>.API_TYPE.EVENT;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">`unexpected method name <span class="subst">$&#123;method&#125;</span>`</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.registerMethod(method, &#123; type &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码即意味着 umi 为 umi-plugin-* 插件提供了 api.chainWebpackConfig 等 pluginMethods[name]。</p>
+<p>在内部实现上，pluginMethods[name] 表现为注册插件钩子；在外部调用表现上，pluginMethods[name] 如其 name 名所示，或者添加配置项（如 addRuntimePlugin），或者修改配置项（如 modifyWebpackConfig），或者执行事件处理函数（如 onDevCompileDone），主要分为以下几类：</p>
+<ul>
+<li>apply 类：以 umi 内置的自定义钩子函数处理 opts = { memo, args } 以及调用时获得的其他参数。</li>
+<li>ADD 类：当首参为函数，该函数以 opts.memo、opts.args 为参数，用于获取新的 opts.memo；当首参非函数，将首参填入 opts.memo 以制作新的 opts.memo（如 addRuntimePlugin）。</li>
+<li>MODIFY 类：当首参为函数，该函数以 opts.memo、opts.args 为参数，用于获取新的 opts.memo；当首参非函数，以首参作为新的 opts.memo（如 modifyWebpackConfig）。</li>
+<li>EVENT 类：首参只能为函数，作为事件的绑定函数，以该函数处理 opts.args 消息（如 onDevCompileDone）。</li>
+</ul>
+<p>在后续文章中，笔者将揭开这些方法的具体意义。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>每每回头看，以往行文的精准性老是让人心生惭愧。此前一度觉得 umi 的 plugin hooks 机制很绕，现在看来，依然觉得很绕，只是 api.addRuntimePlugin 等对外接口显得清晰了。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/15/frontend/single-spa 实现前端微服务/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1824,207 +2012,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/18/大数据/数据技术/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/18/大数据/数据技术/" itemprop="url">数据技术</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-18T00:00:00+08:00">2020-01-18</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/大数据/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/01/18/大数据/数据技术/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/18/大数据/数据技术/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote class="blockquote-center"><p>数据仓库（Data Warehouse）是一个面向主题的（Subject Oriented）、集成的（Integrate）、相对稳定的（Non-Volatile）、反映历史变化（Time Variant）的数据集合，用于支持管理决策。</p>
-</blockquote>
-<ul>
-<li>OLTP：On-Line Transaction Processing，联机事务处理，辅助业务操作，用于产生数据。OLTP 能将源数据即时传送到计算中心进行处理，并在短时间内给出结果。</li>
-<li>OLAP：On-Line Analytical Processing，联机分析处理，辅助决策分析，用于分析数据。</li>
-<li>ETL：Extract-Transform-Load，数据从来源端经过抽取（extract）、转换（transform）、加载（load）至目的端的过程。</li>
-</ul>
-<img src="/2020/01/18/大数据/数据技术/lambda.png">
-<p>上图为数据仓库架构发展过程中的第二阶段 —— Lambda 架构。第三阶段 Kappa 架构借助 Flink 等实时流处理引擎，移除了离线批处理 etl 任务。数据仓库构架的发展过程可以参看 <a href="https://yq.aliyun.com/articles/691541" target="_blank" rel="noopener">数据仓库介绍与实时数仓案例</a>。</p>
-<ul>
-<li>ODS：OperationalData Store，操作数据层，保存从业务系统或埋点系统采集过来的原始数据。</li>
-<li>DWD：Data Warehouse Detail，明细数据层，根据主题定义好事实与维度表，保存最细粒度的事实数据。该层数据的生产作业包含：字段名、枚举等数据标准统一；数据脱敏，专门建设敏感数据库存储敏感数据；分库分表等多源数据整合；数据模型统基于业务流程建模。</li>
-<li>DWS：Data Warehouse Summary，汇总数据层，在 DWD 层基础上根据不同的业务需求分主题轻度汇总。DWS 层可拆分为 DWB 轻度汇总数据和 DWS 重度汇总数据。</li>
-<li>DM：Data Market，数据集市层，主要为业务需求提供服务，其包含应用产品所需数据、需求报表、指标等，DM 层还可为业务部门创建专用数据库以及数据探索库。</li>
-</ul>
-<p>下图为阿里大数据系统的架构图：</p>
-<img src="/2020/01/18/大数据/数据技术/ali.jpg">
-<h2 id="数据同步"><a href="#数据同步" class="headerlink" title="数据同步"></a>数据同步</h2><p>数据同步的方式：</p>
-<ul>
-<li>直连同步：通过 ODBC、JDBC 等标准接口将源系统的数据导入到目标系统，对业务系统的性能影响较大（虽然业务系统可以采用主备分离的模式）。</li>
-<li>数据文件同步：通过 FTP 服务器将源系统的数据导入到目标系统。为避免丢包或传输错误，业务系统一般还会发送校验文件，并对数据增加压缩和加密功能。</li>
-<li>数据库日志解析同步：在操作系统层面获取归档日志，将其解析到目标文件数据文件中，可用于增量更新。日志解析同步需要部署一个 agent 系统从源系统抽取数据。该同步机制会导致增量更新的数据丢失调凌晨附近的数据，即数据飘逸和遗漏。</li>
-</ul>
-<h3 id="DataX"><a href="#DataX" class="headerlink" title="DataX"></a>DataX</h3><p>阿里内部使用 <a href="https://github.com/alibaba/DataX" target="_blank" rel="noopener">DataX</a> 作离线数据同步。它能实现包括 MySQL、Oracle、SqlServer、Postgre、HDFS、Hive、ADS、HBase、TableStore(OTS)、MaxCompute(ODPS)、DRDS 等各种异构数据源之间高效的数据同步功能。DataX 面对的主要问题是，从源系统到数仓或从数仓到目标系统，数据流进各个系统时的格式并不统一，因此 Datax 需要将数据转换成格式统一的中间状态。</p>
-<p>DataX 采用 Framework + Plugin 开放式架构实现。Plugin 用于转换不同数据库或文件系统的数据格式，包含 ReadPlugin、WritePlugin 两类，作为 Reader 数据采集模块和 Writer 数据写入模块的实现内容。Framework 将数据同步作业拆分成多个子任务，并处理缓冲、流程控制、并发、上下文加载等高速数据交换等技术问题，再通过 Chanel 交换 Reader、Writer 的数据。</p>
-<img src="/2020/01/18/大数据/数据技术/datax.jpeg">
-<p>更多内容可参考 <a href="https://blog.csdn.net/u014646662/article/details/82792725" target="_blank" rel="noopener">DataX3.0 简介</a>。</p>
-<h3 id="TimeTunnel"><a href="#TimeTunnel" class="headerlink" title="TimeTunnel"></a>TimeTunnel</h3><p>阿里内部使用 TimeTunnel 作实时数据同步。它所实现的主要功能包含，通过消息订阅模式从源系统的 binlog 日志读取出增量数据，随后订阅数据的目标系统将读取这些数据。</p>
-<p>TimeTunnel 是基于生产者、消费者和 Topic 消息标识实现的消息中间件。它通过 <a href="https://www.jianshu.com/p/53864dc3f7b4" target="_blank" rel="noopener">HBase</a> 持久化消息数据。在下图的组件架构中：TTManager 负责对外提供队列申请、删除、查询和集群的管理接⼝；对内发现故障，发起队列迁移。Client 是一组访问接口，包含安全认证 api、发布 api 和订阅 api。Router 为 Client、Broker 提供路由服务，路由到 Broker 时须鉴权。Zookeeper 提供状态同步功能，存储 Client、Broker 的状态。Broker 负责消息队列的读写操作，承担实际的流量，它会从 HBase 取发数据。</p>
-<img src="/2020/01/18/大数据/数据技术/TimeTunnel.png">
-<p>更多内容可参考 <a href="https://blog.csdn.net/pelick/article/details/26265663" target="_blank" rel="noopener">淘宝实时数据传输平台: TimeTunnel介绍</a>。</p>
-<h2 id="数据计算"><a href="#数据计算" class="headerlink" title="数据计算"></a>数据计算</h2><p>收集到原始数据后，数据还需要被整合和计算，才能发挥大数据的商业和业务价值。阿里为数据计算层提供了两大体系：MaxCompute 离线存储及计算平台、StreamCompute 实时计算平台。</p>
-<h3 id="MaxCompute"><a href="#MaxCompute" class="headerlink" title="MaxCompute"></a>MaxCompute</h3><p><a href="https://helpcdn.aliyun.com/document_detail/27800.html" target="_blank" rel="noopener">MaxCompute</a> 采用分布式计算模型，能满足 100GB 以上规模的存储及计算需求。它支持 SQL 查询、UDF 用户自定义函数、Java MapReduce 编程模型、Graph 图计算处理框架。</p>
-<img src="/2020/01/18/大数据/数据技术/maxcompute.png">
-<p>MaxCompute 由四部分组成：MaxCompute Client 客户端；MaxCompute Front End 接入层；MaxCompute Server 逻辑层；MaxCompute Core 存储与计算层。其中，客户端提供了 RESTful API、Java SDK、Command Line Tool、为 ETL/BI 提供的可视化 IDE 工具。接入层提供 HTTP 服务、缓存、负载均衡、用户认证等功能。逻辑层负责实现用户空间和对象的管理、命令的解析与执行逻辑、数据对象的访问控制和授权等功能。它有三种角色：Worker 对接 RESTful API、SQL 等，生成 MaxCompute Instance 并交由 Scheduler 处理；Scheduler 负责 MaxCompute Instance 的调度和拆解，询问计算层的资源占用情况；Exector 负责 MaxCompute Instance 的执行，向计算层提交计算任务。计算层即 Apsara Core 飞天内核，运行在和控制层相互独立的计算集群上，它包含 Pangu 分布式文件系统、Fuxi 资源调度系统、Nuwa 命名空间服务、Zhongkui 安全服务、Shennong 监控模块、Open Table Service 开放结构化数据服务（用于存储元数据）等。</p>
-<img src="/2020/01/18/大数据/数据技术/apsara.png">
-<p>更多内容可参考 <a href="https://yq.aliyun.com/articles/78108" target="_blank" rel="noopener">阿里巴巴飞天大数据平台MaxCompute（原名ODPS）全套攻略</a>、<a href="https://yq.aliyun.com/articles/61529?spm=a2c4e.11153940.0.0.4f886797FazeNv" target="_blank" rel="noopener">MaxCompute 2.0 生态开放之路及最新发展</a>、<a href="http://www.sohu.com/a/129170041_612370" target="_blank" rel="noopener">MaxCompute 2.0 性能优化揭秘</a>、<a href="https://yq.aliyun.com/articles/690510?spm=a2c4e.11153940.0.0.737b1ffbAsWx17" target="_blank" rel="noopener">MaxCompute，基于Serverless的高可靠大数据服务</a>、<a href="https://www.cnblogs.com/barrywxx/p/10739834.html" target="_blank" rel="noopener">阿里云大数据计算服务 - MaxCompute (原名 ODPS)</a>、<a href="https://www.jianshu.com/p/4104e7d5316f" target="_blank" rel="noopener">当我们用 MaxCompute 的时候，我们在用什么？</a>。</p>
-<h3 id="实时计算"><a href="#实时计算" class="headerlink" title="实时计算"></a>实时计算</h3><p>数据时效性一般分为三种：延迟以天计算的离线数据、延迟以小时计算的准实时数据、延迟以秒计算的实时数据。离线数据和准实时数据都可以在批处理系统（如 Hadoop、MaxCompute、Spark 等系统）中实现；实时数据则需要流处理系统（如 Storm、S4、Spark Streaming、Flink、StreamCompute 等系统）来实现。区别于批处理系统周期性调度任务，流处理系统的任务是常驻的，并需要满足高时效性、高性能的要求。流处理系统不能完全替代批处理系统，因为它的计算成本加大，且需要解决复杂的业务逻辑（数据处理需要上下文关系，数据抵达时间的不确定性导致流处理系统可能获取不到前置数据）。</p>
-<p>流处理系统所需要的数据可以通过 TimeTunnel、Kafka 等数据中间件或 MetaQ、Notify 等消息系统实现。其中，使用数据中间件能获得较高的吞吐量，一般用于应对数据量较大的业务系统；消息系统一般用作业务系统数据库变更的消息中转。</p>
-<p>下图是 flink 的架构图：</p>
-<img src="/2020/01/18/大数据/数据技术/flink.png">
-<p>更多内容可参考 <a href="https://help.aliyun.com/document_detail/110778.html?spm=a2c4g.11186623.6.554.2c6d15eaTRijei" target="_blank" rel="noopener">什么是阿里云实时计算</a>、<a href="https://yq.aliyun.com/articles/674448?spm=a2c4e.11153959.teamhomeleft.33.27f717f74CDX29" target="_blank" rel="noopener">Streaming System 第一章：Streaming 101</a>、<a href="https://www.cnblogs.com/code2one/p/10123112.html" target="_blank" rel="noopener">Flink架构及其工作原理</a>。</p>
-<h2 id="数据服务"><a href="#数据服务" class="headerlink" title="数据服务"></a>数据服务</h2><p>阿里的数据开放服务经历了四个阶段：DWSOA、OpenAPI、SmartDQ 和 OneService。</p>
-<img src="/2020/01/18/大数据/数据技术/dataservice.jpg">
-<ul>
-<li>DWSOA：烟囱式一个需求一个或者几个接口。</li>
-<li>OpenApi：同类数据（如会员数据）合并成一张逻辑表，对外透出一个接口，通过接口参数定位具体数据。</li>
-<li>SmartDQ：逻辑表的取数据逻辑通过 SQL （作为领域专用语言 DSL）描述，SmartDQ 通过解析 SQL、生成执行计划、执行 SQL、合并数据、限制结果，最终透出数据。</li>
-<li>OneService：在 SmartDQ 基础上，满足不同场景的数据需求，OneService-SmartDQ 简单的查询场景、OneService-Lego 个性化业务场景、 OneService-iPush 实时数据推送场景、OneService-uTiming 定时任务场景。</li>
-</ul>
-<p>在 SmartDQ 中，逻辑表通过多个数据源的物理表汇总而成，多个逻辑表挂在一个主题下。服务层主要包含两大模块：元数据配置维护物理表到逻辑表的映射；主处理模块会解析 DSL、构建逻辑 Query、构建物理 Query、拆分 Query、执行 SQL、合并结果。</p>
-<img src="/2020/01/18/大数据/数据技术/smartdq.png">
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《大数据之路——阿里巴巴大数据实践》<br><a href="https://www.cnblogs.com/shengyang17/p/10527700.html" target="_blank" rel="noopener">数仓</a><br><a href="https://www.jianshu.com/p/da62fb0c6a0b" target="_blank" rel="noopener">说说数仓</a><br><a href="https://blog.51cto.com/abezoo/2399546" target="_blank" rel="noopener">大数据环境下数仓设计</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2074,7 +2061,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">137</span>
+                    <span class="site-state-item-count">138</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

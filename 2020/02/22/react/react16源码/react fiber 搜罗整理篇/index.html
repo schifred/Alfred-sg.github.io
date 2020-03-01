@@ -107,24 +107,24 @@
 <meta name="keywords" content="analyst">
 <meta property="og:type" content="article">
 <meta property="og:title" content="react fiber 搜罗整理篇">
-<meta property="og:url" content="http://yoursite.com/2020/02/22/react/react fiber 搜罗整理篇/index.html">
+<meta property="og:url" content="http://yoursite.com/2020/02/22/react/react16源码/react fiber 搜罗整理篇/index.html">
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="fiber 出台的原委和特性The crux of the change is transitioning from processing updates in a synchronous, recursive way to relying on asynchronous scheduling and prioritization of interface changes.   A look in">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2020/02/22/react/react%20fiber%20搜罗整理篇/lifecycle.png">
-<meta property="og:image" content="http://yoursite.com/2020/02/22/react/react%20fiber%20搜罗整理篇/loop-work.gif">
-<meta property="og:updated_time" content="2020-02-22T12:01:20.875Z">
+<meta property="og:image" content="http://yoursite.com/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/lifecycle.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/loop-work.gif">
+<meta property="og:updated_time" content="2020-03-01T03:42:44.200Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="react fiber 搜罗整理篇">
 <meta name="twitter:description" content="fiber 出台的原委和特性The crux of the change is transitioning from processing updates in a synchronous, recursive way to relying on asynchronous scheduling and prioritization of interface changes.   A look in">
-<meta name="twitter:image" content="http://yoursite.com/2020/02/22/react/react%20fiber%20搜罗整理篇/lifecycle.png">
+<meta name="twitter:image" content="http://yoursite.com/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/lifecycle.png">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/02/22/react/react fiber 搜罗整理篇/">
+  <link rel="canonical" href="http://yoursite.com/2020/02/22/react/react16源码/react fiber 搜罗整理篇/">
 
 
   <title>react fiber 搜罗整理篇 | 修子范语</title>
@@ -303,7 +303,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/22/react/react fiber 搜罗整理篇/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/22/react/react16源码/react fiber 搜罗整理篇/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -368,8 +368,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2020/02/22/react/react fiber 搜罗整理篇/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/22/react/react fiber 搜罗整理篇/" itemprop="commentCount"></span>
+                <a href="/2020/02/22/react/react16源码/react fiber 搜罗整理篇/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/22/react/react16源码/react fiber 搜罗整理篇/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -446,7 +446,7 @@
 <p><a href="https://github.com/acdlite/react-fiber-architecture" target="_blank" rel="noopener">React Fiber Architecture</a> 中的以下描述也说明了两阶段的主要内容：</p>
 <blockquote class="blockquote-center"><p> reconciliation：The algorithm React uses to diff one tree with another to determine which parts need to be changed.<br>update：A change in the data used to render a React app. Usually the result of <code>setState</code>. Eventually results in a re-render.</p>
 </blockquote>
-<img src="/2020/02/22/react/react%20fiber%20搜罗整理篇/lifecycle.png">
+<img src="/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/lifecycle.png">
 <h3 id="render-阶段"><a href="#render-阶段" class="headerlink" title="render 阶段"></a>render 阶段</h3><p>首次渲染时，reconciler 基于 React 元素创建 fiber，最终形成 fiber 节点树 current tree。当更新时，reconciler 会遍历 current tree，复用 fiber.alternate 备用节点，生成 work-in-progress tree。因为单个 fiber 也是 unit of work，work-in-progress tree 也可以称为任务单元树。</p>
 <p>reconciler 会通过 performSyncWorkOnRoot、performConcurrentWorkOnRoot 函数启动 <a href="https://github.com/facebook/react/blob/v16.12.0/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1459" target="_blank" rel="noopener">work-loop 循环</a> 。该循环会使用深度优先算法处理 work-in-progress tree，只有经过更新的 fiber 节点才会被处理。work-loop 循环有以下四种处理函数：</p>
 <ul>
@@ -456,7 +456,7 @@
 <li>completeWork：context 出栈等操作。</li>
 </ul>
 <p>performUnitOfWork、completeUnitOfWork 主要用于迭代 fiber 节点，主要更新活动由 beginWork、completeWork 完成。以下是这四种函数迭代节点的流程：</p>
-<img src="/2020/02/22/react/react%20fiber%20搜罗整理篇/loop-work.gif">
+<img src="/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/loop-work.gif">
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">workLoopSync</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> (workInProgress !== <span class="literal">null</span>) &#123;</span><br><span class="line">    workInProgress = performUnitOfWork(workInProgress);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">performUnitOfWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> next = beginWork(workInProgress);</span><br><span class="line">  <span class="keyword">if</span> (next === <span class="literal">null</span>) &#123;</span><br><span class="line">    next = completeUnitOfWork(workInProgress);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> next;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">beginWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'work performed for '</span> + workInProgress.name);</span><br><span class="line">  <span class="keyword">return</span> workInProgress.child;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">completeUnitOfWork</span>(<span class="params">unitOfWork</span>) </span>&#123;</span><br><span class="line">  workInProgress = unitOfWork;</span><br><span class="line">  <span class="keyword">do</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> current = workInProgress.alternate;</span><br><span class="line">    <span class="keyword">const</span> returnFiber = workInProgress.return;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((workInProgress.effectTag &amp; Incomplete) === NoEffect) &#123;</span><br><span class="line">      <span class="keyword">let</span> next = completeWork(current, workInProgress, renderExpirationTime);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (next !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (returnFiber !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> next = unwindWork(workInProgress, renderExpirationTime);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (next !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (siblingFiber !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">// If there is more work to do in this returnFiber, do that next.</span></span><br><span class="line">      <span class="keyword">return</span> siblingFiber;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Otherwise, return to the parent</span></span><br><span class="line">    workInProgress = returnFiber;</span><br><span class="line">  &#125; <span class="keyword">while</span> (workInProgress !== <span class="literal">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">completeWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'work completed for '</span> + workInProgress.name);</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>综上，更新时会生成部分节点带有 side effects 标识的 work-in-progress tree。effects list 链表会向上归并到父节点上，它会指示需要插入、更新或删除哪些节点，以及哪些组件需要调用其生命周期方法。current tree、work-in-progress tree、effects list 就是 render 阶段的所有产物（work-in-progress tree 在此时也被称为 finished-work tree）。</p>
 <h3 id="commit-阶段"><a href="#commit-阶段" class="headerlink" title="commit 阶段"></a>commit 阶段</h3><p>commit 阶段的主要工作在于将 effects list 链表应用到 fiber 节点树上。这部分工作由 finishSyncRender、finishConcurrentRender 函数启动。主要功能则由 <a href="https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1720" target="_blank" rel="noopener">commitRootImpl.js</a> 完成。<a href="https://www.zcfy.cc/original/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react" target="_blank" rel="noopener">Inside Fiber: in-depth overview of the new reconciliation algorithm in React</a> 指出它包含如下操作：</p>
@@ -599,7 +599,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">137</span>
+                    <span class="site-state-item-count">138</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -833,8 +833,8 @@
   
     <script type="text/javascript">
       var disqus_config = function () {
-        this.page.url = 'http://yoursite.com/2020/02/22/react/react fiber 搜罗整理篇/';
-        this.page.identifier = '2020/02/22/react/react fiber 搜罗整理篇/';
+        this.page.url = 'http://yoursite.com/2020/02/22/react/react16源码/react fiber 搜罗整理篇/';
+        this.page.identifier = '2020/02/22/react/react16源码/react fiber 搜罗整理篇/';
         this.page.title = 'react fiber 搜罗整理篇';
       };
       function loadComments () {

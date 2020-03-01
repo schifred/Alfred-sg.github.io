@@ -621,6 +621,172 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/04/frontend/js 事件循环/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/03/04/frontend/js 事件循环/" itemprop="url">js 事件循环</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-04T00:00:00+08:00">2020-03-04</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/frontend/" itemprop="url" rel="index"><span itemprop="name">frontend</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/03/04/frontend/js 事件循环/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/03/04/frontend/js 事件循环/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="事件循环基本"><a href="#事件循环基本" class="headerlink" title="事件循环基本"></a>事件循环基本</h2><p>js 是一门单线程非阻塞脚本语言。即便浏览器推出的 web worker 也只允许子线程承担计算任务，而不能操纵 dom 节点（因为主、子线程同时操纵 dom 会造成不一致）。</p>
+<p>执行栈可用于解释 js 引擎对同步脚本的处理。即当函数首次被调用时，js 引擎就会为该过程创建执行上下文，并将该执行上下文压入执行栈中。执行上下文也称为执行环境，包含函数的私有作用域、父级作用域、参数、作用域中的变量以及 this 指向。当函数执行完毕后，js 引擎会在执行栈中销毁该执行上下文，并将执行栈定位到前一个执行上下文。执行上下文典型如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">executionContextObj = &#123;</span><br><span class="line">  scopeChain: &#123;<span class="comment">// 作用域链，对象形式，包含所有变量对象、所有父级执行上下文中的变量对象</span></span><br><span class="line">    <span class="comment">/* variableObject + all parent execution context's variableObject */</span> </span><br><span class="line">  &#125;,</span><br><span class="line">  variableObject: &#123;<span class="comment">// 变量对象，对象形式，包含函数形参、函数内部的变量以及函数声明(但不包含表达式)</span></span><br><span class="line">    <span class="comment">/* function arguments / parameters, inner variable and function declarations */</span> </span><br><span class="line">    <span class="built_in">arguments</span>: &#123;</span><br><span class="line">      <span class="number">0</span>: <span class="number">22</span>,<span class="comment">// 实参</span></span><br><span class="line">      length: <span class="number">1</span></span><br><span class="line">    &#125;,</span><br><span class="line">    realArg: <span class="number">22</span>,<span class="comment">// 调用期间获得的实参</span></span><br><span class="line">    afunction: pointer to <span class="function"><span class="keyword">function</span> <span class="title">afunction</span>(<span class="params"></span>),// 内部声明的函数，以指针形式引用</span></span><br><span class="line"><span class="function">    <span class="title">aVariable</span>: <span class="title">undefined</span>,// 内部变量 <span class="title">aVariable</span>，创建阶段声明上移，为 <span class="title">undefined</span></span></span><br><span class="line"><span class="function">    <span class="title">functionExp</span>: <span class="title">undefined</span>,// 内部以变量 <span class="title">functionExp</span> 声明的函数变量，创建阶段声明上移，为 <span class="title">undefined</span></span></span><br><span class="line"><span class="function">  &#125;,</span></span><br><span class="line"><span class="function">  <span class="title">this</span>: </span>&#123;&#125;<span class="comment">// this 关键字</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>js 引擎对异步任务的处理则借助 callback queue 事件队列实现。即当主线程中的同步任务执行完毕时，js 引擎会去检查事件队列，并取出执行。异步任务有其优先级，在浏览器环境中，有 micro task 微任务、macro task 宏任务两类。微任务包含 Promise、MutaionObserver；宏任务包含 setTimeout、setInterval、setImmediate、requestAnimationFrame。浏览器先执行微任务，再执行宏任务。交互行为作为特殊的异步任务，通过收发消息的方式实现，详情可参考 <a href="https://www.cnblogs.com/xiaohuochai/p/8527618.html" target="_blank" rel="noopener">深入理解javascript中的事件循环event-loop</a>。</p>
+<h2 id="node-中的事件循环"><a href="#node-中的事件循环" class="headerlink" title="node 中的事件循环"></a>node 中的事件循环</h2><p>在 node 环境中，node 使用 v8 引擎解释 js 脚本，然后使用 libuv 引擎处理事件循环以及其他异步行为。在启动阶段，node 就会初始化 event loop 事件循环。下图描绘了 node 处理事件循环的各阶段，每个阶段都有一个先进先出的回调队列待执行：</p>
+<figure class="highlight md"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">   ┌───────────────────────────┐</span><br><span class="line">┌─&gt;│           timers          │</span><br><span class="line">│  └─────────────┬─────────────┘</span><br><span class="line">│  ┌─────────────┴─────────────┐</span><br><span class="line">│  │     pending callbacks     │</span><br><span class="line">│  └─────────────┬─────────────┘</span><br><span class="line">│  ┌─────────────┴─────────────┐</span><br><span class="line">│  │       idle, prepare       │</span><br><span class="line">│  └─────────────┬─────────────┘      ┌───────────────┐</span><br><span class="line">│  ┌─────────────┴─────────────┐      │   incoming:   │</span><br><span class="line">│  │           poll            │&lt;─────┤  connections, │</span><br><span class="line">│  └─────────────┬─────────────┘      │   data, etc.  │</span><br><span class="line">│  ┌─────────────┴─────────────┐      └───────────────┘</span><br><span class="line">│  │           check           │</span><br><span class="line">│  └─────────────┬─────────────┘</span><br><span class="line">│  ┌─────────────┴─────────────┐</span><br><span class="line">└──┤      close callbacks      │</span><br><span class="line">   └───────────────────────────┘</span><br></pre></td></tr></table></figure>
+<ul>
+<li>poll：I/O 事件完毕后，会进入 poll 阶段（同步模式会阻塞在 poll 阶段）。它首先会计算阻塞时间，然后执行 poll 队列，直到队列耗尽或超过阈值。然后检查脚本中是否有 setImmediate，如果有，进入 check 阶段。最后检查是否达到了定时器的指定时间，如果是，进入 timers 阶段。</li>
+<li>check：执行 setImmediate 回调。其特殊意义在于，如果 poll 阶段队列为空，可以使用 setImmediate 使程序进入 check 阶段，而不至于阻塞在 poll 阶段。</li>
+<li>close callbacks：调用如 socket.on(‘close’, …) 等回调。</li>
+<li>timers：调用 setTimeout、setInterval 等回调。定时器通常会滞后于用户设定时间，因为它需要等待 timers 阶段之前的任务执行完成。技术上，定时器的执行时机由 poll 阶段控制。</li>
+<li>pending callbacks：调用如某些系统操作（如TCP错误类型）的回调。</li>
+<li>idle, prepare：node 内部使用。</li>
+</ul>
+<p>需注意，在非 I/O 循环中调用 setImmediate、setTimeout，两者的执行时机是不确定的；在 I/O 循环中，setImmediate 总是先于 setTimeout。</p>
+<p>process.nextTick 在事件循环算法之外，它将在事件循环的任意阶段继续执行前得到调用。无限递归的 process.nextTick 有可能会饿死 I/O，无法使事件循环达到 loop 阶段。node 为什么将 process.nextTick 设计为当前操作之后、事件循环之前呢？其目的是这样设计能使同步执行的回调通过 process.nextTick 转化成异步执行。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 同步脚本</span></span><br><span class="line"><span class="keyword">let</span> bar;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">someAsyncApiCall</span>(<span class="params">callback</span>) </span>&#123; callback(); &#125;</span><br><span class="line"></span><br><span class="line">someAsyncApiCall(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'bar'</span>, bar); <span class="comment">// undefined</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">bar = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 借助 process.nextTick 实现异步</span></span><br><span class="line"><span class="keyword">let</span> bar;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">someAsyncApiCall</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  process.nextTick(callback);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">someAsyncApiCall(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'bar'</span>, bar); <span class="comment">// 1</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">bar = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/mqliutie/p/4422247.html" target="_blank" rel="noopener">JavaScript中执行环境和栈</a><br><a href="https://blog.csdn.net/qq_33572444/article/details/79106935" target="_blank" rel="noopener">详解JavaScript中的Event Loop（事件循环）机制</a><br><a href="https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/" target="_blank" rel="noopener">The Node.js Event Loop, Timers, and process.nextTick()</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/29/计算机/进程与线程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1346,7 +1512,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/22/react/react fiber 搜罗整理篇/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/22/react/react16源码/react fiber 搜罗整理篇/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -1365,7 +1531,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2020/02/22/react/react fiber 搜罗整理篇/" itemprop="url">react fiber 搜罗整理篇</a></h1>
+                <a class="post-title-link" href="/2020/02/22/react/react16源码/react fiber 搜罗整理篇/" itemprop="url">react fiber 搜罗整理篇</a></h1>
         
 
         <div class="post-meta">
@@ -1413,8 +1579,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2020/02/22/react/react fiber 搜罗整理篇/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/22/react/react fiber 搜罗整理篇/" itemprop="commentCount"></span>
+                <a href="/2020/02/22/react/react16源码/react fiber 搜罗整理篇/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/22/react/react16源码/react fiber 搜罗整理篇/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1493,7 +1659,7 @@
 <p><a href="https://github.com/acdlite/react-fiber-architecture" target="_blank" rel="noopener">React Fiber Architecture</a> 中的以下描述也说明了两阶段的主要内容：</p>
 <blockquote class="blockquote-center"><p> reconciliation：The algorithm React uses to diff one tree with another to determine which parts need to be changed.<br>update：A change in the data used to render a React app. Usually the result of <code>setState</code>. Eventually results in a re-render.</p>
 </blockquote>
-<img src="/2020/02/22/react/react%20fiber%20搜罗整理篇/lifecycle.png">
+<img src="/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/lifecycle.png">
 <h3 id="render-阶段"><a href="#render-阶段" class="headerlink" title="render 阶段"></a>render 阶段</h3><p>首次渲染时，reconciler 基于 React 元素创建 fiber，最终形成 fiber 节点树 current tree。当更新时，reconciler 会遍历 current tree，复用 fiber.alternate 备用节点，生成 work-in-progress tree。因为单个 fiber 也是 unit of work，work-in-progress tree 也可以称为任务单元树。</p>
 <p>reconciler 会通过 performSyncWorkOnRoot、performConcurrentWorkOnRoot 函数启动 <a href="https://github.com/facebook/react/blob/v16.12.0/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1459" target="_blank" rel="noopener">work-loop 循环</a> 。该循环会使用深度优先算法处理 work-in-progress tree，只有经过更新的 fiber 节点才会被处理。work-loop 循环有以下四种处理函数：</p>
 <ul>
@@ -1503,7 +1669,7 @@
 <li>completeWork：context 出栈等操作。</li>
 </ul>
 <p>performUnitOfWork、completeUnitOfWork 主要用于迭代 fiber 节点，主要更新活动由 beginWork、completeWork 完成。以下是这四种函数迭代节点的流程：</p>
-<img src="/2020/02/22/react/react%20fiber%20搜罗整理篇/loop-work.gif">
+<img src="/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/loop-work.gif">
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">workLoopSync</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> (workInProgress !== <span class="literal">null</span>) &#123;</span><br><span class="line">    workInProgress = performUnitOfWork(workInProgress);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">performUnitOfWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> next = beginWork(workInProgress);</span><br><span class="line">  <span class="keyword">if</span> (next === <span class="literal">null</span>) &#123;</span><br><span class="line">    next = completeUnitOfWork(workInProgress);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> next;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">beginWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'work performed for '</span> + workInProgress.name);</span><br><span class="line">  <span class="keyword">return</span> workInProgress.child;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">completeUnitOfWork</span>(<span class="params">unitOfWork</span>) </span>&#123;</span><br><span class="line">  workInProgress = unitOfWork;</span><br><span class="line">  <span class="keyword">do</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> current = workInProgress.alternate;</span><br><span class="line">    <span class="keyword">const</span> returnFiber = workInProgress.return;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((workInProgress.effectTag &amp; Incomplete) === NoEffect) &#123;</span><br><span class="line">      <span class="keyword">let</span> next = completeWork(current, workInProgress, renderExpirationTime);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (next !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (returnFiber !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> next = unwindWork(workInProgress, renderExpirationTime);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (next !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (siblingFiber !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">// If there is more work to do in this returnFiber, do that next.</span></span><br><span class="line">      <span class="keyword">return</span> siblingFiber;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Otherwise, return to the parent</span></span><br><span class="line">    workInProgress = returnFiber;</span><br><span class="line">  &#125; <span class="keyword">while</span> (workInProgress !== <span class="literal">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">completeWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'work completed for '</span> + workInProgress.name);</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>综上，更新时会生成部分节点带有 side effects 标识的 work-in-progress tree。effects list 链表会向上归并到父节点上，它会指示需要插入、更新或删除哪些节点，以及哪些组件需要调用其生命周期方法。current tree、work-in-progress tree、effects list 就是 render 阶段的所有产物（work-in-progress tree 在此时也被称为 finished-work tree）。</p>
 <h3 id="commit-阶段"><a href="#commit-阶段" class="headerlink" title="commit 阶段"></a>commit 阶段</h3><p>commit 阶段的主要工作在于将 effects list 链表应用到 fiber 节点树上。这部分工作由 finishSyncRender、finishConcurrentRender 函数启动。主要功能则由 <a href="https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1720" target="_blank" rel="noopener">commitRootImpl.js</a> 完成。<a href="https://www.zcfy.cc/original/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react" target="_blank" rel="noopener">Inside Fiber: in-depth overview of the new reconciliation algorithm in React</a> 指出它包含如下操作：</p>
@@ -2127,194 +2293,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/16/工程化/umi 插件钩子机制/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/16/工程化/umi 插件钩子机制/" itemprop="url">umi 插件钩子机制（修正版）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-16T00:00:00+08:00">2020-02-16</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/02/16/工程化/umi 插件钩子机制/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/16/工程化/umi 插件钩子机制/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>plugin hook 插件钩子在 umi 内部的表现一为 method 方法，一为 hook 钩子。简单而论，插件钩子运作机制分为两步：register 注册插件钩子、apply 执行插件钩子。插件钩子按 name 命名存入 pluginHooks[name] 中，执行期间以 reduce 机制依次执行并控制入参。以下为 umi 源码注册插件钩子、执行插件钩子的底层方法：</p>
-<ul>
-<li>register(hook, fn) 注册插件钩子，hook 插件钩子名，fn 插件钩子执行脚本。</li>
-<li>applyPlugins(key, opts) 依次执行插件钩子，key 插件钩子名，opts.initialValue 插件钩子链执行首参，opts.args 插件钩子链内处理参数。</li>
-<li>_applyPluginsAsync(key, opts) 异步方式依次执行插件钩子。</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** PluginAPI.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 将插件钩子执行脚本添加到 pluginHooks[hook] 中</span></span><br><span class="line"><span class="comment"> * @param &#123;string&#125; hook hook 名，对应 registerMethod 中的 name</span></span><br><span class="line"><span class="comment"> * @param &#123;function&#125; fn hook 处理函数，对应 registerMethod 中的插件钩子执行脚本</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">register(hook, fn) &#123;</span><br><span class="line">  assert(</span><br><span class="line">    <span class="keyword">typeof</span> hook === <span class="string">'string'</span>,</span><br><span class="line">    <span class="string">`The first argument of api.register() must be string, but got <span class="subst">$&#123;hook&#125;</span>`</span>,</span><br><span class="line">  );</span><br><span class="line">  assert(</span><br><span class="line">    <span class="keyword">typeof</span> fn === <span class="string">'function'</span>,</span><br><span class="line">    <span class="string">`The second argument of api.register() must be function, but got <span class="subst">$&#123;fn&#125;</span>`</span>,</span><br><span class="line">  );</span><br><span class="line">  <span class="keyword">const</span> &#123; pluginHooks &#125; = <span class="keyword">this</span>.service;</span><br><span class="line">  pluginHooks[hook] = pluginHooks[hook] || [];</span><br><span class="line">  pluginHooks[hook].push(&#123;</span><br><span class="line">    fn,</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*** umi-build-dev *** Service.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 取出 pluginHooks[key] 中的 hook 脚本（对应 registerMethod 中的插件钩子执行脚本）并依次执行</span></span><br><span class="line"><span class="comment"> * @param &#123;string&#125; key hook 名，对应 registerMethod 中的 name</span></span><br><span class="line"><span class="comment"> * @param &#123;function&#125; opts 设置初始值 opts.initialValue 和传递参数 opts.args</span></span><br><span class="line"><span class="comment"> */</span> </span><br><span class="line">applyPlugins(key, opts = &#123;&#125;) &#123;</span><br><span class="line">  debug(<span class="string">`apply plugins <span class="subst">$&#123;key&#125;</span>`</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="function">(<span class="params"><span class="keyword">this</span>.pluginHooks[key] || []</span>).<span class="params">reduce</span>(<span class="params">(memo, &#123; fn &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> fn(&#123;</span><br><span class="line">        memo,</span><br><span class="line">        args: opts.args,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      <span class="built_in">console</span>.error(chalk.red(<span class="string">`Plugin apply failed: <span class="subst">$&#123;e.message&#125;</span>`</span>));</span><br><span class="line">      <span class="keyword">throw</span> e;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, opts.initialValue);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 异步方式依次执行插件钩子</span></span><br><span class="line"><span class="comment"> */</span> </span><br><span class="line"><span class="keyword">async</span> _applyPluginsAsync(key, opts = &#123;&#125;) &#123;</span><br><span class="line">  debug(<span class="string">`apply plugins async <span class="subst">$&#123;key&#125;</span>`</span>);</span><br><span class="line">  <span class="keyword">const</span> hooks = <span class="keyword">this</span>.pluginHooks[key] || [];</span><br><span class="line">  <span class="keyword">let</span> memo = opts.initialValue;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> hook <span class="keyword">of</span> hooks) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; fn &#125; = hook;</span><br><span class="line">    <span class="comment">// eslint-disable-next-line no-await-in-loop</span></span><br><span class="line">    memo = <span class="keyword">await</span> fn(&#123;</span><br><span class="line">      memo,</span><br><span class="line">      args: opts.args,</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> memo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>为什么 umi 选用 reduce 机制执行插件钩子呢？那就要说一下 umi 插件钩子承担的职责了。其一，插件钩子可用于修改配置项（包含添加和修改）；第二，插件钩子可用于监听事件；第三，插件钩子可用于设置普通的处理流程。仅以 webpack 配置为例，多个下游（下一个插件钩子执行脚本）如果想修改 webpack 配置，那就需要一种缓存机制将修改后的 webpack 配置传入下游，reduce 天然具有这种能力。那为何 umi 不使用上游的返回值 memo 作为下游的入参呢？我们再以 webpack 配置为例，线上环境、日常环境的配置内容往往是不同的，因此在插件钩子执行期间需要一个环境标识加以区分，umi 往下游传递的 opts.args 正好可以放这个环境标识。这样就解释了 applyPlugins 采用上述实现的原委了。</p>
-<p>至于 umi 插件钩子为什么要承担那么多职能？笔者也摸不清头脑。</p>
-<p>umi 内部将插件钩子定义为如下四类：</p>
-<ol>
-<li>apply 类：注册时提供 apply 自定义钩子处理函数，实现定制的处理流程。没有具体的应用场景。</li>
-<li>ADD 类：注册时 type 值设为 ADD，用于添加配置项，典型如往 html 页面上添加 script 节点。</li>
-<li>MODIFY 类：注册时 type 值设为 MODIFY，用于修改配置项，典型如修改 webpack 配置。</li>
-<li>EVENT 类：注册时 type 值设为 EVENT，用于作事件处理，典型如监听 webpack 编译成功事件。</li>
-</ol>
-<p>上述四种插件钩子的实际效用又是怎样的呢？</p>
-<ol>
-<li>apply 类：没有具体的应用场景。</li>
-<li>ADD、MODIFY 类：applyPlugins 执行返回结果供使用，因此需要在 applyPlugins 执行结束后才能确切明白其功能。</li>
-<li>EVENT 类：插件钩子执行脚本即为功能实现。</li>
-</ol>
-<p>registerMethod 用于创建多态注册插件钩子的方法，该方法存为 pluginMethods[name]（实际作为 umi-plugin-* 插件中所使用的接口，如 api.addRuntimePlugin 即是 pluginMethods.addRuntimePlugin）。如上所述，插件钩子函数在 apply 类型下都是 umi 内部约定的，即 pluginMethods.addRuntimePlugin(…args) 的调用结果在 applyPlugins 阶段的表现只有两种可能，一种意义，都是变更 opts.memo 的值：</p>
-<ul>
-<li>当 args[0] 非函数，将 args[0] 塞入 opts.memo 中。</li>
-<li>当 args[0] 为函数，使用该函数处理 opts.memo、opts.args，其返回值作为新的 opts.memo。</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** PluginAPI.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 生成插件钩子的注册函数 pluginMethods[name]</span></span><br><span class="line"><span class="comment"> * 同一个 name 名下可以挂多个插件钩子脚本，以 pluginHooks[name] 形式存储</span></span><br><span class="line"><span class="comment"> * 最终通过 applyPlugins 调用，以 reduce 方式依次执行，参数 opts = &#123; memo, args &#125; 以闭包形式向后传递</span></span><br><span class="line"><span class="comment"> * @param &#123;string&#125; name 插件钩子名</span></span><br><span class="line"><span class="comment"> * @param &#123;object&#125; opts = &#123; type, apply &#125;</span></span><br><span class="line"><span class="comment"> *    type 插件钩子类型，umi 将根据 type 类型生成插件钩子脚本</span></span><br><span class="line"><span class="comment"> *         ADD 类型，往 opts.memo 里塞值</span></span><br><span class="line"><span class="comment"> *         MODIFY 类型，修改 opts.memo</span></span><br><span class="line"><span class="comment"> *         EVENT 类型，首参绑定函数会消费 opts.args</span></span><br><span class="line"><span class="comment"> *    apply 自定义插件钩子执行脚本，由该脚本消费 opts = &#123; memo, args &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">registerMethod(name, opts) &#123;</span><br><span class="line">  assert(!<span class="keyword">this</span>[name], <span class="string">`api.<span class="subst">$&#123;name&#125;</span> exists.`</span>);</span><br><span class="line">  assert(opts, <span class="string">`opts must supplied`</span>);</span><br><span class="line">  <span class="keyword">const</span> &#123; type, apply &#125; = opts;</span><br><span class="line">  assert(!(type &amp;&amp; apply), <span class="string">`Only be one for type and apply.`</span>);</span><br><span class="line">  assert(type || apply, <span class="string">`One of type and apply must supplied.`</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.service.pluginMethods[name] = <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (apply) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> apply(opts, ...args);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="keyword">this</span>.API_TYPE.ADD) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> (opts.memo || []).concat(</span><br><span class="line">          <span class="keyword">typeof</span> args[<span class="number">0</span>] === <span class="string">'function'</span> ? args[<span class="number">0</span>](opts.memo, opts.args) : args[<span class="number">0</span>],</span><br><span class="line">        );</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="keyword">this</span>.API_TYPE.MODIFY) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">typeof</span> args[<span class="number">0</span>] === <span class="string">'function'</span> ? args[<span class="number">0</span>](opts.memo, opts.args) : args[<span class="number">0</span>];</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="keyword">this</span>.API_TYPE.EVENT) &#123;</span><br><span class="line">      <span class="keyword">this</span>.register(name, opts =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> args[<span class="number">0</span>](opts.args);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">`unexpected api type <span class="subst">$&#123;type&#125;</span>`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>综上，register 用于底层注册插件钩子；applyPlugins、_applyPluginsAsync 用于底层调用插件钩子；registerMethod 用于生成插件钩子的注册方法。这四个方法均不对外暴露，对外暴露的是通过 registerMethod 生成的 pluginMethods[name]。那么，umi 内部为 umi-plugin-* 插件提供了多少种插件钩子的注册方法呢？我们可以看一下如下方法：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** PluginAPI.js ***/</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 基于 registerMethod 生成插件钩子的注册方法 pluginMethods[name]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">_addMethods() &#123;</span><br><span class="line">  [</span><br><span class="line">    [</span><br><span class="line">      <span class="string">'chainWebpackConfig'</span>,</span><br><span class="line">      &#123;</span><br><span class="line">        type: <span class="keyword">this</span>.API_TYPE.EVENT,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">      <span class="string">'_registerConfig'</span>,</span><br><span class="line">      &#123;</span><br><span class="line">        type: <span class="keyword">this</span>.API_TYPE.ADD,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">    <span class="string">'onStart'</span>,</span><br><span class="line">    <span class="string">'onExit'</span>,</span><br><span class="line">    <span class="string">'onStartAsync'</span>,</span><br><span class="line">    <span class="string">'onRouteChange'</span>,</span><br><span class="line">    <span class="string">'onDevCompileDone'</span>,</span><br><span class="line">    <span class="string">'onBuildSuccess'</span>,</span><br><span class="line">    <span class="string">'onBuildSuccessAsync'</span>,</span><br><span class="line">    <span class="string">'onBuildFail'</span>,</span><br><span class="line">    <span class="string">'onPrintUmiError'</span>,</span><br><span class="line">    <span class="string">'addPageWatcher'</span>,</span><br><span class="line">    <span class="string">'addEntryCode'</span>,</span><br><span class="line">    <span class="string">'addEntryCodeAhead'</span>,</span><br><span class="line">    <span class="string">'addEntryImport'</span>,</span><br><span class="line">    <span class="string">'addEntryImportAhead'</span>,</span><br><span class="line">    <span class="string">'addEntryPolyfillImports'</span>,</span><br><span class="line">    <span class="string">'addRendererWrapperWithComponent'</span>,</span><br><span class="line">    <span class="string">'addRendererWrapperWithModule'</span>,</span><br><span class="line">    <span class="string">'addRouterImport'</span>,</span><br><span class="line">    <span class="string">'addRouterImportAhead'</span>,</span><br><span class="line">    <span class="string">'addVersionInfo'</span>,</span><br><span class="line">    <span class="string">'addUIPlugin'</span>,</span><br><span class="line">    <span class="string">'onUISocket'</span>,</span><br><span class="line">    <span class="string">'modifyAFWebpackOpts'</span>,</span><br><span class="line">    <span class="string">'modifyEntryRender'</span>,</span><br><span class="line">    <span class="string">'modifyEntryHistory'</span>,</span><br><span class="line">    <span class="string">'modifyRouteComponent'</span>,</span><br><span class="line">    <span class="string">'modifyRouterRootComponent'</span>,</span><br><span class="line">    <span class="string">'modifyWebpackConfig'</span>,</span><br><span class="line">    <span class="string">'_beforeServerWithApp'</span>,</span><br><span class="line">    <span class="string">'beforeDevServer'</span>,</span><br><span class="line">    <span class="string">'_beforeDevServerAsync'</span>,</span><br><span class="line">    <span class="string">'afterDevServer'</span>,</span><br><span class="line">    <span class="string">'addMiddlewareAhead'</span>,</span><br><span class="line">    <span class="string">'addMiddleware'</span>,</span><br><span class="line">    <span class="string">'addMiddlewareBeforeMock'</span>,</span><br><span class="line">    <span class="string">'addMiddlewareAfterMock'</span>,</span><br><span class="line">    <span class="string">'modifyRoutes'</span>,</span><br><span class="line">    <span class="string">'onPatchRoute'</span>,</span><br><span class="line">    <span class="string">'modifyHTMLContext'</span>,</span><br><span class="line">    <span class="string">'modifyPublicPathStr'</span>,</span><br><span class="line">    <span class="string">'addHTMLMeta'</span>,</span><br><span class="line">    <span class="string">'addHTMLLink'</span>,</span><br><span class="line">    <span class="string">'addHTMLScript'</span>,</span><br><span class="line">    <span class="string">'addHTMLStyle'</span>,</span><br><span class="line">    <span class="string">'addHTMLHeadScript'</span>,</span><br><span class="line">    <span class="string">'addUmiExports'</span>,</span><br><span class="line">    <span class="string">'modifyHTMLChunks'</span>,</span><br><span class="line">    <span class="string">'onGenerateFiles'</span>,</span><br><span class="line">    <span class="string">'onHTMLRebuild'</span>,</span><br><span class="line">    <span class="string">'modifyDefaultConfig'</span>,</span><br><span class="line">    <span class="string">'_modifyConfig'</span>,</span><br><span class="line">    <span class="string">'modifyHTMLWithAST'</span>,</span><br><span class="line">    <span class="string">'_modifyHelpInfo'</span>,</span><br><span class="line">    <span class="string">'addRuntimePlugin'</span>,</span><br><span class="line">    <span class="string">'addRuntimePluginKey'</span>,</span><br><span class="line">    <span class="string">'beforeBlockWriting'</span>,</span><br><span class="line">    <span class="string">'addBlockUIResource'</span>,</span><br><span class="line">    <span class="string">'modifyBlockUIResources'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockPackageJSONPath'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockDependencies'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockFile'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockTarget'</span>,</span><br><span class="line">    <span class="string">'_modifyCommand'</span>,</span><br><span class="line">    <span class="string">'_modifyBlockNewRouteConfig'</span>,</span><br><span class="line">    <span class="string">'beforeBuildCompileAsync'</span>,</span><br><span class="line">  ].forEach(<span class="function"><span class="params">method</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(method)) &#123;</span><br><span class="line">      <span class="keyword">this</span>.registerMethod(...method);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> type;</span><br><span class="line">      <span class="keyword">const</span> isPrivate = method.charAt(<span class="number">0</span>) === <span class="string">'_'</span>;</span><br><span class="line">      <span class="keyword">const</span> slicedMethod = isPrivate ? method.slice(<span class="number">1</span>) : method;</span><br><span class="line">      <span class="keyword">if</span> (slicedMethod.indexOf(<span class="string">'modify'</span>) === <span class="number">0</span>) &#123;</span><br><span class="line">        type = <span class="keyword">this</span>.API_TYPE.MODIFY;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (slicedMethod.indexOf(<span class="string">'add'</span>) === <span class="number">0</span>) &#123;</span><br><span class="line">        type = <span class="keyword">this</span>.API_TYPE.ADD;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (</span><br><span class="line">        slicedMethod.indexOf(<span class="string">'on'</span>) === <span class="number">0</span> ||</span><br><span class="line">        slicedMethod.indexOf(<span class="string">'before'</span>) === <span class="number">0</span> ||</span><br><span class="line">        slicedMethod.indexOf(<span class="string">'after'</span>) === <span class="number">0</span></span><br><span class="line">      ) &#123;</span><br><span class="line">        type = <span class="keyword">this</span>.API_TYPE.EVENT;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">`unexpected method name <span class="subst">$&#123;method&#125;</span>`</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.registerMethod(method, &#123; type &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上述代码即意味着 umi 为 umi-plugin-* 插件提供了 api.chainWebpackConfig 等 pluginMethods[name]。</p>
-<p>在内部实现上，pluginMethods[name] 表现为注册插件钩子；在外部调用表现上，pluginMethods[name] 如其 name 名所示，或者添加配置项（如 addRuntimePlugin），或者修改配置项（如 modifyWebpackConfig），或者执行事件处理函数（如 onDevCompileDone），主要分为以下几类：</p>
-<ul>
-<li>apply 类：以 umi 内置的自定义钩子函数处理 opts = { memo, args } 以及调用时获得的其他参数。</li>
-<li>ADD 类：当首参为函数，该函数以 opts.memo、opts.args 为参数，用于获取新的 opts.memo；当首参非函数，将首参填入 opts.memo 以制作新的 opts.memo（如 addRuntimePlugin）。</li>
-<li>MODIFY 类：当首参为函数，该函数以 opts.memo、opts.args 为参数，用于获取新的 opts.memo；当首参非函数，以首参作为新的 opts.memo（如 modifyWebpackConfig）。</li>
-<li>EVENT 类：首参只能为函数，作为事件的绑定函数，以该函数处理 opts.args 消息（如 onDevCompileDone）。</li>
-</ul>
-<p>在后续文章中，笔者将揭开这些方法的具体意义。</p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>每每回头看，以往行文的精准性老是让人心生惭愧。此前一度觉得 umi 的 plugin hooks 机制很绕，现在看来，依然觉得很绕，只是 api.addRuntimePlugin 等对外接口显得清晰了。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2364,7 +2342,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">137</span>
+                    <span class="site-state-item-count">138</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

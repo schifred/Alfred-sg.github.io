@@ -49,6 +49,95 @@
       </tags>
   </entry>
   <entry>
+    <title>react fiber 状态更新篇</title>
+    <url>/2020/04/29/react/react16%E6%BA%90%E7%A0%81/react%20fibe%20%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0%E7%AF%87/</url>
+    <content><![CDATA[<p>fiber reconciler 将 fiber 的状态更新抽象为 Update 单向链表：</p>
+<ul>
+<li>tag：更新类型，UpdateState 增量更新、ReplaceState 完全替换、ForceUpdate 强制更新、CaptureUpdate</li>
+<li>payload：状态变更函数或新状态本身</li>
+<li>callback：回调，作用于 fiber.effectTag</li>
+<li>expirationTime：过期时间</li>
+<li>suspenseConfig：</li>
+<li>next：指向下一个 Update</li>
+<li>priority：仅限于 dev 环境</li>
+</ul>
+<p><a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-reconciler/src/ReactUpdateQueue.js#L184" target="_blank" rel="noopener">createUpdate 函数</a> 用于创建 Update。<a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-reconciler/src/ReactUpdateQueue.js#L262" target="_blank" rel="noopener">getStateFromUpdate 函数</a> 用于通过 Update 获取新的 fiber 状态。</p>
+<p>UpdateQueue：</p>
+<ul>
+<li>baseState：</li>
+<li>baseQueue：</li>
+<li>shared：</li>
+<li>effects：</li>
+</ul>
+]]></content>
+      <categories>
+        <category>react</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>react fiber 代码梳理篇</title>
+    <url>/2020/04/29/react/react16%E6%BA%90%E7%A0%81/react%20fiber%20%E4%BB%A3%E7%A0%81%E6%A2%B3%E7%90%86%E7%AF%87/</url>
+    <content><![CDATA[<p>正如 <a href="/2020/02/22/react/react16%E6%BA%90%E7%A0%81/react%20fiber%20%E6%90%9C%E7%BD%97%E6%95%B4%E7%90%86%E7%AF%87/">react fiber 搜罗整理篇</a> 已点明的，fiber reconciler 对首次渲染和再次渲染会采用不同的机制。</p>
+<p>当用户侧调用 ReactDOM.render(customReactElement, customDomElement) 进行首次渲染时，fiber reconciler 内部首先会通过 createContainer 函数将根节点 customDomElement 转化成 FiberRoot 根节点；然后通过 updateContainer 函数完成 customReactElement 元素树（即 fiber 树）的渲染。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createContainer</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  <span class="regexp">//</span> Container 视宿主环境而不同，如浏览器平台为 element 或 document</span></span></span><br><span class="line"><span class="function"><span class="params">  containerInfo: Container,<span class="regexp">//</span> 即 customDomElement</span></span></span><br><span class="line"><span class="function"><span class="params">  tag: RootTag,</span></span></span><br><span class="line"><span class="function"><span class="params">  hydrate: boolean,<span class="regexp">//</span> 是否注水，适用于 ssr 渲染</span></span></span><br><span class="line"><span class="function"><span class="params">  hydrationCallbacks: null | SuspenseHydrationCallbacks,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">OpaqueRoot</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> createFiberRoot(containerInfo, tag, hydrate, hydrationCallbacks);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">updateContainer</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  element: ReactNodeList,<span class="regexp">//</span> 即 customReactElement</span></span></span><br><span class="line"><span class="function"><span class="params">  container: OpaqueRoot,<span class="regexp">//</span> 即 FiberRoot 根节点</span></span></span><br><span class="line"><span class="function"><span class="params">  parentComponent: ?React$Component&lt;any, any&gt;,<span class="regexp">//</span> 一般为 null</span></span></span><br><span class="line"><span class="function"><span class="params">  callback: ?Function,<span class="regexp">//</span> 一般为 null</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">ExpirationTime</span> </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> current = container.current;</span><br><span class="line">  <span class="keyword">const</span> currentTime = requestCurrentTimeForUpdate();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> suspenseConfig = requestCurrentSuspenseConfig();</span><br><span class="line">  <span class="keyword">const</span> expirationTime = computeExpirationForFiber(</span><br><span class="line">    currentTime,</span><br><span class="line">    current,</span><br><span class="line">    suspenseConfig,</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> context = getContextForSubtree(parentComponent);</span><br><span class="line">  <span class="keyword">if</span> (container.context === <span class="literal">null</span>) &#123;</span><br><span class="line">    container.context = context;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    container.pendingContext = context;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> update = createUpdate(expirationTime, suspenseConfig);</span><br><span class="line">  update.payload = &#123;element&#125;;</span><br><span class="line"></span><br><span class="line">  callback = callback === <span class="literal">undefined</span> ? <span class="literal">null</span> : callback;</span><br><span class="line">  <span class="keyword">if</span> (callback !== <span class="literal">null</span>) &#123;</span><br><span class="line">    update.callback = callback;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  enqueueUpdate(current, update);</span><br><span class="line">  scheduleWork(current, expirationTime);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> expirationTime;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码中，主要通过 scheduleWork 函数完成 customDomElement 元素树的渲染。</p>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><h3 id="fiber-tag-类型"><a href="#fiber-tag-类型" class="headerlink" title="fiber.tag 类型"></a>fiber.tag 类型</h3><p><a href="https://github.com/facebook/react/blob/v16.12.0/packages/shared/ReactWorkTags.js#L35" target="_blank" rel="noopener">ReactWorkTags.js</a> 展示了 fiber 的类型（基于不同的类型会作不同处理）：</p>
+<ul>
+<li>FunctionComponent：函数式组件。React$ElementType 为构造函数。</li>
+<li>ClassComponent：类组件。React$ElementType 为函数。</li>
+<li>HostComponent：Host 组件（如 DOM 节点）。React$ElementType 为 string。</li>
+<li>Fragment：Fragment 组件。React$ElementType 为 REACT_FRAGMENT_TYPE。</li>
+<li>Mode：React$ElementType 为 REACT_CONCURRENT_MODE_TYPE 或 REACT_STRICT_MODE_TYPE。</li>
+<li>Profiler：React$ElementType 为 REACT_PROFILER_TYPE。</li>
+<li>SuspenseComponent：React$ElementType 为 REACT_SUSPENSE_TYPE。</li>
+<li>SuspenseListComponent：React$ElementType 为 REACT_SUSPENSE_LIST_TYPE。</li>
+<li>IndeterminateComponent：</li>
+<li>HostRoot：</li>
+<li>HostPortal：</li>
+<li>HostText：</li>
+<li>ContextConsumer：Context.Consumer 组件。React$ElementType 为对象，React$ElementType$$typeof 为 REACT_CONTEXT_TYPE。</li>
+<li>ContextProvider：Context.Provider 组件。React$ElementType 为对象，React$ElementType$$typeof 为 REACT_PROVIDER_TYPE。</li>
+<li>ForwardRef：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_FORWARD_REF_TYPE。</li>
+<li>MemoComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_MEMO_TYPE。</li>
+<li>LazyComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_LAZY_TYPE。</li>
+<li>FundamentalComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_FUNDAMENTAL_TYPE。</li>
+<li>ScopeComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_SCOPE_TYPE。</li>
+<li>SimpleMemoComponent：</li>
+<li>IncompleteClassComponent：</li>
+<li>DehydratedFragment：</li>
+<li>Chunk：</li>
+</ul>
+]]></content>
+      <categories>
+        <category>react</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>电商后台建模</title>
+    <url>/2020/03/29/%E8%AE%A1%E7%AE%97%E6%9C%BA/%E7%94%B5%E5%95%86%E5%90%8E%E5%8F%B0%E5%BB%BA%E6%A8%A1/</url>
+    <content><![CDATA[<h2 id="系统建模"><a href="#系统建模" class="headerlink" title="系统建模"></a>系统建模</h2><p>系统建模是对软件系统的抽象，滤除了对细节的关照，通常需要包含如下内容：</p>
+<ul>
+<li>上下文模型：说明系统在上下文环境中有怎样的构成，边界如何。上下文模型并未说明各系统的交互关系。</li>
+<li>业务过程模型：说明系统中某个业务人工或自动化的处理过程，并交代各系统在该业务过程中的交互行为。可使用 UML 活动图绘制。</li>
+<li>交互模型：说明系统与外部参与者（用户或其他系统）之间的交互关系，其中传递的数据可通过文本或结构化表格描述。可使用 UML 用例图、时序图绘制。</li>
+<li>结构模型：说明系统内各组件的构成和关系以及数据结构，包含静态模型和运行时的动态模型。可使用 UML 类图绘制。</li>
+<li>行为模型：说明系统运行时的动态行为，动态行为发生缘由可以是数据或事件。可使用 UML 活动图、时序图、状态图绘制。</li>
+</ul>
+<h2 id="电商后台"><a href="#电商后台" class="headerlink" title="电商后台"></a>电商后台</h2>]]></content>
+      <categories>
+        <category>计算机</category>
+      </categories>
+      <tags>
+        <tag>carrier</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>js 事件循环</title>
     <url>/2020/03/01/frontend/js%20%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/</url>
     <content><![CDATA[<h2 id="事件循环基本"><a href="#事件循环基本" class="headerlink" title="事件循环基本"></a>事件循环基本</h2><p>js 是一门单线程非阻塞脚本语言。即便浏览器推出的 web worker 也只允许子线程承担计算任务，而不能操纵 dom 节点（因为主、子线程同时操纵 dom 会造成不一致）。</p>
@@ -98,7 +187,7 @@
 <p>在上图中，以 workLoop 方式循环调度 taskQueue 队列或以 handleTimeout 递归调度 timerQueue 队列这两种方式，只有一个在激活状态，也即 requestHostCallback、requestHostTimeout 只有一个在调用周期中。因为，taskQueue 队列调度完毕，会调用 requestHostTimeout 处理 timerQueue 队列；timerQueue 队列有一个任务进入 taskQueue，又会调用 requestHostCallback 处理 taskQueue 队列。</p>
 <p>另外，workLoop 循环也使任务具有可并发执行的特性。任务若 <a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/Scheduler.js#L185" target="_blank" rel="noopener">返回函数</a>，这个函数将作为 currentTask.callback 执行内容，即在 workLoop 循环中保证任务的回调被立即执行。</p>
 <h2 id="任务的暂停、中止等"><a href="#任务的暂停、中止等" class="headerlink" title="任务的暂停、中止等"></a>任务的暂停、中止等</h2><p>我们再来看看封装宿主环境 api 的 requestHostCallback、requestHostTimeout。在浏览器环境中，react 通过 MessageChannel 发送消息的方式触发任务的真正执行，详情可参看 <a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/forks/SchedulerHostConfig.default.js#L228" target="_blank" rel="noopener">requestHostCallback 函数</a> 的实现，效果是在渲染后执行任务。至于 requestHostTimeout，react 则使用 setTimeout 方法实现。</p>
-<h3 id="任务的暂停与恢复"><a href="#任务的暂停与恢复" class="headerlink" title="任务的暂停与恢复"></a>任务的暂停与恢复</h3><p>需要指出的是，在单次 workLoop 循环中，如果 taskQueue 队列未被清空（比如任务被暂停了），react 会基于 MessageChannel 再次 <a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/forks/SchedulerHostConfig.default.js#L208" target="_blank" rel="noopener">发送消息</a>，以处理 taskQueue 队列。为此，scheduler 对外提供 <a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/Scheduler.js#L363" target="_blank" rel="noopener">unstable_pauseExecution</a>、<a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/Scheduler.js#L367" target="_blank" rel="noopener">unstable_continueExecution</a> 接口用于暂停、恢复任务，这就是 <a href="http://localhost:4000/2020/02/22/react/react16%E6%BA%90%E7%A0%81/react%20fiber%20%E6%90%9C%E7%BD%97%E6%95%B4%E7%90%86%E7%AF%87/" target="_blank" rel="noopener">react fiber 搜罗整理篇</a> 提到的任务暂停与恢复。</p>
+<h3 id="任务的暂停与恢复"><a href="#任务的暂停与恢复" class="headerlink" title="任务的暂停与恢复"></a>任务的暂停与恢复</h3><p>需要指出的是，在单次 workLoop 循环中，如果 taskQueue 队列未被清空（比如任务被暂停了），react 会基于 MessageChannel 再次 <a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/forks/SchedulerHostConfig.default.js#L208" target="_blank" rel="noopener">发送消息</a>，以处理 taskQueue 队列。为此，scheduler 对外提供 <a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/Scheduler.js#L363" target="_blank" rel="noopener">unstable_pauseExecution</a>、<a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/Scheduler.js#L367" target="_blank" rel="noopener">unstable_continueExecution</a> 接口用于暂停、恢复任务，这就是 <a href="/2020/02/22/react/react16%E6%BA%90%E7%A0%81/react%20fiber%20%E6%90%9C%E7%BD%97%E6%95%B4%E7%90%86%E7%AF%87/">react fiber 搜罗整理篇</a> 提到的任务暂停与恢复。</p>
 <h3 id="任务的中止"><a href="#任务的中止" class="headerlink" title="任务的中止"></a>任务的中止</h3><p>至于任务的中止，scheduler 提供 <a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/Scheduler.js#L375" target="_blank" rel="noopener">unstable_getFirstCallbackNode 函数</a> 用于获取 taskQueue 的首个任务，然后就可以使用 <a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/Scheduler.js#L379" target="_blank" rel="noopener">unstable_cancelCallback 接口</a> 销毁任务了。</p>
 <h3 id="避免任务长期工作"><a href="#避免任务长期工作" class="headerlink" title="避免任务长期工作"></a>避免任务长期工作</h3><p>为了避免工作任务长期占用主线程，react 使用帧率计算任务的 yieldInterval 最大工作时长。scheduler 允许使用 <a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/forks/SchedulerHostConfig.default.js#L172" target="_blank" rel="noopener">forceFrameRate</a> 设置任务的最大工作时长。在任务执行开始时，scheduler 会基于任务的开始工作时间加 yieldInterval 计算任务的 deadline 暂停时间，一旦 workLoop 执行到 deadline 时间后，scheduler 会让出主线程以执行其他任务。判断任务运行是否达到 deadline，基于 <a href="https://github.com/facebook/react/blob/master/packages/scheduler/src/forks/SchedulerHostConfig.default.js#L164" target="_blank" rel="noopener">shouldYieldToHost 函数</a> 实现。</p>
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">workLoop</span>(<span class="params">hasTimeRemaining, initialTime</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> currentTime = initialTime;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">while</span> (</span><br><span class="line">    currentTask !== <span class="literal">null</span> &amp;&amp;</span><br><span class="line">    !(enableSchedulerDebugging &amp;&amp; isSchedulerPaused)</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">if</span> (</span><br><span class="line">      currentTask.expirationTime &gt; currentTime &amp;&amp;</span><br><span class="line">      (!hasTimeRemaining || shouldYieldToHost())<span class="comment">// 达到任务的最大运行时长，让出主线程</span></span><br><span class="line">    ) &#123;</span><br><span class="line">      <span class="comment">// This currentTask hasn't expired, and we've reached the deadline.</span></span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -407,37 +496,6 @@
       <tags>
         <tag>analyst</tag>
       </tags>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/2020/02/22/react/react%20fiber%202/</url>
-    <content><![CDATA[<h3 id="fiber-tag-类型"><a href="#fiber-tag-类型" class="headerlink" title="fiber.tag 类型"></a>fiber.tag 类型</h3><p><a href="https://github.com/facebook/react/blob/v16.12.0/packages/shared/ReactWorkTags.js#L35" target="_blank" rel="noopener">ReactWorkTags.js</a> 展示了 fiber 的类型（基于不同的类型会作不同处理）：</p>
-<ul>
-<li>FunctionComponent：函数式组件。React$ElementType 为构造函数。</li>
-<li>ClassComponent：类组件。React$ElementType 为函数。</li>
-<li>HostComponent：Host 组件（如 DOM 节点）。React$ElementType 为 string。</li>
-<li>Fragment：Fragment 组件。React$ElementType 为 REACT_FRAGMENT_TYPE。</li>
-<li>Mode：React$ElementType 为 REACT_CONCURRENT_MODE_TYPE 或 REACT_STRICT_MODE_TYPE。</li>
-<li>Profiler：React$ElementType 为 REACT_PROFILER_TYPE。</li>
-<li>SuspenseComponent：React$ElementType 为 REACT_SUSPENSE_TYPE。</li>
-<li>SuspenseListComponent：React$ElementType 为 REACT_SUSPENSE_LIST_TYPE。</li>
-<li>IndeterminateComponent：</li>
-<li>HostRoot：</li>
-<li>HostPortal：</li>
-<li>HostText：</li>
-<li>ContextConsumer：Context.Consumer 组件。React$ElementType 为对象，React$ElementType$$typeof 为 REACT_CONTEXT_TYPE。</li>
-<li>ContextProvider：Context.Provider 组件。React$ElementType 为对象，React$ElementType$$typeof 为 REACT_PROVIDER_TYPE。</li>
-<li>ForwardRef：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_FORWARD_REF_TYPE。</li>
-<li>MemoComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_MEMO_TYPE。</li>
-<li>LazyComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_LAZY_TYPE。</li>
-<li>FundamentalComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_FUNDAMENTAL_TYPE。</li>
-<li>ScopeComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_SCOPE_TYPE。</li>
-<li>SimpleMemoComponent：</li>
-<li>IncompleteClassComponent：</li>
-<li>DehydratedFragment：</li>
-<li>Chunk：</li>
-</ul>
-]]></content>
   </entry>
   <entry>
     <title>react fiber 搜罗整理篇</title>

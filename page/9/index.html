@@ -299,6 +299,377 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/21/算法/符号表与二叉查找树/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/21/算法/符号表与二叉查找树/" itemprop="url">符号表与二叉查找树</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-21T00:00:00+08:00">2019-04-21</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/算法/" itemprop="url" rel="index"><span itemprop="name">算法</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/04/21/算法/符号表与二叉查找树/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/04/21/算法/符号表与二叉查找树/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="符号表"><a href="#符号表" class="headerlink" title="符号表"></a>符号表</h2><p>符号表用于存储键值对。通常符号表按功能提供了如下 API（由 API 可逐步深入到设计决策、测试用例、实现等）：</p>
+<ul>
+<li>get: 获取指定 key 键的值。</li>
+<li>put: 将键值对存入符号表中。</li>
+<li>delete: 删除指定的键值对。</li>
+<li>contains: 判断符号表中是否包含指定的键。</li>
+<li>isEmpty: 判断符号表是否为空。</li>
+<li>size: 获取符号表中键值对的数量。</li>
+<li>keys: 获取符号表中所有 key 键的集合。</li>
+</ul>
+<p>符号表分为无序符号表和有序符号表两种。</p>
+<h3 id="无序符号表"><a href="#无序符号表" class="headerlink" title="无序符号表"></a>无序符号表</h3><p>以下是基于单向链表实现的无序符号表：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SequentialSearchST</span>&lt;<span class="title">Key</span>, <span class="title">Value</span>&gt;</span>&#123;</span><br><span class="line">  <span class="keyword">private</span> Node&lt;Key, Value&gt; first;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">int</span> N;<span class="comment">// 键值对数量</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 链表节点模型</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">Key</span>, <span class="title">Value</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> Key key;</span><br><span class="line">    <span class="keyword">public</span> Value val;</span><br><span class="line">    <span class="keyword">public</span> Node&lt;Key, Value&gt; next;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Node</span><span class="params">(Key key, Value val, Node&lt;Key, Value&gt; next)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>.key = k;</span><br><span class="line">      <span class="keyword">this</span>.val = val;</span><br><span class="line">      <span class="keyword">this</span>.next = next;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Value <span class="title">get</span><span class="params">(Key key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (Node&lt;Key, Value&gt; x = first ; x != <span class="keyword">null</span>; x = x.next) &#123;</span><br><span class="line">      <span class="keyword">if</span> (x.key.equals(key))  </span><br><span class="line">        <span class="keyword">return</span> x.val;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Key key, Value val)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (Node&lt;Key, Value&gt; x = first; x != <span class="keyword">null</span>; x = x.next) &#123;</span><br><span class="line">      <span class="keyword">if</span> (x.key.equals(key)) &#123;</span><br><span class="line">        x.val = val;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    first = <span class="keyword">new</span> Node&lt;Key, Value&gt;(key, val, first);</span><br><span class="line">    N++;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="有序符号表"><a href="#有序符号表" class="headerlink" title="有序符号表"></a>有序符号表</h3><p>有序符号表需要额外实现如下接口：</p>
+<ul>
+<li>min, max: 获取最小键、最大键。</li>
+<li>floor, ceiling: 向下取整、向上取整。</li>
+<li>select: 获取指定排名的键。该操作可应用于搜索引擎的排名等。</li>
+<li>rank: 获取小于指定 key 键的节点数量。该操作可应用于搜索引擎的排名等。</li>
+<li>deleteMin: 删除最小键。</li>
+<li>deleteMax: 删除最大键。</li>
+</ul>
+<p>基于有序数组实现的有序符号表，可借助两分查找法快速插入和获取键值对，其核心方法为 rank。相比于链表，基于有序数组实现的符号表能保证查找的高效，但是在插入节点需要对后续节点执行额外的移位动作。以下为其实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BinarySearchST</span>&lt;<span class="title">Key</span> <span class="keyword">extends</span> <span class="title">Comparable</span>&lt;<span class="title">Key</span>&gt;, <span class="title">Value</span>&gt;</span>&#123;</span><br><span class="line">  <span class="keyword">private</span> Key[] keys;</span><br><span class="line">  <span class="keyword">private</span> Value[] vals;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">int</span> N;<span class="comment">// 键值对数量</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">BinarySearchST</span><span class="params">(<span class="keyword">int</span> capacity)</span></span>&#123;</span><br><span class="line">    keys = (Key[]) <span class="keyword">new</span> Comparable[capacity];</span><br><span class="line">    vals = (Value[]) <span class="keyword">new</span> Object[capacity];</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 基于两分查找法，获取小于指定 key 键的节点数量</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">rank</span><span class="params">(Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> lo = <span class="number">0</span>, hi = N - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(lo &lt;= hi)&#123;</span><br><span class="line">      <span class="keyword">int</span> mid = lo + (hi - lo) / <span class="number">2</span>;</span><br><span class="line">      <span class="keyword">int</span> cmp = key.compareTo(keys[mid]);</span><br><span class="line">      <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) hi = mid - <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>) lo = mid + <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">return</span> mid;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> lo;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Value <span class="title">get</span><span class="params">(Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (isEmpty()) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">int</span> i = rank(key);</span><br><span class="line">    <span class="keyword">if</span> (i &lt; N &amp;&amp; keys[i].compareTo(key) == <span class="number">0</span>) <span class="keyword">return</span> vals[i];</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Key key, Value val)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i = rank(key);</span><br><span class="line">    <span class="keyword">if</span> (i &lt; N &amp;&amp; keys[i].compareTo(key) == <span class="number">0</span>)&#123;<span class="comment">// 有则替换</span></span><br><span class="line">      vals[i] = val;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 后续键值对移位</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = N; j &gt; i; j--)&#123;</span><br><span class="line">      keys[j] = keys[j - <span class="number">1</span>];</span><br><span class="line">      vals[j] = vals[j - <span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    keys[i] = key;</span><br><span class="line">    vals[i] = val;</span><br><span class="line">    N++;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="二叉查找树"><a href="#二叉查找树" class="headerlink" title="二叉查找树"></a>二叉查找树</h2><p>二叉查找树 Binary Search Tree(BST) 是有序符号表的一种。在二叉树中，每个父节点下的左右子节点按 key 键有序排列，这样在查找和插入节点时就能保证如快速排序的高效。二叉树的设计原则包含：私有方法提供抽象，公共方法提供接口；二叉树基于节点建模，节点保有子节点和子树的信息，私有方法须实现可递归性。二叉查找树的 API 如有序符号表，包含基本的查找、插入、删除操作：</p>
+<ul>
+<li>size: 获取节点数量。</li>
+<li>get: 向下递归查找节点。</li>
+<li>put: 插入节点。基于向下递归插入节点，向上递归更新节点数量。</li>
+<li>min, max: 获取最小键、最大键。</li>
+<li>floor, ceiling: 向下取整、向上取整。</li>
+<li>select: 获取指定排名的键。</li>
+<li>rank: 获取小于指定 key 键的节点数量。</li>
+<li>delete: 删除节点。当被删除节点为父节点时，使用前驱或后继节点与该节点换位的方式删除。</li>
+<li>deleteMin: 删除最小键，该方法可用于后继节点替换模式的删除操作。</li>
+<li>deleteMax: 删除最大键，该方法可用于前驱节点替换模式的删除操作。</li>
+<li>keys: 借助于中序遍历，获取二叉树中或指定范围内所有键的集合。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BST</span>&lt;<span class="title">Key</span> <span class="keyword">extends</span> <span class="title">Comparable</span>&lt;<span class="title">Key</span>&gt;, <span class="title">Value</span>&gt;</span>&#123;</span><br><span class="line">  <span class="keyword">private</span> Node root;</span><br><span class="line">  <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Key key;</span><br><span class="line">    <span class="keyword">private</span> Value val;</span><br><span class="line">    <span class="keyword">private</span> Node left, right;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> N;<span class="comment">// 子树中的节点总数</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Node</span><span class="params">(Key key, Value val, <span class="keyword">int</span> N)</span></span>&#123;</span><br><span class="line">      <span class="keyword">this</span>.key = key;</span><br><span class="line">      <span class="keyword">this</span>.val = val;</span><br><span class="line">      <span class="keyword">this</span>.N = N;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> size(root);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">(Node x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> x.N;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Value <span class="title">get</span><span class="params">(Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> get(root, key);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> Value <span class="title">get</span><span class="params">(Node x, Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">int</span> cmp = key.compateTo(x.key);</span><br><span class="line">    <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) <span class="keyword">return</span> get(x.left, key);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>) <span class="keyword">return</span> get(x.right, key);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> x.val;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Key key, Value val)</span></span>&#123;</span><br><span class="line">    root = put(root, key, val);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> Node <span class="title">put</span><span class="params">(Node x, Key key, Value val)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">new</span> Node(key, val, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">int</span> cmp = key.compareTo(x.key);</span><br><span class="line">    <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) x.left = put(x.left, key, val);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>) x.right = put(x.right, key, val);</span><br><span class="line">    <span class="keyword">else</span> x.val = val;</span><br><span class="line">    x.N = size(x.left) + size(x.right) + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取最小键；max 方法与之相类</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Key <span class="title">min</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> min(root).key;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> Node <span class="title">min</span><span class="params">(Node x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x.left == <span class="keyword">null</span>) <span class="keyword">return</span> x;</span><br><span class="line">    <span class="keyword">return</span> min(x.left);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 向下取整；ceiling 向上取整与之相类</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Key <span class="title">floor</span><span class="params">(Key key)</span></span>&#123;</span><br><span class="line">    Node x = floor(root, key);</span><br><span class="line">    <span class="keyword">if</span> (x == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">return</span> x.key;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> Node <span class="title">floor</span><span class="params">(Node x, Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">int</span> cmp = key.compareTo(x.key);</span><br><span class="line">    <span class="keyword">if</span> (cmp == <span class="number">0</span>) <span class="keyword">return</span> x;</span><br><span class="line">    <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) <span class="keyword">return</span> floor(x.left, key);<span class="comment">// 保证输出左子树中的节点</span></span><br><span class="line">    Node t = floor(x.right, key);<span class="comment">// 向上递归获取左子树中的节点</span></span><br><span class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>) <span class="keyword">return</span> t;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> x;<span class="comment">// 返回左子树中的节点，以便向上递归</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取排名为 k 的键</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Key <span class="title">select</span><span class="params">(<span class="keyword">int</span> k)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> select(root, k).key;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> Node <span class="title">select</span><span class="params">(Node x, <span class="keyword">int</span> k)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">int</span> t = size(x.left);</span><br><span class="line">    <span class="keyword">if</span> (t &gt; k) <span class="keyword">return</span> select(x.left, k);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (t &lt; k) <span class="keyword">return</span> select(x.right, k-t-<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> x;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取小于 key 键的数量，入参 key 键在二叉树中已存在</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">rank</span><span class="params">(Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> rank(key, root);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">rank</span><span class="params">(Key key, Node x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> cmp = key.compareTo(x.key);</span><br><span class="line">    <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) <span class="keyword">return</span> rank(key, x.left);<span class="comment">// 右子树中会包含大于 key 的键</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">1</span> + size(x.left) + rank(key, x.right);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> size(x.left);<span class="comment">// 父节点与 key 键相同，统计左子树的节点数量</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteMin</span><span class="params">()</span></span>&#123;</span><br><span class="line">    root = deleteMin(root);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> Node <span class="title">deleteMin</span><span class="params">(Node x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x.left == <span class="keyword">null</span>) <span class="keyword">return</span> x.right;</span><br><span class="line">    x.left = deleteMin(x.left);</span><br><span class="line">    x.N = size(x.left) + size(x.right) + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">(Key key)</span></span>&#123;</span><br><span class="line">    root = delete(root, key);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> Node <span class="title">delete</span><span class="params">(Node x, Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">int</span> cmp = key.compareTo(x.key);</span><br><span class="line">    <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) x.left = delete(x.left, key);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>) x.right = delete(x.right, key);</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (x.right == <span class="keyword">null</span>) <span class="keyword">return</span> x.left;</span><br><span class="line">      <span class="keyword">if</span> (x.left == <span class="keyword">null</span>) <span class="keyword">return</span> x.right;</span><br><span class="line">      Node t = x;</span><br><span class="line">      x = min(t.right);<span class="comment">// 以后继节点代替待删除节点位置</span></span><br><span class="line">      x.right = deleteMin(t.right);<span class="comment">// 移除后继节点</span></span><br><span class="line">      x.left = t.left;</span><br><span class="line">    &#125;</span><br><span class="line">    x.N = size(x.left) + size(x.right) + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取二叉树中所有键的集合</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Iterable&lt;Key&gt; <span class="title">keys</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> keys(min(), max());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 获取指定范围内所有键的集合</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Iterable&lt;Key&gt; <span class="title">keys</span><span class="params">(Key lo, Key hi)</span></span>&#123;</span><br><span class="line">    Queue&lt;Key&gt; queue = <span class="keyword">new</span> Queue&lt;Key&gt;();</span><br><span class="line">    keys(root, queue, lo, hi);</span><br><span class="line">    <span class="keyword">return</span> queue;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">keys</span><span class="params">(Node x, Queue&lt;key&gt; queue, Key lo, Key hi)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">int</span> comlo = lo.compareTo(x.key);</span><br><span class="line">    <span class="keyword">int</span> comhi = hi.compareTo(x.key);</span><br><span class="line">    <span class="keyword">if</span> (comlo &lt; <span class="number">0</span>) keys(x.left, queue, lo, hi);<span class="comment">// 收集左子树中的 key</span></span><br><span class="line">    <span class="keyword">if</span> (comlo &lt;= <span class="number">0</span> &amp;&amp; comhi &gt;= <span class="number">0</span>) queue.enqueue(x.key);<span class="comment">// 在指定范围内，收集 key 键</span></span><br><span class="line">    <span class="keyword">if</span> (comhi &gt; <span class="number">0</span>) keys(x.right, queue, lo, hi);<span class="comment">// 收集右子树中的 key</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/20/算法/透过散列表看HashMap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/20/算法/透过散列表看HashMap/" itemprop="url">透过散列表看HashMap</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-20T00:00:00+08:00">2019-04-20</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/算法/" itemprop="url" rel="index"><span itemprop="name">算法</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/04/20/算法/透过散列表看HashMap/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/04/20/算法/透过散列表看HashMap/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>散列表用于存储键值对。先举两个例子：如果使用有序数组存储键值对，那么当存在某个较大的键时，整个数组所占用的内存空间就会很大；如果使用无序数组存储键值对，那么在查找元素时就需要遍历数组项，造成了性能的低效。与这两个例子不同的是，散列表有效地平衡了时间和空间复杂度。创建散列表的流程分为：</p>
+<ol>
+<li>通过散列函数将键转化为散列码，以作为数组的索引。</li>
+<li>通过碰撞处理解决两个或多个散列码等值的情况。</li>
+</ol>
+<h2 id="散列函数"><a href="#散列函数" class="headerlink" title="散列函数"></a>散列函数</h2><p>制作散列函数时需要面对的问题是：对于任意数据类型的键，都需要将其转化为可接受的数组索引；计算过程应尽可能的简便，计算结果应尽可能地均匀分布。可针对如下情形实现不同的散列策略：</p>
+<ol>
+<li>正整数 k：可采用除留余数法，即当数组长度为 M 时，散列码就是 k%M。当 M 是素数时，得到的散列码会均匀分布。</li>
+<li>浮点数 k：可采用 k*M 再四舍五入的方式计算码；也可采用将 k 表示为二进制数，然后再使用除留余数法。后一种方式更均匀，因为在使用前一种方式时，浮点数高位起到的作用会更大。</li>
+<li>字符串 k：可采用 <a href="https://blog.csdn.net/liyuanbhu/article/details/38678515" target="_blank" rel="noopener">horner 算法</a>获取散列码，即 <img src="/2019/04/20/算法/透过散列表看HashMap/horner.svg"> 其中，s.charAt(i) 将以非负 16 位整数形式获取 char 值。当 R 为较小的素数如 31 时，就可以保证结果的均匀分布。</li>
+<li>组合键 k：如果键包含多个整型变量时，可以使用如字符串的形式将其拆解。以 Date 为例，可拆解为 day, month, year 三个整型，这时就可以通过 (((day <em> R + month) % M) </em> R + year) % M 计算散列码。</li>
+</ol>
+<p>在 Java 中，每种数据类型都有对应的散列函数。同时每种数据类型的 hashCode 方法须与 equals 方法表现一致，即当 a.equals(b) 返回 true 时，那么 a.hashCode() 结果须与 b.hashCode() 相同；反之则不然，即当 a.hashCode() 与 b.hashCode() 返回值相同时，a.equals(b) 未必返回 true。默认的散列函数会返回对象的内存地址，但只适用于极少数情况。字节型 Byte, 短整型 Short, 整型 Integer, 长整型 Long 的 hashCode 方法都以 32 位 4 字节整数作为散列码；字符型 Character 以 8 位整数为散列码；布尔型 Boolean 以 1231, 1237 作为散列码，true 时为 1231。其他类型的 hashCode 方法或可参见下方代码（特别的，对于自定义的 Java 类，可采用与 String 相类的手法计算散列码，即通过各属性的散列码计算对象的散列码）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 单精度浮点型；双精度浮点型 Double 与此相类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Float</span> <span class="keyword">extends</span> <span class="title">Number</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Float</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">// native 关键字的函数由操作系统实现（使用如 c 语言），java 只能调用</span></span><br><span class="line">    <span class="comment">// 单精度浮点型第 31 位为符号，30-23 位为指数，22-0 为有效数</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">int</span> <span class="title">floatToRawIntBits</span><span class="params">(<span class="keyword">float</span> value)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">floatToIntBits</span><span class="params">(<span class="keyword">float</span> value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> result = floatToRawIntBits(value);</span><br><span class="line">        <span class="comment">// Check for NaN based on values of bit fields, maximum</span></span><br><span class="line">        <span class="comment">// exponent and nonzero significand.</span></span><br><span class="line">        <span class="comment">// EXP_BIT_MASK = 2139095040; SIGNIF_BIT_MASK = 8388607;</span></span><br><span class="line">        <span class="keyword">if</span> ( ((result &amp; FloatConsts.EXP_BIT_MASK) ==</span><br><span class="line">              FloatConsts.EXP_BIT_MASK) &amp;&amp;</span><br><span class="line">             (result &amp; FloatConsts.SIGNIF_BIT_MASK) != <span class="number">0</span>)</span><br><span class="line">            result = <span class="number">0x7fc00000</span>;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">(<span class="keyword">float</span> value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> floatToIntBits(value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Float.hashCode(value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 字符串</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">String</span></span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span>, <span class="title">Comparable</span>&lt;<span class="title">String</span>&gt;, <span class="title">CharSequence</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 使用 hash 作为软缓存，避免重复计算，第二次执行 hashCode 都将返回计算好的 hash</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> hash; <span class="comment">// Default to 0</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> h = hash;</span><br><span class="line">        <span class="keyword">if</span> (h == <span class="number">0</span> &amp;&amp; value.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">char</span> val[] = value;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; value.length; i++) &#123;</span><br><span class="line">                h = <span class="number">31</span> * h + val[i];</span><br><span class="line">            &#125;</span><br><span class="line">            hash = h;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> h;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>HashMap 中的散列码通过静态方法 hash 计算，即取 key 键的散列码，并与右移 16 位的散列码进行异或。执行 (n - 1) &amp; hash 计算，可以将散列码转化为数组索引。与此不同的是，Hashtable 的散列码通过执行 key.hashCode 直接获取，再执行 (hash &amp; 0x7FFFFFFF) % M 计算出数组索引。散列码计算方式改易的原因不详。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// HashMap 中的散列码</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> h;</span><br><span class="line">    <span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 常规散列码，也是 Hashtable 中的散列码</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (key.hashCode() &amp; <span class="number">0x7FFFFFFF</span>) % M;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="碰撞冲突"><a href="#碰撞冲突" class="headerlink" title="碰撞冲突"></a>碰撞冲突</h2><p>当键的散列码等值时，有两种方式可用于处理这类碰撞冲突的情况：其一是拉链法，即在数组项中以链表的形式存储散列码等值的元素；其一是基于线性探测法等实现开放地址散列表，即存储的元素量不能超过数组长度，使数组足够容纳冲突的键。</p>
+<h3 id="拉链法"><a href="#拉链法" class="headerlink" title="拉链法"></a>拉链法</h3><p>拉链法既可使用原始链表实现，也可使用符号表实现。不同的是，原始链表对链表节点进行建模，符号表基于单向链表对整体进行建模。以下是基于符号表的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 符号表</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SequentialSearchST</span>&lt;<span class="title">Key</span>, <span class="title">Value</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Node first;</span><br><span class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span> </span>&#123;</span><br><span class="line">        Key key;</span><br><span class="line">        Value val;</span><br><span class="line">        Node next;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Node</span><span class="params">(Key key, Value val, Node next)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.key = key;</span><br><span class="line">            <span class="keyword">this</span>.val = val;</span><br><span class="line">            <span class="keyword">this</span>.next = next;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Value <span class="title">get</span><span class="params">(Key key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (Node x = first; x != <span class="keyword">null</span>; x = x.next) &#123;</span><br><span class="line">            <span class="keyword">if</span> (key.equals(x.key)) &#123;</span><br><span class="line">                <span class="keyword">return</span> x.val;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Key key, Value val)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (Node x = first; x != <span class="keyword">null</span>; x = x.next) &#123;</span><br><span class="line">            <span class="keyword">if</span> (key.equals(x.key)) &#123;</span><br><span class="line">                x.val = val;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        first = <span class="keyword">new</span> Node(key, val, first);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 基于符号表、拉链法的散列表</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SeparateChainingHashST</span>&lt;<span class="title">Key</span>, <span class="title">Value</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> INIT_CAPACITY = <span class="number">997</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> N;<span class="comment">// 键值对总数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> M;<span class="comment">// 散列表大小</span></span><br><span class="line">    <span class="keyword">private</span> SequentailSearchST&lt;Key, Value&gt;[] st;<span class="comment">// 链表数组</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SeparateChainingHashST</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>(INIT_CAPACITY);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SeparateChainingHashST</span><span class="params">(<span class="keyword">int</span> M)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.M = M;</span><br><span class="line">        <span class="comment">// Java 不支持泛型数组，先需经过类型转换</span></span><br><span class="line">        st = (SequentailSearchST&lt;Key, value&gt;[]) <span class="keyword">new</span> SequentailSearchST[M];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            st[i] = <span class="keyword">new</span> SequentailSearchST&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Key key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (key.hashCode() &amp; <span class="number">0x7fffffff</span>) % M;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> Value <span class="title">get</span><span class="params">(Key key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (Value) st[hash(key)].get(key);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Key key, Value val)</span> </span>&#123;</span><br><span class="line">        st[hash(key)].put(key, val);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 java 中，Hashtable 和 HashMap 都是基于拉链法构建的，且每个数组项被称为桶。无论 Hashtable，还是 HashMap，散列表的大小都可基于插入的元素量进行动态调整，这一过程被称为再散列 rehash。</p>
+<h4 id="Hashtable"><a href="#Hashtable" class="headerlink" title="Hashtable"></a>Hashtable</h4><p>Hashtable 的 rehash 过程为：当元素量超过 hashtable.threshold 阈值（散列表的长度乘以装填因子 loadFactor）时，首先创建长度翻倍的新数组，再将原有元素按新的索引值插入到数组中，最后废弃旧数组。</p>
+<p>Hashtable 的公共方法都加上了 synchronized 关键字，因此它是线程安全的，能保证在插值过程中找到正确的索引，而不会引起当另一个线程变更数组长度时导致的索引不定问题。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Hashtable</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">Dictionary</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">transient</span> Entry&lt;?,?&gt;[] table;<span class="comment">// 以链表数组形式存储元素</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> threshold;<span class="comment">// 阈值，超过该值将 rehash，值为当前长度 ✖ 装填因子</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">float</span> loadFactor;<span class="comment">// 装填因子</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">put</span><span class="params">(K key, V value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (value == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Entry&lt;?,?&gt; tab[] = table;</span><br><span class="line">        <span class="keyword">int</span> hash = key.hashCode();</span><br><span class="line">        <span class="keyword">int</span> index = (hash &amp; <span class="number">0x7FFFFFFF</span>) % tab.length;</span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">        Entry&lt;K,V&gt; entry = (Entry&lt;K,V&gt;)tab[index];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 长度变更使得元素索引不定，需要遍历数组查找元素是否已在散列表中</span></span><br><span class="line">        <span class="keyword">for</span>(; entry != <span class="keyword">null</span> ; entry = entry.next) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((entry.hash == hash) &amp;&amp; entry.key.equals(key)) &#123;</span><br><span class="line">                V old = entry.value;</span><br><span class="line">                entry.value = value;</span><br><span class="line">                <span class="keyword">return</span> old;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        addEntry(hash, key, value, index);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 私有方法，结合 rehash 添加新元素</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addEntry</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">        modCount++;</span><br><span class="line"></span><br><span class="line">        Entry&lt;?,?&gt; tab[] = table;</span><br><span class="line">        <span class="keyword">if</span> (count &gt;= threshold) &#123;</span><br><span class="line">            rehash();</span><br><span class="line"></span><br><span class="line">            tab = table;</span><br><span class="line">            hash = key.hashCode();</span><br><span class="line">            index = (hash &amp; <span class="number">0x7FFFFFFF</span>) % tab.length;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">        Entry&lt;K,V&gt; e = (Entry&lt;K,V&gt;) tab[index];</span><br><span class="line">        tab[index] = <span class="keyword">new</span> Entry&lt;&gt;(hash, key, value, e);</span><br><span class="line">        count++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 再散列</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">rehash</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> oldCapacity = table.length;</span><br><span class="line">        Entry&lt;?,?&gt;[] oldMap = table;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> newCapacity = (oldCapacity &lt;&lt; <span class="number">1</span>) + <span class="number">1</span>;<span class="comment">// 长度放大两倍</span></span><br><span class="line">        <span class="keyword">if</span> (newCapacity - MAX_ARRAY_SIZE &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (oldCapacity == MAX_ARRAY_SIZE)</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            newCapacity = MAX_ARRAY_SIZE;</span><br><span class="line">        &#125;</span><br><span class="line">        Entry&lt;?,?&gt;[] newMap = <span class="keyword">new</span> Entry&lt;?,?&gt;[newCapacity];</span><br><span class="line"></span><br><span class="line">        modCount++;</span><br><span class="line">        threshold = (<span class="keyword">int</span>)Math.min(newCapacity * loadFactor, MAX_ARRAY_SIZE + <span class="number">1</span>);</span><br><span class="line">        table = newMap;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = oldCapacity ; i-- &gt; <span class="number">0</span> ;) &#123;</span><br><span class="line">            <span class="keyword">for</span> (Entry&lt;K,V&gt; old = (Entry&lt;K,V&gt;)oldMap[i] ; old != <span class="keyword">null</span> ; ) &#123;</span><br><span class="line">                Entry&lt;K,V&gt; e = old;</span><br><span class="line">                old = old.next;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">int</span> index = (e.hash &amp; <span class="number">0x7FFFFFFF</span>) % newCapacity;</span><br><span class="line">                e.next = (Entry&lt;K,V&gt;)newMap[index];</span><br><span class="line">                newMap[index] = e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 链表节点模型</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">Map</span>.<span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> hash;</span><br><span class="line">        <span class="keyword">final</span> K key;</span><br><span class="line">        V value;</span><br><span class="line">        Entry&lt;K,V&gt; next;<span class="comment">// 构成单向链表</span></span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> hash ^ Objects.hashCode(value);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="WeakHashMap"><a href="#WeakHashMap" class="headerlink" title="WeakHashMap"></a>WeakHashMap</h4><p>一言以蔽之，WeakHashMap 是基于 Map 接口实现的线程不安全的 Hashtable。</p>
+<h4 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h4><p>因为 Hashtable 通过遍历链表的方式查找和插入元素并不高效，HashMap 在桶的容量超过指定值时，就会将桶的存储结构转化为红黑树，这样就提升了查找和插入的效率。关于红黑树的更多内容，可参见<a href="http://xzfyu.com/2019/04/14/java/HashMap%E4%B8%AD%E7%9A%84%E7%BA%A2%E9%BB%91%E6%A0%91/" target="_blank" rel="noopener">HashMap中的红黑树</a>。</p>
+<p>至于为什么在 Java 中，HashMap 被设计成线程不安全的？因为线程安全的实现方式会增加检查、加锁、解锁的开销。Java 另外提供了线程安全的 ConcurrentHashMap 类。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;, <span class="title">Cloneable</span>, <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">transient</span> Node&lt;K,V&gt;[] table;<span class="comment">// 以链表数组形式存储元素</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> h;</span><br><span class="line">        <span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>);</span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    <span class="comment">// 查找元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> V <span class="title">get</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">        Node&lt;K,V&gt; e;</span><br><span class="line">        <span class="keyword">return</span> (e = getNode(hash(key), key)) == <span class="keyword">null</span> ? <span class="keyword">null</span> : e.value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">final</span> Node&lt;K,V&gt; <span class="title">getNode</span><span class="params">(<span class="keyword">int</span> hash, Object key)</span> </span>&#123;</span><br><span class="line">        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; <span class="keyword">int</span> n; K k;</span><br><span class="line">        <span class="keyword">if</span> ((tab = table) != <span class="keyword">null</span> &amp;&amp; (n = tab.length) &gt; <span class="number">0</span> &amp;&amp;</span><br><span class="line">            (first = tab[(n - <span class="number">1</span>) &amp; hash]) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 桶中的首节点就是查找的元素</span></span><br><span class="line">            <span class="keyword">if</span> (first.hash == hash &amp;&amp; <span class="comment">// always check first node</span></span><br><span class="line">                ((k = first.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                <span class="keyword">return</span> first;</span><br><span class="line">            <span class="keyword">if</span> ((e = first.next) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 从红黑树查找节点</span></span><br><span class="line">                <span class="keyword">if</span> (first <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">                    <span class="keyword">return</span> ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);</span><br><span class="line">                <span class="comment">// 从链表中查找节点</span></span><br><span class="line">                <span class="keyword">do</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                        ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                        <span class="keyword">return</span> e;</span><br><span class="line">                &#125; <span class="keyword">while</span> ((e = e.next) != <span class="keyword">null</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 插入元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> V <span class="title">put</span><span class="params">(K key, V value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> putVal(hash(key), key, value, <span class="keyword">false</span>, <span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">final</span> V <span class="title">putVal</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">boolean</span> onlyIfAbsent, <span class="keyword">boolean</span> evict)</span> </span>&#123;</span><br><span class="line">        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, i;</span><br><span class="line">        <span class="comment">// 保证散列表的长度不为 0</span></span><br><span class="line">        <span class="keyword">if</span> ((tab = table) == <span class="keyword">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">            n = (tab = resize()).length;</span><br><span class="line">        <span class="comment">// 桶中首个节点</span></span><br><span class="line">        <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="keyword">null</span>)</span><br><span class="line">            tab[i] = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            Node&lt;K,V&gt; e; K k;</span><br><span class="line">            <span class="comment">// 链表、红黑二叉树的首节点与插入元素含有相同 key 键</span></span><br><span class="line">            <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">                ((k = p.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                e = p;</span><br><span class="line">            <span class="comment">// 将元素插入红黑树中</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">                e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="keyword">this</span>, tab, hash, key, value);</span><br><span class="line">            <span class="comment">// 将元素插入链表中；当超过阈值时，转化为红黑树</span></span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 遍历链表</span></span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> binCount = <span class="number">0</span>; ; ++binCount) &#123;</span><br><span class="line">                    <span class="keyword">if</span> ((e = p.next) == <span class="keyword">null</span>) &#123;</span><br><span class="line">                        <span class="comment">// 将元素插入到链表的尾端；newNode 方法创建链表节点</span></span><br><span class="line">                        p.next = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 超过指定长度 TREEIFY_THRESHOLD = 8，将链表转化成红黑树</span></span><br><span class="line">                        <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>)</span><br><span class="line">                            treeifyBin(tab, hash);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="comment">// 链表中存在相同的 key 键</span></span><br><span class="line">                    <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                        ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    p = e;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 链表或红黑二叉树中存在相同的 key 键</span></span><br><span class="line">            <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123;</span><br><span class="line">                V oldValue = e.value;</span><br><span class="line">                <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="keyword">null</span>)</span><br><span class="line">                    e.value = value;</span><br><span class="line">                afterNodeAccess(e);<span class="comment">// 触发 LinkedHashMap 的动作</span></span><br><span class="line">                <span class="keyword">return</span> oldValue;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ++modCount;</span><br><span class="line">        <span class="keyword">if</span> (++size &gt; threshold)</span><br><span class="line">            resize();</span><br><span class="line">        afterNodeInsertion(evict);<span class="comment">// 触发 LinkedHashMap 的动作</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将链表转化成红黑树</span></span><br><span class="line">    <span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">treeifyBin</span><span class="params">(Node&lt;K,V&gt;[] tab, <span class="keyword">int</span> hash)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n, index; Node&lt;K,V&gt; e;</span><br><span class="line">        <span class="comment">// 散列表红黑树化前的最小长度 MIN_TREEIFY_CAPACITY = 64，未满足，则扩容</span></span><br><span class="line">        <span class="keyword">if</span> (tab == <span class="keyword">null</span> || (n = tab.length) &lt; MIN_TREEIFY_CAPACITY)</span><br><span class="line">            resize();</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> ((e = tab[index = (n - <span class="number">1</span>) &amp; hash]) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            TreeNode&lt;K,V&gt; hd = <span class="keyword">null</span>, tl = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                <span class="comment">// replacementTreeNode 将链表节点转化为红黑树节点</span></span><br><span class="line">                TreeNode&lt;K,V&gt; p = replacementTreeNode(e, <span class="keyword">null</span>);</span><br><span class="line">                <span class="keyword">if</span> (tl == <span class="keyword">null</span>)<span class="comment">// 填充首节点</span></span><br><span class="line">                    hd = p;</span><br><span class="line">                <span class="comment">// 修正链表节点的 prev, next 属性</span></span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line">                    p.prev = tl;</span><br><span class="line">                    tl.next = p;</span><br><span class="line">                &#125;</span><br><span class="line">                tl = p;<span class="comment">// 记录上一个节点</span></span><br><span class="line">            &#125; <span class="keyword">while</span> ((e = e.next) != <span class="keyword">null</span>);</span><br><span class="line">            <span class="keyword">if</span> ((tab[index] = hd) != <span class="keyword">null</span>)</span><br><span class="line">                <span class="comment">// 将链表转化成红黑树</span></span><br><span class="line">                hd.treeify(tab);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 再散列，在保证容量和阈值不为 0 的前提下，把容量翻倍，老数据分拆注入新数组中</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;K,V&gt;[] resize() &#123;</span><br><span class="line">        Node&lt;K,V&gt;[] oldTab = table;</span><br><span class="line">        <span class="keyword">int</span> oldCap = (oldTab == <span class="keyword">null</span>) ? <span class="number">0</span> : oldTab.length;</span><br><span class="line">        <span class="keyword">int</span> oldThr = threshold;</span><br><span class="line">        <span class="keyword">int</span> newCap, newThr = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (oldCap &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 散列表容器超过最大值 MAXIMUM_CAPACITY = 1 &lt;&lt; 30，只调整阈值</span></span><br><span class="line">            <span class="keyword">if</span> (oldCap &gt;= MAXIMUM_CAPACITY) &#123;</span><br><span class="line">                threshold = Integer.MAX_VALUE;</span><br><span class="line">                <span class="keyword">return</span> oldTab;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 散列表容量翻倍</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> ((newCap = oldCap &lt;&lt; <span class="number">1</span>) &lt; MAXIMUM_CAPACITY &amp;&amp;</span><br><span class="line">                     oldCap &gt;= DEFAULT_INITIAL_CAPACITY)</span><br><span class="line">                newThr = oldThr &lt;&lt; <span class="number">1</span>;</span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (oldThr &gt; <span class="number">0</span>)</span><br><span class="line">            newCap = oldThr;</span><br><span class="line">        <span class="comment">// 设置初始容量 DEFAULT_INITIAL_CAPACITY = 1 &lt;&lt; 4 和阈值</span></span><br><span class="line">        <span class="comment">// 装填因子 DEFAULT_LOAD_FACTOR = 0.75f</span></span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            newCap = DEFAULT_INITIAL_CAPACITY;</span><br><span class="line">            newThr = (<span class="keyword">int</span>)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (newThr == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">float</span> ft = (<span class="keyword">float</span>)newCap * loadFactor;</span><br><span class="line">            newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (<span class="keyword">float</span>)MAXIMUM_CAPACITY ?</span><br><span class="line">                      (<span class="keyword">int</span>)ft : Integer.MAX_VALUE);</span><br><span class="line">        &#125;</span><br><span class="line">        threshold = newThr;</span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(&#123;<span class="string">"rawtypes"</span>,<span class="string">"unchecked"</span>&#125;)</span><br><span class="line">            Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])<span class="keyword">new</span> Node[newCap];<span class="comment">// 链表数组</span></span><br><span class="line">        table = newTab;</span><br><span class="line">        <span class="keyword">if</span> (oldTab != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; oldCap; ++j) &#123;</span><br><span class="line">                Node&lt;K,V&gt; e;</span><br><span class="line">                <span class="keyword">if</span> ((e = oldTab[j]) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    oldTab[j] = <span class="keyword">null</span>;</span><br><span class="line">                    <span class="comment">// 桶中只有节点，将节点直接添加到新的桶中</span></span><br><span class="line">                    <span class="keyword">if</span> (e.next == <span class="keyword">null</span>)</span><br><span class="line">                        newTab[e.hash &amp; (newCap - <span class="number">1</span>)] = e;</span><br><span class="line">                    <span class="comment">// 桶的数据结构为红黑树，将红黑树分拆到两个桶中（j, j + oldCap），其数据结构为红黑树或链表</span></span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">                        ((TreeNode&lt;K,V&gt;)e).split(<span class="keyword">this</span>, newTab, j, oldCap);</span><br><span class="line">                    <span class="comment">// 桶的数据结构为链表，将链表分拆到两个桶中（j, j + oldCap），其数据结构仍为链表</span></span><br><span class="line">                    <span class="keyword">else</span> &#123; <span class="comment">// preserve order</span></span><br><span class="line">                        Node&lt;K,V&gt; loHead = <span class="keyword">null</span>, loTail = <span class="keyword">null</span>;</span><br><span class="line">                        Node&lt;K,V&gt; hiHead = <span class="keyword">null</span>, hiTail = <span class="keyword">null</span>;</span><br><span class="line">                        Node&lt;K,V&gt; next;</span><br><span class="line">                        <span class="keyword">do</span> &#123;</span><br><span class="line">                            next = e.next;</span><br><span class="line">                            <span class="keyword">if</span> ((e.hash &amp; oldCap) == <span class="number">0</span>) &#123;</span><br><span class="line">                                <span class="keyword">if</span> (loTail == <span class="keyword">null</span>)</span><br><span class="line">                                    loHead = e;</span><br><span class="line">                                <span class="keyword">else</span></span><br><span class="line">                                    loTail.next = e;<span class="comment">// 记录上一个节点</span></span><br><span class="line">                                loTail = e;</span><br><span class="line">                            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                                <span class="keyword">if</span> (hiTail == <span class="keyword">null</span>)</span><br><span class="line">                                    hiHead = e;</span><br><span class="line">                                <span class="keyword">else</span></span><br><span class="line">                                    hiTail.next = e;</span><br><span class="line">                                hiTail = e;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125; <span class="keyword">while</span> ((e = next) != <span class="keyword">null</span>);</span><br><span class="line">                        <span class="keyword">if</span> (loTail != <span class="keyword">null</span>) &#123;</span><br><span class="line">                            loTail.next = <span class="keyword">null</span>;</span><br><span class="line">                            newTab[j] = loHead;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">if</span> (hiTail != <span class="keyword">null</span>) &#123;</span><br><span class="line">                            hiTail.next = <span class="keyword">null</span>;</span><br><span class="line">                            newTab[j + oldCap] = hiHead;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> newTab;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 删除节点</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> V <span class="title">remove</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">        Node&lt;K,V&gt; e;</span><br><span class="line">        <span class="keyword">return</span> (e = removeNode(hash(key), key, <span class="keyword">null</span>, <span class="keyword">false</span>, <span class="keyword">true</span>)) == <span class="keyword">null</span> ?</span><br><span class="line">            <span class="keyword">null</span> : e.value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">final</span> Node&lt;K,V&gt; <span class="title">removeNode</span><span class="params">(<span class="keyword">int</span> hash, Object key, Object value,</span></span></span><br><span class="line"><span class="function"><span class="params">                               <span class="keyword">boolean</span> matchValue, <span class="keyword">boolean</span> movable)</span> </span>&#123;</span><br><span class="line">        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, index;</span><br><span class="line">        <span class="keyword">if</span> ((tab = table) != <span class="keyword">null</span> &amp;&amp; (n = tab.length) &gt; <span class="number">0</span> &amp;&amp;</span><br><span class="line">            (p = tab[index = (n - <span class="number">1</span>) &amp; hash]) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 先找到待删除的节点</span></span><br><span class="line">            Node&lt;K,V&gt; node = <span class="keyword">null</span>, e; K k; V v;</span><br><span class="line">            <span class="comment">// 待删除为首节点</span></span><br><span class="line">            <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">                ((k = p.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                node = p;</span><br><span class="line">            <span class="comment">// 从红黑树或链表中找到待删除节点</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> ((e = p.next) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">                    node = ((TreeNode&lt;K,V&gt;)p).getTreeNode(hash, key);</span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">do</span> &#123;</span><br><span class="line">                        <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                            ((k = e.key) == key ||</span><br><span class="line">                             (key != <span class="keyword">null</span> &amp;&amp; key.equals(k)))) &#123;</span><br><span class="line">                            node = e;</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        p = e;</span><br><span class="line">                    &#125; <span class="keyword">while</span> ((e = e.next) != <span class="keyword">null</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 删除节点</span></span><br><span class="line">            <span class="keyword">if</span> (node != <span class="keyword">null</span> &amp;&amp; (!matchValue || (v = node.value) == value ||</span><br><span class="line">                                 (value != <span class="keyword">null</span> &amp;&amp; value.equals(v)))) &#123;</span><br><span class="line">                <span class="keyword">if</span> (node <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">                    ((TreeNode&lt;K,V&gt;)node).removeTreeNode(<span class="keyword">this</span>, tab, movable);</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (node == p)</span><br><span class="line">                    tab[index] = node.next;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                    p.next = node.next;</span><br><span class="line">                ++modCount;</span><br><span class="line">                --size;</span><br><span class="line">                afterNodeRemoval(node);</span><br><span class="line">                <span class="keyword">return</span> node;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="概率问题"><a href="#概率问题" class="headerlink" title="概率问题"></a>概率问题</h4><p>本节所要致力于解决的问题是，当散列表的大小为 M 时，长度为 k 的链表出现的概率是多少？为什么要解决这个问题呢？因为只有在链表长度足够短时，查找和插入节点才会显得高效。</p>
+<p>假设散列函数能将所有的元素均匀且独立地分配到数组中，即元素放入某个链表中的概率为 1/M，没有放入该链表的概率为 1-1/M。因此由二项分布可知，该链表长度为 k 的概率为（α = N/M 为期望）：</p>
+<img src="/2019/04/20/算法/透过散列表看HashMap/p(k).svg">
+<p>当 α 足够小时，可以转化为泊松分布的数学表达式：</p>
+<img src="/2019/04/20/算法/透过散列表看HashMap/p(k)2.svg">
+<p>介于此，对于初始大小为 16 的 HashMap，链表长度等于 8 的可能性为 0.00000006，这时就需要将链表转换成红黑树。</p>
+<h3 id="线性探测法"><a href="#线性探测法" class="headerlink" title="线性探测法"></a>线性探测法</h3><p>因为开放地址散列表的长度大于待插入的元素量，当插入元素的数组索引已被占用时，就可以通过索引自增 1 的方式向下查找并插入。在这个过程中，插入元素可能已经存在在散列表中，因此就需要检测数组元素的键是否和插入元素的键相同，这一过程称为探测。需要说明的是，开放地址散列表中的空位譬如磁盘碎片，不只有一处，而是会散落多处。探测的成本在于需要遍历连续无间断的元素量（即键簇中包含的元素量）。</p>
+<p>开放地址散列表的性能也依赖于 N/M 的比值，即数组的使用率。我们需要动态调整数组大小的方式来保证使用率在 1/8 到 1/2 之间。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LinearProbingHashST</span>&lt;<span class="title">Key</span>, <span class="title">Value</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> N;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> M;</span><br><span class="line">    <span class="keyword">private</span> Key[] keys;</span><br><span class="line">    <span class="keyword">private</span> Value[] vals;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LinearProbingHashST</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        keys = (Key[]) <span class="keyword">new</span> Object[M];</span><br><span class="line">        values = (Value[]) <span class="keyword">new</span> Object[M];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Key key, Value val)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (N &gt;= M / <span class="number">2</span>) resize(M * <span class="number">2</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> i;</span><br><span class="line">        <span class="comment">// 采用余数计算索引，在保证索引正确的同时，也能跳回到 0 索引位置</span></span><br><span class="line">        <span class="keyword">for</span> (i = hash(key); keys[i] != <span class="keyword">null</span>; i = (i + <span class="number">1</span>) % M) &#123;</span><br><span class="line">            <span class="keyword">if</span> (key.equals(keys[i])) &#123;</span><br><span class="line">                vals[i] = val;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        keys[i] = key;</span><br><span class="line">        vals[i] = val;</span><br><span class="line">        N++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Value <span class="title">get</span><span class="params">(Key key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = hash(key); keys[i] != <span class="keyword">null</span>; i = (i + <span class="number">1</span>) % M) &#123;</span><br><span class="line">            <span class="keyword">if</span> (key.equals(keys[i])) &#123;</span><br><span class="line">                <span class="keyword">return</span> vals[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">(Key key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!contains(key)) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> i = hash(key);</span><br><span class="line">        <span class="comment">// 找到 key 键</span></span><br><span class="line">        <span class="keyword">while</span> (!key.equals(keys[i])) &#123;</span><br><span class="line">            i = (i + <span class="number">1</span>) % M;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        keys[i] = <span class="keyword">null</span>;</span><br><span class="line">        values[i] = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        i = (i + <span class="number">1</span>) % M;</span><br><span class="line">        <span class="comment">// 遍历调整后续元素的位置</span></span><br><span class="line">        <span class="keyword">while</span> (keys[i] != <span class="keyword">null</span>) &#123;</span><br><span class="line">            Key keyToRehash = keys[i];</span><br><span class="line">            Value valueToRehash = values[i];</span><br><span class="line">            keys[i] = <span class="keyword">null</span>;</span><br><span class="line">            values[i] = <span class="keyword">null</span>;</span><br><span class="line">            N--;</span><br><span class="line">            put(keyToRehash, valueToRehash);</span><br><span class="line">            i = (i + <span class="number">1</span>) % M;</span><br><span class="line">        &#125;</span><br><span class="line">        N--;</span><br><span class="line">        <span class="keyword">if</span> (N &gt; <span class="number">0</span> &amp;&amp; N == M / <span class="number">8</span>) &#123;</span><br><span class="line">            resize(M / <span class="number">2</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/KingIceMou/p/7239668.html" target="_blank" rel="noopener">Java中Native关键字的作用</a><br><a href="https://blog.csdn.net/ccnt_2012/article/details/81114920" target="_blank" rel="noopener">如何通俗理解泊松分布？</a><br><a href="https://blog.csdn.net/Mollychin/article/details/80444967" target="_blank" rel="noopener">HashMap桶中链表转红黑树为什么选择数字8？</a><br><a href="https://blog.csdn.net/VIP_WangSai/article/details/70182933" target="_blank" rel="noopener">hashMap线程不安全的原因及表现</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/14/算法/HashMap中的红黑树/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2009,948 +2380,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/08/css/css 总汇/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/08/css/css 总汇/" itemprop="url">css 总汇</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-08T00:00:00+08:00">2019-02-08</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/02/08/css/css 总汇/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/02/08/css/css 总汇/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="选择器"><a href="#选择器" class="headerlink" title="选择器"></a>选择器</h2><h3 id="基本选择器"><a href="#基本选择器" class="headerlink" title="基本选择器"></a>基本选择器</h3><table>
-<thead>
-<tr>
-<th>选择器</th>
-<th>意义</th>
-<th>版本</th>
-<th>示例</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>*</td>
-<td>通用选择器</td>
-<td>2.1</td>
-<td>*</td>
-</tr>
-<tr>
-<td>E</td>
-<td>标签选择器</td>
-<td>1</td>
-<td>p</td>
-</tr>
-<tr>
-<td>.class</td>
-<td>类选择器</td>
-<td>1</td>
-<td>.nav</td>
-</tr>
-<tr>
-<td>#id</td>
-<td>ID选择器</td>
-<td>1</td>
-<td>#wrapper</td>
-</tr>
-<tr>
-<td>E[attr]</td>
-<td>属性选择器，匹配带 ‘data-url’ 属性的 a 元素</td>
-<td>2.1</td>
-<td>a[data-url]</td>
-</tr>
-<tr>
-<td>E[attr=val]</td>
-<td>属性选择器，匹配 type 属性为 ‘text’ 的 input 元素</td>
-<td>2.1</td>
-<td>input[type=’text’]</td>
-</tr>
-<tr>
-<td>E[attr~=val]</td>
-<td>属性选择器，匹配 keywords 属性包含 ‘round’ 的 div 元素</td>
-<td>2.1</td>
-<td>div[keywords~=’round’]</td>
-</tr>
-<tr>
-<td>E[attr=val]</td>
-<td>属性选择器，匹配 lang 属性以 ‘zh’ 开始的 label 元素</td>
-<td>2.1</td>
-<td>label[lang=’zh’]</td>
-</tr>
-<tr>
-<td>E[attr^=val]</td>
-<td>属性选择器，匹配 href 属性以 ‘http://‘ 开始的 a 元素</td>
-<td>3</td>
-<td>a[href^=’http://‘]</td>
-</tr>
-<tr>
-<td>E[attr$=val]</td>
-<td>属性选择器，匹配 src 属性以 ‘.png’ 结尾的 img 元素</td>
-<td>3</td>
-<td>img[src$=’.png’]</td>
-</tr>
-<tr>
-<td>E[attr*=val]</td>
-<td>属性选择器，匹配 href 属性中包含 ‘baidu.com’ 的 a 元素</td>
-<td>3</td>
-<td>a[href*=’baidu.com’]</td>
-</tr>
-<tr>
-<td>E F</td>
-<td>后代选择器</td>
-<td>1</td>
-<td>.blog p</td>
-</tr>
-<tr>
-<td>E&gt;F</td>
-<td>子选择器</td>
-<td>2.1</td>
-<td>.nav &gt; button</td>
-</tr>
-<tr>
-<td>E+F</td>
-<td>相邻兄弟选择器</td>
-<td>2.1</td>
-<td>label + input</td>
-</tr>
-<tr>
-<td>E~F</td>
-<td>兄弟选择器</td>
-<td>3</td>
-<td>header ~ div</td>
-</tr>
-<tr>
-<td>S1, S2</td>
-<td>选择器分组</td>
-<td>1</td>
-<td>input, select, textarea</td>
-</tr>
-</tbody>
-</table>
-<h3 id="伪类选择器"><a href="#伪类选择器" class="headerlink" title="伪类选择器"></a>伪类选择器</h3><table>
-<thead>
-<tr>
-<th>选择器</th>
-<th>意义</th>
-<th>版本</th>
-<th>示例</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>:link</td>
-<td>动态伪类，匹配未访问过的链接</td>
-<td>1</td>
-<td>a:link</td>
-</tr>
-<tr>
-<td>:visited</td>
-<td>动态伪类，匹配被访问过的链接</td>
-<td>1</td>
-<td>a:visited</td>
-</tr>
-<tr>
-<td>:hover</td>
-<td>动态伪类，匹配鼠标悬浮的元素</td>
-<td>1</td>
-<td>div:hover</td>
-</tr>
-<tr>
-<td>:active</td>
-<td>动态伪类，匹配鼠标按下的元素</td>
-<td>1</td>
-<td>a:active</td>
-</tr>
-<tr>
-<td>:focus</td>
-<td>动态伪类，匹配获得焦点的元素</td>
-<td>2.1</td>
-<td>input:focus</td>
-</tr>
-<tr>
-<td>:target</td>
-<td>目标伪类，匹配活动的锚</td>
-<td>2.1</td>
-<td>#tab1:target</td>
-</tr>
-<tr>
-<td>:lang(val)</td>
-<td>语言伪类，匹配指定 lang 属性的元素</td>
-<td>2.1</td>
-<td>p:lang(zh)</td>
-</tr>
-<tr>
-<td>:enabled</td>
-<td>状态伪类，匹配启用的元素</td>
-<td>3</td>
-<td>input:enabled</td>
-</tr>
-<tr>
-<td>:disabled</td>
-<td>状态伪类，匹配禁用的元素</td>
-<td>3</td>
-<td>input:disabled</td>
-</tr>
-<tr>
-<td>:checked</td>
-<td>状态伪类，匹配选中的元素</td>
-<td>3</td>
-<td>input:checked</td>
-</tr>
-<tr>
-<td>:root</td>
-<td>结构性伪类，文档根元素</td>
-<td>3</td>
-<td>:root</td>
-</tr>
-<tr>
-<td>:nth-child(n)</td>
-<td>结构性伪类，匹配父元素的第 n 个子元素</td>
-<td>3</td>
-<td>:nth-child</td>
-</tr>
-<tr>
-<td>:nth-last-child(n)</td>
-<td>结构性伪类，匹配父元素的倒数第 n 个子元素</td>
-<td>3</td>
-<td>:nth-last-child</td>
-</tr>
-<tr>
-<td>:nth-of-type(n)</td>
-<td>结构性伪类，匹配父元素的第 n 个相同子元素</td>
-<td>3</td>
-<td>:nth-of-type</td>
-</tr>
-<tr>
-<td>:nth-last-of-type(n)</td>
-<td>结构性伪类，匹配父元素的倒数第 n 个相同子元素</td>
-<td>3</td>
-<td>:nth-last-of-type</td>
-</tr>
-<tr>
-<td>:first-child</td>
-<td>结构性伪类，匹配父元素的第一个子元素</td>
-<td>3</td>
-<td>:first-child</td>
-</tr>
-<tr>
-<td>:last-child</td>
-<td>结构性伪类，匹配父元素的最后一个子元素</td>
-<td>3</td>
-<td>:last-child</td>
-</tr>
-<tr>
-<td>:first-of-type</td>
-<td>结构性伪类，匹配父元素的第一个相同子元素</td>
-<td>3</td>
-<td>:first-of-type</td>
-</tr>
-<tr>
-<td>:last-of-type</td>
-<td>结构性伪类，匹配父元素的最后一个相同子元素</td>
-<td>3</td>
-<td>:last-of-type</td>
-</tr>
-<tr>
-<td>:only-child</td>
-<td>结构性伪类，匹配父元素的唯一一个子元素</td>
-<td>3</td>
-<td>:only-child</td>
-</tr>
-<tr>
-<td>:only-of-type</td>
-<td>结构性伪类，匹配父元素的唯一一个相同子元素</td>
-<td>3</td>
-<td>:only-of-type</td>
-</tr>
-<tr>
-<td>:empty</td>
-<td>结构性伪类，匹配没有子元素的元素</td>
-<td>3</td>
-<td>:empty</td>
-</tr>
-<tr>
-<td>::first-line</td>
-<td>伪元素，匹配元素文本内容的首行</td>
-<td>1</td>
-<td>p::first-line</td>
-</tr>
-<tr>
-<td>::first-letter</td>
-<td>伪元素，匹配元素文本内容的首字母</td>
-<td>1</td>
-<td>p::first-letter</td>
-</tr>
-<tr>
-<td>::before</td>
-<td>伪元素，匹配元素之前的内容</td>
-<td>2.1</td>
-<td>div::before</td>
-</tr>
-<tr>
-<td>::after</td>
-<td>伪元素，匹配元素之后的内容</td>
-<td>2.1</td>
-<td>div::after</td>
-</tr>
-</tbody>
-</table>
-<h3 id="选择器权重"><a href="#选择器权重" class="headerlink" title="选择器权重"></a>选择器权重</h3><p>选择器分为 4 个优先级，分别是：内联样式；ID 选择器；类、伪类，属性选择器；元素，伪元素。其权重通常是 1000, 100, 10, 1。需要注明的是，11 个类选择器的权重并不会超过 1 个 ID 选择器。除此之外，!important 可将对应规则的权重提升到最高。</p>
-<h2 id="响应式开发"><a href="#响应式开发" class="headerlink" title="响应式开发"></a>响应式开发</h2><h3 id="viewport"><a href="#viewport" class="headerlink" title="viewport"></a>viewport</h3><p>在介绍响应式开发前，先须理清如下三个概念，各设备的物理像素和设备像素比也见于下表：</p>
-<ul>
-<li>物理像素：屏幕实际的像素点。</li>
-<li>设备独立像素：逻辑像素，用于定义应用的 UI。</li>
-<li>屏幕像素比：物理像素和设备独立像素的比值。</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>设备名称</th>
-<th>物理像素</th>
-<th>设备独立像素</th>
-<th>屏幕像素比</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>iPhone 7, 6, 6S</td>
-<td>750*1334</td>
-<td>373*667</td>
-<td>2</td>
-</tr>
-<tr>
-<td>iPhone 7 plus, 6S plus, 6 plus</td>
-<td>1080*1920</td>
-<td>414*736</td>
-<td>3</td>
-</tr>
-<tr>
-<td>iPhone 5, 5S, 5C, 5E</td>
-<td>640*1136</td>
-<td>320*568</td>
-<td>2</td>
-</tr>
-<tr>
-<td>iPhone 4</td>
-<td>640*960</td>
-<td>320*480</td>
-<td>2</td>
-</tr>
-<tr>
-<td>iPod Touch</td>
-<td>640*1136</td>
-<td>320*568</td>
-<td>2</td>
-</tr>
-<tr>
-<td>Galaxy S7, S7 edge, S6</td>
-<td>1440*2560</td>
-<td>360*640</td>
-<td>4</td>
-</tr>
-<tr>
-<td>Galaxy S5, S4</td>
-<td>1080*1920</td>
-<td>360*640</td>
-<td>3</td>
-</tr>
-<tr>
-<td>Galaxy S4 mini</td>
-<td>540*960</td>
-<td>360*640</td>
-<td>1.5</td>
-</tr>
-<tr>
-<td>Galaxy S3</td>
-<td>720*1280</td>
-<td>360*640</td>
-<td>2</td>
-</tr>
-<tr>
-<td>Galaxy Note 4</td>
-<td>1440*2560</td>
-<td>360*640</td>
-<td>4</td>
-</tr>
-<tr>
-<td>Galaxy Note 3</td>
-<td>1080*1920</td>
-<td>360*640</td>
-<td>3</td>
-</tr>
-<tr>
-<td>Galaxy Note 2</td>
-<td>720*1280</td>
-<td>360*640</td>
-<td>2</td>
-</tr>
-<tr>
-<td>Mi 4, 3</td>
-<td>1080*1920</td>
-<td>360*640</td>
-<td>3</td>
-</tr>
-<tr>
-<td>HTC One</td>
-<td>1080*1920</td>
-<td>360*640</td>
-<td>3</td>
-</tr>
-<tr>
-<td>Sony Xperia 23</td>
-<td>1080*1920</td>
-<td>360*640</td>
-<td>3</td>
-</tr>
-<tr>
-<td>Lenovo K900</td>
-<td>1080*1920</td>
-<td>360*640</td>
-<td>3</td>
-</tr>
-<tr>
-<td>ZTE Grand S</td>
-<td>1080*1920</td>
-<td>360*640</td>
-<td>3</td>
-</tr>
-<tr>
-<td>iPad Pro</td>
-<td>2048*2732</td>
-<td>1024*1366</td>
-<td>2</td>
-</tr>
-<tr>
-<td>iPad 3, 4, Air, Air2</td>
-<td>1536*2048</td>
-<td>768*1024</td>
-<td>2</td>
-</tr>
-<tr>
-<td>iPad mini 2, 3</td>
-<td>1536*2048</td>
-<td>768*1024</td>
-<td>2</td>
-</tr>
-<tr>
-<td>iPad mini</td>
-<td>768*1024</td>
-<td>768*1024</td>
-<td>1</td>
-</tr>
-</tbody>
-</table>
-<p>大多数设备的视口宽度都为 980 px，通过设置 <meta name="viewport" content="width=device-width, initial-scale=1"> 可调整视口（viewport）的宽度。关于视口的概念，可参考 <a href="https://www.cnblogs.com/2050/p/3877280.html" target="_blank" rel="noopener">移动前端开发之viewport的深入理解</a>。其中，meta 标签包含的属性含义如下：</p>
-<ul>
-<li>width：设置 viewport 宽度。</li>
-<li>initial-scale：设置 viewport 初始缩放值。</li>
-<li>minimum-scale：设置 viewport 最小缩放值。</li>
-<li>maximum-scale：设置 viewport 最大缩放值。</li>
-<li>height：设置 viewport 高度。</li>
-<li>user-scalable：是否允许用户缩放。</li>
-</ul>
-<h3 id="flex-布局"><a href="#flex-布局" class="headerlink" title="flex 布局"></a>flex 布局</h3><p>flex 弹性布局示意图：</p>
-
-<p>在 flex 容器内，水平轴称为交叉轴，垂直轴称为主轴；容器内分布 flex 项目。flex 容器包含以下属性：</p>
-<table>
-<thead>
-<tr>
-<th>属性名称</th>
-<th>意义</th>
-<th>可选值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>flex-direction</td>
-<td>决定 item 排列方向</td>
-<td>row 从左至右；column 从上到下；row-reverse；column-reverse</td>
-</tr>
-<tr>
-<td>flex-wrap</td>
-<td>决定 item 换行方式</td>
-<td>nowrap 不换行；wrap；wrap-reverse 第一行在下面</td>
-</tr>
-<tr>
-<td>justify-content</td>
-<td>决定 item 在主轴上的对齐方式</td>
-<td>flex-start；flex-end；center；space-between 两端对齐；space-around 沿轴线均匀分布</td>
-</tr>
-<tr>
-<td>align-items</td>
-<td>决定 item 在交叉轴上的对齐方式</td>
-<td>flex-start；flex-end；center；baseline；stretch 当 item 未设置高度时，item 将与容器等高度</td>
-</tr>
-<tr>
-<td>align-content</td>
-<td>决定多行 item 的对齐方式</td>
-<td>flex-start；flex-end；center；space-between；space-around；stretch</td>
-</tr>
-</tbody>
-</table>
-<p>flex 项目包含如下属性：</p>
-<table>
-<thead>
-<tr>
-<th>属性名称</th>
-<th>意义</th>
-<th>可选值</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>order</td>
-<td>决定 item 排列顺序，默认值为 0</td>
-<td>-</td>
-</tr>
-<tr>
-<td>flex-grow</td>
-<td>决定 item 放大比例，默认值为 0</td>
-<td>-</td>
-</tr>
-<tr>
-<td>flex-shrink</td>
-<td>决定 item 缩小比例，默认值为 1</td>
-<td>-</td>
-</tr>
-<tr>
-<td>flex-basis</td>
-<td>决定 item 在主轴上占据的空间，默认值为 auto</td>
-<td>-</td>
-</tr>
-<tr>
-<td>align-self</td>
-<td>决定 item 在交叉轴上的对齐方式</td>
-<td>auto；flex-start；flex-end；center；baseline；stretch</td>
-</tr>
-</tbody>
-</table>
-<p>关于 flex 布局，可参考 <a href="https://www.cnblogs.com/nuannuan7362/p/5823381.html" target="_blank" rel="noopener">flex弹性布局学习总结</a>。</p>
-<h3 id="媒体查询"><a href="#媒体查询" class="headerlink" title="媒体查询"></a>媒体查询</h3><p>媒体查询可以定义在 css 中，也可以定义在 link 元素的 media 属性内。后一种方法始终会加载 css 样式，通过 media 属性决定是否应用 css 样式。</p>
-<p>媒体查询可使用如下属性，并可加以 min- 或 max- 前缀：</p>
-<ul>
-<li>width：视口的宽度。</li>
-<li>height：视口的高度。</li>
-<li>aspect-ratio：视口的宽高比。</li>
-<li>orientation：设备横竖屏，值为 portrait 或 landscape。</li>
-<li>resolution：设备分辨率，值可以是每英寸 dpi 或每厘米 dpcm。</li>
-</ul>
-<p>媒体查询以 @media 起始；以 not 为逻辑非，’,’ 号为逻辑或。@media 后可使用不同的媒体类型或媒体属性。媒体类型包含：all 所有媒体类型；print 打印设备；screen 显示器；speech 辅助设备。</p>
-<h3 id="rem"><a href="#rem" class="headerlink" title="rem"></a>rem</h3><p>css 中的计量单位有 px, pt, em, rem 等。em 相对当前元素的字体大小；rem 相对根元素的字体大小。使用 rem 制作响应式页面，先须根据屏幕大小调整切换根元素的字体大小。关于如何动态调整根元素的字体大小，可参考 <a href="https://github.com/amfe/lib-flexible" target="_blank" rel="noopener">lib-flexible</a>。</p>
-<h3 id="多列布局"><a href="#多列布局" class="headerlink" title="多列布局"></a>多列布局</h3><p>在 css3 中，文本可采用多列布局，其中施以影响的样式有：</p>
-<ul>
-<li>column-count：设定列数。</li>
-<li>column-width：设定列宽度。</li>
-<li>column-gap：设定列间距。</li>
-<li>column-rule：设定列间距的样式规则。</li>
-</ul>
-<h2 id="动效"><a href="#动效" class="headerlink" title="动效"></a>动效</h2><h3 id="transform-转换"><a href="#transform-转换" class="headerlink" title="transform 转换"></a>transform 转换</h3><ul>
-<li>translate(x, y)：平移。</li>
-<li>translate3d(x, y, z)：平移。</li>
-<li>translateX(x)：平移。</li>
-<li>translateY(y)：平移。</li>
-<li>translateZ(z)：平移。</li>
-<li>scale(x, y)：缩放。</li>
-<li>scale3d(x, y, z)：缩放。</li>
-<li>scaleX(x)：缩放。</li>
-<li>scaleY(y)：缩放。</li>
-<li>scaleZ(z)：缩放。</li>
-<li>rotate(angle)：旋转。</li>
-<li>rotate3d(x, y, z, angle)：旋转。</li>
-<li>rotateX(angle)：旋转。</li>
-<li>rotateY(angle)：旋转。</li>
-<li>rotateZ(angle)：旋转。</li>
-<li>skew(x-angle, y-angle)：倾斜变形。</li>
-<li>skewX(angle)：倾斜变形。</li>
-<li>skewY(angle)：倾斜变形。</li>
-<li>matrix(n, n, n, n, n, n)：自定义转换。</li>
-<li>matrix3d(n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n)：自定义转换。</li>
-<li>prespective(n)：透视图。</li>
-</ul>
-<h3 id="transition-过渡"><a href="#transition-过渡" class="headerlink" title="transition 过渡"></a>transition 过渡</h3><p>transition 在指定 css 属性发生变化时，开始执行动效。它的格式以及包含的属性如下：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">transition</span>: <span class="selector-tag">transition-property</span> <span class="selector-tag">transition-duration</span> <span class="selector-tag">transition-timing-function</span> <span class="selector-tag">transition-delay</span>;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>transition-property：指定将发生变化的 css 属性。</li>
-<li>transition-duration：指定动效执行的时长。</li>
-<li>transition-timing-function：指定动效的速度曲线。可能的值包含：linea 以相同的速度执行动效，等同于贝济埃曲线（0.0, 0.0, 1.0, 1.0）；ease 以逐渐变慢的速度执行动效，等同于贝济埃曲线（0.25, 1.0, 0.25, 1.0）；ease-in 以慢速开始执行动效，等同于贝济埃曲线（0.42, 0.0, 1.0, 1.0）；ease-out 以慢速结束执行动效，等同于贝济埃曲线（0.0, 0.0, 0.58, 1.0）；ease-in-out 以慢速开始并结束执行动效，等同于贝济埃曲线（0.42, 0.0, 0.58, 1.0）；cubic-bezier(n, n, n, n) 自定义时间曲线，即自定义贝济埃曲线。</li>
-<li>transition-delay：指定动效的延迟时间。</li>
-</ul>
-<h3 id="animation-动画"><a href="#animation-动画" class="headerlink" title="animation 动画"></a>animation 动画</h3><p>animation 适用于块状和内联元素。它的格式以及包含的属性如下：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">animation</span>: <span class="selector-tag">animation-name</span> <span class="selector-tag">animation-duration</span> <span class="selector-tag">animation-timing-function</span> <span class="selector-tag">animation-delay</span> <span class="selector-tag">animation-iteration-count</span> <span class="selector-tag">animation-direction</span>;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>animation-name：值可以为 @keyframes 创建的动画名称，默认值为 none，即不会有任何动画效果。</li>
-<li>animation-duration：动画播放时长。</li>
-<li>animation-timing-function：指定动画的速度曲线，值可以是 linea, ease, ease-in, ease-out, ease-in-out, cubic-bezier(n, n, n, n)。</li>
-<li>animation-delay：动画的延迟时间。</li>
-<li>animation-iteration-count：动画的播放次数。</li>
-<li>animation-direction：动画的播放方向，默认值为 normal。当指定为 alternate 时，偶数次向前播放，奇数次向后播放。</li>
-</ul>
-<h2 id="常用特性"><a href="#常用特性" class="headerlink" title="常用特性"></a>常用特性</h2><h3 id="开放字体格式-WOFF"><a href="#开放字体格式-WOFF" class="headerlink" title="开放字体格式 WOFF"></a>开放字体格式 WOFF</h3><p>通过 css3 中的 @font-face 可使用开放字体格式（Web Open Font Format，简称 WOFF）。@font-face 规则如下：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@<span class="keyword">font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: &lt;开放字体格式名&gt;;</span><br><span class="line">  <span class="attribute">src</span>: &lt;字体路径&gt; [&lt;字体格式&gt;] [,&lt;字体路径&gt; [&lt;字体格式&gt;]] *;</span><br><span class="line">  [font-weight: &lt;字体粗细&gt;]; </span><br><span class="line">  <span class="selector-attr">[font-style: &lt;字体样式&gt;]</span>; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@<span class="keyword">font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: <span class="string">'fontello'</span>;</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">'./font/fontello.eot?69798120'</span>);</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">'./font/fontello.eot?69798120#iefix'</span>) <span class="built_in">format</span>(<span class="string">'embedded-open-type'</span>),</span><br><span class="line">    <span class="built_in">url</span>(<span class="string">'./font/fontello.woff?69798120'</span>) <span class="built_in">format</span>(<span class="string">'woff'</span>),</span><br><span class="line">    <span class="built_in">url</span>(<span class="string">'./font/fontello.tff?69798120'</span>) <span class="built_in">format</span>(<span class="string">'truetype'</span>),</span><br><span class="line">    <span class="built_in">url</span>(<span class="string">'./font/fontello.svg?69798120#fontello'</span>) <span class="built_in">format</span>(<span class="string">'svg'</span>);</span><br><span class="line">  <span class="attribute">font-weight</span>: normal; </span><br><span class="line">  <span class="attribute">font-style</span>: normal; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>字体格式包含如下值：</p>
-<ul>
-<li>.tff：TrueType 格式，是 windows, mac 上常见的字体。</li>
-<li>.otf: OpenType 格式，一种原始的字体。</li>
-<li>.woff: Web Open Font Format 格式，Web 字体中最佳格式，TrueType/OpenType 格式的压缩版。</li>
-<li>.eot：Embedded Open Type 格式，可以从 TrueType 创建此格式的字体，IE 专用格式，支持此字体的浏览器有 IE4+。</li>
-<li>.svg：SVG 格式。</li>
-</ul>
-<p>@font-face 可用于加载字体图标 IconFont。字体图标可参考 <a href="https://www.cnblogs.com/hjvsdr/p/6639649.html" target="_blank" rel="noopener">iconfont字体图标的使用方法–超简单!</a>。</p>
-<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><ul>
-<li>background-color：指定背景色。</li>
-<li>background-position：指定背景图像的位置。</li>
-<li>background-size：指定背景图像的尺寸，值可以指定背景的宽度和高度，也可以是 cover 使背景图像覆盖背景区域，超出部分将会裁剪, contain 使背景图像适应背景区域。</li>
-<li>background-repeat：指定是否重复背景图像。</li>
-<li>background-origin：指定背景的定位区域，值可以是 padding, padding-box, border, border-box, content, content-box，即从内边距或外边距开始。</li>
-<li>background-clip：指定背景的绘制区域，指定区域将被裁剪，值可以是 border-box, padding-box, content-box。</li>
-<li>background-attachment：指定背景图像是否固定或者随着页面的其余部分滚动。</li>
-<li>background-image：指定背景图像。</li>
-</ul>
-<h3 id="颜色"><a href="#颜色" class="headerlink" title="颜色"></a>颜色</h3><p>颜色取值可以指定颜色名称，如 black；或 HEX 以十六进制表示颜色，如 #000000；或 RGB 记法，如 rgb(0, 0, 0)；或 RGBA 记法，alpha 为透明度，如 rgba(0, 0, 0, 0.5)；或 HSL 记法，如 hsl(360, 50%, 50%)；或 HSLA 记法，如 hsla(360, 50%, 50%, 0.5)；或 transparent 全透明色彩；或 currentcolor 当前标签继承的文字颜色。</p>
-<p>颜色也可以设置渐变。linear-gradient 线性渐变，如 linear-gradient(direction, color-stop1, color-stop2, …)；或 radial-gradient 径向渐变，如 radial-gradient(position, shape size, start-color, …, last-color)。</p>
-<p>也可以使用 opacity 指定透明度。</p>
-<h3 id="文字效果"><a href="#文字效果" class="headerlink" title="文字效果"></a>文字效果</h3><ul>
-<li>text-shadow：字体阴影，格式如 text-shadow: h-shadow v-shadow blur color。其中，h-shadow 为水平阴影的位置；v-shadow 为垂直阴影的位置；blur 模糊的距离；color 阴影的颜色。</li>
-<li>text-overflow：指定文本溢出的处理方式。值可以是 clip 裁剪；ellipsis 省略号显示；string 指定字符串替代被裁剪的文本。</li>
-<li>word-wrap：指定长单词或 url 地址是否自动换行，值可以是 normal, break-word。normal 在允许的断字点换行；break-word 在长单词或 url 地址内部进行换行。</li>
-<li>word-break：指定自动换行的处理方式，值可以是 normal, break-all, keep-all。normal 默认的换行方式；break-all 允许在单次内换行；keep-all 只能在半角空格或连字符处换行。</li>
-</ul>
-<h3 id="边框"><a href="#边框" class="headerlink" title="边框"></a>边框</h3><ul>
-<li>border-width：指定边框的宽度。</li>
-<li>border-style：指定边框样式。</li>
-<li>border-color：指定边框颜色。</li>
-<li>border-radius：指定圆角边框。</li>
-<li>border-image：指定边框背景图像。</li>
-<li>box-shadow：指定边框阴影。格式如 box-shadow: h-shadow v-shadow blur spread color inset。</li>
-</ul>
-<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>box-sizing：盒模式。<br>calc：函数计算样式。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/03/读书笔记/移动Web高效开发实践/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/03/读书笔记/移动Web高效开发实践/" itemprop="url">移动Web高效开发实践</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-03T00:00:00+08:00">2019-02-03</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/读书笔记/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/02/03/读书笔记/移动Web高效开发实践/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/02/03/读书笔记/移动Web高效开发实践/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>本文档主要用于汇总待整理的问题点，后续将以文章形式逐条剖析。</p>
-<h2 id="开发环境或工具"><a href="#开发环境或工具" class="headerlink" title="开发环境或工具"></a>开发环境或工具</h2><ul>
-<li>NProxy：web 代理工具，参考 <a href="http://www.cnblogs.com/wenber/p/3893308.html" target="_blank" rel="noopener">前端调试利器—nproxy</a>。</li>
-<li>http-server：搭建 http 服务器，参考 <a href="https://www.cnblogs.com/Janejxt/p/9394989.html" target="_blank" rel="noopener">本地搭建http-server服务器</a>。</li>
-<li>caniuse：查询浏览器对样式的支持度。</li>
-<li>modernizr：嵌入脚本，检测浏览器对样式或特征的支持度。</li>
-</ul>
-<h2 id="html5"><a href="#html5" class="headerlink" title="html5"></a>html5</h2><ul>
-<li>布局元素：Header, Nav, Article, Section, Aside, Footer。</li>
-<li>input[type=?]：search, tel, url, email, date, color, number, range, datetime, month, week。</li>
-<li>input[?=]：required, pattern, autofocus, form, placeholder。</li>
-<li>新元素：progress 进度条, meter 标尺。</li>
-<li>新属性：contenteditable 使元素可编辑。</li>
-<li>audio 音频、video 视频：包含 controls 展示默认控件, autoplay, loop 循环播放, preload 预加载, volumn 音量属性，通过 source 元素加载音频、视频；可以用 api 形式操作音频。</li>
-<li>navigator.geolocation.getCurrentPosition(success, error, options)：获取当前地理位置。</li>
-<li>navigator.mediaDevices.getUserMedia(contraints).then(success).catch(error)：调用摄像头拍照，success 回调的参数 stream 可通过 window.URL.createObjectURL(stream) 赋值给 video 元素的 src 属性。</li>
-<li>deviceorientation 事件：可监听设备旋转角度的变化，绕上下坐标旋转称为 alpha 弧度，绕左右坐标称为 beta，绕前后坐标旋转称为 gamma。</li>
-<li>devicemotion 事件：可监听设备移动的距离以及旋转角度的变化。</li>
-<li>离线存储：以 ‘.mainfest’ 或 ‘.appcache’ 描述文件设定待存储的资源目录，html 指定 mainfest 属性关联该描述文件，这样可以在断网状态下加载本地缓存的资源。结合 LocalStorage，可以缓存本地用户填写的数据。除此之外，service worker 可以用指定的方式加载本地缓存。关于 service worker，可参考 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Service_Worker_API" target="_blank" rel="noopener">Service Worker API</a>, <a href="https://www.jianshu.com/p/0e2dee4c77bc" target="_blank" rel="noopener">构建 Web 应用之 Service Worker 初探</a>, <a href="https://www.cnblogs.com/dojo-lzz/p/8047336.html" target="_blank" rel="noopener">Web离线应用解决方案——ServiceWorker</a>。</li>
-<li>LocalStorage, SessionStorage：本地存储。</li>
-<li>IndexedDB：浏览器本地的结构化数据库，使用 new LocalDB(dbName, tableName) 创建。</li>
-<li>Canvas 画布。</li>
-<li>SVG 矢量图。</li>
-<li>WebGL 三维图像。渲染引擎可参考 <a href="https://github.com/pixijs/pixi.js" target="_blank" rel="noopener">pixi.js</a>。</li>
-<li>window.postMessage(message, target, [transfer])：跨域传送。</li>
-<li>xhr2：添加 ontimeout, onprogress 方法，可传送 FormData 数据。</li>
-<li>EventSource：创建 EventSource 对象接受服务端主动推送的消息。</li>
-<li>WebSocket 全双工通信。</li>
-<li>WebRTC 实时通信。</li>
-<li>drag, drop 拖拽。</li>
-<li><a href="http://xzfyu.com/2019/01/27/history%E6%BA%90%E7%A0%81/" target="_blank" rel="noopener">history api</a>。</li>
-<li>web workers 多线程。</li>
-<li>performance api 网站性能。</li>
-<li>microdata：参考 <a href="https://lepture.com/zh/2015/fe-microdata" target="_blank" rel="noopener">前端的基礎修養：Microdata</a>。</li>
-</ul>
-<h2 id="css"><a href="#css" class="headerlink" title="css"></a>css</h2><p>参考 <a href="http://xzfyu.com/2019/02/08/css/css%20%E6%80%BB%E6%B1%87/" target="_blank" rel="noopener">css 总汇</a>。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2995,7 +2429,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">139</span>
+                    <span class="site-state-item-count">141</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

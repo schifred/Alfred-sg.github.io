@@ -100,30 +100,31 @@
 
 
   
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="analyst,">
 
 
-<meta name="description" content="fiber.tag 类型ReactWorkTags.js 展示了 fiber 的类型（基于不同的类型会作不同处理）：  FunctionComponent：函数式组件。React$ElementType 为构造函数。 ClassComponent：类组件。React$ElementType 为函数。 HostComponent：Host 组件（如 DOM 节点）。React$ElementType">
+<meta name="description" content="fiber reconciler 将 fiber 的状态更新抽象为 Update 单向链表：  tag：更新类型，UpdateState 增量更新、ReplaceState 完全替换、ForceUpdate 强制更新、CaptureUpdate payload：状态变更函数或新状态本身 callback：回调，作用于 fiber.effectTag expirationTime：过期时间 susp">
+<meta name="keywords" content="analyst">
 <meta property="og:type" content="article">
-<meta property="og:title" content="修子范语">
-<meta property="og:url" content="http://yoursite.com/2020/02/22/react/react fiber 2/index.html">
+<meta property="og:title" content="react fiber 状态更新篇">
+<meta property="og:url" content="http://yoursite.com/2020/04/29/react/react16源码/react fibe 状态更新篇/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="fiber.tag 类型ReactWorkTags.js 展示了 fiber 的类型（基于不同的类型会作不同处理）：  FunctionComponent：函数式组件。React$ElementType 为构造函数。 ClassComponent：类组件。React$ElementType 为函数。 HostComponent：Host 组件（如 DOM 节点）。React$ElementType">
+<meta property="og:description" content="fiber reconciler 将 fiber 的状态更新抽象为 Update 单向链表：  tag：更新类型，UpdateState 增量更新、ReplaceState 完全替换、ForceUpdate 强制更新、CaptureUpdate payload：状态变更函数或新状态本身 callback：回调，作用于 fiber.effectTag expirationTime：过期时间 susp">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-02-29T11:06:53.487Z">
+<meta property="og:updated_time" content="2020-03-02T14:21:20.194Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="修子范语">
-<meta name="twitter:description" content="fiber.tag 类型ReactWorkTags.js 展示了 fiber 的类型（基于不同的类型会作不同处理）：  FunctionComponent：函数式组件。React$ElementType 为构造函数。 ClassComponent：类组件。React$ElementType 为函数。 HostComponent：Host 组件（如 DOM 节点）。React$ElementType">
+<meta name="twitter:title" content="react fiber 状态更新篇">
+<meta name="twitter:description" content="fiber reconciler 将 fiber 的状态更新抽象为 Update 单向链表：  tag：更新类型，UpdateState 增量更新、ReplaceState 完全替换、ForceUpdate 强制更新、CaptureUpdate payload：状态变更函数或新状态本身 callback：回调，作用于 fiber.effectTag expirationTime：过期时间 susp">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/02/22/react/react fiber 2/">
+  <link rel="canonical" href="http://yoursite.com/2020/04/29/react/react16源码/react fibe 状态更新篇/">
 
 
-  <title> | 修子范语</title>
+  <title>react fiber 状态更新篇 | 修子范语</title>
   
 
 
@@ -299,7 +300,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/22/react/react fiber 2/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/29/react/react16源码/react fibe 状态更新篇/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Alfred">
@@ -316,7 +317,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline"></h1>
+          <h1 class="post-title" itemprop="name headline">react fiber 状态更新篇</h1>
         
 
         <div class="post-meta">
@@ -328,7 +329,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-22T17:03:13+08:00">2020-02-22</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-29T00:00:00+08:00">2020-04-29</time>
             
 
             
@@ -338,6 +339,24 @@
           </span>
 
           
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a></span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -346,8 +365,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2020/02/22/react/react fiber 2/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/22/react/react fiber 2/" itemprop="commentCount"></span>
+                <a href="/2020/04/29/react/react16源码/react fibe 状态更新篇/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/04/29/react/react16源码/react fibe 状态更新篇/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -375,31 +394,23 @@
       
 
       
-        <h3 id="fiber-tag-类型"><a href="#fiber-tag-类型" class="headerlink" title="fiber.tag 类型"></a>fiber.tag 类型</h3><p><a href="https://github.com/facebook/react/blob/v16.12.0/packages/shared/ReactWorkTags.js#L35" target="_blank" rel="noopener">ReactWorkTags.js</a> 展示了 fiber 的类型（基于不同的类型会作不同处理）：</p>
+        <p>fiber reconciler 将 fiber 的状态更新抽象为 Update 单向链表：</p>
 <ul>
-<li>FunctionComponent：函数式组件。React$ElementType 为构造函数。</li>
-<li>ClassComponent：类组件。React$ElementType 为函数。</li>
-<li>HostComponent：Host 组件（如 DOM 节点）。React$ElementType 为 string。</li>
-<li>Fragment：Fragment 组件。React$ElementType 为 REACT_FRAGMENT_TYPE。</li>
-<li>Mode：React$ElementType 为 REACT_CONCURRENT_MODE_TYPE 或 REACT_STRICT_MODE_TYPE。</li>
-<li>Profiler：React$ElementType 为 REACT_PROFILER_TYPE。</li>
-<li>SuspenseComponent：React$ElementType 为 REACT_SUSPENSE_TYPE。</li>
-<li>SuspenseListComponent：React$ElementType 为 REACT_SUSPENSE_LIST_TYPE。</li>
-<li>IndeterminateComponent：</li>
-<li>HostRoot：</li>
-<li>HostPortal：</li>
-<li>HostText：</li>
-<li>ContextConsumer：Context.Consumer 组件。React$ElementType 为对象，React$ElementType$$typeof 为 REACT_CONTEXT_TYPE。</li>
-<li>ContextProvider：Context.Provider 组件。React$ElementType 为对象，React$ElementType$$typeof 为 REACT_PROVIDER_TYPE。</li>
-<li>ForwardRef：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_FORWARD_REF_TYPE。</li>
-<li>MemoComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_MEMO_TYPE。</li>
-<li>LazyComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_LAZY_TYPE。</li>
-<li>FundamentalComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_FUNDAMENTAL_TYPE。</li>
-<li>ScopeComponent：React$ElementType 为对象，React$ElementType$$typeof 为 REACT_SCOPE_TYPE。</li>
-<li>SimpleMemoComponent：</li>
-<li>IncompleteClassComponent：</li>
-<li>DehydratedFragment：</li>
-<li>Chunk：</li>
+<li>tag：更新类型，UpdateState 增量更新、ReplaceState 完全替换、ForceUpdate 强制更新、CaptureUpdate</li>
+<li>payload：状态变更函数或新状态本身</li>
+<li>callback：回调，作用于 fiber.effectTag</li>
+<li>expirationTime：过期时间</li>
+<li>suspenseConfig：</li>
+<li>next：指向下一个 Update</li>
+<li>priority：仅限于 dev 环境</li>
+</ul>
+<p><a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-reconciler/src/ReactUpdateQueue.js#L184" target="_blank" rel="noopener">createUpdate 函数</a> 用于创建 Update。<a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-reconciler/src/ReactUpdateQueue.js#L262" target="_blank" rel="noopener">getStateFromUpdate 函数</a> 用于通过 Update 获取新的 fiber 状态。</p>
+<p>UpdateQueue：</p>
+<ul>
+<li>baseState：</li>
+<li>baseQueue：</li>
+<li>shared：</li>
+<li>effects：</li>
 </ul>
 
       
@@ -416,6 +427,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/analyst/" rel="tag"># analyst</a>
+          
+        </div>
+      
 
       
       
@@ -425,8 +442,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/02/22/react/react16源码/react fiber 搜罗整理篇/" rel="next" title="react fiber 搜罗整理篇">
-                <i class="fa fa-chevron-left"></i> react fiber 搜罗整理篇
+              <a href="/2020/04/29/react/react16源码/react fiber 代码梳理篇/" rel="next" title="react fiber 代码梳理篇">
+                <i class="fa fa-chevron-left"></i> react fiber 代码梳理篇
               </a>
             
           </div>
@@ -435,8 +452,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/02/28/antd/聊聊组件库的构成/" rel="prev" title="聊聊 Ant Design 组件库的构成">
-                聊聊 Ant Design 组件库的构成 <i class="fa fa-chevron-right"></i>
+              <a href="/2020/06/09/frontend/前端技术汇总贴/" rel="prev" title="前端技术汇总贴">
+                前端技术汇总贴 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -496,17 +513,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -523,7 +531,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">139</span>
+                    <span class="site-state-item-count">141</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -587,22 +595,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#fiber-tag-类型"><span class="nav-number">1.</span> <span class="nav-text">fiber.tag 类型</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
@@ -757,9 +749,9 @@
   
     <script type="text/javascript">
       var disqus_config = function () {
-        this.page.url = 'http://yoursite.com/2020/02/22/react/react fiber 2/';
-        this.page.identifier = '2020/02/22/react/react fiber 2/';
-        this.page.title = '';
+        this.page.url = 'http://yoursite.com/2020/04/29/react/react16源码/react fibe 状态更新篇/';
+        this.page.identifier = '2020/04/29/react/react16源码/react fibe 状态更新篇/';
+        this.page.title = 'react fiber 状态更新篇';
       };
       function loadComments () {
         var d = document, s = d.createElement('script');

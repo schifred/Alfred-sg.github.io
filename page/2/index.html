@@ -299,6 +299,380 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/工程化/umi-plugin-qiankun/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/17/工程化/umi-plugin-qiankun/" itemprop="url">umi-plugin-qiankun</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-17T00:00:00+08:00">2020-02-17</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/02/17/工程化/umi-plugin-qiankun/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/17/工程化/umi-plugin-qiankun/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><a href="https://github.com/umijs/umi-plugin-qiankun" target="_blank" rel="noopener">umi-plugin-qiankun</a> 基于 <a href="http://xzfyu.com/2020/02/16/frontend/qiankun%20%E5%BE%AE%E6%9C%8D%E5%8A%A1/" target="_blank" rel="noopener">qiankun</a>，允许在 umi 环境中创建微服务。</p>
+<p>按官方示例，搭建 umi 微服务可基于以下流程实现：</p>
+<ol>
+<li>主应用 .umirc.js 添加 @umijs/plugin-qiankun 插件配置 master 内容：注册子应用（应用名、html 地址、路由前缀、路由方式、挂载节点、自定义属性等）、启动沙箱、启动预加载、启动异步渲染等。（备注：子应用也可以在运行时通过 src/app.js 这个特殊的运行时插件导出 qiankun 的方式动态注册）</li>
+<li>子应用 .umirc.js 添加 @umijs/plugin-qiankun 插件配置 slave 内容：keepOriginalRoutes。</li>
+<li>子应用入口文件中导出 qiankun = { bootstrap, mount, unmount }，非必要。</li>
+</ol>
+<p>综上，注册子应用的方式有两种：</p>
+<ol>
+<li>编译期通过 .umirc.js 注册。</li>
+<li>运行时通过 src/app.js 注册。</li>
+</ol>
+<p>基于 qiankun、umi 的运作机制，使用 umi-plugin-qiankun 搭建微服务就是在运行时获取编译期或运行时配置，然后调用 qiankun 的接口注册子应用并启动微服务。因为需要在运行时注册子应用，所以就需要借助运行时插件的能力。在实现上，umi-plugin-qiankun 会通过 qiankun-master、qiankun-slave 这两个额外插件分别会调用 api.addRuntimePlugin 接口注册各自的 runtimePlugin 运行时插件。关于 umi 的运行时插件，可参考 <a href="http://xzfyu.com/2020/02/17/%E5%B7%A5%E7%A8%8B%E5%8C%96/umi%E8%BF%90%E8%A1%8C%E6%97%B6%E6%8F%92%E4%BB%B6/" target="_blank" rel="noopener">umi 运行时插件</a>。</p>
+<p>编译期配置（即 .umirc.js 中的 master、slave 内容）的获取，umi 提供的可实现方式是：</p>
+<ol>
+<li>首先通过 api.onOptionChange 监听编译期配置变更。</li>
+<li>然后通过 api.changePluginOption 将配置内容传递给 qiankun-master、qiankun-slave 这两个额外插件。</li>
+<li>在 qiankun-master、qiankun-slave 中，调用 api.writeTmpFile 将配置内容写入 subAppsConfig.json 临时文件。</li>
+<li>runtimePlugin 运行时插件读取临时文件，并相应注册子应用。</li>
+</ol>
+<p>运行时配置（即 src/app.js 导出的 qiankun）的获取，umi 提供的可实现方式是：在 runtimePlugin 运行时插件通过调用 plugins.mergeConfigAsync(‘qiankun’) 读取导出内容。</p>
+<h2 id="微服务注册启动流程"><a href="#微服务注册启动流程" class="headerlink" title="微服务注册启动流程"></a>微服务注册启动流程</h2><p>如上文，umi-plugin-qiankun 中的微服务注册启动流程就是读取编译器配置或运行时配置，再调用 qiankun 接口注册和启动微服务。这部分内容主要在 qiankun-master 这个额外插件实现。此外，umi-plugin-qiankun 支持使用 defer 配置异步渲染（子应用挂载在主应用渲染产生的节点上），这部分功能通过 api.writeTmpFile、api.addUmiExports 接口创建 qiankunDefer.js 临时文件实现。在启动微服务的流程中，umi-plugin-qiankun 首先会调用 render 脚本，然后（根据 defer 配置）等待 qiankunDefer 执行到 resolve 状态，最后调用 qiankun 接口启动微服务。想要使 qiankunDefer 变更到 resolve 状态，需要开发者手动调用 qiankunStart（也即 qiankunDefer.resolve）。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** qiankun-master *** runtimePlugin.js ***/</span></span><br><span class="line"><span class="comment">// 获取编译器配置（.umirc.js 中的 master、slave 内容）</span></span><br><span class="line"><span class="keyword">import</span> subAppConfig <span class="keyword">from</span> <span class="string">'@tmp/subAppsConfig.json'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取运行时配置（src/app.js 导出的 qiankun），运行时配置优先级高于编译器配置</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">getMasterRuntime</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> plugins = <span class="built_in">require</span>(<span class="string">'umi/_runtimePlugin'</span>);</span><br><span class="line">  <span class="keyword">const</span> config: GlobalOptions = (<span class="keyword">await</span> plugins.mergeConfigAsync(<span class="string">'qiankun'</span>)) || &#123;&#125;;</span><br><span class="line">  <span class="keyword">const</span> &#123; master &#125; = config;</span><br><span class="line">  <span class="keyword">return</span> master || config;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">render</span>(<span class="params">oldRender: typeof noop</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 执行 umi 应用的渲染脚本</span></span><br><span class="line">  <span class="comment">// 渲染脚本先于 defer 流程，defer 才有效</span></span><br><span class="line">  oldRender();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 子应用是否处于激活状态</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">isAppActive</span>(<span class="params">location: Location, history: IConfig[<span class="string">'history'</span>], base: App[<span class="string">'base'</span>]</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> baseConfig = toArray(base);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (history) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">'hash'</span>:</span><br><span class="line">        <span class="keyword">return</span> baseConfig.some(<span class="function"><span class="params">pathPrefix</span> =&gt;</span> testPathWithPrefix(<span class="string">`#<span class="subst">$&#123;pathPrefix&#125;</span>`</span>, location.hash));</span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> <span class="string">'browser'</span>:</span><br><span class="line">        <span class="keyword">return</span> baseConfig.some(<span class="function"><span class="params">pathPrefix</span> =&gt;</span> testPathWithPrefix(pathPrefix, location.pathname));</span><br><span class="line"></span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取运行时配置、编译器配置</span></span><br><span class="line">  <span class="keyword">const</span> runtimeConfig = <span class="keyword">await</span> getMasterRuntime();</span><br><span class="line">  <span class="keyword">const</span> &#123; apps, jsSandbox = <span class="literal">false</span>, prefetch = <span class="literal">true</span>, defer = <span class="literal">false</span>, lifeCycles, masterHistory, ...otherConfigs &#125; = &#123;</span><br><span class="line">    ...(subAppConfig <span class="keyword">as</span> Options),</span><br><span class="line">    ...(runtimeConfig <span class="keyword">as</span> Options),</span><br><span class="line">  &#125;;</span><br><span class="line">  assert(apps &amp;&amp; apps.length, <span class="string">'sub apps must be config when using umi-plugin-qiankun'</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 注册子应用</span></span><br><span class="line">  registerMicroApps(</span><br><span class="line">    apps.map(<span class="function">(<span class="params">&#123; name, entry, base, history = masterHistory, mountElementId = defaultMountContainerId, props &#125;</span>) =&gt;</span> (&#123;</span><br><span class="line">      name,</span><br><span class="line">      entry,</span><br><span class="line">      activeRule: <span class="function"><span class="params">location</span> =&gt;</span> isAppActive(location, history, base),</span><br><span class="line">      render: <span class="function">(<span class="params">&#123; appContent, loading &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (process.env.NODE_ENV === <span class="string">'development'</span>) &#123;</span><br><span class="line">          <span class="built_in">console</span>.info(<span class="string">`app <span class="subst">$&#123;name&#125;</span> loading <span class="subst">$&#123;loading&#125;</span>`</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (mountElementId) &#123;</span><br><span class="line">          <span class="keyword">const</span> container = <span class="built_in">document</span>.getElementById(mountElementId);</span><br><span class="line">          <span class="keyword">if</span> (container) &#123;</span><br><span class="line">            <span class="keyword">const</span> subApp = React.createElement(<span class="string">'div'</span>, &#123;</span><br><span class="line">              dangerouslySetInnerHTML: &#123;</span><br><span class="line">                __html: appContent,</span><br><span class="line">              &#125;,</span><br><span class="line">            &#125;);</span><br><span class="line">            ReactDOM.render(subApp, container);</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="comment">// 将 base、history 都传入子应用</span></span><br><span class="line">      props: &#123;</span><br><span class="line">        base,</span><br><span class="line">        history,</span><br><span class="line">        ...props,</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;)),</span><br><span class="line">    lifeCycles,</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 异步启动，需要在主应用中手动调用 qiankunStart 函数，以使 deferred 执行到 resolve 状态</span></span><br><span class="line">  <span class="keyword">if</span> (defer) &#123;</span><br><span class="line">    <span class="keyword">await</span> deferred.promise;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 启动微服务</span></span><br><span class="line">  start(&#123; jsSandbox, prefetch, ...otherConfigs &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">api.writeTmpFile(</span><br><span class="line">  <span class="string">'qiankunDefer.js'</span>,</span><br><span class="line">  <span class="string">`</span></span><br><span class="line"><span class="string">    class Deferred &#123;</span></span><br><span class="line"><span class="string">      constructor() &#123;</span></span><br><span class="line"><span class="string">        this.promise = new Promise(resolve =&gt; this.resolve = resolve);</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">    export const deferred = new Deferred();</span></span><br><span class="line"><span class="string">    export const qiankunStart = deferred.resolve;</span></span><br><span class="line"><span class="string">  `</span>.trim(),</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">api.addUmiExports([</span><br><span class="line">  &#123;</span><br><span class="line">    specifiers: [<span class="string">'qiankunStart'</span>],</span><br><span class="line">    source: <span class="string">'@tmp/qiankunDefer'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">]);</span><br></pre></td></tr></table></figure>
+<p>子应用侧，结合 qiankun 加载子应用脚本生命周期函数的机制，qiankun-slave 这个额外插件会借助 api.modifyDefaultConfig 为子应用设置跟路由、挂载节点、开启 runtimePublicPath 等；借助 api.modifyPublicPathStr 将 publicPath 设置为 window.<strong>INJECTED_PUBLIC_PATH_BY_QIANKUN</strong> 或 api.config.publicPath、’/‘ 等；借助 api.modifyWebpackConfig 将打包模式改为 umd 模式，并将开发环境的 publicPath 与开发服务器 ip 地址挂钩。与此同时，qiankun-slave 会借助 api.modifyHTMLWithAST 为子应用的入口文件加载节点打上 entry 标识；借助 api.chainWebpackConfig 为开发环境的 source-map 增添跨域能力。以下仅展示部分脚本：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** qiankun-slave *** index.ts ***/</span></span><br><span class="line">api.modifyHTMLWithAST(<span class="function"><span class="params">$</span> =&gt;</span> &#123;</span><br><span class="line">  $(<span class="string">'script'</span>).each(<span class="function">(<span class="params">_, el</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> scriptEl = $(el);</span><br><span class="line">    <span class="keyword">const</span> umiEntryJs = <span class="regexp">/\/?umi(\.\w+)?\.js$/g</span>;</span><br><span class="line">    <span class="keyword">if</span> (umiEntryJs.test(scriptEl.attr(<span class="string">'src'</span>) ?? <span class="string">''</span>)) &#123;</span><br><span class="line">      scriptEl.attr(<span class="string">'entry'</span>, <span class="string">''</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> $;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (process.env.NODE_ENV === <span class="string">'development'</span> &amp;&amp; port) &#123;</span><br><span class="line">  <span class="comment">// 变更 webpack-dev-server websocket 默认监听地址</span></span><br><span class="line">  process.env.SOCKET_SERVER = <span class="string">`<span class="subst">$&#123;protocol&#125;</span>://<span class="subst">$&#123;localIpAddress&#125;</span>:<span class="subst">$&#123;port&#125;</span>/`</span>;</span><br><span class="line">  api.chainWebpackConfig(<span class="function"><span class="params">memo</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 禁用 devtool，启用 SourceMapDevToolPlugin</span></span><br><span class="line">    memo.devtool(<span class="literal">false</span>);</span><br><span class="line">    memo.plugin(<span class="string">'source-map'</span>).use(webpack.SourceMapDevToolPlugin, [</span><br><span class="line">      &#123;</span><br><span class="line">        namespace: pkgName,</span><br><span class="line">        append: <span class="string">`\n//# sourceMappingURL=<span class="subst">$&#123;protocol&#125;</span>://<span class="subst">$&#123;localIpAddress&#125;</span>:<span class="subst">$&#123;port&#125;</span>/[url]`</span>,</span><br><span class="line">        filename: <span class="string">'[file].map'</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">    ]);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="子应用的生命周期函数"><a href="#子应用的生命周期函数" class="headerlink" title="子应用的生命周期函数"></a>子应用的生命周期函数</h2><p>umi-plugin-qiankun 允许在子应用的 src/app.js 配置生命周期函数。获取该部分的运行时配置同样通过添加运行时脚本实现，但这次并没有调用 api.addRuntimePlugin，而是调用 api.addRendererWrapperWithModule 将 qiankun-slave 插件中的 lifecycles.ts 模块注入到 umi.js 入口文件中，再通过调用 api.addEntryCode 使 umi.js 导出 bootstrap、mount、unmount 生命周期函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** qiankun-slave *** index.ts ***/</span></span><br><span class="line"><span class="keyword">const</span> lifecyclePath = <span class="built_in">require</span>.resolve(<span class="string">'./lifecycles'</span>);</span><br><span class="line">api.addEntryImport(&#123;</span><br><span class="line">  source: lifecyclePath,</span><br><span class="line">  specifier:</span><br><span class="line">    <span class="string">'&#123; genMount as qiankun_genMount, genBootstrap as qiankun_genBootstrap, genUnmount as qiankun_genUnmount &#125;'</span>,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// lifecycles.ts 以 moduleBeforeRendererPromises 形式添加到入口文件中</span></span><br><span class="line"><span class="comment">// moduleBeforeRendererPromises 为什么返回 Promise，就像这个插件中的情形一样，可以改写 render</span></span><br><span class="line"><span class="comment">// 改写完成后，再通过 resolve 进行渲染操作</span></span><br><span class="line">api.addRendererWrapperWithModule(lifecyclePath);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 往入口文件中插入脚本，对应 entry.js.tpl 中的 code，render 脚本渲染后再调用</span></span><br><span class="line">api.addEntryCode(</span><br><span class="line">  <span class="string">`</span></span><br><span class="line"><span class="string">  export const bootstrap = qiankun_genBootstrap(Promise.all(moduleBeforeRendererPromises), render);</span></span><br><span class="line"><span class="string">  export const mount = qiankun_genMount();</span></span><br><span class="line"><span class="string">  export const unmount = qiankun_genUnmount('<span class="subst">$&#123;mountElementId&#125;</span>');</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  if (!window.__POWERED_BY_QIANKUN__) &#123;</span></span><br><span class="line"><span class="string">    bootstrap().then(mount);</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*** qiankun-slave *** lifecycles.ts ***/</span></span><br><span class="line"><span class="keyword">import</span> ReactDOM <span class="keyword">from</span> <span class="string">'react-dom'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; noop &#125; <span class="keyword">from</span> <span class="string">'../common'</span>;</span><br><span class="line"></span><br><span class="line">type Defer = &#123;</span><br><span class="line">  promise: <span class="built_in">Promise</span>&lt;any&gt;;</span><br><span class="line">  resolve(value?: any): <span class="keyword">void</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> defer: Defer = &#123;&#125;;</span><br><span class="line">defer.promise = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">  defer.resolve = resolve;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> render = noop;</span><br><span class="line"><span class="keyword">let</span> hasMountedAtLeastOnce = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// moduleBeforeRendererPromises 处理机制，需要返回 Promise</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> () =&gt; defer.promise;</span><br><span class="line"></span><br><span class="line"><span class="comment">// src/app.js 中配置的生命周期函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getSlaveRuntime</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> plugins = <span class="built_in">require</span>(<span class="string">'umi/_runtimePlugin'</span>);</span><br><span class="line">  <span class="keyword">const</span> config = plugins.mergeConfig(<span class="string">'qiankun'</span>) || &#123;&#125;;</span><br><span class="line">  <span class="keyword">const</span> &#123; slave &#125; = config;</span><br><span class="line">  <span class="keyword">return</span> slave || config;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 引导函数，先执行 src/app.js 中配置的 bootstrap 生命周期</span></span><br><span class="line"><span class="comment">// 然后改写 render 脚本，渲染失败予以提示</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">genBootstrap</span>(<span class="params">promises: Promise&lt;any&gt;, oldRender: typeof noop</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">async</span> (...args: any[]) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> slaveRuntime = getSlaveRuntime();</span><br><span class="line">    <span class="keyword">if</span> (slaveRuntime.bootstrap) <span class="keyword">await</span> slaveRuntime.bootstrap(...args);</span><br><span class="line">    render = <span class="function"><span class="params">()</span> =&gt;</span></span><br><span class="line">      promises.then(oldRender).catch(<span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (process.env.NODE_ENV === <span class="string">'development'</span>) &#123;</span><br><span class="line">          <span class="built_in">console</span>.error(<span class="string">'Render failed'</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂载函数，先调用 defer.resolve 引起 render 渲染脚本执行</span></span><br><span class="line"><span class="comment">// 其次执行 src/app.js 中配置的 mount 生命周期</span></span><br><span class="line"><span class="comment">// 其次若非首次 mount，手动调用 render 渲染脚本</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">genMount</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">async</span> (...args: any[]) =&gt; &#123;</span><br><span class="line">    defer.resolve();</span><br><span class="line">    <span class="keyword">const</span> slaveRuntime = getSlaveRuntime();</span><br><span class="line">    <span class="keyword">if</span> (slaveRuntime.mount) <span class="keyword">await</span> slaveRuntime.mount(...args);</span><br><span class="line">    <span class="comment">// 第一次 mount umi 会自动触发 render，非第一次 mount 则需手动触发</span></span><br><span class="line">    <span class="keyword">if</span> (hasMountedAtLeastOnce) &#123;</span><br><span class="line">      render();</span><br><span class="line">    &#125;</span><br><span class="line">    hasMountedAtLeastOnce = <span class="literal">true</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 卸载函数</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">genUnmount</span>(<span class="params">mountElementId: string</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">async</span> (...args: any[]) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> container = <span class="built_in">document</span>.getElementById(mountElementId);</span><br><span class="line">    <span class="keyword">if</span> (container) &#123;</span><br><span class="line">      ReactDOM.unmountComponentAtNode(container);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> slaveRuntime = getSlaveRuntime();</span><br><span class="line">    <span class="keyword">if</span> (slaveRuntime.unmount) <span class="keyword">await</span> slaveRuntime.unmount(...args);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="应用间的数据共享"><a href="#应用间的数据共享" class="headerlink" title="应用间的数据共享"></a>应用间的数据共享</h2><p>如 umi-plugin-qiankun 文档中所述，应用间的数据共享可通过 props 实现（子应用注册方式采用运行时配置），其次可基于公共的 hooks 实现共享。基于 hooks 实现数据共享的流程为：</p>
+<ol>
+<li>开发者手动在主应用的工程目录下添加 src/rootExports.js 并导出 hooks；</li>
+<li>由 qiankun-master 读取这些 hooks，并通过临时文件 qiankunRootExports.js 将其赋值到 window.g_rootExports 属性中；</li>
+<li>由 qiankun-slave 创建 qiankunContext.js 临时文件，调用 React.createContext 生成上下文；</li>
+<li>由 qiankun-slave 添加 rootContainer 类运行时脚本，以 qiankunContext 包裹原先的根节点，上下文中传入 window.g_rootExports 属性。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** qiankun-master *** index.ts ***/</span></span><br><span class="line"><span class="keyword">const</span> rootExportsFile = join(api.paths.absSrcPath, <span class="string">'rootExports.js'</span>);</span><br><span class="line">api.addPageWatcher(rootExportsFile);</span><br><span class="line"></span><br><span class="line">api.onGenerateFiles(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> rootExports = <span class="string">`</span></span><br><span class="line"><span class="string">window.g_rootExports = <span class="subst">$&#123;existsSync(rootExportsFile) ? <span class="string">`require('@/rootExports')`</span> : <span class="string">`&#123;&#125;`</span>&#125;</span>;</span></span><br><span class="line"><span class="string">  `</span>.trim();</span><br><span class="line">  api.writeTmpFile(<span class="string">'qiankunRootExports.js'</span>, rootExports);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*** qiankun-slave *** index.ts ***/</span></span><br><span class="line">api.writeTmpFile(</span><br><span class="line">    <span class="string">'qiankunContext.js'</span>,</span><br><span class="line">    <span class="string">`</span></span><br><span class="line"><span class="string">import &#123; createContext, useContext &#125; from 'react';</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">export const Context = createContext(null);</span></span><br><span class="line"><span class="string">export function useRootExports() &#123;</span></span><br><span class="line"><span class="string">  return useContext(Context);</span></span><br><span class="line"><span class="string">&#125;;</span></span><br><span class="line"><span class="string">`</span>.trim(),</span><br><span class="line">);</span><br><span class="line">api.addUmiExports([</span><br><span class="line">  &#123;</span><br><span class="line">    specifiers: [<span class="string">'useRootExports'</span>],</span><br><span class="line">    source: <span class="string">'@tmp/qiankunContext'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">]);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*** qiankun-slave *** runtimePlguin.ts ***/</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">rootContainer</span>(<span class="params">container: HTMLElement</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> value = (<span class="built_in">window</span> <span class="keyword">as</span> any).g_rootExports;</span><br><span class="line">  <span class="comment">// eslint-disable-next-line global-require</span></span><br><span class="line">  <span class="keyword">const</span> &#123; Context &#125; = <span class="built_in">require</span>(<span class="string">'@tmp/qiankunContext'</span>);</span><br><span class="line">  <span class="keyword">return</span> React.createElement(Context.Provider, &#123; value &#125;, container);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>稍稍厘清这个插件已觉费力，再看到 umi 团队规划中的任务项”子应用嵌套、公共依赖加载策略“，略感望尘莫及。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/工程化/umi运行时插件/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/17/工程化/umi运行时插件/" itemprop="url">umi 运行时插件</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-17T00:00:00+08:00">2020-02-17</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端工程化/" itemprop="url" rel="index"><span itemprop="name">前端工程化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/02/17/工程化/umi运行时插件/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/17/工程化/umi运行时插件/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="运行原理"><a href="#运行原理" class="headerlink" title="运行原理"></a>运行原理</h2><p>runtimePlugin 运行时插件也遵循先注册、后使用的流程。运行时插件表现为数组形式，数组项为运行时插件的导出对象。导出对象中的属性可以是函数、或对象、返回对象的 Promise（前者可称为执行类导出，后两者可称为配置类导出，因其用于获取配置项）。umi 包中的 runtimePlugin.js 提供了如下方法：</p>
+<ul>
+<li>plugins：运行时插件集合。</li>
+<li>validKeys：校验 key 键集合。</li>
+<li>init({ validKeys })：清空 plugins，赋值 plugins。</li>
+<li>use(plugin)：注册插件，并校验插件的 key 键。</li>
+<li>getItem(key)：获取 key 键为指定值的插件。</li>
+<li>compose(item, { initialValue })：选用执行类导出以 reduce 机制依次执行其中的函数，函数执行时参数为上游的返回值。</li>
+<li>apply(item, { initialValue, args })：选用执行类导出以 reduce 机制依次执行其中的函数，函数执行时参数为上游的返回值 memo，以及 apply 调用时传参 args。</li>
+<li>applyForEach(item, { initialValue })：选用执行类导出以 array.forEach 机制依次执行其中的函数，函数执行时参数为 initialValue。</li>
+<li>mergeConfig(item)：选用纯对象配置类导出，混合其配置输出。</li>
+<li>mergeConfigAsync(item)：选用 Promise 形式的配置类导出，混合其配置输出。</li>
+</ul>
+<p>上述方法的有效性都依赖于 plugins 运行时插件集合、validKeys 校验 key 键集合非空。那么，plugins、validKeys 都是在什么装填进内容的呢？采用倒溯法，我们可以在 umi-build-dev 包下的 entry.js.tpl 入口文件模板中找到如下代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> plugins = <span class="built_in">require</span>(<span class="string">'umi/_runtimePlugin'</span>);<span class="comment">// 实际就是 umi 包中的 runtimePlugin.js</span></span><br><span class="line">&#123;&#123;#globalVariables&#125;&#125;</span><br><span class="line"><span class="built_in">window</span>.g_plugins = plugins;</span><br><span class="line">&#123;&#123;/globalVariables&#125;&#125;</span><br><span class="line">plugins.init(&#123;</span><br><span class="line">  validKeys: [&#123;&#123;#validKeys&#125;&#125;'&#123;&#123;&#123; . &#125;&#125;&#125;',&#123;&#123;/validKeys&#125;&#125;],</span><br><span class="line">&#125;);</span><br><span class="line">&#123;&#123;#plugins&#125;&#125;</span><br><span class="line">plugins.use(<span class="built_in">require</span>(<span class="string">'&#123;&#123;&#123; . &#125;&#125;&#125;'</span>));</span><br><span class="line">&#123;&#123;/plugins&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>上述入口文件模板代码也即意味着 umi 在启动时会将运行时插件及其校验 key 键集合通过 mustache 模板引擎装填到入口文件中，以便其他调用文件所使用。实际入口文件内容由以下代码填充：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** FilesGenerator.js ***/</span></span><br><span class="line"><span class="comment">// 调用 addRuntimePlugin 插件钩子，获得 umi 内部以及各 umi-plugin-* 注册的运行时插件</span></span><br><span class="line"><span class="keyword">const</span> plugins = <span class="keyword">this</span>.service</span><br><span class="line">  .applyPlugins(<span class="string">'addRuntimePlugin'</span>, &#123;</span><br><span class="line">    initialValue: [],</span><br><span class="line">  &#125;)</span><br><span class="line">  .map(<span class="function"><span class="params">plugin</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> winPath(relative(paths.absTmpDirPath, plugin));</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用 addRuntimePluginKey 插件钩子，获得 umi 内部以及各 umi-plugin-* 注册的运行时插件校验 key 键</span></span><br><span class="line"><span class="keyword">const</span> validKeys = <span class="keyword">this</span>.service.applyPlugins(<span class="string">'addRuntimePluginKey'</span>, &#123;</span><br><span class="line">  initialValue: [</span><br><span class="line">    <span class="string">'patchRoutes'</span>,</span><br><span class="line">    <span class="string">'render'</span>,</span><br><span class="line">    <span class="string">'rootContainer'</span>,</span><br><span class="line">    <span class="string">'modifyRouteProps'</span>,</span><br><span class="line">    <span class="string">'onRouteChange'</span>,</span><br><span class="line">    <span class="string">'modifyInitialProps'</span>,</span><br><span class="line">    <span class="string">'initialProps'</span>,</span><br><span class="line">  ],</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用 mustache 模板引擎生成入口文件内容，为其装填运行时插件及其校验 key 键</span></span><br><span class="line"><span class="keyword">const</span> entryContent = Mustache.render(entryTpl, &#123;</span><br><span class="line">  globalVariables: !<span class="keyword">this</span>.service.config.disableGlobalVariables,</span><br><span class="line">  code: <span class="keyword">this</span>.service</span><br><span class="line">    .applyPlugins(<span class="string">'addEntryCode'</span>, &#123;</span><br><span class="line">      initialValue: [],</span><br><span class="line">    &#125;)</span><br><span class="line">    .join(<span class="string">'\n\n'</span>),</span><br><span class="line">  codeAhead: <span class="keyword">this</span>.service</span><br><span class="line">    .applyPlugins(<span class="string">'addEntryCodeAhead'</span>, &#123;</span><br><span class="line">      initialValue: [],</span><br><span class="line">    &#125;)</span><br><span class="line">    .join(<span class="string">'\n\n'</span>),</span><br><span class="line">  imports: importsToStr(</span><br><span class="line">    <span class="keyword">this</span>.service.applyPlugins(<span class="string">'addEntryImport'</span>, &#123;</span><br><span class="line">      initialValue: moduleBeforeRenderer,</span><br><span class="line">    &#125;),</span><br><span class="line">  ).join(<span class="string">'\n'</span>),</span><br><span class="line">  importsAhead: importsToStr(</span><br><span class="line">    <span class="keyword">this</span>.service.applyPlugins(<span class="string">'addEntryImportAhead'</span>, &#123;</span><br><span class="line">      initialValue: [],</span><br><span class="line">    &#125;),</span><br><span class="line">  ).join(<span class="string">'\n'</span>),</span><br><span class="line">  polyfillImports: importsToStr(</span><br><span class="line">    <span class="keyword">this</span>.service.applyPlugins(<span class="string">'addEntryPolyfillImports'</span>, &#123;</span><br><span class="line">      initialValue: [],</span><br><span class="line">    &#125;),</span><br><span class="line">  ).join(<span class="string">'\n'</span>),</span><br><span class="line">  moduleBeforeRenderer,</span><br><span class="line">  render: initialRender,</span><br><span class="line">  plugins,</span><br><span class="line">  validKeys,</span><br><span class="line">  htmlTemplateMap: htmlTemplateMap.join(<span class="string">'\n'</span>),</span><br><span class="line">  findRoutePath: winPath(<span class="built_in">require</span>.resolve(<span class="string">'./findRoute'</span>)),</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>提供给 umi-plugin-* 插件所使用的 api.addRuntimePlugin、api.addRuntimePluginKey 作为 ADD 类型的插件钩子，其意义在于给 opts.memo 添加元素，然后在 applyPlugins 阶段输出 plugins、validKeys。关于 umi 的插件钩子，可参看 <a href="http://xzfyu.com/2020/02/16/%E5%B7%A5%E7%A8%8B%E5%8C%96/umi%20%E6%8F%92%E4%BB%B6%E9%92%A9%E5%AD%90%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">umi 插件钩子机制</a>。</p>
+<h2 id="内置实例"><a href="#内置实例" class="headerlink" title="内置实例"></a>内置实例</h2><p>从上方源码也可以看出，umi 内置有 patchRoutes、render、rootContainer、modifyRouteProps、onRouteChange、modifyInitialProps、initialProps 等运行时插件。</p>
+<h3 id="入口文件生成机制"><a href="#入口文件生成机制" class="headerlink" title="入口文件生成机制"></a>入口文件生成机制</h3><p>要说明这些插件的意义，先要解释一下 umi 中入口文件 umi.js 的生成策略。这部分功能由 FilesGenerator.js 模块中的 generateEntry 方法完成。它遵照一下流程：</p>
+<ol>
+<li>读取 entry.js.tpl 模板。</li>
+<li>根据 SSR、CSR 渲染策略生成 render 渲染脚本（生成 rootContainer 应用根元素并完成挂载）。</li>
+<li>执行 modifyEntryRender 插件钩子，改写 render 渲染脚本。</li>
+<li>执行 addRendererWrapperWithModule 插件钩子，获取 render 渲染前执行脚本。</li>
+<li>执行 addRuntimePlugin、addRuntimePluginKey 插件钩子，获取运行时插件及其校验 key 键。较为特殊的运行时插件为工程目录下的 app.js 文件。</li>
+<li>如果是 SSR 渲染，生成服务端渲染 html 模板（注：不甚理解）。</li>
+<li>通过 mustache 模板引擎生成 umi.js 入口文件脚本内容。</li>
+<li>将入口文件脚本内容写入打包文件夹中。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** FilesGenerator.js ***/</span></span><br><span class="line">generateEntry() &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; paths, config &#125; = <span class="keyword">this</span>.service;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 步骤 1</span></span><br><span class="line">  <span class="keyword">const</span> entryTpl = readFileSync(paths.defaultEntryTplPath, <span class="string">'utf-8'</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 步骤 2、3</span></span><br><span class="line">  <span class="keyword">const</span> initialRender = <span class="keyword">this</span>.service.applyPlugins(<span class="string">'modifyEntryRender'</span>, &#123;</span><br><span class="line">    initialValue: <span class="string">`</span></span><br><span class="line"><span class="string">window.g_isBrowser = true;</span></span><br><span class="line"><span class="string">let props = &#123;&#125;;</span></span><br><span class="line"><span class="string">// Both support SSR and CSR</span></span><br><span class="line"><span class="string">if (window.g_useSSR) &#123;</span></span><br><span class="line"><span class="string">  // 如果开启服务端渲染则客户端组件初始化 props 使用服务端注入的数据</span></span><br><span class="line"><span class="string">  props = window.g_initialData;</span></span><br><span class="line"><span class="string">&#125; else &#123;</span></span><br><span class="line"><span class="string">  const pathname = location.pathname;</span></span><br><span class="line"><span class="string">  const activeRoute = findRoute(require('@@/router').routes, pathname);</span></span><br><span class="line"><span class="string">  // 在客户端渲染前，执行 getInitialProps 方法</span></span><br><span class="line"><span class="string">  // 拿到初始数据</span></span><br><span class="line"><span class="string">  if (activeRoute &amp;&amp; activeRoute.component &amp;&amp; activeRoute.component.getInitialProps) &#123;</span></span><br><span class="line"><span class="string">    const initialProps = plugins.apply('modifyInitialProps', &#123;</span></span><br><span class="line"><span class="string">      initialValue: &#123;&#125;,</span></span><br><span class="line"><span class="string">    &#125;);</span></span><br><span class="line"><span class="string">    props = activeRoute.component.getInitialProps ? await activeRoute.component.getInitialProps(&#123;</span></span><br><span class="line"><span class="string">      route: activeRoute,</span></span><br><span class="line"><span class="string">      isServer: false,</span></span><br><span class="line"><span class="string">      location,</span></span><br><span class="line"><span class="string">      ...initialProps,</span></span><br><span class="line"><span class="string">    &#125;) : &#123;&#125;;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">const rootContainer = plugins.apply('rootContainer', &#123;</span></span><br><span class="line"><span class="string">  initialValue: React.createElement(require('./router').default, props),</span></span><br><span class="line"><span class="string">&#125;);</span></span><br><span class="line"><span class="string">ReactDOM[window.g_useSSR ? 'hydrate' : 'render'](</span></span><br><span class="line"><span class="string">  rootContainer,</span></span><br><span class="line"><span class="string">  document.getElementById('<span class="subst">$&#123;config.mountElementId&#125;</span>'),</span></span><br><span class="line"><span class="string">);</span></span><br><span class="line"><span class="string">    `</span>.trim(),</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 步骤 4</span></span><br><span class="line">  <span class="keyword">const</span> moduleBeforeRenderer = <span class="keyword">this</span>.service</span><br><span class="line">    .applyPlugins(<span class="string">'addRendererWrapperWithModule'</span>, &#123;</span><br><span class="line">      initialValue: [],</span><br><span class="line">    &#125;)</span><br><span class="line">    .map(<span class="function">(<span class="params">source, index</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        source,</span><br><span class="line">        specifier: <span class="string">`moduleBeforeRenderer<span class="subst">$&#123;index&#125;</span>`</span>,</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 步骤 5</span></span><br><span class="line">  <span class="keyword">const</span> plugins = <span class="keyword">this</span>.service</span><br><span class="line">    .applyPlugins(<span class="string">'addRuntimePlugin'</span>, &#123;</span><br><span class="line">      initialValue: [],</span><br><span class="line">    &#125;)</span><br><span class="line">    .map(<span class="function"><span class="params">plugin</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> winPath(relative(paths.absTmpDirPath, plugin));</span><br><span class="line">    &#125;);</span><br><span class="line">  <span class="keyword">if</span> (findJS(paths.absSrcPath, <span class="string">'app'</span>)) &#123;</span><br><span class="line">    plugins.push(<span class="string">'@/app'</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> validKeys = <span class="keyword">this</span>.service.applyPlugins(<span class="string">'addRuntimePluginKey'</span>, &#123;</span><br><span class="line">    initialValue: [</span><br><span class="line">      <span class="string">'patchRoutes'</span>,</span><br><span class="line">      <span class="string">'render'</span>,</span><br><span class="line">      <span class="string">'rootContainer'</span>,</span><br><span class="line">      <span class="string">'modifyRouteProps'</span>,</span><br><span class="line">      <span class="string">'onRouteChange'</span>,</span><br><span class="line">      <span class="string">'modifyInitialProps'</span>,</span><br><span class="line">      <span class="string">'initialProps'</span>,</span><br><span class="line">    ],</span><br><span class="line">  &#125;);</span><br><span class="line">  assert(</span><br><span class="line">    uniq(validKeys).length === validKeys.length,</span><br><span class="line">    <span class="string">`Conflict keys found in [<span class="subst">$&#123;validKeys.join(<span class="string">', '</span>)&#125;</span>]`</span>,</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 步骤 6</span></span><br><span class="line">  <span class="keyword">let</span> htmlTemplateMap = [];</span><br><span class="line">  <span class="keyword">if</span> (config.ssr) &#123;</span><br><span class="line">    <span class="keyword">const</span> isProd = process.env.NODE_ENV === <span class="string">'production'</span>;</span><br><span class="line">    <span class="keyword">const</span> routePaths = getRoutePaths(<span class="keyword">this</span>.RoutesManager.routes);</span><br><span class="line">    htmlTemplateMap = routePaths.map(<span class="function"><span class="params">routePath</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> ssrHtml = <span class="string">'&lt;&gt;&lt;/&gt;'</span>;</span><br><span class="line">      <span class="keyword">const</span> hg = getHtmlGenerator(<span class="keyword">this</span>.service, &#123;</span><br><span class="line">        chunksMap: &#123;</span><br><span class="line">          <span class="comment">// TODO, for dynamic chunks</span></span><br><span class="line">          <span class="comment">// placeholder waiting manifest</span></span><br><span class="line">          umi: [</span><br><span class="line">            isProd ? <span class="string">'__UMI_SERVER__.js'</span> : <span class="string">'umi.js'</span>,</span><br><span class="line">            isProd ? <span class="string">'__UMI_SERVER__.css'</span> : <span class="string">'umi.css'</span>,</span><br><span class="line">          ],</span><br><span class="line">        &#125;,</span><br><span class="line">        headScripts: [</span><br><span class="line">          &#123;</span><br><span class="line">            content: <span class="string">'window.g_useSSR=true;'</span>.trim(),</span><br><span class="line">          &#125;,</span><br><span class="line">        ],</span><br><span class="line">        scripts: [</span><br><span class="line">          &#123;</span><br><span class="line">            content: <span class="string">`window.g_initialData = \$&#123;stringify(props)&#125;;`</span>.trim(),</span><br><span class="line">          &#125;,</span><br><span class="line">        ],</span><br><span class="line">      &#125;);</span><br><span class="line">      <span class="keyword">const</span> content = hg.getMatchedContent(normalizePath(routePath, config.base));</span><br><span class="line">      ssrHtml = htmlToJSX(content).replace(</span><br><span class="line">        <span class="string">`&lt;div id="<span class="subst">$&#123;config.mountElementId || <span class="string">'root'</span>&#125;</span>"&gt;&lt;/div&gt;`</span>,</span><br><span class="line">        <span class="string">`&lt;div id="<span class="subst">$&#123;config.mountElementId || <span class="string">'root'</span>&#125;</span>"&gt;&#123;rootContainer&#125;&lt;/div&gt;`</span>,</span><br><span class="line">      );</span><br><span class="line">      <span class="keyword">return</span> <span class="string">`'<span class="subst">$&#123;routePath&#125;</span>': (<span class="subst">$&#123;ssrHtml&#125;</span>),`</span>;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 步骤 7</span></span><br><span class="line">  <span class="keyword">const</span> entryContent = Mustache.render(entryTpl, &#123;</span><br><span class="line">    globalVariables: !<span class="keyword">this</span>.service.config.disableGlobalVariables,<span class="comment">// 是否配置 window.g_history 等全局变量</span></span><br><span class="line">    code: <span class="keyword">this</span>.service<span class="comment">// 入口文件处添加的执行脚本，渲染后</span></span><br><span class="line">      .applyPlugins(<span class="string">'addEntryCode'</span>, &#123;</span><br><span class="line">        initialValue: [],</span><br><span class="line">      &#125;)</span><br><span class="line">      .join(<span class="string">'\n\n'</span>),</span><br><span class="line">    codeAhead: <span class="keyword">this</span>.service<span class="comment">// 入口文件处添加的执行脚本，渲染前</span></span><br><span class="line">      .applyPlugins(<span class="string">'addEntryCodeAhead'</span>, &#123;</span><br><span class="line">        initialValue: [],</span><br><span class="line">      &#125;)</span><br><span class="line">      .join(<span class="string">'\n\n'</span>),</span><br><span class="line">    imports: importsToStr(<span class="comment">// 入口文件 import 的模块</span></span><br><span class="line">      <span class="keyword">this</span>.service.applyPlugins(<span class="string">'addEntryImport'</span>, &#123;</span><br><span class="line">        initialValue: moduleBeforeRenderer,</span><br><span class="line">      &#125;),</span><br><span class="line">    ).join(<span class="string">'\n'</span>),</span><br><span class="line">    importsAhead: importsToStr(<span class="comment">// 入口文件 import 的模块</span></span><br><span class="line">      <span class="keyword">this</span>.service.applyPlugins(<span class="string">'addEntryImportAhead'</span>, &#123;</span><br><span class="line">        initialValue: [],</span><br><span class="line">      &#125;),</span><br><span class="line">    ).join(<span class="string">'\n'</span>),</span><br><span class="line">    polyfillImports: importsToStr(<span class="comment">// 入口文件最顶层 import 的 ployfill 模块</span></span><br><span class="line">      <span class="keyword">this</span>.service.applyPlugins(<span class="string">'addEntryPolyfillImports'</span>, &#123;</span><br><span class="line">        initialValue: [],</span><br><span class="line">      &#125;),</span><br><span class="line">    ).join(<span class="string">'\n'</span>),</span><br><span class="line">    moduleBeforeRenderer,<span class="comment">// render 脚本执行前的操作函数</span></span><br><span class="line">    render: initialRender,<span class="comment">// 渲染 rootContainer 的 render 脚本</span></span><br><span class="line">    plugins,<span class="comment">// 运行时插件集合</span></span><br><span class="line">    validKeys,<span class="comment">// 运行时插件校验 key 键集合</span></span><br><span class="line">    htmlTemplateMap: htmlTemplateMap.join(<span class="string">'\n'</span>),<span class="comment">// 服务端渲染 html 模板</span></span><br><span class="line">    findRoutePath: winPath(<span class="built_in">require</span>.resolve(<span class="string">'./findRoute'</span>)),<span class="comment">// 提供 findRoute、getUrlQuery 函数的 findRoute 模块位置</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 步骤 8</span></span><br><span class="line">  writeContent(paths.absLibraryJSPath, prettierFile(<span class="string">`<span class="subst">$&#123;entryContent.trim()&#125;</span>\n`</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="render"><a href="#render" class="headerlink" title="render"></a>render</h3><p>render 运行时插件的功能在于对渲染脚本进行封装。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** entry.js.tpl ***/</span></span><br><span class="line"><span class="keyword">const</span> render = plugins.compose(<span class="string">'render'</span>, &#123; <span class="attr">initialValue</span>: clientRender &#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="rootContainer"><a href="#rootContainer" class="headerlink" title="rootContainer"></a>rootContainer</h3><p>rootContainer 运行时插件的功能在于对渲染脚本进行封装。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** entry.js.tpl ***/</span></span><br><span class="line"><span class="keyword">const</span> rootContainer = plugins.apply(<span class="string">'rootContainer'</span>, &#123;</span><br><span class="line">  initialValue: App,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="patchRoutes"><a href="#patchRoutes" class="headerlink" title="patchRoutes"></a>patchRoutes</h3><p>patchRoutes 运行时插件的功能在于追加或修改路由。其流程为：编译阶段获得配置路由或扫描文件路由，然后在运行时对这些路由进行再处理。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi-build-dev *** router.js.tpl ***/</span></span><br><span class="line"><span class="keyword">const</span> plugins = <span class="built_in">require</span>(<span class="string">'umi/_runtimePlugin'</span>);</span><br><span class="line">plugins.applyForEach(<span class="string">'patchRoutes'</span>, &#123; <span class="attr">initialValue</span>: routes &#125;);<span class="comment">// routes 为编译阶段输出路由</span></span><br></pre></td></tr></table></figure>
+<h3 id="onRouteChange"><a href="#onRouteChange" class="headerlink" title="onRouteChange"></a>onRouteChange</h3><p>onRouteChange 运行时插件的功能在于监听路由变更信息。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi *** router.js.tpl ***/</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">routeChangeHandler</span>(<span class="params">location, action</span>) </span>&#123;</span><br><span class="line">  plugins.applyForEach(<span class="string">'onRouteChange'</span>, &#123;</span><br><span class="line">    initialValue: &#123;</span><br><span class="line">      routes,</span><br><span class="line">      location,</span><br><span class="line">      action,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="modifyRouteProps、modifyInitialProps、initialProps"><a href="#modifyRouteProps、modifyInitialProps、initialProps" class="headerlink" title="modifyRouteProps、modifyInitialProps、initialProps"></a>modifyRouteProps、modifyInitialProps、initialProps</h3><p>modifyRouteProps、modifyInitialProps 的功能在于修改注入路由组件的 props。modifyInitialProps、initialProps 在服务端渲染时使用。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** umi *** renderRoutes.js ***/</span></span><br><span class="line"><span class="keyword">const</span> newProps = plugins.apply(<span class="string">'modifyRouteProps'</span>, &#123;</span><br><span class="line">  initialValue: &#123;</span><br><span class="line">    ...props,</span><br><span class="line">    ...extraProps,</span><br><span class="line">    ...compatProps,</span><br><span class="line">  &#125;,</span><br><span class="line">  args: &#123; route &#125;,</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">let</span> &#123; <span class="attr">component</span>: Component &#125; = route;</span><br><span class="line"><span class="keyword">if</span> (__IS_BROWSER &amp;&amp; Component.getInitialProps) &#123;</span><br><span class="line">  <span class="keyword">const</span> initialProps = plugins.apply(<span class="string">'modifyInitialProps'</span>, &#123;</span><br><span class="line">    initialValue: &#123;&#125;,</span><br><span class="line">  &#125;);</span><br><span class="line">  Component = wrapWithInitialProps(Component, initialProps);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">  &lt;Component &#123;...newProps&#125; route=&#123;route&#125;&gt;</span><br><span class="line">    &#123;childRoutes&#125;</span><br><span class="line">  &lt;<span class="regexp">/Component&gt;</span></span><br><span class="line"><span class="regexp">);</span></span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/16/frontend/qiankun 微服务/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1700,356 +2074,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/31/java/架构/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/31/java/架构/" itemprop="url">感悟</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-31T00:00:00+08:00">2020-01-31</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/01/31/java/架构/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/31/java/架构/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="清晰的定义"><a href="#清晰的定义" class="headerlink" title="清晰的定义"></a>清晰的定义</h2><p>有人认为，好的电影可以用一句话概括它所要表达的主题。与此相类，为产品下一个有效的定义能使我们足够聚焦于解决问题的本质，滤除细节上的干扰。</p>
-<h3 id="生命周期的视角"><a href="#生命周期的视角" class="headerlink" title="生命周期的视角"></a>生命周期的视角</h3><h4 id="取舍"><a href="#取舍" class="headerlink" title="取舍"></a>取舍</h4><p>俗话说，“不以结婚为目的的恋爱都是耍流氓”。事实证明，在工作环境上，技术产物的试金石是，能否高效地解决业务问题。刻意追求技术手段的自主或高明，脱离解决业务问题这个导向标，都是多余的奇技淫巧。这话同样适用于纯技术产物。切回电影这个上下文，能表达同一个意思的说法是：工业化的好莱坞不是新浪潮电影的发祥地；好莱坞也不会给拍摄决斗时的斯皮尔伯格拉排场。工程师不是名声在望的艺术家，他为组织提供合适的技术方案及实现。最好的也许是科学的，但未必是合适的；合适的也许不够科学，却能有效地解决问题。</p>
-<h4 id="愿景"><a href="#愿景" class="headerlink" title="愿景"></a>愿景</h4><p>简单地说，科学是有条理、可验证地表达观点或方法，因此它需要完善闭环流程。但是在企业环境中，光是有限的开发时间这一项就会让我们不得不退而取其次 —— 置于首位的照常是功能实现，而富有远见的规划布景、良好的验收流程总被弃之一边。为此，好的定义可以是指引明媚前路的愿景，不只是崎岖山路上的一种妥协。在艰难开拓的早期，不够优雅的实现往往屈从于技术、时间、人力、环境等要素的制约，但这只是阶段性产物的特征。毕竟市场也有狂热趋于理性的一面，以规划为基石的愿景不至于使我们最终选择在粗制滥造面前缴械。</p>
-<h4 id="战略"><a href="#战略" class="headerlink" title="战略"></a>战略</h4><p>像人类有自我纠错、自我完善的动力，有责任的建设者会为产品赋予生命，他们会在已成型的产品中寻找待解决的问题、寻找演进的策略，直到另一张高维度的画布使它最终变得无从发挥。技术产品的淘汰尤其如此。“吾尝终日不食，终夜不寝，以思，无益，不如学也。” 战略需要跨域，非到高维度的视角最难揣摩，到了高维度的视角也最容易领会。实体经济转向网商经济在今天是耳熟能详的事情，马老师提出的“新制造” —— 将数字化物流的手段带入工业生产，即在于技术手段的可迁移性。遥远的未来是不可知的，懂得弃守舒适区也许是种好的态度。</p>
-<p>以上三条的视点大体在于产品生命周期的短期、中长期和遥远的未来。</p>
-<p>清晰的定义能设定问题的本源及边界，</p>
-<ul>
-<li>限定问题域</li>
-<li>限定解空间</li>
-<li></li>
-</ul>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://yq.aliyun.com/articles/743101?spm=a2c4e.11155472.0.0.24fd9d43VEoTKW" target="_blank" rel="noopener">阿里高级技术专家：整洁的应用架构“长”什么样？</a><br><a href="https://blog.csdn.net/csdn_bang/article/details/97993881" target="_blank" rel="noopener">学阿里中台，80%的人只学到了皮毛！揭秘阿里中台的12个架构思维和原则</a><br><a href="https://m.aliyun.com/yunqi/articles/291244?spm=5176.100239.0.0.2cc5e03f1rE0ld" target="_blank" rel="noopener">2017双11交易系统TMF2.0技术揭秘，实现全链路管理</a><br><a href="http://blog.itpub.net/31562044/viewspace-2639289/" target="_blank" rel="noopener">跳开 DDD 和中台概念看阿里巴巴交易平台的问题及解决思路</a><br><a href="https://www.sohu.com/a/325162749_463994" target="_blank" rel="noopener">阿里技术大牛：一份架构师成神路线图！</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/23/java/从 nacos 看领域驱动设计/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/23/java/从 nacos 看领域驱动设计/" itemprop="url">从 nacos 看领域驱动设计</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-23T00:00:00+08:00">2020-01-23</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/01/23/java/从 nacos 看领域驱动设计/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/23/java/从 nacos 看领域驱动设计/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>按 <a href="https://nacos.io/zh-cn/index.html" target="_blank" rel="noopener">Nacos 官网</a> 的说法，它是一个提供便捷的服务发现、管理和配置平台。推敲 Nacos 的出产，首先它基于问题域思考所需实现的功能特性和非功能特性；再由特性思忖到逻辑架构图、领域模型、部署架构图、类视图等架构层面；再结合特性和架构图深入业务场景，完善功能实现策略；然后从开发生态这个宏观视角寻味 Nacos 需要支持的语言、技术栈；最后从市场投放这个目标视角总结 Nacos 的各种优势，并予以战略上的肯定。可以推想，Nacos 基于领域模型设计，比领域模型走得更远。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/nacosMap.jpg">
-<h2 id="一句话需求"><a href="#一句话需求" class="headerlink" title="一句话需求"></a>一句话需求</h2><p><a href="https://github.com/alibaba/nacos" target="_blank" rel="noopener">Nacos</a> 充当微服务中的注册中心和配置中心。</p>
-<p>当巨石项目被切割成多个支持动态扩展的微服务后，各个微服务的调用地址和数量都是动态可变的，注册中心的核心功能就是维护可调用的服务清单。遵循 C/S 架构，server 服务器维护着 client 可调用服务清单，并提供接口给 client 以查询其他服务信息；client 客户端一方面会将自己注册到 server 上，另一方面会从 server 上获取依赖的其他服务信息。常见的注册中心有 Eureka、Zookeeper、Consul、Dubbo。应用在不同环境中会有不同的配置，配置中心的目的即在于提供不同的配置能力。常见的配置中心有 spring cloud config、Apollo、Disconf、Diamond。</p>
-<h2 id="领域模型"><a href="#领域模型" class="headerlink" title="领域模型"></a>领域模型</h2><h3 id="注册中心"><a href="#注册中心" class="headerlink" title="注册中心"></a>注册中心</h3><p>注册中心基于以下概念：Service 服务、Service Provider 服务提供者、Service Consumer 服务消费者、Service Metadata 服务元数据、Service Registry 服务注册中心。由服务提供者提供服务、实例和元数据信息，并将这些内容添加到注册中心，再由服务消费者查询消费。服务下割集群，集群下挂载指定 ip、port 的实例（实例默认挂载在默认集群下，也可以创建虚拟集群管理实例）；服务上设分组。元数据包含服务端点、服务标签、服务版本号、服务实例权重、路由规则、安全策略等。Nacos 会对实例进行健康检查；当健康的实例占服务总实例比重小于指定阈值时，Nacos 将不会应用实例权重和路由规则，而是将可能不健康的实例推送给消费者。Nacos 团队在 <a href="https://nacos.io/en-us/blog/discovery-console.html" target="_blank" rel="noopener">Nacos服务发现控制台预览 2018.10.2</a> 这篇文章中点明了服务 - 集群 - 实例模型的界面设计。下图是包含模型结构和主要功能的领域模型。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/service.jpeg">
-<h3 id="配置中心"><a href="#配置中心" class="headerlink" title="配置中心"></a>配置中心</h3><p>配置中心基于以下概念：Configuration 配置、Configuration Management 配置管理。配置中心的主要功能在于管理应用所需的配置。单条配置（如日志级别）构成一个配置项；多个配置项通过配置集统筹；一个配置集通过配置集 id 定位；配置集上设分组，以便多个应用使用相同的配置集。对于配置管理，Nacos 还提供或规划了灰度发布、版本管理、快速回滚、监听查询、推送轨迹、权限控制、敏感配置的加密存储等功能。当配置被 client 拉取到时，Nacos 的客户端 SDK 会在本地生成配置快照，以作容灾处理；配置快照会在特定时间进行更新，但不会过期。[Nacos 帮我们解决什么问题？—— 配置管理篇] 这篇文章道明了配置中心的存在价值，上文也有简要说明。下图是包含模型结构和主要功能的领域模型。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/configuration.jpeg">
-<h3 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h3><p>namespace 命名空间用于区分不同租户和不同环境。命名空间下挂服务分组、配置分组。默认的命名空间为 public，分组默认是 DEFAULT_GROUP。Nacos 控制台可以添加新的命名空间，随后在 client 中即可配置命名空间的 id（id 须经解析以获得实际的命名空间名，然后从 server 中获得配置），指定服务所属哪个命名空间或服务使用哪个命名空间的配置。<a href="https://nacos.io/zh-cn/blog/namespace-endpoint-best-practices.html" target="_blank" rel="noopener">Namespace, endpoint 最佳实践</a> 描述着命名空间的设计背景和方案。下图是命名空间的模型结构。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/namespace.jpeg">
-<h2 id="逻辑流程"><a href="#逻辑流程" class="headerlink" title="逻辑流程"></a>逻辑流程</h2><p>上节所能感知的是 Nacos 控制台的界面形式（实现了什么），但不能感知 Nacos 的内部（怎么实现的）。本节结合下一节，所要表述的是 Nacos 是怎么实现。本节仅介绍注册中心的逻辑流程。</p>
-<p>注册中心的功能分为两部分：服务注册、服务发现。下图下半部分即服务注册的流程，标名的客户端作为服务提供者将自己注册到 Nacos，Nacos 注册中心即会生成对应的一份实例配置；服务注册成功后，服务提供者与注册中心维持心跳，以保证将最新的服务信息推送到注册中心。上半部分即服务发现的流程，其一标名的客户端作为服务消费者可以从注册中心主动获取服务实例信息；其二消费者可以订阅注册中心的服务，那样会在客户端本地维护一份服务列表（通过事件机制予以更新），客户端从本地获取服务实例信息。<a href="https://www.jianshu.com/p/61608ff86344" target="_blank" rel="noopener">Nacos 服务注册与发现原理分析</a> 这篇文章道明了服务注册与发现的主流程。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/service_register.png">
-<p><a href="https://www.infoq.cn/article/B*6vyMIKao9vAKIsJYpE?from=timeline&amp;isappinstalled=0" target="_blank" rel="noopener">Nacos 注册中心的设计原理详解</a> 这篇文章道明了 Nacos 在数据隔离、数据一致性（多注册中心的前提下）、负载均衡、健康检查、集群扩展性上的设计原理。</p>
-<h2 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h2><img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/jiagou.png">
-<p>在 nacos-core 核心中，与上文相关的模块有：</p>
-<ul>
-<li>插件机制：实现服务管理、配置管理、元数据管理三个模块可分可合能力，实现扩展点 <a href="http://blog.itpub.net/69912579/viewspace-2656555/" target="_blank" rel="noopener">SPI 服务提供发现机制</a>。</li>
-<li>事件机制：实现异步化事件通知，sdk 数据变化异步通知等逻辑。</li>
-<li>回调机制：sdk 通知数据，通过统一的模式回调用户处理。接口和数据结构需要具备可扩展性。</li>
-<li>推送通道：解决 server 与存储、server 间、server 与 sdk 间推送性能问题。</li>
-<li>寻址模式：解决 ip、域名、nameserver、广播等多种寻址模式，需要可扩展。</li>
-<li>流量管理：按照租户，分组等多个维度对请求频率，长链接个数，报文大小，请求流控进行控制。</li>
-</ul>
-<p>这些核心模块撑起了上文所说的功能模块的逻辑流程。</p>
-<p>在接口层之上、数据层之下，是 Nacos 所要支持的生态。</p>
-<img src="/2020/01/23/java/从%20nacos%20看领域驱动设计/shengtai.png">
-<p><a href="https://nacos.io/zh-cn/blog/alibaba-configserver.html" target="_blank" rel="noopener">阿里巴巴服务注册中心产品ConfigServer 10年技术发展回顾</a> 这篇文章道明了 Nacos 的前世今生，各阶段致力于解决的问题。<a href="https://nacos.io/zh-cn/docs/roadmap.html" target="_blank" rel="noopener">Nacos 规划</a> 简述了 Nacos 今后的发展。</p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>项目使用了 Nacos，我发现在了解 Nacos 的过程中，最有意思的是探究其破土出芽的过程。虽然这一过程有点自不量力，很多东西都不能消化吸收，但是却能助我看见领域驱动设计的应用。正好最近在看《领域驱动设计 —— 软件核心复杂性的应对之道》，工作中也在接触一个探索型项目，总结一套可交流的建模语言、构建产品的一般流程很有价值似的。通过上述文字，我所能领会到的构建产品的一般流程为：</p>
-<ul>
-<li>一句话描述需求，阐明核心功能模块。</li>
-<li>构造领域模型，剖析核心流程。</li>
-<li>统筹整体架构，宏观上挖掘生态、市场。</li>
-<li>分解功能模块，分工、规划、细化。</li>
-</ul>
-<p>我觉得这样的流程可以应用工程实践上。整理这篇文章的目的大概在于此吧。至于“细节处见真章”方面，还真是让人愧不自啊。而 Nacos 在 spring 项目中的应用，可以参考官方文档 <a href="https://nacos.io/zh-cn/docs/quick-start-spring-cloud.html" target="_blank" rel="noopener">Nacos Spring Cloud 快速开始</a>，这里不作说明。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://nacos.io" target="_blank" rel="noopener">Nacos 官网</a><br><a href="https://www.jianshu.com/p/61608ff86344" target="_blank" rel="noopener">Nacos 服务注册与发现原理分析</a><br><a href="https://www.infoq.cn/article/B*6vyMIKao9vAKIsJYpE?from=timeline&amp;isappinstalled=0" target="_blank" rel="noopener">Nacos 注册中心的设计原理详解</a><br><a href="https://nacos.io/zh-cn/blog/address-server.html" target="_blank" rel="noopener">Nacos 环境隔离</a><br><a href="http://blog.itpub.net/69922229/viewspace-2644195/" target="_blank" rel="noopener">Nacos Sync 的设计原理和规划</a><br><a href="https://nacos.io/zh-cn/blog/access%20control%20design.html" target="_blank" rel="noopener">Nacos 权限控制设计方案</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2094,7 +2123,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">139</span>
+                    <span class="site-state-item-count">141</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

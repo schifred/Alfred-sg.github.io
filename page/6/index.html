@@ -299,6 +299,345 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/03/frontend/前端埋点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/03/frontend/前端埋点/" itemprop="url">前端埋点</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-03T00:00:00+08:00">2019-11-03</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/前端/" itemprop="url" rel="index"><span itemprop="name">前端</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/11/03/frontend/前端埋点/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/03/frontend/前端埋点/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="埋点统计数据"><a href="#埋点统计数据" class="headerlink" title="埋点统计数据"></a>埋点统计数据</h2><h3 id="用户访问统计"><a href="#用户访问统计" class="headerlink" title="用户访问统计"></a>用户访问统计</h3><p>用户访问统计包含 PV（Page View）、UV（Unique Visitor）、VV（Visit View）、IP 等。PV 用来统计一天之内页面的被访问次数，机刷也可以造成 PV 数据提升。UV 用来统计一天之内访问页面的用户数量，一般使用 IP 统计（IP 统计并不谨慎，同一个办公区或校园公用一个 IP）；使用 cookie + IP 统计（cookie 会被刷新，造成用户数被重复统计）；使用 userAgent + API 统计（userAgent + API 相同的情况也常有发生）。UV 统计的细化点是新访客数、新访客比率等。VV 用来统计一天之内网站被用户访问的次数；用户访问网站到结束访问视为 1 次，因此同一个用户在一天之内可能造成多条 VV。IP 用来统计一天之内访问网站的不重复 IP 数。</p>
+<h3 id="用户行为分析"><a href="#用户行为分析" class="headerlink" title="用户行为分析"></a>用户行为分析</h3><p>用户行为分析包含页面点击量、用户点击流、用户访问路径、用户点击热力图、用户转化率、导流转化率、用户访问时长分析和用户访问内容分析等。用户点击量用来统计用户在某个可点击或可操作区域的点击或操作次数。用户点击流用来统计用户在页面中发生点击或操作动作的顺序；埋点过程中，可先用 localStorage 存储用户点击或操作行为的唯一 id，然后在一次 VV 结束或下一次 VV 开始时上报。用户访问路径用来统计用户访问页面的路径。用户点击热力图用来统计用户在一张页面中的点击热衷区域；埋点过程中，可以对 document 点击绑定 click 事件，并上报 e.pageX、e.pageY 数据。用户转化率指的是访问页面的注册用户数和页面 PV 的比值。导流转化率指的是导流页面 PV 和源页面 PV 的比值。用户访问时长用来统计用户在关键内容页面的停留时长，以便分析用户是否对内容感兴趣。</p>
+<h2 id="埋点方案"><a href="#埋点方案" class="headerlink" title="埋点方案"></a>埋点方案</h2><p>前端埋点分为：代码埋点、可视化埋点、无痕埋点三种。代码埋点即侵入式埋点，可以在任意时刻、任意位置精确地发送数据，但是工作量较大，对业务代码也有较大影响。可视化埋点即以业务代码为输入，通过可视化系统配置埋点，最后以耦合的形式输出业务代码和埋点代码，但是可视化系统的埋点控件有限，并不能充分满足埋点需求。无痕埋点即无差别地对所有事件等进行全埋点，但是没法定制埋点需求。</p>
+<img src="/2019/11/03/frontend/前端埋点/track.png">
+<h3 id="埋点上报数据"><a href="#埋点上报数据" class="headerlink" title="埋点上报数据"></a>埋点上报数据</h3><p>上报的主要数据包含：appid、userAgent、timestamp（上报的时间戳）、currentUrl（用户当前的 url）、fromUrl（前一个页面的 url）、type（上报事件的类型）、element（触发上报事件的元素）、data（自定义数据）等。数据可通过 OpenSSL 或 crypto 模块进行加密。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;   </span><br><span class="line">  <span class="comment">// 上报接口本身提供</span></span><br><span class="line">  currentUrl,  </span><br><span class="line">  fromUrl,</span><br><span class="line">  timestamp,</span><br><span class="line">  userAgent: &#123;</span><br><span class="line">    os,</span><br><span class="line">    netWord,</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 业务代码配置和自定义上报数据</span></span><br><span class="line">  <span class="keyword">type</span>,</span><br><span class="line">  appid,</span><br><span class="line">  element,</span><br><span class="line">  data: &#123;</span><br><span class="line">    uid,</span><br><span class="line">    uname</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="mixpanel"><a href="#mixpanel" class="headerlink" title="mixpanel"></a>mixpanel</h2><img src="/2019/11/03/frontend/前端埋点/mixpanel.png">
+<p>按我的个性化解读，<a href="https://github.com/mixpanel/mixpanel-js" target="_blank" rel="noopener">mixpanel</a> 分为三层结构：</p>
+<ul>
+<li>基本工具层：提供类型判断、遍历、继承、bind 等基本的工具函数；json、base64、utf8 编解码能力；url 参数读写函数；cookie、localStorage 读写能力；dom 事件绑定能力；dom 节点查询能力；info 浏览器信息获取能力。</li>
+<li>功能模块层：提供基于 DomTracker 实现的 LinkTracker 跳链接埋点、FormTracker 提交数据埋点功能；autotrack 自动埋点功能；基于 cookie 或 localStorage 的 MixpanelPersistence 持久化功能；MixpanelNotification 提示功能；gdbr 依据欧盟《通用数据保护条例》，首先判断用户是否设置了 navigator.doNotTrack 避免数据被追踪，其次判断持久层是否禁止数据被追踪，当两者同时允许追踪埋点数据时，mixpanel 才会上报埋点数据。</li>
+<li>核心实现层：MixpanelLib 串联功能、处理选项、发送埋点数据等；MaxpanelGroup；MaxpanelPeople。</li>
+</ul>
+<p>mixpanel 根据用户配置项，分别使用 img、script 节点、XHR 对象上报数据，这一逻辑实现在 mixpanelLib._send_request(url, data, callback) 方法中。_send_request 方法会附加上报 ip 地址、时间戳等；callback 回调用于处理服务端响应及上传数据。一般而言，在 _send_reques 方法执行前，mixpanel 会调用 gdbr 模块校验用户或持久层的 token 是否禁止数据被追踪；在 _send_reques 方法执行后，mixpanel 会调用 _check_and_handle_notifications 上报用户的唯一标识，并根据返回结果触发弹窗。基于 _send_request，MixpanelLib 封装了 track(event_name, properties, callback)、_dom_loaded 等方法。其中，track 方法附加上持久层的数据，并以 { event, properties } 格式发送到远程服务器中；track_pageview 方法（上报浏览器和页面信息）、LinkTracker、FormTracker 均基于 track 实现（LinkTracker、FormTracker 在上报数据完成后，再触发原始的跳链接、提交操作）。_dom_loaded 在 DOMContentLoaded 事件中触发执行，为 LinkTracker、FormTracke 相关节点绑定事件。autotrack 自动埋点先须由用户开启，其次请求服务器是否允许自动埋点，然后以事件委托的方式在 document 节点层面收集数据并上报。</p>
+<p>mixpanel 有其成熟后的复杂度，个别内容不作详解，另作专题剖析。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/02/react/react相关/umi-hooks、hox/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/02/react/react相关/umi-hooks、hox/" itemprop="url">umi-hooks、hox</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-02T00:00:00+08:00">2019-11-02</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/11/02/react/react相关/umi-hooks、hox/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/02/react/react相关/umi-hooks、hox/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>这篇文章仅整理蚂蚁金服的 umi-hooks、hox 的大致实现原理，以说明 react-hooks 的探索空间和实践场景。循着蚂蚁金服体验技术部的足迹，自觉很能开拓眼界和思路。</p>
+<h2 id="umi-hooks"><a href="#umi-hooks" class="headerlink" title="umi-hooks"></a>umi-hooks</h2><h3 id="useAsync"><a href="#useAsync" class="headerlink" title="useAsync"></a>useAsync</h3><p>useAsync 用于处理异步请求，它支持的功能点包含暂停、撤销、重启、轮询。</p>
+<p>在实现上，umi-hooks 首先构造 Timer 类以定时器方式执行指定函数，timer.stop、timer.pause、timer.resume 方法可用于终止、暂停、重启定时器（初次启动也通过 resume 方法执行）。以定时器处理异步请求一方面能便于实现轮询，另一方面也是由于请求库未必都实现撤销功能。因为定时器并不能真正打断异步请求，所以 useAsync 只是不去处理响应，而不是撤销请求。另外，对于已卸载的组件，也不需要处理响应。因此是否处理响应的状态标识通过 useEffect 处理，在组件卸载时使其失效，通过 timer.stop 终止时也使其失效。这个状态标识通过 useRef 构造：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 是否处理响应标识</span></span><br><span class="line"><span class="comment">// 1. 在异步流程前首先将 count.current 赋值给 runCount 变量</span></span><br><span class="line"><span class="comment">// 2. 异步流程后再判断再判断 count.current 与 runCount 是否等值</span></span><br><span class="line"><span class="comment">// 3. 组件卸载、终止、撤销处理时均将 count.current 自增 1</span></span><br><span class="line"><span class="keyword">const</span> count = useRef(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">const</span> init = useRef(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  count.current += <span class="number">1</span>;</span><br><span class="line">  init.current = <span class="literal">true</span>;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    count.current += <span class="number">1</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;, _deps);</span><br></pre></td></tr></table></figure>
+<p>umi-hooks 在 useAsync 函数内部首先通过 useCallback 实现了 run、stop、pause、resume、start 等基础功能（其中，run 方法只是单纯地调用用户传入的异步请求函数 fn）；其次构造 intervalAsync 作为定时器的回调，实现轮询逻辑；其次实现 reload 方法用于重启请求或轮询，cancel 方法取消；最后使用 useEffect 判断选项，分别启用单次请求或轮询功能。以下仅贴示 intervalAsync 的实现：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> intervalAsync = useCallback(</span><br><span class="line">  <span class="keyword">async</span> (...args: <span class="built_in">any</span>[]) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> runCount = count.current;</span><br><span class="line">    <span class="keyword">let</span> ret: Result | <span class="literal">undefined</span>;</span><br><span class="line">    <span class="keyword">if</span> (!_options.manual || !init.current) &#123;</span><br><span class="line">      ret = <span class="keyword">await</span> run(...(args || []));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (count.current === runCount) &#123;</span><br><span class="line">      <span class="comment">// 只初始化定时器，不开始计时</span></span><br><span class="line">      timer.current = <span class="keyword">new</span> Timer&lt;Result&gt;(</span><br><span class="line">        () =&gt; intervalAsync(...args),</span><br><span class="line">        _options.pollingInterval <span class="keyword">as</span> <span class="built_in">number</span>,</span><br><span class="line">      );</span><br><span class="line">      <span class="comment">// 如果设置了 manual，则默认不开始计时</span></span><br><span class="line">      <span class="keyword">if</span> (init.current &amp;&amp; _options.manual) &#123;</span><br><span class="line">        <span class="comment">// await run(...(args || []));</span></span><br><span class="line">        init.current = <span class="literal">false</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 开始计时</span></span><br><span class="line">        ret = <span class="keyword">await</span> timer.current.resume(...(args || []));</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">  &#125;,</span><br><span class="line">  [_options.pollingInterval, _options.manual, run],</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h3 id="useAPI"><a href="#useAPI" class="headerlink" title="useAPI"></a>useAPI</h3><p>useAPI 在 useAsync 的基础上，以选项指定了远程请求的 url 等参数、异步调用方法。如果没有指定 opt.method 异步调用方法，也可以使用 configRequest 指定或直接使用 window.fetch 方法。</p>
+<h3 id="useEventEmitter"><a href="#useEventEmitter" class="headerlink" title="useEventEmitter"></a>useEventEmitter</h3><p>useEventEmitter 用于组织多个组件间的通信逻辑。在实现上，useEventEmitter 基于事件模型。但是绑定事件随着组件的卸载，需要得到解绑，因此 useEventEmitter 使用 useEffect 处理这一逻辑。以下是其源码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> EventEmitter&lt;T&gt; &#123;</span><br><span class="line">  <span class="keyword">private</span> subscriptions = <span class="keyword">new</span> Set&lt;Subscription&lt;T&gt;&gt;();</span><br><span class="line"></span><br><span class="line">  emit = <span class="function">(<span class="params">val: T</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> subscription of <span class="keyword">this</span>.subscriptions) &#123;</span><br><span class="line">      subscription(val);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  useSubscription = <span class="function">(<span class="params">callback: Subscription&lt;T&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> callbackRef = useRef&lt;Subscription&lt;T&gt;&gt;();</span><br><span class="line">    callbackRef.current = callback;</span><br><span class="line">    useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="function"><span class="keyword">function</span> <span class="title">subscription</span>(<span class="params">val: T</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (callbackRef.current) &#123;</span><br><span class="line">          callbackRef.current(val);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.subscriptions.add(subscription);</span><br><span class="line">      <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.subscriptions.delete(subscription);</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;, []);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">useEventEmitter</span>&lt;<span class="title">T</span>&gt;(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> ref = useRef&lt;EventEmitter&lt;T&gt;&gt;();</span><br><span class="line">  <span class="keyword">if</span> (!ref.current) &#123;</span><br><span class="line">    ref.current = <span class="keyword">new</span> EventEmitter();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> ref.current;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="useUpdateEffect"><a href="#useUpdateEffect" class="headerlink" title="useUpdateEffect"></a>useUpdateEffect</h3><p>useUpdateEffect 效果等同 useEffect，只是执行阶段在 didMount 之后（即更新阶段）。</p>
+<h3 id="useLocalStorageState"><a href="#useLocalStorageState" class="headerlink" title="useLocalStorageState"></a>useLocalStorageState</h3><p>useLocalStorageState 用于实时从 localStorage 读写值，又借助 useState 实时更新视图层。</p>
+<h3 id="useControllableValue"><a href="#useControllableValue" class="headerlink" title="useControllableValue"></a>useControllableValue</h3><p>useControllableValue 用于处理受控值，它首先通过 props 属性读取初始值和实时值（实时值通过 useUpdateEffect 存入 state 中），随后输出 state、handleSetState 以供视图层使用。在 handleSetState 方法执行期间，useControllableValue 还允许执行 props.onChange 等方法。</p>
+<h3 id="useSelections"><a href="#useSelections" class="headerlink" title="useSelections"></a>useSelections</h3><p>useSelections 借助 Set 类以及 useMemo 实现，用于处理选择逻辑。</p>
+<h3 id="useDynamicList"><a href="#useDynamicList" class="headerlink" title="useDynamicList"></a>useDynamicList</h3><p>useDynamicList 用于管理列表的增删改查逻辑，除了使用 setState 维护列表元素外，还维护了 key 键列表（用于存储原数组元素在 state 中的新的索引）。</p>
+<h3 id="usePagination"><a href="#usePagination" class="headerlink" title="usePagination"></a>usePagination</h3><p>usePagination 在 useAsync 的基础上，用于处理分页逻辑。</p>
+<h3 id="useSearch"><a href="#useSearch" class="headerlink" title="useSearch"></a>useSearch</h3><p>useSearch 在 useAsync 的基础上，用于在表单或字段内容改变时，自动或手动发送请求获取相应。这一过程通过定时器防抖（避免频繁请求）。</p>
+<h3 id="useLoadMore"><a href="#useLoadMore" class="headerlink" title="useLoadMore"></a>useLoadMore</h3><p>useLoadMore 在 useAsync 的基础上，实现了下拉或点击加载更多的处理逻辑。其 reload 逻辑的实现是，使用 state 记录加载次数 count，当这个 count 变更时，再使用 useEffect 远程获取数据。</p>
+<h3 id="useAntdTable"><a href="#useAntdTable" class="headerlink" title="useAntdTable"></a>useAntdTable</h3><p>useAntdTable 用于组织 antd-table 表格的逻辑，支持远程请求、分页、筛选、排序、搜索表单等功能。在实现上，useAntdTable 使用 useReducer 管理状态。当表格页面切换时，为了重新加载之前访问的页面数据，useAntdTable 使用 cacheData 缓存数据。在状态变更后，useAntdTable 借助 useUpdateEffect 重新发起请求。当表单数据改变时，useAntdTable 使用定时器获取表单数据，随后更新 state.count 值，最后通过 useUpdateEffect 重新发起请求。以下是部分方法的实现：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 如果存在 options.id，在切换页面时缓存页面数据，切回表格页面时重新加载</span></span><br><span class="line">  <span class="keyword">if</span> (id &amp;&amp; cacheData[id]) &#123;</span><br><span class="line">    <span class="keyword">const</span> cache = cacheData[id];</span><br><span class="line">    <span class="comment">/* 修改完 formData 和 searchType 之后，会触发 useUpdateEffect，给当前表单赋值 */</span></span><br><span class="line">    dispatch(&#123;</span><br><span class="line">      <span class="keyword">type</span>: <span class="string">'updateState'</span>,</span><br><span class="line">      payload: &#123;</span><br><span class="line">        current: cache.current,</span><br><span class="line">        pageSize: cache.pageSize,</span><br><span class="line">        searchType: cache.searchType,</span><br><span class="line">        activeFormData: cache.activeFormData,</span><br><span class="line">        formData: cache.formData,</span><br><span class="line">        filters: cache.filters,</span><br><span class="line">        sorter: cache.sorter,</span><br><span class="line">        count: state.count + <span class="number">1</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (form) &#123;</span><br><span class="line">    <span class="comment">/* 如果有 form，需要走 searchSubmit，为了初始化的时候，拿到 initialValue */</span></span><br><span class="line">    searchSubmit();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    refresh();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (id) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      cacheData[id] = stateRef.current;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;&#125;;</span><br><span class="line">&#125;, []);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> searchSubmit = useCallback(</span><br><span class="line">  (e?: <span class="built_in">string</span> | React.MouseEvent&lt;HTMLElement&gt; | React.KeyboardEvent&lt;HTMLInputElement&gt;) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (!form) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (e &amp;&amp; (e <span class="keyword">as</span> React.MouseEvent&lt;HTMLElement&gt;).preventDefault) &#123;</span><br><span class="line">      (e <span class="keyword">as</span> React.MouseEvent&lt;HTMLElement&gt;).preventDefault();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> activeFormData = getCurrentFieldsValues();</span><br><span class="line">      dispatch(&#123;</span><br><span class="line">        <span class="keyword">type</span>: <span class="string">'updateState'</span>,</span><br><span class="line">        payload: &#123;</span><br><span class="line">          activeFormData,</span><br><span class="line">          formData: &#123; ...state.formData, ...activeFormData &#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">      &#125;);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// reload 更新 state 中的 current、count</span></span><br><span class="line">      reload();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;,</span><br><span class="line">  [form, reload],</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h3 id="useResponsive"><a href="#useResponsive" class="headerlink" title="useResponsive"></a>useResponsive</h3><p>useResponsive 通过监听 resize 事件，及时更新屏幕尺寸状态（屏幕尺寸分为 xs、sm、md、lg、xl 五种），提供一种绘制响应式视图的能力。</p>
+<h3 id="useSize"><a href="#useSize" class="headerlink" title="useSize"></a>useSize</h3><p>useSize 借助 resize-observer-polyfill 库，实时获取 dom 节点的尺寸大小变更。useSize 监听的 dom 节点可以通过首参传入；在不传入首参的情况下，umi-hooks 可以通过 useRef 设置 dom 节点。</p>
+<h3 id="useVirtualList"><a href="#useVirtualList" class="headerlink" title="useVirtualList"></a>useVirtualList</h3><p>useVirtualList 用于解决展示海量数据渲染时首屏渲染缓慢和滚动卡顿问题，采用的方式是逐屏滚动。在实现上，useVirtualList 使用滚动容器包裹列表，列表全量展示，通过 onScroll 事件实时设置 scrollTop 设置偏移量。以下是 useVirtualList 的实现：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line">&lt;T = <span class="built_in">any</span>&gt;<span class="function">(<span class="params">list: T[], options: OptionType</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [size, containerRef] = useSize&lt;HTMLElement&gt;();</span><br><span class="line">  <span class="comment">// 暂时禁止 cache</span></span><br><span class="line">  <span class="comment">// const distanceCache = useRef&lt;&#123; [key: number]: number &#125;&gt;(&#123;&#125;);</span></span><br><span class="line">  <span class="keyword">const</span> [state, setState] = useState(&#123; start: <span class="number">0</span>, end: <span class="number">10</span> &#125;);</span><br><span class="line">  <span class="keyword">const</span> &#123; itemHeight, overscan = <span class="number">5</span> &#125; = options;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!itemHeight) &#123;</span><br><span class="line">    <span class="built_in">console</span>.warn(<span class="string">'please enter a valid itemHeight'</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取滚动容器能展示的元素数</span></span><br><span class="line">  <span class="keyword">const</span> getViewCapacity = <span class="function">(<span class="params">containerHeight: <span class="built_in">number</span></span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> itemHeight === <span class="string">'number'</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">Math</span>.ceil(containerHeight / itemHeight);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> &#123; start = <span class="number">0</span> &#125; = state;</span><br><span class="line">    <span class="keyword">let</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> capacity = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = start; i &lt; list.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> height = <span class="function">(<span class="params">itemHeight <span class="keyword">as</span> (<span class="params">(<span class="params">index: <span class="built_in">number</span></span>) =&gt; <span class="built_in">number</span></span>)</span>)(<span class="params">i</span>);</span></span><br><span class="line"><span class="function">      <span class="params">sum</span> += <span class="params">height</span>;</span></span><br><span class="line"><span class="function">      <span class="params">if</span> (<span class="params">sum &gt;= containerHeight</span>) &#123;</span></span><br><span class="line"><span class="function">        <span class="params">capacity</span> = <span class="params">i</span>;</span></span><br><span class="line"><span class="function">        <span class="params">break</span>;</span></span><br><span class="line"><span class="function">      &#125;</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function">    <span class="params">return</span> <span class="params">capacity</span> - <span class="params">start</span>;</span></span><br><span class="line"><span class="function">  &#125;;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">  // 计算滚动隐藏内容的元素数</span></span><br><span class="line"><span class="function">  <span class="params">const</span> <span class="params">getOffset</span> = (<span class="params">scrollTop: <span class="built_in">number</span></span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> itemHeight === <span class="string">'number'</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">Math</span>.floor(scrollTop / itemHeight) + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> offset = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; list.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> height = <span class="function">(<span class="params">itemHeight <span class="keyword">as</span> (<span class="params">(<span class="params">index: <span class="built_in">number</span></span>) =&gt; <span class="built_in">number</span></span>)</span>)(<span class="params">i</span>);</span></span><br><span class="line"><span class="function">      <span class="params">sum</span> += <span class="params">height</span>;</span></span><br><span class="line"><span class="function">      <span class="params">if</span> (<span class="params">sum &gt;= scrollTop</span>) &#123;</span></span><br><span class="line"><span class="function">        <span class="params">offset</span> = <span class="params">i</span>;</span></span><br><span class="line"><span class="function">        <span class="params">break</span>;</span></span><br><span class="line"><span class="function">      &#125;</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function">    <span class="params">return</span> <span class="params">offset</span> + 1;</span></span><br><span class="line"><span class="function">  &#125;;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">  // 计算列表的起止元素</span></span><br><span class="line"><span class="function">  <span class="params">const</span> <span class="params">calculateRange</span> = <span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> element = containerRef.current;</span><br><span class="line">    <span class="keyword">if</span> (element) &#123;</span><br><span class="line">      <span class="keyword">const</span> offset = getOffset(element.scrollTop);</span><br><span class="line">      <span class="keyword">const</span> viewCapacity = getViewCapacity(element.clientHeight);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> <span class="keyword">from</span> = offset - overscan;</span><br><span class="line">      <span class="keyword">const</span> to = offset + viewCapacity + overscan;</span><br><span class="line">      setState(&#123; start: <span class="keyword">from</span> &lt; <span class="number">0</span> ? <span class="number">0</span> : <span class="keyword">from</span>, end: to &gt; list.length ? list.length : to &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 在滚动容器变更时，重新计算列表的起止元素</span></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    calculateRange();</span><br><span class="line">  &#125;, [size.width, size.height]);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 计算列表总高度</span></span><br><span class="line">  <span class="keyword">const</span> totalHeight = useMemo(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> itemHeight === <span class="string">'number'</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> list.length * itemHeight;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> list.reduce(<span class="function">(<span class="params">sum, _, index</span>) =&gt;</span> sum + itemHeight(index), <span class="number">0</span>);</span><br><span class="line">  &#125;, [list.length]);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取 index 元素与顶部的距离</span></span><br><span class="line">  <span class="keyword">const</span> getDistanceTop = <span class="function">(<span class="params">index: <span class="built_in">number</span></span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> itemHeight === <span class="string">'number'</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> height = index * itemHeight;</span><br><span class="line">      <span class="keyword">return</span> height;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> height = list.slice(<span class="number">0</span>, index).reduce(<span class="function">(<span class="params">sum, _, i</span>) =&gt;</span> sum + itemHeight(i), <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> height;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> scrollTo = <span class="function">(<span class="params">index: <span class="built_in">number</span></span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (containerRef.current) &#123;</span><br><span class="line">      containerRef.current.scrollTop = getDistanceTop(index);</span><br><span class="line">      calculateRange();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    <span class="comment">// 通过 state 待展示的元素</span></span><br><span class="line">    list: list.slice(state.start, state.end).map(<span class="function">(<span class="params">ele, index</span>) =&gt;</span> (&#123;</span><br><span class="line">      data: ele,</span><br><span class="line">      index: index + state.start,</span><br><span class="line">    &#125;)),</span><br><span class="line">    scrollTo,</span><br><span class="line">    containerProps: &#123;</span><br><span class="line">      ref: <span class="function">(<span class="params">ele: <span class="built_in">any</span></span>) =&gt;</span> &#123;</span><br><span class="line">        containerRef.current = ele;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="comment">// 通过滚动事件重新设置偏移量</span></span><br><span class="line">      onScroll: <span class="function">(<span class="params">e: <span class="built_in">any</span></span>) =&gt;</span> &#123;</span><br><span class="line">        e.preventDefault();</span><br><span class="line">        calculateRange();</span><br><span class="line">      &#125;,</span><br><span class="line">      style: &#123; overflowY: <span class="string">'auto'</span> &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">    wrapperProps: &#123;</span><br><span class="line">      style: &#123; width: <span class="string">'100%'</span>, height: totalHeight, paddingTop: getDistanceTop(state.start) &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="hox"><a href="#hox" class="headerlink" title="hox"></a>hox</h2><p>hox 号称“下一代状态管理器”，因此它的意图还是在于使用 hooks 抽象 ViewModel 层，将 hooks 的使用过程从与视图组件的强关联中解放出来，同时支持在类组件中也能使用 hooks。那么，它是怎么做到的呢？它的代码逻辑很简单，即使用 Exector 虚拟组件来运作 hooks 逻辑，hooks 返回值通过绑定事件的方式通知到 Exector 虚拟组件外层，然后使用 setState 接值，传入实际渲染的视图组件中。</p>
+<img src="/2019/11/02/react/react相关/umi-hooks、hox/hox.png">
+<p>以下是其实现逻辑：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createModel</span>&lt;<span class="title">T</span>&gt;(<span class="params">hook: ModelHook&lt;T&gt;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> element = <span class="built_in">document</span>.createElement(<span class="string">"div"</span>);</span><br><span class="line">  <span class="comment">// Container 提供事件绑定、触发的机制</span></span><br><span class="line">  <span class="keyword">const</span> container = <span class="keyword">new</span> Container(hook);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 通过虚拟组件承载 hooks 执行逻辑，每次重绘时执行 hooks 并 onUpdate 钩子</span></span><br><span class="line">  ReactDOM.render(</span><br><span class="line">    &lt;Executor</span><br><span class="line">      onUpdate=&#123;<span class="function"><span class="params">val</span> =&gt;</span> &#123;</span><br><span class="line">        container.data = val;</span><br><span class="line">        container.notify();</span><br><span class="line">      &#125;&#125;</span><br><span class="line">      hook=&#123;hook&#125;</span><br><span class="line">    /&gt;,</span><br><span class="line">    element</span><br><span class="line">  );</span><br><span class="line">  <span class="keyword">const</span> useModel: UseModel&lt;T&gt; = <span class="function"><span class="params">depsFn</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> [state, setState] = useState&lt;T | <span class="literal">undefined</span>&gt;<span class="function">(<span class="params">(<span class="params"></span>) =&gt;</span></span></span><br><span class="line"><span class="function"><span class="params">      container ? (<span class="params">container.data <span class="keyword">as</span> T</span>) : <span class="literal">undefined</span></span></span></span><br><span class="line"><span class="function"><span class="params">    </span>);</span></span><br><span class="line"><span class="function">    <span class="params">const</span> <span class="params">depsFnRef</span> = <span class="params">useRef</span>(<span class="params">depsFn</span>);</span></span><br><span class="line"><span class="function">    <span class="params">depsFnRef</span>.<span class="params">current</span> = <span class="params">depsFn</span>;</span></span><br><span class="line"><span class="function">    <span class="params">const</span> <span class="params">depsRef</span> = <span class="params">useRef</span>&lt;<span class="params">unknown</span>[]&gt;(<span class="params">[]</span>);</span></span><br><span class="line"><span class="function">    <span class="params">useEffect</span>(<span class="params">(<span class="params"></span>) =&gt; &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">if</span> (<span class="params">!container</span>) <span class="keyword">return</span>;</span></span></span><br><span class="line"><span class="function"><span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="comment">// 作为绑定函数，承接 hooks 返回值，并使用 useState 机制传给实际的视图组件</span></span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">function</span> subscriber(<span class="params">val: T</span>) &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">if</span> (<span class="params">!depsFnRef.current</span>) &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">          setState(<span class="params">val</span>);</span></span></span><br><span class="line"><span class="function"><span class="params">        &#125; <span class="keyword">else</span> &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">          <span class="keyword">const</span> oldDeps = depsRef.current;</span></span></span><br><span class="line"><span class="function"><span class="params">          <span class="keyword">const</span> newDeps = depsFnRef.current(<span class="params">val</span>);</span></span></span><br><span class="line"><span class="function"><span class="params">          <span class="keyword">if</span> (<span class="params">compare(<span class="params">oldDeps, newDeps</span>)</span>) &#123;<span class="comment">// 比较依赖</span></span></span></span><br><span class="line"><span class="function"><span class="params">            setState(<span class="params">val</span>);</span></span></span><br><span class="line"><span class="function"><span class="params">          &#125;</span></span></span><br><span class="line"><span class="function"><span class="params">          depsRef.current = newDeps;</span></span></span><br><span class="line"><span class="function"><span class="params">        &#125;</span></span></span><br><span class="line"><span class="function"><span class="params">      &#125;</span></span></span><br><span class="line"><span class="function"><span class="params">      container.subscribers.add(<span class="params">subscriber</span>);</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">return</span> (<span class="params"></span>) =&gt; &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">        container.subscribers.<span class="keyword">delete</span>(<span class="params">subscriber</span>);</span></span></span><br><span class="line"><span class="function"><span class="params">      &#125;;</span></span></span><br><span class="line"><span class="function"><span class="params">    &#125;, [container]</span>);</span></span><br><span class="line"><span class="function">    <span class="params">return</span> <span class="params">state</span>!;</span></span><br><span class="line"><span class="function">  &#125;;</span></span><br><span class="line"><span class="function">  <span class="params">Object</span>.<span class="params">defineProperty</span>(<span class="params">useModel, "data", &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">get</span>: <span class="keyword">function</span>(<span class="params"></span>) &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">return</span> container.data;</span></span></span><br><span class="line"><span class="function"><span class="params">    &#125;</span></span></span><br><span class="line"><span class="function"><span class="params">  &#125;</span>);</span></span><br><span class="line"><span class="function">  <span class="params">return</span> <span class="params">useModel</span>;</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>当一个视图组件需要多个 model 时，hox 像 redux 一样提供了 withModel 方法用于将多个 model 内容传输给类组件的 props。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/29/frontend/hybird app/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1614,335 +1953,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/frontend/ajax和跨域/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/06/frontend/ajax和跨域/" itemprop="url">ajax、web sockets 及跨域</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T00:00:00+08:00">2019-10-06</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/实践/" itemprop="url" rel="index"><span itemprop="name">实践</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/10/06/frontend/ajax和跨域/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/06/frontend/ajax和跨域/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="ajax"><a href="#ajax" class="headerlink" title="ajax"></a>ajax</h2><p>ajax 全称 “Asynchronous Javascript + XML”，它利用浏览器原生的通信能力，能实现页面的局部更新。ajax 请求可以通过 XMLHttpRequest 对象发送；在兼容性上，IE7+, Firefox, Opera, Chrome 和 Safari 均支持原生的 XHR 对象。以下是 XHR 对象的基本使用样例：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line"></span><br><span class="line"><span class="comment">// readyState 四种状态</span></span><br><span class="line"><span class="comment">// 0: 未初始化，即尚未调用 xhr.open 方法</span></span><br><span class="line"><span class="comment">// 1: 启动，已调用 xhr.open 方法，但未调用 xhr.send 方法</span></span><br><span class="line"><span class="comment">// 2: 发送，已调用 xhr.send 方法，但未接收到响应</span></span><br><span class="line"><span class="comment">// 3: 接收，已接收到部分响应数据</span></span><br><span class="line"><span class="comment">// 4: 完成，接收到全部响应数据，且可以在客户端使用了</span></span><br><span class="line">xhr.onreadystatechange = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 响应数据自动填充到 xhr 对象上</span></span><br><span class="line">  <span class="comment">// responseText 响应主体返回的文本</span></span><br><span class="line">  <span class="comment">// responseXML 如果响应的内容类型为 "text/xml" 或 "application/xml"。responseXML 会保存响应数据的 XML DOM 文档</span></span><br><span class="line">  <span class="comment">// status 响应的 HTTP 状态</span></span><br><span class="line">  <span class="comment">// statusText HTTP 状态的说明</span></span><br><span class="line">  <span class="keyword">if</span> (xhr.readyState == <span class="number">4</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> ((xhr.status &gt;= <span class="number">200</span> &amp;&amp; xhr.status &lt; <span class="number">300</span>) || xhr.status == <span class="number">304</span>) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(xhr.responseText);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Request was unsuccessful: "</span>+ xhr.status);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 准备发送请求</span></span><br><span class="line"><span class="comment">// 第三个参数表示是否发送异步请求</span></span><br><span class="line">xhr.open(<span class="string">"get"</span>, <span class="string">"test.json"</span>, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 发送请求</span></span><br><span class="line">xhr.send(<span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="Comet"><a href="#Comet" class="headerlink" title="Comet"></a>Comet</h2><p>Comet 指服务器推送，促使浏览器持续不断地接受服务端响应。基本的 Comet 实现可借助 XHR 对象长轮询：服务端每发回一波响应，xhr.readyState 状态值都会被置为 3；直到服务端发送完响应内容后，xhr.readyState 才会被置为 4。使用 XHR 对象实现长轮询的样例代码如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 通过 progress, finished 回调处理接受到的内容</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createStreamingClient</span>(<span class="params">url, progress, finished</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line">  <span class="keyword">let</span> received = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  xhr.open(<span class="string">"get"</span>, url, <span class="literal">true</span>);</span><br><span class="line">  xhr.onreadystatechange = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> result;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (xhr.readyState == <span class="number">3</span>) &#123;</span><br><span class="line">      result = xhr.responseText.substring(received);</span><br><span class="line">      received += result.length;</span><br><span class="line"></span><br><span class="line">      progress(result);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (xhr.readyState == <span class="number">4</span>) &#123;</span><br><span class="line">      finished(xhr.responseText);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  xhr.send(<span class="literal">null</span>);</span><br><span class="line">  <span class="keyword">return</span> xhr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="SSE"><a href="#SSE" class="headerlink" title="SSE"></a>SSE</h3><p>SSE 全称 Server-Sent Event，服务器发送事件。SSE 适用于处理只读 Comet 交互。在兼容性上，Firefox 6+, Safari 5+, Opera 11+, Chrome 和 iOS 4+ 版 Safari 支持 SSE。SSE 的基本使用样例如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 参数 url 必须与页面同源</span></span><br><span class="line"><span class="keyword">const</span> source = <span class="keyword">new</span> EventSource(<span class="string">"test.json"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过 onmessage 事件持续不断的接受数据</span></span><br><span class="line">source.onmessage = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(event.data);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Web-Sockets"><a href="#Web-Sockets" class="headerlink" title="Web Sockets"></a>Web Sockets</h2><p>Web Sockets 可用于实现浏览器和服务端的全双工、双向通信。创建 WebSocket 对象后，首先会发送 http 请求到服务端；取得响应后，建立的连接会从 http 协议升级成 Web Sockets 协议，以支持双向通信。Web Sockets 没有同源策略，因此可以跨域通信。支持 Web Sockets 的浏览器有：Firefox 6+, Safari 5+, Chrome 和 iOS 4+ 版 Safari。Web Sockets 的使用样例如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> socket = <span class="keyword">new</span> WebSocket(<span class="string">"ws://www.example.com/socket"</span>);<span class="comment">// 必须是绝对路径</span></span><br><span class="line">socket.send(data);</span><br><span class="line">socket.onmessage = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(event.data);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="跨域"><a href="#跨域" class="headerlink" title="跨域"></a>跨域</h2><h3 id="CORS"><a href="#CORS" class="headerlink" title="CORS"></a>CORS</h3><p>CORS 全称 Cross-Origin Resource Sharing，跨域资源共享。服务器通过设置 Access-Control-Allow-Origin 头，开启跨域访问资源的可能。此时浏览器若想跨域访问资源，需要设置 Origin 请求头为许可的请求页面地址信息。在跨域请求的过程中，当浏览器接受到响应时，会根据 Access-Control-Allow-Origin 判断这次请求是不是有效的。注意，请求和响应都不包含 cookie 信息。</p>
-<p>IE 8~9 需要使用 XDomainRequest 对象发送跨域请求。</p>
-<p>Firefox 3.5+, Safari 4+, Chrome, iOS 版 Safari 和 Android 平台中的 Webkit 都可以通过 XHR 对象发送跨域请求，而不需要其他处理。该跨域请求默认不会携带 cookie 和 http 认证信息，此时可以将 xhr.withCredentials 置为 true，这样就会携带 cookie 和 http 认证信息。有些浏览器默认会发送 cookie，此时通过设置 xhr.withCredentials = false，可以禁止携带 cookie 信息。</p>
-<p>非简单请求的跨域，会执行一次预检请求，详情可参看<a href="http://www.ruanyifeng.com/blog/2016/04/cors.html" target="_blank" rel="noopener">跨域资源共享 CORS 详解</a>。</p>
-<p>检测浏览器是否支持 XHR 对象的跨域请求，可以通过判断 XHR 对象是否包含 withCredentials 属性。在此基础上，再判断 XDomainRequest 对象是否存在，就可以覆盖所有浏览器。</p>
-<h3 id="图像-Ping"><a href="#图像-Ping" class="headerlink" title="图像 Ping"></a>图像 Ping</h3><p>鉴于加载图像不存在跨域问题，图像 Ping 技术通过动态的 Image 实例进行跨域通信。它只能将请求通知给服务器，不能接受响应，最常用于收集点击信息。</p>
-<h3 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h3><p>与图像 Ping 技术相仿，JSONP 通过插入动态的 script 节点进行跨域通信，因此也只适用于 get 请求。在 JSONP 中，服务端返回的脚本信息会被执行，因此可用于处理响应。为了处理上的灵活性，JSONP 请求会携带回调函数的名称作为请求参数，以便服务器拼接响应，约束浏览器在执行脚本时调用特定的函数处理响应。</p>
-<h3 id="Web-Sockets-1"><a href="#Web-Sockets-1" class="headerlink" title="Web Sockets"></a>Web Sockets</h3><p>见上文。</p>
-<h2 id="axios"><a href="#axios" class="headerlink" title="axios"></a>axios</h2><p>在设计上，axios 采用适配器模式切换发送请求的模块（分别为浏览器端的 XHR 对象、服务器端的 http, https 模块），该发送请求的模块作为 axios 的主流程。在主流程之外，axios 借助 Promise 对象装配拦截器（包含在主流程前的请求拦截器、在主流程后的响应拦截器），其实现等同一条链式处理的中间件机制。其核心流程如下图，首先由请求拦截器处理请求，然后通过选用特定的适配器发送请求，最后由响应拦截器处理响应。</p>
-<img src="/2019/10/06/frontend/ajax和跨域/axios.png">
-<p>在代码中的表现为：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">Axios.prototype.request = <span class="function"><span class="keyword">function</span> <span class="title">request</span>(<span class="params">config</span>) </span>&#123;</span><br><span class="line">  <span class="comment">/*eslint no-param-reassign:0*/</span></span><br><span class="line">  <span class="comment">// Allow for axios('example/url'[, config]) a la fetch API</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> config === <span class="string">'string'</span>) &#123;</span><br><span class="line">    config = <span class="built_in">arguments</span>[<span class="number">1</span>] || &#123;&#125;;</span><br><span class="line">    config.url = <span class="built_in">arguments</span>[<span class="number">0</span>];</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    config = config || &#123;&#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  config = mergeConfig(<span class="keyword">this</span>.defaults, config);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Set config.method</span></span><br><span class="line">  <span class="keyword">if</span> (config.method) &#123;</span><br><span class="line">    config.method = config.method.toLowerCase();</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.defaults.method) &#123;</span><br><span class="line">    config.method = <span class="keyword">this</span>.defaults.method.toLowerCase();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    config.method = <span class="string">'get'</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Hook up interceptors middleware</span></span><br><span class="line">  <span class="comment">// dispatchRequest 本质使用特定的适配器发送请求</span></span><br><span class="line">  <span class="keyword">var</span> chain = [dispatchRequest, <span class="literal">undefined</span>];</span><br><span class="line">  <span class="keyword">var</span> promise = <span class="built_in">Promise</span>.resolve(config);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.interceptors.request.forEach(<span class="function"><span class="keyword">function</span> <span class="title">unshiftRequestInterceptors</span>(<span class="params">interceptor</span>) </span>&#123;</span><br><span class="line">    chain.unshift(interceptor.fulfilled, interceptor.rejected);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.interceptors.response.forEach(<span class="function"><span class="keyword">function</span> <span class="title">pushResponseInterceptors</span>(<span class="params">interceptor</span>) </span>&#123;</span><br><span class="line">    chain.push(interceptor.fulfilled, interceptor.rejected);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (chain.length) &#123;</span><br><span class="line">    promise = promise.then(chain.shift(), chain.shift());</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> promise;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>在这条链式的处理流程中，随处流动的实体是 config 对象。对于 get 和 post 请求，在适配器 xhr 以及 http 模块中，config.url, config.params 将被转化成实际请求路径，config.data 将作为请求数据。config.params 也能在 post 请求中使用。此外，get 和 post 请求中不同的头部信息通过策略模式处理；传输数据和头部 content-type 值的联动关系则通过 config.transformRequest 方法处理。</p>
-<p>xhr 模块对请求头的处理包含防 csrf 攻击的机制：同源或 request.withCredentials 为真值时，将 cookie 中 xsrf 相关内容写入请求头中。</p>
-<p>http 模块包含代理机制的实现，即使用 config.proxy 配置项制作实际的请求地址等值。</p>
-<p>此外，axios 使用 Promise 实现了撤销请求的机制。cancel 操作会为 token 令牌注入标识，同时通过 resolvePromise 方法间接调用 xhr.abort 或 req.abort，从而取消请求。详情可参看源码。</p>
-<h2 id="umi-request"><a href="#umi-request" class="headerlink" title="umi-request"></a>umi-request</h2><p>umi-request 与 axios 不同的是：采用如 koa 的中间件机制应用拦截器；使用 isomorphic-fetch 库切换客服端、服务端的请求模块；对 get 请求实现缓存机制。因为 isomorphic-fetch 没有实现超时、撤销请求这两个功能，umi-request 使用 Promise.race 权衡正常请求、超时请求、撤销请求的优先级，最终实现这两个功能。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.ruanyifeng.com/blog/2016/04/cors.html" target="_blank" rel="noopener">跨域资源共享 CORS 详解</a><br><a href="https://github.com/camsong/blog/issues/2" target="_blank" rel="noopener">传统 Ajax 已死，Fetch 永生</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/27/library一句话/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/27/library一句话/" itemprop="url">library一句话</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-27T00:00:00+08:00">2019-09-27</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/实践/" itemprop="url" rel="index"><span itemprop="name">实践</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/09/27/library一句话/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/09/27/library一句话/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="yargs"><a href="#yargs" class="headerlink" title="yargs"></a>yargs</h3><p>[猜测]首先注册命令及其选项，再解析用户输入，执行命令。</p>
-<p>同类库：command, command-bin。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1987,7 +2002,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">139</span>
+                    <span class="site-state-item-count">141</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

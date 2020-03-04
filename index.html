@@ -955,6 +955,165 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/10/react/react16源码/react fiber hooks钩子篇/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Alfred">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="修子范语">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/03/10/react/react16源码/react fiber hooks钩子篇/" itemprop="url">react fiber hooks钩子篇</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-10T00:00:00+08:00">2020-03-10</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/03/10/react/react16源码/react fiber hooks钩子篇/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/03/10/react/react16源码/react fiber hooks钩子篇/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在 hooks 机制上，fiber reconciler 同样抽象了几种数据类型以承载状态变更的逻辑：Update、UpdateQueue、Hook、Effect 等。以 useState 说明其实现流程如下：</p>
+<ol>
+<li>使用 renderWithHooks 封装组件渲染函数，每次执行期间重置 workInProgressFiber.memoizedState 属性（memoizedState 以链表的形式存储钩子）</li>
+<li>渲染函数内部调用 useState，走 mountState 流程，借助 mountWorkInProgressHook 函数创建 hook 实例，并添加到 memoizedState 队列中，构造 dispatch 方法，以数组形式返回 hook.memoizedState 初始状态、dispatch</li>
+<li>消费 state 进行渲染，workInProgressFiber 转变为 currentFiber（因此 currentFiber.memoizedState 中存储着组件渲染函数所使用的全量钩子），结束 mount 流程</li>
+<li>再次渲染时，执行组件渲染函数将会重置 workInProgressFiber.memoizedState，而 currentFiber.memoizedState 依旧存储着全量钩子，因此挂载和更新流程可基于 currentFiber.memoizedState 判断。renderWithHooks 内部，正是借此使用不同的 ReactCurrentDispatcher，比如挂载时用 HooksDispatcherOnMount、更新时用 HooksDispatcherOnUpdate</li>
+<li>基于 ReactCurrentDispatcher 的不同，重绘期间调用 useState，走 updateState 流程，以此完成状态变更</li>
+<li>消费 state 进行渲染，结束 update 流程</li>
+</ol>
+<h2 id="状态变更"><a href="#状态变更" class="headerlink" title="状态变更"></a>状态变更</h2><p>hooks 中的状态变更与 redux 相仿，即采用 reducer(prevState, action) 计算 nextState。</p>
+<p>updateWorkInProgressHook</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/04/react/react16源码/react fiber 类组件状态更新篇/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2055,228 +2214,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/22/react/react16源码/react fiber 搜罗整理篇/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Alfred">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="修子范语">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/22/react/react16源码/react fiber 搜罗整理篇/" itemprop="url">react fiber 搜罗整理篇</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-22T00:00:00+08:00">2020-02-22</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/02/22/react/react16源码/react fiber 搜罗整理篇/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/22/react/react16源码/react fiber 搜罗整理篇/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="fiber-出台的原委和特性"><a href="#fiber-出台的原委和特性" class="headerlink" title="fiber 出台的原委和特性"></a>fiber 出台的原委和特性</h2><blockquote class="blockquote-center"><p>The crux of the change is transitioning from processing updates in a synchronous, recursive way to relying on asynchronous scheduling and prioritization of interface changes. </p>
-</blockquote>
-<p><a href="https://makersden.io/blog/look-inside-fiber/" target="_blank" rel="noopener">A look inside React Fiber</a> 指明，react 演进出 fiber 架构的关键点在于渲染策略的变更，从原先的 Stack Reconciler 同步递归模式转变为 Fiber Reconciler 基于优先级的异步调度模式。这样就能避免其他文章所说的，Stack Reconciler 模式中的 JS 运算、页面布局和页面绘制将长期占用主线程，页面出现掉帧的现象。依照官方文档 <a href="https://reactjs.org/docs/codebase-overview.html#fiber-reconciler" target="_blank" rel="noopener">Codebase Overview</a>，Fiber Reconciler 包含如下特性：</p>
-<ul>
-<li>将工作拆分为任务单元，实现增量渲染</li>
-<li>按类型为任务单元设置优先级</li>
-<li>任务单元可暂停、复用或中止</li>
-<li>任务单元可并发执行</li>
-</ul>
-<p><a href="http://www.ayqy.net/blog/dive-into-react-fiber/" target="_blank" rel="noopener">完全理解 React Fiber</a> 提到增量渲染所采用的 cooperative scheduling 合作式调度是操作系统 3 种任务调度策略中的一种。其内容为：将渲染工作拆解，每次只做一小段，做完看是否还有时间继续下一个任务，没有就把时间控制权交还给主线程，有就继续处理下一个任务。</p>
-<p><a href="https://github.com/acdlite/react-fiber-architecture" target="_blank" rel="noopener">React Fiber Architecture</a> 也指出，这一处理机跟 <a href="https://en.wikipedia.org/wiki/Call_stack" target="_blank" rel="noopener">call stack</a> 将执行函数作为栈帧添加到堆栈中相似。在处理 ui 时，浏览器提供了可用的 api：requestIdleCallback 会调度在空闲期间调用的低优先级函数；requestAnimationFrame 会调度在下一个动画帧上调用的高优先级函数。在 React 中，单个 fiber 就如同栈帧。React 的调度策略基于 pull 模式智能应用更新（基于 push 模式需要由开发者自主决定哪些更新是要应用的），且为不同的 fiber 设置不同的优先级，可以避免不必要的 UI 更新。</p>
-<h2 id="React-分层模型和数据结构"><a href="#React-分层模型和数据结构" class="headerlink" title="React 分层模型和数据结构"></a>React 分层模型和数据结构</h2><p>推演 <a href="https://www.zcfy.cc/original/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react" target="_blank" rel="noopener">Inside Fiber: in-depth overview of the new reconciliation algorithm in React</a> 提及的，React 各分层的数据处理走向比如：</p>
-<ul>
-<li>用户侧创建 Class 或 Function 组件、Host 组件（如 DOM 节点）、Protals 等；</li>
-<li>通过 React.createElement 创建 React 元素树，用于描述页面的呈现（<a href="https://www.zcfy.cc/original/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react" target="_blank" rel="noopener">Inside Fiber: in-depth overview of the new reconciliation algorithm in React</a> 坚持认为 Virtual DOM 实际上指的是不可改变的 React 元素树）；</li>
-<li>基于 React 元素树创建 fiber 节点树（也称为 internal instances 内部实例树）；</li>
-<li>最后由 fiber 节点树获得具体平台相关的 public instance（也称为 Host instance，如真实的 DOM 树）。</li>
-</ul>
-<p>上述数据结构的后半部分对应着 React 中的两个分层：</p>
-<ul>
-<li>Reconciler 层：执行 reconciliation 流程，通过 diff 算法等将组件状态变化反应为视图内容，并触发 side-effects（调用生命周期方法、更新 ref）等。</li>
-<li>Renderer 层：根据不同的平台，渲染出真实的内容，比较常见的是 ReactDOM、ReactNative。</li>
-</ul>
-<h2 id="fiber，作为-unit-of-work"><a href="#fiber，作为-unit-of-work" class="headerlink" title="fiber，作为 unit of work"></a>fiber，作为 unit of work</h2><h3 id="fiber-基本结构"><a href="#fiber-基本结构" class="headerlink" title="fiber 基本结构"></a>fiber 基本结构</h3><p>fiber 节点可基于 React 元素创建，通过调用 <a href="https://github.com/facebook/react/blob/v16.12.0/packages/react-reconciler/src/ReactFiber.js#L593" target="_blank" rel="noopener">createFiberFromTypeAndProps.js</a> 实现。实际上，创建 fiber 节点不止于基于 React 元素一种。fiber 节点会以单向链表的形式构成节点树。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> type Fiber = &#123;|</span><br><span class="line">  <span class="comment">/** 1. 承接 React 元素的相关属性 **/</span></span><br><span class="line">  tag: WorkTag,<span class="comment">// fiber 节点的工作类型</span></span><br><span class="line">  elementType: any,<span class="comment">// react 元素类型</span></span><br><span class="line">  key: <span class="literal">null</span> | string,<span class="comment">// 用于 diff 算法的 key 键</span></span><br><span class="line">  type: any,<span class="comment">// 类组件构造函数或函数组件自身</span></span><br><span class="line">  ref:<span class="comment">// 引用</span></span><br><span class="line">    | <span class="literal">null</span></span><br><span class="line">    | <span class="function">(<span class="params">((handle: mixed</span>) =&gt;</span> <span class="keyword">void</span>) &amp; &#123;<span class="attr">_stringRef</span>: ?string, ...&#125;)</span><br><span class="line">    | RefObject,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** 2. props &amp; state **/</span></span><br><span class="line">  <span class="comment">// React 元素类型的引用，可以认为这个属性保存了与 fiber 相关的本地状态</span></span><br><span class="line">  stateNode: any,</span><br><span class="line">  pendingProps: any,<span class="comment">// 待更新的 props</span></span><br><span class="line">  memoizedProps: any,<span class="comment">// 更新后的 props，作为输出透出到页面侧</span></span><br><span class="line">  memoizedState: any,<span class="comment">// 更新后的 state，作为输出透出到页面侧</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/** 存放 fiber 依赖的 contexts, events **/</span></span><br><span class="line">  dependencies: Dependencies | <span class="literal">null</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** 3. fiber 树结构 **/</span></span><br><span class="line">  <span class="keyword">return</span>: Fiber | <span class="literal">null</span>, <span class="comment">// 类同堆栈的返回栈帧，通常是父节点</span></span><br><span class="line">  child: Fiber | <span class="literal">null</span>,<span class="comment">// 子节点</span></span><br><span class="line">  sibling: Fiber | <span class="literal">null</span>,<span class="comment">// 邻近的兄弟节点</span></span><br><span class="line">  index: number,</span><br><span class="line">|&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="fiber-工作单元"><a href="#fiber-工作单元" class="headerlink" title="fiber 工作单元"></a>fiber 工作单元</h3><p>fiber 节点树不像剥离掉 diff 算法后的 Virtual DOM 那样仅是一种表现，它内部集成了可调度工作任务以操作树的算法。<a href="https://www.zcfy.cc/original/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react" target="_blank" rel="noopener">Inside Fiber: in-depth overview of the new reconciliation algorithm in React</a> 称单个 fiber 节点就是一个工作单元，这也是源码中的表现：</p>
-<blockquote class="blockquote-center"><p>You can think of a fiber as a data structure that represents some work to do or, in other words, a unit of work. Fiber’s architecture also provides a convenient way to track, schedule, pause and abort the work.</p>
-</blockquote>
-<h4 id="current-tree-amp-work-in-progress-tree"><a href="#current-tree-amp-work-in-progress-tree" class="headerlink" title="current tree &amp; work-in-progress tree"></a>current tree &amp; work-in-progress tree</h4><ul>
-<li>current tree：首次渲染或更新后设置，描述页面的当前展现；</li>
-<li>work-in-progress tree：更新时用于页面呈现所需的操作，更新后会替代 current tree。</li>
-</ul>
-<p>使用 work-in-progress tree 直接替代 current tree 称为 double buffering 双缓冲技术，这样便于复用 fiber 对象、节省内存分配和 GC 的时间开销。current tree、work-in-progress tree 处理的简要流程如下：</p>
-<p>首次渲染时，渲染完成的 fiber 节点树称为 current tree；更新渲染时，fiber 节点将被重用，current tree 会维持不变，更新内容反应为另一个 fiber 节点树 work-in-progress tree。当所有渲染流程走完时，work-in-progress tree 会被刷新到页面上，并成为新的 current tree（即 current tree 表示已渲染内容；work-in-progress tree 表示处理中的渲染内容）。current tree、work-in-progress tree 中的 fiber 节点以 alternate 属性相互持有对方，这样结对的处理方式便于延后批量应用更新内容，支持工作任务的可打断。下文将表明，Fiber Reconciler 的更新机制分为两阶段，render 阶段处理并获得以 work-in-progress tree 呈现的更新，commit 阶段应用 work-in-progress tree 的更新。</p>
-<h4 id="update-queue"><a href="#update-queue" class="headerlink" title="update queue"></a>update queue</h4><p>可变的 state 更新会以 fiber.updateQueue 形式应用。<a href="https://github.com/facebook/react/blob/v16.12.0/packages/react-reconciler/src/ReactUpdateQueue.js#L10" target="_blank" rel="noopener">ReactUpdateQueue.js</a> 中阐明，UpdateQueue 跟 fiber 一样，也有 current queue、work-in-progress queue 两个队列。这两个队列共享同一个持久化的单链接链表。区别在于，这两个队列中指向活动中的 update 指针不同，work-in-progress 的指针索引在 render 阶段必然会大于或等于 current queue 的指针索引。提交阶段时，work-in-progress queue 会成为新的 current queue。任务的可中断正是在于，执行中的 work-in-progress queue 可被丢弃，并从 current queue 重新复制一份。</p>
-<p>UpdateQueue 队列中的每个 update 任务有优先级标识。Reconciler 会根据优先级执行 update 任务。<a href="https://github.com/facebook/react/blob/v16.12.0/packages/react-reconciler/src/ReactUpdateQueue.js#L10" target="_blank" rel="noopener">ReactUpdateQueue.js</a> 指出需要特别注意的是，位于跳过的较低优先级之后高优先级任务仍旧会驻留在 UpdateQueue 队列中，就会造成这些高优先级任务被执行多次。正是因为这个原因，所以 render 阶段的生命周期函数才会打上 UNSAFE_ 标识，它们同样也会被执行多次，可能形成不必要的副作用（如在 UNSAFE_componentWillMount 中获取远程数据，请求就会发送多次）。</p>
-<h4 id="expiration-time"><a href="#expiration-time" class="headerlink" title="expiration time"></a>expiration time</h4><p>fiber 任务的优先级与 fiber.expirationTime 息息相关。留待下回分解。</p>
-<h4 id="side-effects"><a href="#side-effects" class="headerlink" title="side effects"></a>side effects</h4><p>除了 state 更新以外，react 官方将更新 ref 引用、调用生命周期、订阅 state 变更 dom 等都视为 side effects。<a href="https://www.zcfy.cc/original/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react" target="_blank" rel="noopener">Inside Fiber: in-depth overview of the new reconciliation algorithm in React</a> 引用了官方的原话：</p>
-<blockquote class="blockquote-center"><p>You’ve likely performed data fetching, subscriptions, or manually changing the DOM from React components before. We call these operations “side effects” (or “effects” for short) because they can affect other components and can’t be done during rendering.</p>
-</blockquote>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> type Fiber = &#123;|</span><br><span class="line">  <span class="comment">// current tree、work-in-progress tree 中的 fiber 节点以 alternate 属性相互持有对方</span></span><br><span class="line">  alternate: Fiber | <span class="literal">null</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// state 更新处理队列，以链表形式呈现</span></span><br><span class="line">  updateQueue: UpdateQueue&lt;any&gt; | <span class="literal">null</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** 优先级 **/</span></span><br><span class="line">  expirationTime: ExpirationTime,<span class="comment">// fiber 任务预期执行时间，不包含子树中的更新</span></span><br><span class="line">  childExpirationTime: ExpirationTime,<span class="comment">// 用于判断子树中的任务是否执行完成</span></span><br><span class="line">  <span class="comment">// 以下四字段在 enableProfilerTimer 为 true 时设置</span></span><br><span class="line">  actualDuration?: number,<span class="comment">// 当前 fiber 及子孙的渲染时间，rerender 时重置为 0</span></span><br><span class="line">  actualStartTime?: number,<span class="comment">// render 阶段，fiber 任务开始时间</span></span><br><span class="line">  selfBaseDuration?: number,<span class="comment">// 当前 fiber 的历史渲染时间</span></span><br><span class="line">  treeBaseDuration?: number,<span class="comment">// 当前 fiber 子孙节点的历史渲染时间</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 用于描述 fiber 及其子树的特性，ConcurrentMode 表示默认情况下子树是否应异步</span></span><br><span class="line">  <span class="comment">// 创建 fiber 时，默认继承父节点的 mode，创建时可修改，fiber 生命周期中将维持不变</span></span><br><span class="line">  mode: TypeOfMode,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** side-effects **/</span></span><br><span class="line">  effectTag: SideEffectTag,</span><br><span class="line">  nextEffect: Fiber | <span class="literal">null</span>,<span class="comment">// 链表结构，指向下一个带有 side-effects 的 fiber</span></span><br><span class="line">  firstEffect: Fiber | <span class="literal">null</span>,<span class="comment">// 链表中的首节点，便于快速更新链表</span></span><br><span class="line">  lastEffect: Fiber | <span class="literal">null</span>,<span class="comment">// 链表中的尾节点，便于快速更新链表</span></span><br><span class="line">|&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="render、commit-两阶段渲染"><a href="#render、commit-两阶段渲染" class="headerlink" title="render、commit 两阶段渲染"></a>render、commit 两阶段渲染</h2><p>如上文已指出，React 将渲染过程分为 render/reconciliation、commit 两阶段。<a href="http://www.ayqy.net/blog/dive-into-react-fiber/" target="_blank" rel="noopener">完全理解 React Fiber</a> 将这两阶段类比为 Virtual DOM 技术中的 diff、patch 过程。</p>
-<ul>
-<li>render 阶段计算并获取以 work-in-progress tree 呈现的更新，可中断；</li>
-<li>commit 阶段应用 work-in-progress tree 的更新。</li>
-</ul>
-<p><a href="https://github.com/acdlite/react-fiber-architecture" target="_blank" rel="noopener">React Fiber Architecture</a> 中的以下描述也说明了两阶段的主要内容：</p>
-<blockquote class="blockquote-center"><p> reconciliation：The algorithm React uses to diff one tree with another to determine which parts need to be changed.<br>update：A change in the data used to render a React app. Usually the result of <code>setState</code>. Eventually results in a re-render.</p>
-</blockquote>
-<img src="/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/lifecycle.png">
-<h3 id="render-阶段"><a href="#render-阶段" class="headerlink" title="render 阶段"></a>render 阶段</h3><p>首次渲染时，reconciler 基于 React 元素创建 fiber，最终形成 fiber 节点树 current tree。当更新时，reconciler 会遍历 current tree，复用 fiber.alternate 备用节点，生成 work-in-progress tree。因为单个 fiber 也是 unit of work，work-in-progress tree 也可以称为任务单元树。</p>
-<p>reconciler 会通过 performSyncWorkOnRoot、performConcurrentWorkOnRoot 函数启动 <a href="https://github.com/facebook/react/blob/v16.12.0/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1459" target="_blank" rel="noopener">work-loop 循环</a> 。该循环会使用深度优先算法处理 work-in-progress tree，只有经过更新的 fiber 节点才会被处理。work-loop 循环有以下四种处理函数：</p>
-<ul>
-<li>performUnitOfWork：从 work-in-progress tree 中取出 fiber ，</li>
-<li>beginWork：context 入栈后，更新当前 fiber 节点的 props、state 相关属性，视条件更新 side effects 链表，返回 fiber.child。</li>
-<li>completeUnitOfWork：视条件更新 side effects 链表，返回 fiber.sibling 或 fiber.return。</li>
-<li>completeWork：context 出栈等操作。</li>
-</ul>
-<p>performUnitOfWork、completeUnitOfWork 主要用于迭代 fiber 节点，主要更新活动由 beginWork、completeWork 完成。以下是这四种函数迭代节点的流程：</p>
-<img src="/2020/02/22/react/react16源码/react%20fiber%20搜罗整理篇/loop-work.gif">
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">workLoopSync</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> (workInProgress !== <span class="literal">null</span>) &#123;</span><br><span class="line">    workInProgress = performUnitOfWork(workInProgress);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">performUnitOfWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> next = beginWork(workInProgress);</span><br><span class="line">  <span class="keyword">if</span> (next === <span class="literal">null</span>) &#123;</span><br><span class="line">    next = completeUnitOfWork(workInProgress);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> next;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">beginWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'work performed for '</span> + workInProgress.name);</span><br><span class="line">  <span class="keyword">return</span> workInProgress.child;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">completeUnitOfWork</span>(<span class="params">unitOfWork</span>) </span>&#123;</span><br><span class="line">  workInProgress = unitOfWork;</span><br><span class="line">  <span class="keyword">do</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> current = workInProgress.alternate;</span><br><span class="line">    <span class="keyword">const</span> returnFiber = workInProgress.return;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((workInProgress.effectTag &amp; Incomplete) === NoEffect) &#123;</span><br><span class="line">      <span class="keyword">let</span> next = completeWork(current, workInProgress, renderExpirationTime);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (next !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (returnFiber !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> next = unwindWork(workInProgress, renderExpirationTime);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (next !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (siblingFiber !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">// If there is more work to do in this returnFiber, do that next.</span></span><br><span class="line">      <span class="keyword">return</span> siblingFiber;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Otherwise, return to the parent</span></span><br><span class="line">    workInProgress = returnFiber;</span><br><span class="line">  &#125; <span class="keyword">while</span> (workInProgress !== <span class="literal">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">completeWork</span>(<span class="params">workInProgress</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'work completed for '</span> + workInProgress.name);</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>综上，更新时会生成部分节点带有 side effects 标识的 work-in-progress tree。effects list 链表会向上归并到父节点上，它会指示需要插入、更新或删除哪些节点，以及哪些组件需要调用其生命周期方法。current tree、work-in-progress tree、effects list 就是 render 阶段的所有产物（work-in-progress tree 在此时也被称为 finished-work tree）。</p>
-<h3 id="commit-阶段"><a href="#commit-阶段" class="headerlink" title="commit 阶段"></a>commit 阶段</h3><p>commit 阶段的主要工作在于将 effects list 链表应用到 fiber 节点树上。这部分工作由 finishSyncRender、finishConcurrentRender 函数启动。主要功能则由 <a href="https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1720" target="_blank" rel="noopener">commitRootImpl.js</a> 完成。<a href="https://www.zcfy.cc/original/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react" target="_blank" rel="noopener">Inside Fiber: in-depth overview of the new reconciliation algorithm in React</a> 指出它包含如下操作：</p>
-<ul>
-<li>对标记了 Snapshot effect 的节点调用 getSnapshotBeforeUpdate 生命周期方法</li>
-<li>对标记了 Deletion effect 的节点调用 componentWillUnmount 生命周期方法</li>
-<li>执行所有 DOM 插入、更新和删除操作</li>
-<li>将 finished-work tree 分配给 FiberRoot，并置为 current tree</li>
-<li>对标记了 Placement effect 的节点调用 componentDidMount 生命周期方法</li>
-<li>对标记了 Update effect 的节点调用 componentDidUpdate 生命周期方法</li>
-</ul>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>react fiber 是笔者长期没法啃下来的内容。这篇文章由以下文章汇总整理得来，却未对 scheduler、fiber 的优先级及类型等加诸说明。个中惭愧与骄傲处，留诗为念。</p>
-<p>满身金紫一毛猴，偏腾赤手摘蟠桃。<br>不慎数声尽入水，引得御马都发笑。</p>
-<p><a href="https://www.zcfy.cc/original/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react" target="_blank" rel="noopener">Inside Fiber: in-depth overview of the new reconciliation algorithm in React</a><br><a href="https://zhuanlan.zhihu.com/p/57346388" target="_blank" rel="noopener">[译]深入React fiber架构及源码</a><br><a href="https://github.com/acdlite/react-fiber-architecture" target="_blank" rel="noopener">React Fiber Architecture</a><br><a href="http://www.ayqy.net/blog/dive-into-react-fiber/" target="_blank" rel="noopener">完全理解 React Fiber</a><br><a href="https://makersden.io/blog/look-inside-fiber/" target="_blank" rel="noopener">A look inside React Fiber</a><br><a href="https://www.cnblogs.com/Darlietoothpaste/p/9941117.html" target="_blank" rel="noopener">React Fiber 源码分析</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2326,7 +2263,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">141</span>
+                    <span class="site-state-item-count">142</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

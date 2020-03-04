@@ -109,6 +109,28 @@
       </tags>
   </entry>
   <entry>
+    <title>react fiber hooks钩子篇</title>
+    <url>/2020/03/10/react/react16%E6%BA%90%E7%A0%81/react%20fiber%20hooks%E9%92%A9%E5%AD%90%E7%AF%87/</url>
+    <content><![CDATA[<p>在 hooks 机制上，fiber reconciler 同样抽象了几种数据类型以承载状态变更的逻辑：Update、UpdateQueue、Hook、Effect 等。以 useState 说明其实现流程如下：</p>
+<ol>
+<li>使用 renderWithHooks 封装组件渲染函数，每次执行期间重置 workInProgressFiber.memoizedState 属性（memoizedState 以链表的形式存储钩子）</li>
+<li>渲染函数内部调用 useState，走 mountState 流程，借助 mountWorkInProgressHook 函数创建 hook 实例，并添加到 memoizedState 队列中，构造 dispatch 方法，以数组形式返回 hook.memoizedState 初始状态、dispatch</li>
+<li>消费 state 进行渲染，workInProgressFiber 转变为 currentFiber（因此 currentFiber.memoizedState 中存储着组件渲染函数所使用的全量钩子），结束 mount 流程</li>
+<li>再次渲染时，执行组件渲染函数将会重置 workInProgressFiber.memoizedState，而 currentFiber.memoizedState 依旧存储着全量钩子，因此挂载和更新流程可基于 currentFiber.memoizedState 判断。renderWithHooks 内部，正是借此使用不同的 ReactCurrentDispatcher，比如挂载时用 HooksDispatcherOnMount、更新时用 HooksDispatcherOnUpdate</li>
+<li>基于 ReactCurrentDispatcher 的不同，重绘期间调用 useState，走 updateState 流程，以此完成状态变更</li>
+<li>消费 state 进行渲染，结束 update 流程</li>
+</ol>
+<h2 id="状态变更"><a href="#状态变更" class="headerlink" title="状态变更"></a>状态变更</h2><p>hooks 中的状态变更与 redux 相仿，即采用 reducer(prevState, action) 计算 nextState。</p>
+<p>updateWorkInProgressHook</p>
+]]></content>
+      <categories>
+        <category>react</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>react fiber 类组件状态更新篇</title>
     <url>/2020/03/04/react/react16%E6%BA%90%E7%A0%81/react%20fiber%20%E7%B1%BB%E7%BB%84%E4%BB%B6%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0%E7%AF%87/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文仅在局部层面上解释类组件的状态更新机制，并没有对函数组件的 hooks、fiber 优先级等作说明。</p>

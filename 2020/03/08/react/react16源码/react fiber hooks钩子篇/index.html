@@ -103,18 +103,18 @@
   <meta name="keywords" content="analyst,">
 
 
-<meta name="description" content="前言本文浅述了 react hooks 的执行机制，但在 expirationTime 优先级处理、suspenseConfig 暂停配置、side-effects 执行机制、useContext、useTransition、useResponder 等方面显得力有不逮。个中错谬，仍需勘正。 react hooks 的使用可参考 React Hooks的体系设计之一 - 分层、react-hook">
+<meta name="description" content="前言本文浅述了 react hooks 的执行机制，但在 expirationTime 优先级处理、suspenseConfig 配置、side-effects 执行机制、useContext、useTransition、useResponder 等方面显得力有不逮，并且未采用图文描述的形式。个中错谬，仍需勘正。 react hooks 的使用可参考 React Hooks的体系设计之一 - 分层">
 <meta name="keywords" content="analyst">
 <meta property="og:type" content="article">
 <meta property="og:title" content="react fiber hooks钩子篇">
 <meta property="og:url" content="http://yoursite.com/2020/03/08/react/react16源码/react fiber hooks钩子篇/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="前言本文浅述了 react hooks 的执行机制，但在 expirationTime 优先级处理、suspenseConfig 暂停配置、side-effects 执行机制、useContext、useTransition、useResponder 等方面显得力有不逮。个中错谬，仍需勘正。 react hooks 的使用可参考 React Hooks的体系设计之一 - 分层、react-hook">
+<meta property="og:description" content="前言本文浅述了 react hooks 的执行机制，但在 expirationTime 优先级处理、suspenseConfig 配置、side-effects 执行机制、useContext、useTransition、useResponder 等方面显得力有不逮，并且未采用图文描述的形式。个中错谬，仍需勘正。 react hooks 的使用可参考 React Hooks的体系设计之一 - 分层">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-03-08T04:11:13.621Z">
+<meta property="og:updated_time" content="2020-03-08T04:12:29.707Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="react fiber hooks钩子篇">
-<meta name="twitter:description" content="前言本文浅述了 react hooks 的执行机制，但在 expirationTime 优先级处理、suspenseConfig 暂停配置、side-effects 执行机制、useContext、useTransition、useResponder 等方面显得力有不逮。个中错谬，仍需勘正。 react hooks 的使用可参考 React Hooks的体系设计之一 - 分层、react-hook">
+<meta name="twitter:description" content="前言本文浅述了 react hooks 的执行机制，但在 expirationTime 优先级处理、suspenseConfig 配置、side-effects 执行机制、useContext、useTransition、useResponder 等方面显得力有不逮，并且未采用图文描述的形式。个中错谬，仍需勘正。 react hooks 的使用可参考 React Hooks的体系设计之一 - 分层">
 
 
 
@@ -394,7 +394,7 @@
       
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文浅述了 react hooks 的执行机制，但在 expirationTime 优先级处理、suspenseConfig 暂停配置、side-effects 执行机制、useContext、useTransition、useResponder 等方面显得力有不逮。个中错谬，仍需勘正。</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文浅述了 react hooks 的执行机制，但在 expirationTime 优先级处理、suspenseConfig 配置、side-effects 执行机制、useContext、useTransition、useResponder 等方面显得力有不逮，并且未采用图文描述的形式。个中错谬，仍需勘正。</p>
 <p>react hooks 的使用可参考 <a href="https://zhuanlan.zhihu.com/p/106665408?from=singlemessage" target="_blank" rel="noopener">React Hooks的体系设计之一 - 分层</a>、<a href="https://segmentfault.com/a/1190000018253310" target="_blank" rel="noopener">react-hooks中的一些懵逼点</a> 等文章。</p>
 <p><a href="https://www.jianshu.com/p/b9ac8fa849f1" target="_blank" rel="noopener">React Hooks 原理</a> 以探索性的方式推想了 hooks 机制的实现原理；<a href="https://juejin.im/post/5c99a75af265da60ef635898#heading-3" target="_blank" rel="noopener">[译] 深入 React Hook 系统的原理</a> 也能为理解 hooks 机制带来帮助。</p>
 <h2 id="主流程"><a href="#主流程" class="headerlink" title="主流程"></a>主流程</h2><p>react hooks 在函数式组件的渲染函数内运行生效，其实现基于使用 <a href="https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberHooks.js#L346" target="_blank" rel="noopener">renderWithHooks</a> 封装渲染函数。在 renderWithHooks 运行过程中，通过感知组件的渲染阶段 —— mount 挂载、update 更新等，继而通过 ReactCurrentDispatcher 切换 useState 等函数的实现，以此在 mount 阶段构建 hook（包含初始状态、状态更新函数），或者在 update 阶段获取最新状态。</p>

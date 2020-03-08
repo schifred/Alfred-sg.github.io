@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>从 nacos 看领域驱动设计 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst">
+    
+    <meta name="description" content="按 Nacos 官网 的说法，它是一个提供便捷的服务发现、管理和配置平台。推敲 Nacos 的出产，首先它基于问题域思考所需实现的功能特性和非功能特性；再由特性思忖到逻辑架构图、领域模型、部署架构图、类视图等架构层面；再结合特性和架构图深入业务场景，完善功能实现策略；然后从开发生态这个宏观视角寻味 Nacos 需要支持的语言、技术栈；最后从市场投放这个目标视角总结 Nacos 的各种优势，并予以战">
+<meta name="keywords" content="analyst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从 nacos 看领域驱动设计">
+<meta property="og:url" content="http://xzfyu.com/2020/01/23/backend/架构/从 nacos 看领域驱动设计/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="按 Nacos 官网 的说法，它是一个提供便捷的服务发现、管理和配置平台。推敲 Nacos 的出产，首先它基于问题域思考所需实现的功能特性和非功能特性；再由特性思忖到逻辑架构图、领域模型、部署架构图、类视图等架构层面；再结合特性和架构图深入业务场景，完善功能实现策略；然后从开发生态这个宏观视角寻味 Nacos 需要支持的语言、技术栈；最后从市场投放这个目标视角总结 Nacos 的各种优势，并予以战">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://xzfyu.com/2020/01/23/backend/架构/从%20nacos%20看领域驱动设计/nacosMap.jpg">
+<meta property="og:updated_time" content="2020-03-08T11:18:50.270Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从 nacos 看领域驱动设计">
+<meta name="twitter:description" content="按 Nacos 官网 的说法，它是一个提供便捷的服务发现、管理和配置平台。推敲 Nacos 的出产，首先它基于问题域思考所需实现的功能特性和非功能特性；再由特性思忖到逻辑架构图、领域模型、部署架构图、类视图等架构层面；再结合特性和架构图深入业务场景，完善功能实现策略；然后从开发生态这个宏观视角寻味 Nacos 需要支持的语言、技术栈；最后从市场投放这个目标视角总结 Nacos 的各种优势，并予以战">
+<meta name="twitter:image" content="http://xzfyu.com/2020/01/23/backend/架构/从%20nacos%20看领域驱动设计/nacosMap.jpg">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/backend/">backend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/backend/架构/">架构</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-backend/架构/从 nacos 看领域驱动设计" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        从 nacos 看领域驱动设计
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/01/23/backend/架构/从 nacos 看领域驱动设计/" class="article-date">
+         <time datetime="2020-01-22T16:00:00.000Z" itemprop="datePublished">2020-01-23</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p>按 <a href="https://nacos.io/zh-cn/index.html" target="_blank" rel="noopener">Nacos 官网</a> 的说法，它是一个提供便捷的服务发现、管理和配置平台。推敲 Nacos 的出产，首先它基于问题域思考所需实现的功能特性和非功能特性；再由特性思忖到逻辑架构图、领域模型、部署架构图、类视图等架构层面；再结合特性和架构图深入业务场景，完善功能实现策略；然后从开发生态这个宏观视角寻味 Nacos 需要支持的语言、技术栈；最后从市场投放这个目标视角总结 Nacos 的各种优势，并予以战略上的肯定。可以推想，Nacos 基于领域模型设计，比领域模型走得更远。</p>
+<img src="/2020/01/23/backend/架构/从%20nacos%20看领域驱动设计/nacosMap.jpg">
+<h2 id="一句话需求"><a href="#一句话需求" class="headerlink" title="一句话需求"></a>一句话需求</h2><p><a href="https://github.com/alibaba/nacos" target="_blank" rel="noopener">Nacos</a> 充当微服务中的注册中心和配置中心。</p>
+<p>当巨石项目被切割成多个支持动态扩展的微服务后，各个微服务的调用地址和数量都是动态可变的，注册中心的核心功能就是维护可调用的服务清单。遵循 C/S 架构，server 服务器维护着 client 可调用服务清单，并提供接口给 client 以查询其他服务信息；client 客户端一方面会将自己注册到 server 上，另一方面会从 server 上获取依赖的其他服务信息。常见的注册中心有 Eureka、Zookeeper、Consul、Dubbo。应用在不同环境中会有不同的配置，配置中心的目的即在于提供不同的配置能力。常见的配置中心有 spring cloud config、Apollo、Disconf、Diamond。</p>
+<h2 id="领域模型"><a href="#领域模型" class="headerlink" title="领域模型"></a>领域模型</h2><h3 id="注册中心"><a href="#注册中心" class="headerlink" title="注册中心"></a>注册中心</h3><p>注册中心基于以下概念：Service 服务、Service Provider 服务提供者、Service Consumer 服务消费者、Service Metadata 服务元数据、Service Registry 服务注册中心。由服务提供者提供服务、实例和元数据信息，并将这些内容添加到注册中心，再由服务消费者查询消费。服务下割集群，集群下挂载指定 ip、port 的实例（实例默认挂载在默认集群下，也可以创建虚拟集群管理实例）；服务上设分组。元数据包含服务端点、服务标签、服务版本号、服务实例权重、路由规则、安全策略等。Nacos 会对实例进行健康检查；当健康的实例占服务总实例比重小于指定阈值时，Nacos 将不会应用实例权重和路由规则，而是将可能不健康的实例推送给消费者。Nacos 团队在 <a href="https://nacos.io/en-us/blog/discovery-console.html" target="_blank" rel="noopener">Nacos服务发现控制台预览 2018.10.2</a> 这篇文章中点明了服务 - 集群 - 实例模型的界面设计。下图是包含模型结构和主要功能的领域模型。</p>
+<img src="/2020/01/23/backend/架构/从%20nacos%20看领域驱动设计/service.jpeg">
+<h3 id="配置中心"><a href="#配置中心" class="headerlink" title="配置中心"></a>配置中心</h3><p>配置中心基于以下概念：Configuration 配置、Configuration Management 配置管理。配置中心的主要功能在于管理应用所需的配置。单条配置（如日志级别）构成一个配置项；多个配置项通过配置集统筹；一个配置集通过配置集 id 定位；配置集上设分组，以便多个应用使用相同的配置集。对于配置管理，Nacos 还提供或规划了灰度发布、版本管理、快速回滚、监听查询、推送轨迹、权限控制、敏感配置的加密存储等功能。当配置被 client 拉取到时，Nacos 的客户端 SDK 会在本地生成配置快照，以作容灾处理；配置快照会在特定时间进行更新，但不会过期。[Nacos 帮我们解决什么问题？—— 配置管理篇] 这篇文章道明了配置中心的存在价值，上文也有简要说明。下图是包含模型结构和主要功能的领域模型。</p>
+<img src="/2020/01/23/backend/架构/从%20nacos%20看领域驱动设计/configuration.jpeg">
+<h3 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h3><p>namespace 命名空间用于区分不同租户和不同环境。命名空间下挂服务分组、配置分组。默认的命名空间为 public，分组默认是 DEFAULT_GROUP。Nacos 控制台可以添加新的命名空间，随后在 client 中即可配置命名空间的 id（id 须经解析以获得实际的命名空间名，然后从 server 中获得配置），指定服务所属哪个命名空间或服务使用哪个命名空间的配置。<a href="https://nacos.io/zh-cn/blog/namespace-endpoint-best-practices.html" target="_blank" rel="noopener">Namespace, endpoint 最佳实践</a> 描述着命名空间的设计背景和方案。下图是命名空间的模型结构。</p>
+<img src="/2020/01/23/backend/架构/从%20nacos%20看领域驱动设计/namespace.jpeg">
+<h2 id="逻辑流程"><a href="#逻辑流程" class="headerlink" title="逻辑流程"></a>逻辑流程</h2><p>上节所能感知的是 Nacos 控制台的界面形式（实现了什么），但不能感知 Nacos 的内部（怎么实现的）。本节结合下一节，所要表述的是 Nacos 是怎么实现。本节仅介绍注册中心的逻辑流程。</p>
+<p>注册中心的功能分为两部分：服务注册、服务发现。下图下半部分即服务注册的流程，标名的客户端作为服务提供者将自己注册到 Nacos，Nacos 注册中心即会生成对应的一份实例配置；服务注册成功后，服务提供者与注册中心维持心跳，以保证将最新的服务信息推送到注册中心。上半部分即服务发现的流程，其一标名的客户端作为服务消费者可以从注册中心主动获取服务实例信息；其二消费者可以订阅注册中心的服务，那样会在客户端本地维护一份服务列表（通过事件机制予以更新），客户端从本地获取服务实例信息。<a href="https://www.jianshu.com/p/61608ff86344" target="_blank" rel="noopener">Nacos 服务注册与发现原理分析</a> 这篇文章道明了服务注册与发现的主流程。</p>
+<img src="/2020/01/23/backend/架构/从%20nacos%20看领域驱动设计/service_register.png">
+<p><a href="https://www.infoq.cn/article/B*6vyMIKao9vAKIsJYpE?from=timeline&amp;isappinstalled=0" target="_blank" rel="noopener">Nacos 注册中心的设计原理详解</a> 这篇文章道明了 Nacos 在数据隔离、数据一致性（多注册中心的前提下）、负载均衡、健康检查、集群扩展性上的设计原理。</p>
+<h2 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h2><img src="/2020/01/23/backend/架构/从%20nacos%20看领域驱动设计/jiagou.png">
+<p>在 nacos-core 核心中，与上文相关的模块有：</p>
+<ul>
+<li>插件机制：实现服务管理、配置管理、元数据管理三个模块可分可合能力，实现扩展点 <a href="http://blog.itpub.net/69912579/viewspace-2656555/" target="_blank" rel="noopener">SPI 服务提供发现机制</a>。</li>
+<li>事件机制：实现异步化事件通知，sdk 数据变化异步通知等逻辑。</li>
+<li>回调机制：sdk 通知数据，通过统一的模式回调用户处理。接口和数据结构需要具备可扩展性。</li>
+<li>推送通道：解决 server 与存储、server 间、server 与 sdk 间推送性能问题。</li>
+<li>寻址模式：解决 ip、域名、nameserver、广播等多种寻址模式，需要可扩展。</li>
+<li>流量管理：按照租户，分组等多个维度对请求频率，长链接个数，报文大小，请求流控进行控制。</li>
+</ul>
+<p>这些核心模块撑起了上文所说的功能模块的逻辑流程。</p>
+<p>在接口层之上、数据层之下，是 Nacos 所要支持的生态。</p>
+<img src="/2020/01/23/backend/架构/从%20nacos%20看领域驱动设计/shengtai.png">
+<p><a href="https://nacos.io/zh-cn/blog/alibaba-configserver.html" target="_blank" rel="noopener">阿里巴巴服务注册中心产品ConfigServer 10年技术发展回顾</a> 这篇文章道明了 Nacos 的前世今生，各阶段致力于解决的问题。<a href="https://nacos.io/zh-cn/docs/roadmap.html" target="_blank" rel="noopener">Nacos 规划</a> 简述了 Nacos 今后的发展。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>项目使用了 Nacos，我发现在了解 Nacos 的过程中，最有意思的是探究其破土出芽的过程。虽然这一过程有点自不量力，很多东西都不能消化吸收，但是却能助我看见领域驱动设计的应用。正好最近在看《领域驱动设计 —— 软件核心复杂性的应对之道》，工作中也在接触一个探索型项目，总结一套可交流的建模语言、构建产品的一般流程很有价值似的。通过上述文字，我所能领会到的构建产品的一般流程为：</p>
+<ul>
+<li>一句话描述需求，阐明核心功能模块。</li>
+<li>构造领域模型，剖析核心流程。</li>
+<li>统筹整体架构，宏观上挖掘生态、市场。</li>
+<li>分解功能模块，分工、规划、细化。</li>
+</ul>
+<p>我觉得这样的流程可以应用工程实践上。整理这篇文章的目的大概在于此吧。至于“细节处见真章”方面，还真是让人愧不自啊。而 Nacos 在 spring 项目中的应用，可以参考官方文档 <a href="https://nacos.io/zh-cn/docs/quick-start-spring-cloud.html" target="_blank" rel="noopener">Nacos Spring Cloud 快速开始</a>，这里不作说明。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://nacos.io" target="_blank" rel="noopener">Nacos 官网</a><br><a href="https://www.jianshu.com/p/61608ff86344" target="_blank" rel="noopener">Nacos 服务注册与发现原理分析</a><br><a href="https://www.infoq.cn/article/B*6vyMIKao9vAKIsJYpE?from=timeline&amp;isappinstalled=0" target="_blank" rel="noopener">Nacos 注册中心的设计原理详解</a><br><a href="https://nacos.io/zh-cn/blog/address-server.html" target="_blank" rel="noopener">Nacos 环境隔离</a><br><a href="http://blog.itpub.net/69922229/viewspace-2644195/" target="_blank" rel="noopener">Nacos Sync 的设计原理和规划</a><br><a href="https://nacos.io/zh-cn/blog/access%20control%20design.html" target="_blank" rel="noopener">Nacos 权限控制设计方案</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2020/01/23/backend/架构/从 nacos 看领域驱动设计/" data-id="ck7iyxkmn003jlyh9nqri4hhv" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "从 nacos 看领域驱动设计",
+        "image": "http://xzfyu.com/2020/01/23/backend/架构/从%20nacos%20看领域驱动设计/nacosMap.jpg",
+        "keywords": "analyst",
+        "genre": "backend 架构",
+        "datePublished": "2020-01-23",
+        "dateCreated": "2020-01-23",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2020/01/23/backend/架构/从 nacos 看领域驱动设计/",
+        "description": "按 Nacos 官网 的说法，它是一个提供便捷的服务发现、管理和配置平台。推敲 Nacos 的出产，首先它基于问题域思考所需实现的功能特性和非功能特性；再由特性思忖到逻辑架构图、领域模型、部署架构图、类视图等架构层面；再结合特性和架构图深入业务场景，完善功能实现策略；然后从开发生态这个宏观视角寻味 Nacos 需要支持的语言、技术栈；最后从市场投放这个目标视角总结 Nacos 的各种优势，并予以战",
+        "wordCount": 224
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/01/31/backend/spring/spring cloud 踩点/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            spring cloud 踩点
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2020/01/21/backend/异步消息/异步消息/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">异步消息</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2020/01/23/backend/架构/从 nacos 看领域驱动设计/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

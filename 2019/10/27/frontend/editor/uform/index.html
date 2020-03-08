@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>uform | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst">
+    
+    <meta name="description" content="通常对表单的抽象分为状态管理和视图组件两部分。按我的理解，uform 的三层结构与 redux + redux-react + react 组件或 mobx + mobx-react + react 组件的构成模式相仿。   @uform/core：状态管理层，抽象通用 form 表单、field 字段的状态管理逻辑。 @uform/react：抽象视图层，其一桥接状态管理器和视图组件，其二用于注">
+<meta name="keywords" content="analyst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="uform">
+<meta property="og:url" content="http://xzfyu.com/2019/10/27/frontend/editor/uform/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="通常对表单的抽象分为状态管理和视图组件两部分。按我的理解，uform 的三层结构与 redux + redux-react + react 组件或 mobx + mobx-react + react 组件的构成模式相仿。   @uform/core：状态管理层，抽象通用 form 表单、field 字段的状态管理逻辑。 @uform/react：抽象视图层，其一桥接状态管理器和视图组件，其二用于注">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://xzfyu.com/2019/10/27/frontend/editor/uform/uform.png">
+<meta property="og:updated_time" content="2020-03-08T10:56:11.404Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="uform">
+<meta name="twitter:description" content="通常对表单的抽象分为状态管理和视图组件两部分。按我的理解，uform 的三层结构与 redux + redux-react + react 组件或 mobx + mobx-react + react 组件的构成模式相仿。   @uform/core：状态管理层，抽象通用 form 表单、field 字段的状态管理逻辑。 @uform/react：抽象视图层，其一桥接状态管理器和视图组件，其二用于注">
+<meta name="twitter:image" content="http://xzfyu.com/2019/10/27/frontend/editor/uform/uform.png">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/frontend/editor/">editor</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-frontend/editor/uform" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        uform
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2019/10/27/frontend/editor/uform/" class="article-date">
+         <time datetime="2019-10-26T16:00:00.000Z" itemprop="datePublished">2019-10-27</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p>通常对表单的抽象分为状态管理和视图组件两部分。按我的理解，uform 的三层结构与 redux + redux-react + react 组件或 mobx + mobx-react + react 组件的构成模式相仿。</p>
+<img src="/2019/10/27/frontend/editor/uform/uform.png">
+<ul>
+<li>@uform/core：状态管理层，抽象通用 form 表单、field 字段的状态管理逻辑。</li>
+<li>@uform/react：抽象视图层，其一桥接状态管理器和视图组件，其二用于注册组件或容器等。</li>
+<li>@uform/antd, @uform/next：视图组件层，对接特定的视图组件库。</li>
+</ul>
+<h2 id="uform-core"><a href="#uform-core" class="headerlink" title="@uform/core"></a>@uform/core</h2><p>在不借助 redux 等状态管理器的前提下，针对业务逻辑抽象状态管理的做法是：OOP 编程方式抽象状态管理类，并提供统一的副作用接口驱动视图重绘。多个 store 之间可以通过消息总线通信；或者相互持有实例；或者在视图层组织交互逻辑。在这种设计思想下，store 状态管理类和 view 视图组件类即如下图：</p>
+<img src="/2019/10/27/frontend/editor/uform/store.png">
+<p>不同于 redux 等适用于全领域的状态管理器，表单的状态管理有其特点，所涉及的状态包含表单数据、脏值状态、校验状态、错误状态、编辑状态（在表单编辑器中）、props 等。表单状态管理分为两层：Form 表单层级、Field 字段层级。rc-form 的状态管理没有到字段层级，FormItem 组件从子字段中获取校验信息等数据。更为精细的状态管理需要到字段层级，这样就可以不用重绘表单，而是重绘字段组件。因为字段组件的类型众多，业务实体也可能以字段组件的形式呈现，所以，一般使用通用的 Field 模型抽象字段的状态管理逻辑。</p>
+<img src="/2019/10/27/frontend/editor/uform/form_field.png">
+<p>在 uform 中，Field 实例以 field.context 属性持有 Form 实例。Form、Field 实例对外通信均可以通过 Broadcast 绑定订阅函数达成，典型的订阅函数即利用 setState 以驱动组件重绘。不同的是，Form 实例用于构造对外交互接口，允许用户挂载多个订阅函数；Field 实例只允许挂载一个订阅函数 —— 变异的 setState，既驱动字段组件重绘，又驱动表单状态更新。Form 内部的事件机制通过 <a href="https://www.jianshu.com/p/f92ce317b07b" target="_blank" rel="noopener">rxjs 的 Subject</a> 实现，支持通过初始化选项绑定事件回调，其被称为 effect 副作用，包含 onFormReset、onFormSubmit、onFieldInit、onFieldChange、onFieldInputChange 这几类。</p>
+<p>表单数据状态变更只有一种模式：通过 Form 提供的接口更新，Field 接口不对外暴露。因为字段组件的绑定事件挂载了 mutators.change（mutators 由封装 Form 接口实现），所以当用户交互行为驱动字段更新时，首先会更新 Form 表单数据，其次间接更新相关的 Field 数据，其次 Field 数据变更引起字段组件重绘，最后触发表单层面 onFieldChange 副作用执行。通过 effect 副作用更新字段数据的执行逻辑也是这样的。uform 通过 syncUpdateMode 属性区分同步更新字段和异步更新字段两种模式：同步模式直接使用 raf 更新字段；异步模式通过 raf 在下一次绘制时批量更新字段。</p>
+<p>Form 实例提供三种更新状态的方式： 用于构造 mutators 的 form.setValue；在 effect 场景中使用的 form.setFormState、form.setFieldState。setValue 较为简单，即首先使用 Field 实例更新字段的状态，其次当字段存在脏值时予以重绘，其次触发 onFieldInputChange 副作用，最后校验表单并触发执行表单层面的订阅函数、onFieldChange 副作用。setFormState、setFieldState 并不会触发 onFieldInputChange 副作用，但这两个方法都会通过 formNotify 触发 onFieldChange 副作用。</p>
+<p>setFormState 流程图：<br><img src="/2019/10/27/frontend/editor/uform/setFormState.png"></p>
+<p>setFieldState 流程图：<br><img src="/2019/10/27/frontend/editor/uform/setFieldState.png"></p>
+<p>如上文所说，uform 不止于管理表单数据、校验状态等状态（两者均通过 field.notify 驱动字段组件的重绘），还包含 props、editable 可编辑状态等数据。在提升性能方面，精准的字段状态管理可以只驱动字段的重绘，而不是表单的重绘；uform 又使用 raf 在启动重绘。至于功能上的联动显示隐藏，uform 一方面可以通过 setFieldState 更新字段的 visible, display 状态；另一方面可以通过 react 语法在特定条件下构建字段组件实例（通过 props.onChange 方法监听并插入字段组件）。在后一种情况下，uform 允许使用 updateFieldStateFromBuffer 更新新增字段的状态。</p>
+<h2 id="uform-react"><a href="#uform-react" class="headerlink" title="@uform/react"></a>@uform/react</h2><p>与 rc-form 一样，uform 也使用高阶组件 StateForm、StateField 将状态管理器注入到表单及字段组件中；但是子组件表单没法通过 props.form 访问 Form 实例，StateForm 会通过 context 将 Form 实例直接传给字段 StateField。表单的高阶组件主要在于将 Form 实例的订阅函数等通过 props 透出到表单外围、通过 props 更新 Form 实例的状态、将 Form 实例透传给内部子组件；字段的高阶组件主要在于通过 props 更新 Field 实例的状态、构建 mutators 监听字段组件的变更以实时更新字段的状态。</p>
+<p>StateForm 会通过 registerFormWrapper 函数注册成原始表单的外层容器；registerFormWrapper 函数还可用于注册其他容器。注册完成后，通过 OriginForm 可以获取集成外围容器的表单组件。与 registerFormWrapper 功能相仿，registerFieldMiddleware 用于为字段组件添加外围容器（外围容器的功能如在 antd 中为字段组件包裹上 FormItem 组件）。registerFormField 用于注册字段组件，如 input，radio 等。因为对于不同的字段组件，其值可能会有不同的 props 属性表现（如 props.value、props.checked 等），编辑状态与不可编辑状态也可能会使用不同的字段组件，@uform/react 提供 connect 用于转换 props 或处理 schema。在 registerFormField 时，一般会配合使用 connect。</p>
+<p>uform 中的字段渲染比较特别，分为两种模式：SchemaMarkup 传入 props.schema，直接予以渲染；通过 SchemaField 描述 SchemaForm 包含的字段组件，收集 schema 后予以渲染。@uform/antd 透出的 SchemaForm 即基于 SchemaMarkup；Field 即基于 SchemaField。以下是源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line">const SchemaForm = SchemaMarkup()(</span><br><span class="line">  React.forwardRef((props: ISchemaFormProps, ref: React.Ref&lt;any&gt;) =&gt; &#123;</span><br><span class="line">    // 这个时候就有 schema 数据</span><br><span class="line">    const &#123; children, className, ...others &#125; = props</span><br><span class="line">    return (</span><br><span class="line">      &lt;OriginForm</span><br><span class="line">        className=&#123;`rs-uform $&#123;className || &apos;&apos;&#125;`&#125;</span><br><span class="line">        &#123;...others&#125;</span><br><span class="line">        ref=&#123;ref&#125;</span><br><span class="line">      &gt;</span><br><span class="line">        &lt;div className=&quot;rs-uform-content&quot;&gt;</span><br><span class="line">          &#123;/* 从 schema 取出数据渲染 */&#125;</span><br><span class="line">          &lt;FormField name=&quot;&quot; path=&#123;[]&#125; schemaPath=&#123;[]&#125; /&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">        &#123;children&#125;</span><br><span class="line">      &lt;/OriginForm&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">// 虚拟组件，仅用于收集 schema</span><br><span class="line">const SchemaField = props =&gt; &#123;</span><br><span class="line">  const parent = useContext(MarkupContext)</span><br><span class="line">  if (schemaIs(parent, &apos;object&apos;)) &#123;</span><br><span class="line">    const name = props.name || getRadomName()</span><br><span class="line">    parent.properties = parent.properties || &#123;&#125;</span><br><span class="line">    parent.properties[name] = clone(</span><br><span class="line">      props,</span><br><span class="line">      filterSchemaPropertiesAndReactChildren</span><br><span class="line">    )</span><br><span class="line">    return (</span><br><span class="line">      &lt;MarkupContext.Provider value=&#123;parent.properties[name]&#125;&gt;</span><br><span class="line">        &#123;props.children&#125;</span><br><span class="line">      &lt;/MarkupContext.Provider&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125; else if (schemaIs(parent, &apos;array&apos;)) &#123;</span><br><span class="line">    parent.items = clone(props, filterSchemaPropertiesAndReactChildren)</span><br><span class="line">    return (</span><br><span class="line">      &lt;MarkupContext.Provider value=&#123;parent.items&#125;&gt;</span><br><span class="line">        &#123;props.children&#125;</span><br><span class="line">      &lt;/MarkupContext.Provider&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    return props.children || &lt;React.Fragment /&gt;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const SchemaMarkup = createHOC((options, SchemaForm) =&gt; &#123;</span><br><span class="line">  return class extends Component&lt;ISchemaFormProps&gt; &#123;</span><br><span class="line">    public static displayName = &apos;SchemaMarkupParser&apos;</span><br><span class="line"></span><br><span class="line">    public portalRoot = document.createElement(&apos;div&apos;)</span><br><span class="line"></span><br><span class="line">    public render() &#123;</span><br><span class="line">      const &#123;</span><br><span class="line">        children,</span><br><span class="line">        initialValues,</span><br><span class="line">        defaultValue,</span><br><span class="line">        value,</span><br><span class="line">        schema,</span><br><span class="line">        ...others</span><br><span class="line">      &#125; = this.props</span><br><span class="line"></span><br><span class="line">      let alreadyHasSchema = false</span><br><span class="line">      let finalSchema = &#123;&#125;</span><br><span class="line">      if (schema) &#123;</span><br><span class="line">        alreadyHasSchema = true</span><br><span class="line">        finalSchema = schema</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        finalSchema = &#123; type: &apos;object&apos; &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      nonameId = 0</span><br><span class="line"></span><br><span class="line">      return (</span><br><span class="line">        &lt;React.Fragment&gt;</span><br><span class="line">          &#123;!alreadyHasSchema &amp;&amp;</span><br><span class="line">            // 只是为了去收集 schema 数据</span><br><span class="line">            createPortal(</span><br><span class="line">              &lt;MarkupContext.Provider value=&#123;finalSchema&#125;&gt;</span><br><span class="line">                &#123;children&#125;</span><br><span class="line">              &lt;/MarkupContext.Provider&gt;,</span><br><span class="line">              this.portalRoot</span><br><span class="line">            )&#125;</span><br><span class="line">          &#123;/* 收集后的 schema 用于渲染 */&#125;</span><br><span class="line">          &lt;SchemaForm</span><br><span class="line">            &#123;...others&#125;</span><br><span class="line">            defaultValue=&#123;defaultValue&#125;</span><br><span class="line">            value=&#123;value&#125;</span><br><span class="line">            initialValues=&#123;initialValues&#125;</span><br><span class="line">            schema=&#123;finalSchema&#125;</span><br><span class="line">          &gt;</span><br><span class="line">            &#123;children&#125;</span><br><span class="line">          &lt;/SchemaForm&gt;</span><br><span class="line">        &lt;/React.Fragment&gt;</span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>@uform/react 封装了三种抽象组件：array 列表组件、object 多属性组件、slot 插槽组件（渲染 schema.renderChildren）。registerFieldRenderer 函数用于增强 schema 的解析能力，默认 schema[‘x-render’] 可以作为字段组件的渲染函数。</p>
+<p>借助于通过 createContext 机制传递 Broadcast 实例，StateForm、StateField 会持有相同的 Broadcast 实例。这个 Broadcast 实例可以作为组件层级的通信总线。@uform/react 另外借助了 <a href="https://github.com/janryWang/react-eva" target="_blank" rel="noopener">react-eva</a> 可用于以 actions、effects 形式操控表单。</p>
+<h2 id="uform-antd"><a href="#uform-antd" class="headerlink" title="@uform/antd"></a>@uform/antd</h2><p>@uform/antd、@uform/next 主要利用 @uform/react 提供的 registerFormWrapper、registerFieldMiddleware、registerFormField + connect 完成表单外围容器、字段外围容器、字段组件的注册。如在 @uform/antd 中，会通过 registerFormWrapper 为表单包裹上 antd 的 Form 组件；通过 registerFieldMiddleware 为字段包裹上 FormItem 组件；通过 registerFormField + connect 注册 input，radio 等字段组件。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>uform 有其设计和实现上的复杂性，本文暂未深入挖掘子字段、path、列表组件等内容。</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2019/10/27/frontend/editor/uform/" data-id="ck7iyxkp70079lyh9u6txp1xr" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "uform",
+        "image": "http://xzfyu.com/2019/10/27/frontend/editor/uform/uform.png",
+        "keywords": "analyst",
+        "genre": "frontend editor",
+        "datePublished": "2019-10-27",
+        "dateCreated": "2019-10-27",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2019/10/27/frontend/editor/uform/",
+        "description": "通常对表单的抽象分为状态管理和视图组件两部分。按我的理解，uform 的三层结构与 redux + redux-react + react 组件或 mobx + mobx-react + react 组件的构成模式相仿。
+
+
+@uform/core：状态管理层，抽象通用 form 表单、field 字段的状态管理逻辑。
+@uform/react：抽象视图层，其一桥接状态管理器和视图组件，其二用于注",
+        "wordCount": 1201
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2019/10/29/frontend/architecture/hybird app/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            hybird app
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2019/10/25/数据技术/数据服务/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">大数据之路读后 —— 数据服务章</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2019/10/27/frontend/editor/uform/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

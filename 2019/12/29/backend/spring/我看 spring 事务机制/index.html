@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>我看 spring 事务机制 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst">
+    
+    <meta name="description" content="whatspring 事务机制提供了统一的编程模型来处理不同数据访问操作（local transactions by using JDBC, JPA, or Hibernate），同时支持分布式事务（JTA transactions）；支持声明式事务编程和编程式事务编程，声明式事务编程对代码无侵入性，只需要改变配置类即可应对不同的数据访问技术；与 spring 数据访问抽象完美集成。对于 spri">
+<meta name="keywords" content="analyst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我看 spring 事务机制">
+<meta property="og:url" content="http://xzfyu.com/2019/12/29/backend/spring/我看 spring 事务机制/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="whatspring 事务机制提供了统一的编程模型来处理不同数据访问操作（local transactions by using JDBC, JPA, or Hibernate），同时支持分布式事务（JTA transactions）；支持声明式事务编程和编程式事务编程，声明式事务编程对代码无侵入性，只需要改变配置类即可应对不同的数据访问技术；与 spring 数据访问抽象完美集成。对于 spri">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://xzfyu.com/2019/12/29/backend/spring/我看%20spring%20事务机制/transcational.png">
+<meta property="og:updated_time" content="2020-03-08T11:16:05.256Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="我看 spring 事务机制">
+<meta name="twitter:description" content="whatspring 事务机制提供了统一的编程模型来处理不同数据访问操作（local transactions by using JDBC, JPA, or Hibernate），同时支持分布式事务（JTA transactions）；支持声明式事务编程和编程式事务编程，声明式事务编程对代码无侵入性，只需要改变配置类即可应对不同的数据访问技术；与 spring 数据访问抽象完美集成。对于 spri">
+<meta name="twitter:image" content="http://xzfyu.com/2019/12/29/backend/spring/我看%20spring%20事务机制/transcational.png">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/backend/">backend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/backend/spring/">spring</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-backend/spring/我看 spring 事务机制" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        我看 spring 事务机制
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2019/12/29/backend/spring/我看 spring 事务机制/" class="article-date">
+         <time datetime="2019-12-28T16:00:00.000Z" itemprop="datePublished">2019-12-29</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="what"><a href="#what" class="headerlink" title="what"></a>what</h2><p>spring 事务机制提供了统一的编程模型来处理不同数据访问操作（local transactions by using JDBC, JPA, or Hibernate），同时支持分布式事务（JTA transactions）；支持声明式事务编程和编程式事务编程，声明式事务编程对代码无侵入性，只需要改变配置类即可应对不同的数据访问技术；与 spring 数据访问抽象完美集成。对于 spring boot 项目，只要显式地对启动类添加 @EnableTransactionManagement 注解，即能为应用注入 PlatformTransactionManager 实例；然后在需要事务支持的方法或类上添加 @Transactional 注解（该注解推荐使用在类和类的公共方法上。如果在保护方法和私有方法上使用，需要配合 AspectJ），spring 就能基于 AOP 机制开启一个事务，当调用无异常时，事务就会被提交了。</p>
+<h2 id="sample"><a href="#sample" class="headerlink" title="sample"></a>sample</h2><h3 id="basic"><a href="#basic" class="headerlink" title="basic"></a>basic</h3><p>样例来自 <a href="https://spring.io/guides/gs/managing-transactions/" target="_blank" rel="noopener">Managing Transactions</a>，基于 spring boot 作了改造：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableTransactionManagement</span> <span class="comment">// 启注解事务管理</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProfiledemoApplication</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Bean</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">testBean</span><span class="params">(PlatformTransactionManager platformTransactionManager)</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;"</span> + platformTransactionManager.getClass().getName());</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Object();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    SpringApplication.run(ProfiledemoApplication.class, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BookingService</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Logger logger = LoggerFactory.getLogger(BookingService.class);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> JdbcTemplate jdbcTemplate;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">BookingService</span><span class="params">(JdbcTemplate jdbcTemplate)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.jdbcTemplate = jdbcTemplate;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Transactional</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">book</span><span class="params">(String... persons)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (String person : persons) &#123;</span><br><span class="line">      logger.info(<span class="string">"Booking "</span> + person + <span class="string">" in a seat..."</span>);</span><br><span class="line">      jdbcTemplate.update(<span class="string">"insert into BOOKINGS(FIRST_NAME) values (?)"</span>, person);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">findAllBookings</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> jdbcTemplate.query(<span class="string">"select FIRST_NAME from BOOKINGS"</span>,</span><br><span class="line">        (rs, rowNum) -&gt; rs.getString(<span class="string">"FIRST_NAME"</span>));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="multiple-management"><a href="#multiple-management" class="headerlink" title="multiple management"></a>multiple management</h3><p>当应用中有多种数据库连接方式时，<a href="https://blog.csdn.net/u010963948/article/details/79208328" target="_blank" rel="noopener">Spring Boot的事务管理注解@EnableTransactionManagement的使用</a> 这篇文章指明了该如何使用声明式事务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableTransactionManagement</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProfiledemoApplication</span> <span class="keyword">implements</span> <span class="title">TransactionManagementConfigurer</span> </span>&#123;<span class="comment">// 实现 TransactionManagementConfigurer，指定事务管理器</span></span><br><span class="line">  <span class="meta">@Resource</span>(name=<span class="string">"txManager2"</span>)</span><br><span class="line">  <span class="keyword">private</span> PlatformTransactionManager txManager2;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 创建事务管理器1，以数据源 DataSource 为参数</span></span><br><span class="line">  <span class="meta">@Bean</span>(name = <span class="string">"txManager1"</span>)</span><br><span class="line">  <span class="function"><span class="keyword">public</span> PlatformTransactionManager <span class="title">txManager</span><span class="params">(DataSource dataSource)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DataSourceTransactionManager(dataSource);</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">// 创建事务管理器2，不需要指定数据库，需要指定 EntityManagerFactory</span></span><br><span class="line">  <span class="meta">@Bean</span>(name = <span class="string">"txManager2"</span>)</span><br><span class="line">  <span class="function"><span class="keyword">public</span> PlatformTransactionManager <span class="title">txManager2</span><span class="params">(EntityManagerFactory factory)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> JpaTransactionManager(factory);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 实现接口 TransactionManagementConfigurer 方法，设置默认的事务管理器</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> PlatformTransactionManager <span class="title">annotationDrivenTransactionManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> txManager2;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    SpringApplication.run(ProfiledemoApplication.class, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DevSendMessage</span> <span class="keyword">implements</span> <span class="title">SendMessage</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 使用 value 指定事务管理器</span></span><br><span class="line">  <span class="meta">@Transactional</span>(value=<span class="string">"txManager1"</span>)</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 使用默认的事务管理器；如果没有默认的事务管理器，就必须制定 value，否则会抛出异常</span></span><br><span class="line">  <span class="meta">@Transactional</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 第二种方式，使用 @TxManager1 注解</span></span><br><span class="line"><span class="comment">// @Target(&#123;ElementType.METHOD, ElementType.TYPE&#125;)</span></span><br><span class="line"><span class="comment">// @Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="comment">// @Transactional("txManager1")</span></span><br><span class="line"><span class="comment">// public @interface TxManager1 &#123;</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="how"><a href="#how" class="headerlink" title="how"></a>how</h2><p>spring 事务通过 AOP 面向切面编程机制实现，首先从 @Transactional 注解中获取必要的元数据信息，然后构建一个 AOP 代理（spring 事务也支持基于 AspectJ 切面），它使用 TransactionInterceptor 事务拦截器和 PlatformTransactionManager 接口实现类（对接不同数据访问技术的事务操作）来驱动事务。</p>
+<h3 id="EnableTransactionManagement"><a href="#EnableTransactionManagement" class="headerlink" title="EnableTransactionManagement"></a>EnableTransactionManagement</h3><p>@EnableTransactionManagement 注解既会注入默认的 PlatformTransactionManager 实例，又会通过 Spring 的自动机制添加切面（装配 TransactionInterceptor 事务拦截器），自动查询应用上下文中的 @Transactional 注解，并构建 AOP 代理执行事务流程。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Import</span>(TransactionManagementConfigurationSelector.class)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableTransactionManagement &#123;</span><br><span class="line">  <span class="comment">// 代理模式，基于子类或基于 java 接口</span></span><br><span class="line">	<span class="function"><span class="keyword">boolean</span> <span class="title">proxyTargetClass</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">false</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 切面模式，默认基于代理，可以切换成基于 AspectJ</span></span><br><span class="line">	<span class="function">AdviceMode <span class="title">mode</span><span class="params">()</span> <span class="keyword">default</span> AdviceMode.PROXY</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 拦截器顺序</span></span><br><span class="line">	<span class="function"><span class="keyword">int</span> <span class="title">order</span><span class="params">()</span> <span class="keyword">default</span> Ordered.LOWEST_PRECEDENCE</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransactionManagementConfigurationSelector</span> <span class="keyword">extends</span> <span class="title">AdviceModeImportSelector</span>&lt;<span class="title">EnableTransactionManagement</span>&gt; </span>&#123;</span><br><span class="line">  <span class="comment">// 通过 AnnotationMetadata 接口获取注解的元数据</span></span><br><span class="line">  <span class="comment">// 由元数据 mode 获取 ProxyTransactionManagementConfiguration 类名等，使用 spring 机制自动装配</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">protected</span> String[] selectImports(AdviceMode adviceMode) &#123;</span><br><span class="line">		<span class="keyword">switch</span> (adviceMode) &#123;</span><br><span class="line">			<span class="keyword">case</span> PROXY:</span><br><span class="line">        <span class="comment">// AutoProxyRegistrar 实现 ImportBeanDefinitionRegistrar 接口，会在注册 bean 的时候设置 AOP 代理的方式，基于子类或基于接口</span></span><br><span class="line">				<span class="keyword">return</span> <span class="keyword">new</span> String[] &#123;AutoProxyRegistrar.class.getName(),</span><br><span class="line">        <span class="comment">// ProxyTransactionManagementConfiguration 间接实现 ImportAware 接口，可以通过 setImportMetadata 方法获取注解元数据</span></span><br><span class="line">        <span class="comment">// ProxyTransactionManagementConfiguration 属性中包含默认的 PlatformTransactionManager 实例</span></span><br><span class="line">        <span class="comment">// 通过 ProxyTransactionManagementConfiguration 自动加载 TransactionInterceptor 拦截器</span></span><br><span class="line">						ProxyTransactionManagementConfiguration.class.getName()&#125;;</span><br><span class="line">			<span class="keyword">case</span> ASPECTJ:</span><br><span class="line">				<span class="keyword">return</span> <span class="keyword">new</span> String[] &#123;determineTransactionAspectClass()&#125;;</span><br><span class="line">			<span class="keyword">default</span>:</span><br><span class="line">				<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过 ProxyTransactionManagementConfiguration 自动加载 TransactionInterceptor 拦截器</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProxyTransactionManagementConfiguration</span> <span class="keyword">extends</span> <span class="title">AbstractTransactionManagementConfiguration</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 设置切点、建言等</span></span><br><span class="line">	<span class="meta">@Bean</span>(name = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME)</span><br><span class="line">	<span class="meta">@Role</span>(BeanDefinition.ROLE_INFRASTRUCTURE)<span class="comment">// 声明 Bean 的分类</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> BeanFactoryTransactionAttributeSourceAdvisor <span class="title">transactionAdvisor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		BeanFactoryTransactionAttributeSourceAdvisor advisor = <span class="keyword">new</span> BeanFactoryTransactionAttributeSourceAdvisor();</span><br><span class="line">		advisor.setTransactionAttributeSource(transactionAttributeSource());</span><br><span class="line">		advisor.setAdvice(transactionInterceptor());</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">this</span>.enableTx != <span class="keyword">null</span>) &#123;</span><br><span class="line">			advisor.setOrder(<span class="keyword">this</span>.enableTx.&lt;Integer&gt;getNumber(<span class="string">"order"</span>));</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> advisor;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 解析 @Transactional 注解</span></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@Role</span>(BeanDefinition.ROLE_INFRASTRUCTURE)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> TransactionAttributeSource <span class="title">transactionAttributeSource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> AnnotationTransactionAttributeSource();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 事务拦截器</span></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@Role</span>(BeanDefinition.ROLE_INFRASTRUCTURE)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> TransactionInterceptor <span class="title">transactionInterceptor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		TransactionInterceptor interceptor = <span class="keyword">new</span> TransactionInterceptor();</span><br><span class="line">		interceptor.setTransactionAttributeSource(transactionAttributeSource());</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">this</span>.txManager != <span class="keyword">null</span>) &#123;</span><br><span class="line">			interceptor.setTransactionManager(<span class="keyword">this</span>.txManager);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> interceptor;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="TransactionInterceptor"><a href="#TransactionInterceptor" class="headerlink" title="TransactionInterceptor"></a>TransactionInterceptor</h3><p>TransactionInterceptor 事务拦截器的简要实现原理如下：</p>
+<img src="/2019/12/29/backend/spring/我看%20spring%20事务机制/transcational.png">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransactionInterceptor</span> <span class="keyword">extends</span> <span class="title">TransactionAspectSupport</span> <span class="keyword">implements</span> <span class="title">MethodInterceptor</span>, <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="meta">@Nullable</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(MethodInvocation invocation)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">		Class&lt;?&gt; targetClass = (invocation.getThis() != <span class="keyword">null</span> ? AopUtils.getTargetClass(invocation.getThis()) : <span class="keyword">null</span>);</span><br><span class="line">		<span class="keyword">return</span> invokeWithinTransaction(invocation.getMethod(), targetClass, invocation::proceed);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">TransactionAspectSupport</span> <span class="keyword">implements</span> <span class="title">BeanFactoryAware</span>, <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line">	<span class="meta">@Nullable</span></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> Object <span class="title">invokeWithinTransaction</span><span class="params">(Method method, @Nullable Class&lt;?&gt; targetClass,</span></span></span><br><span class="line"><span class="function"><span class="params">			<span class="keyword">final</span> InvocationCallback invocation)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 获取 @transactional 注解属性</span></span><br><span class="line">    <span class="comment">// txAttr 与 TranscationStatus 挂钩，作为 PlatformTransactionManager#getTranscation 的参数，返回 TranscationStatus</span></span><br><span class="line">		TransactionAttributeSource tas = getTransactionAttributeSource();</span><br><span class="line">		<span class="keyword">final</span> TransactionAttribute txAttr = (tas != <span class="keyword">null</span> ? tas.getTransactionAttribute(method, targetClass) : <span class="keyword">null</span>);</span><br><span class="line">    <span class="comment">// 通过 beanFactory 以及 @transactional 注解上的 value 元数据获取 PlatformTransactionManager 实例</span></span><br><span class="line">		<span class="keyword">final</span> PlatformTransactionManager tm = determineTransactionManager(txAttr);</span><br><span class="line">		<span class="keyword">final</span> String joinpointIdentification = methodIdentification(method, targetClass, txAttr);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (txAttr == <span class="keyword">null</span> || !(tm <span class="keyword">instanceof</span> CallbackPreferringPlatformTransactionManager)) &#123;</span><br><span class="line">			<span class="comment">// 构建 TransactionInfo，保存在本地线程中</span></span><br><span class="line">			TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);</span><br><span class="line">			Object retVal = <span class="keyword">null</span>;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">// 继续执行拦截器链,当有其他拦截器 match 待执行方法时，则执行该拦截器方法，然后 return</span></span><br><span class="line">				retVal = invocation.proceedWithInvocation();</span><br><span class="line">			&#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">				<span class="comment">// 根据 @transactional 元数据 rollbackOn 进行回滚或调用 PlatformTransactionManager#commit 提交</span></span><br><span class="line">				completeTransactionAfterThrowing(txInfo, ex);</span><br><span class="line">				<span class="keyword">throw</span> ex;</span><br><span class="line">			&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">				cleanupTransactionInfo(txInfo);</span><br><span class="line">			&#125;</span><br><span class="line">      <span class="comment">// 调用 PlatformTransactionManager#commit 提交</span></span><br><span class="line">			commitTransactionAfterReturning(txInfo);</span><br><span class="line">			<span class="keyword">return</span> retVal;</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">final</span> ThrowableHolder throwableHolder = <span class="keyword">new</span> ThrowableHolder();</span><br><span class="line"></span><br><span class="line">			<span class="comment">// It's a CallbackPreferringPlatformTransactionManager: pass a TransactionCallback in.</span></span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				Object result = ((CallbackPreferringPlatformTransactionManager) tm).execute(txAttr, status -&gt; &#123;</span><br><span class="line">					TransactionInfo txInfo = prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);</span><br><span class="line">					<span class="keyword">try</span> &#123;</span><br><span class="line">						<span class="keyword">return</span> invocation.proceedWithInvocation();</span><br><span class="line">					&#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">						<span class="keyword">if</span> (txAttr.rollbackOn(ex)) &#123;</span><br><span class="line">							<span class="comment">// A RuntimeException: will lead to a rollback.</span></span><br><span class="line">							<span class="keyword">if</span> (ex <span class="keyword">instanceof</span> RuntimeException) &#123;</span><br><span class="line">								<span class="keyword">throw</span> (RuntimeException) ex;</span><br><span class="line">							&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">								<span class="keyword">throw</span> <span class="keyword">new</span> ThrowableHolderException(ex);</span><br><span class="line">							&#125;</span><br><span class="line">						&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">							throwableHolder.throwable = ex;</span><br><span class="line">							<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">						&#125;</span><br><span class="line">					&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">						cleanupTransactionInfo(txInfo);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;);</span><br><span class="line"></span><br><span class="line">				<span class="keyword">if</span> (throwableHolder.throwable != <span class="keyword">null</span>) &#123;</span><br><span class="line">					<span class="keyword">throw</span> throwableHolder.throwable;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">return</span> result;</span><br><span class="line">			&#125; <span class="keyword">catch</span> (ThrowableHolderException ex) &#123;</span><br><span class="line">				<span class="keyword">throw</span> ex.getCause();</span><br><span class="line">			&#125; <span class="keyword">catch</span> (TransactionSystemException ex2) &#123;</span><br><span class="line">				<span class="keyword">if</span> (throwableHolder.throwable != <span class="keyword">null</span>) &#123;</span><br><span class="line">					logger.error(<span class="string">"Application exception overridden by commit exception"</span>, throwableHolder.throwable);</span><br><span class="line">					ex2.initApplicationException(throwableHolder.throwable);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">throw</span> ex2;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">catch</span> (Throwable ex2) &#123;</span><br><span class="line">				<span class="keyword">if</span> (throwableHolder.throwable != <span class="keyword">null</span>) &#123;</span><br><span class="line">					logger.error(<span class="string">"Application exception overridden by commit exception"</span>, throwableHolder.throwable);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">throw</span> ex2;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="PlatformTransactionManager"><a href="#PlatformTransactionManager" class="headerlink" title="PlatformTransactionManager"></a>PlatformTransactionManager</h3><p>PlatformTransactionManager 接口定义了事务执行的策略。不同的数据访问技术有各自的实现，如 JDBC 实现了 DataSourceTranscationManager；JPA 实现了 JPATranscationManager；Hibernate 实现了 HibernateTranscationManager；JDO 实现了 JdoTranscationManager；分布式事务实现了 JtaTranscationManager。在 spring boot 项目中，spring-boot-starter-jdbc 会为应用自动注入 DataSourceTransactionManager 实例；spring-boot-starter-data-jpa 会为应用自动注入 JpaTransactionManager 实例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PlatformTransactionManager</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 如果当前调用堆栈存在匹配事务，就返回新事务或当前的事务</span></span><br><span class="line">  <span class="comment">// TransactionDefinition 定义了事务的元数据，基本与 @Transactional 注解上的元数据相同</span></span><br><span class="line">  <span class="function">TransactionStatus <span class="title">getTransaction</span><span class="params">(TransactionDefinition definition)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">commit</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">rollback</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TransactionStatus</span> <span class="keyword">extends</span> <span class="title">SavepointManager</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">boolean</span> <span class="title">isNewTransaction</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">boolean</span> <span class="title">hasSavepoint</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 调用 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly() 实现回滚</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">setRollbackOnly</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">boolean</span> <span class="title">isRollbackOnly</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">flush</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">boolean</span> <span class="title">isCompleted</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Transactional"><a href="#Transactional" class="headerlink" title="Transactional"></a>Transactional</h3><p>@Transactional 注解元数据包含：</p>
+<ul>
+<li>propagation（事务传播）：默认值为 REQUIRED，事务方法 A 调用事务方法 B，B 将使用与 A 相同的事务，而不创建新事务；当方法 B 发生异常时，整个事务将回滚。当值为 REQUIRED_NEW 时，方法 B 将构建新的事务，异常只导致 B 事务回滚。当值为 NESTED 时，效果与 REQUIRED_NEW 类似，但只支持 JDBC，不支持 JPA、Hibernate。当赋值为 SUPPORTS 时，声明方法调用时有事务就用事务，没有事务就不用事务（比如某方法没有事务，调用它的方法可能有事务）。当赋值为 NOT_SUPPORTS 时，声明方法不在事务中执行，若有事务，在方法调用结束阶段事务都会被挂起。当赋值为 NEVER 时，声明方法不在事务中执行，若有事务则抛出异常。当赋值为 MANDATORY 时，声明方法在事务中执行，若没有事务则抛出异常。</li>
+<li>isolation：指定事务之间的隔离程度。默认值为 DEFAULT，使用当前数据库的默认隔离级别，Oracle、SQL Server 为 READ_COMMITTED，Mysql 为 REPEATABLE_READ。当值为 READ_UNCOMMITTED 时，B 事务可以读取到 A 事务修改但未提交的事务，可能导致脏读、不可重复读、幻读。当值为 READ_COMMITTED 时，B 事务可以读取到 A 事务修改的事务，可能导致不可重复读、幻读，不会导致脏读。当值为 REPEATABLE_READ 时，B 事务可以读取到 A 事务修改的事务，但不可以读取 A 事务已经读取的事务，可能导致不可重复读，不会导致幻读、脏读。当值为 SERIALIZABLE 时，事务顺序执行，不会导致不可重复读、幻读、脏读，但是开销较大。</li>
+<li>timeout：指定事务过期时间，默认为当前数据库的事务过期时间。超过超时时间的事务将会被回滚。</li>
+<li>readOnly：指定当前事务是否为只读事务，即添加 @Transactional 注解的方法只会读取数据库的值，而不会修改数据库的值。</li>
+<li>rollbackFor：指定哪些异常可以引起事务回滚，值为 Throwable 的子类。</li>
+<li><p>noRollbackFor：指定哪些异常不会引起事务回滚，值为 Throwable 的子类。</p>
+</li>
+<li><p>自定义事务行为。</p>
+</li>
+<li>不支持通过远程调用传播事务上下文。</li>
+</ul>
+<h3 id="TransactionTemplate"><a href="#TransactionTemplate" class="headerlink" title="TransactionTemplate"></a>TransactionTemplate</h3><p>同常见的数据访问技术实现了了两种抽象一样（如较低水平的抽象 DataSourceUtils、较高水平的抽象 JDBCTemplate），spring 事务机制既支持使用 @Transactional 注解作声明式编程，又支持使用 TransactionTemplate 或 PlatformTransactionManager 实现类作编程式编程。除了使用 TransactionTemplate 约束事务的行为以外，spring 事务机制也允许使用 TransactionalEventListener 在事务执行的某个阶段定制事件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> TransactionTemplate transactionTemplate;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">SimpleService</span><span class="params">(PlatformTransactionManager transactionManager)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.transactionTemplate = <span class="keyword">new</span> TransactionTemplate(transactionManager);</span><br><span class="line">    <span class="keyword">this</span>.transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_UNCOMMITTED);</span><br><span class="line">    <span class="keyword">this</span>.transactionTemplate.setTimeout(<span class="number">30</span>); <span class="comment">// 30 seconds</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">someServiceMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> transactionTemplate.execute(<span class="keyword">new</span> TransactionCallbackWithoutResult() &#123;</span><br><span class="line">      <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doInTransactionWithoutResult</span><span class="params">(TransactionStatus status)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          updateOperation1();</span><br><span class="line">          updateOperation2();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SomeBusinessException ex) &#123;</span><br><span class="line">          status.setRollbackOnly();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html#transaction" target="_blank" rel="noopener">spring 事务官方文档</a><br><a href="https://blog.csdn.net/w372426096/article/details/78574161" target="_blank" rel="noopener">Java中的事务——全局事务与本地事务</a><br><a href="https://www.jianshu.com/p/befc2d73e487" target="_blank" rel="noopener">Spring 事务 – @Transactional的使用</a><br><a href="https://www.jianshu.com/p/b33c4ff803e0" target="_blank" rel="noopener">@Transactional原理</a><br><a href="https://www.javaworld.com/article/2077963/distributed-transactions-in-spring--with-and-without-xa.html" target="_blank" rel="noopener">Distributed transactions in Spring, with and without XA</a><br><a href="https://www.infoq.com/minibooks/JTDS/" target="_blank" rel="noopener">Java Transaction Design Strategies</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2019/12/29/backend/spring/我看 spring 事务机制/" data-id="ck7iyxkls002ulyh97jdvtv8y" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "我看 spring 事务机制",
+        "image": "http://xzfyu.com/2019/12/29/backend/spring/我看%20spring%20事务机制/transcational.png",
+        "keywords": "analyst",
+        "genre": "backend spring",
+        "datePublished": "2019-12-29",
+        "dateCreated": "2019-12-29",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2019/12/29/backend/spring/我看 spring 事务机制/",
+        "description": "whatspring 事务机制提供了统一的编程模型来处理不同数据访问操作（local transactions by using JDBC, JPA, or Hibernate），同时支持分布式事务（JTA transactions）；支持声明式事务编程和编程式事务编程，声明式事务编程对代码无侵入性，只需要改变配置类即可应对不同的数据访问技术；与 spring 数据访问抽象完美集成。对于 spri",
+        "wordCount": 2134
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2019/12/30/backend/数据库技术/TDDL & DRDS/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            TDDL &amp; DRDS
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2019/12/29/backend/部署/docker/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">docker</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2019/12/29/backend/spring/我看 spring 事务机制/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

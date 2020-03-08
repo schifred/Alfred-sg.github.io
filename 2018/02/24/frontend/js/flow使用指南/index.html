@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>flow使用指南 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="carrier,js">
+    
+    <meta name="description" content="概述flow 是 facebook 推出的 js 代码类型检查工具。 flow 可借助 babel 编译，添加 babel-preset-flow 即可；babel-preset-react 包含 babel-preset-flow。或者借助安装 flow-bin 启动类型检查，flow-remove-types 移除类型标记。 通过在脚本前添加 // @flow 或 / @flow / 将文件标">
+<meta name="keywords" content="carrier,js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flow使用指南">
+<meta property="og:url" content="http://xzfyu.com/2018/02/24/frontend/js/flow使用指南/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="概述flow 是 facebook 推出的 js 代码类型检查工具。 flow 可借助 babel 编译，添加 babel-preset-flow 即可；babel-preset-react 包含 babel-preset-flow。或者借助安装 flow-bin 启动类型检查，flow-remove-types 移除类型标记。 通过在脚本前添加 // @flow 或 / @flow / 将文件标">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-08T10:38:25.784Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="flow使用指南">
+<meta name="twitter:description" content="概述flow 是 facebook 推出的 js 代码类型检查工具。 flow 可借助 babel 编译，添加 babel-preset-flow 即可；babel-preset-react 包含 babel-preset-flow。或者借助安装 flow-bin 启动类型检查，flow-remove-types 移除类型标记。 通过在脚本前添加 // @flow 或 / @flow / 将文件标">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/frontend/js/">js</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-frontend/js/flow使用指南" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        flow使用指南
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2018/02/24/frontend/js/flow使用指南/" class="article-date">
+         <time datetime="2018-02-23T16:00:00.000Z" itemprop="datePublished">2018-02-24</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/carrier/">carrier</a>, <a class="tag-link" href="/tags/js/">js</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>flow 是 facebook 推出的 js 代码类型检查工具。</p>
+<p>flow 可借助 babel 编译，添加 babel-preset-flow 即可；babel-preset-react 包含 babel-preset-flow。或者借助安装 flow-bin 启动类型检查，flow-remove-types 移除类型标记。</p>
+<p>通过在脚本前添加 // @flow 或 /<em> @flow </em>/ 将文件标注为需要类型校验的，否则将会跳过 flow 校验（除非执行 flow check –all 命令校验所有文件）。</p>
+<h2 id="类型标注-Type-Annotations"><a href="#类型标注-Type-Annotations" class="headerlink" title="类型标注/Type Annotations"></a>类型标注/Type Annotations</h2><h3 id="基础类型-Primitive-Types"><a href="#基础类型-Primitive-Types" class="headerlink" title="基础类型/Primitive Types"></a>基础类型/Primitive Types</h3><p>flow 支持校验的基础数据类型包含 boolean, string, number, null, undefined（在 flow 中，使用 void 标注）。es6 的 symbol 类型尚不支持。</p>
+<p>boolean, string, number 字面量使用小写形式标注类型；包装对象如 new Number(10) 使用大写形式标注类型。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">method</span>(<span class="params">x: number, y: string, z: boolean</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">method(<span class="number">3.14</span>, <span class="string">"hello"</span>, <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">method</span>(<span class="params">x: Number, y: String, z: Boolean</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">method(<span class="keyword">new</span> <span class="built_in">Number</span>(<span class="number">42</span>), <span class="keyword">new</span> <span class="built_in">String</span>(<span class="string">"world"</span>), <span class="keyword">new</span> <span class="built_in">Boolean</span>(<span class="literal">false</span>));</span><br></pre></td></tr></table></figure>
+<h3 id="字面量类型-Literal-Types"><a href="#字面量类型-Literal-Types" class="headerlink" title="字面量类型/Literal Types"></a>字面量类型/Literal Types</h3><p>flow 允许使用字面量作为类型标注，约定仅接受该字面量，如 value: 2 将仅接受数值 2，其他报错。</p>
+<h3 id="混合类型-Mixed-Types、任意类型-Any-types"><a href="#混合类型-Mixed-Types、任意类型-Any-types" class="headerlink" title="混合类型/Mixed Types、任意类型/Any types"></a>混合类型/Mixed Types、任意类型/Any types</h3><p>使用 mixed 标注可接受任意类型数据，但在使用时需显示校验类型。</p>
+<p>使用 any 标注可接受任意类型数据，且在使用时也跳过校验。若作为对象，其下的所有属性均采用 any 类型形式。需要避免使用 any 类型。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">stringify</span>(<span class="params">value: mixed</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// $ExpectError</span></span><br><span class="line">  <span class="keyword">return</span> <span class="string">""</span> + value; <span class="comment">// Error!</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stringify(<span class="string">"foo"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">stringify</span>(<span class="params">value: mixed</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> value === <span class="string">'string'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">""</span> + value; <span class="comment">// Works!</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">stringify(<span class="string">"foo"</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="数组-Array-Types"><a href="#数组-Array-Types" class="headerlink" title="数组/Array Types"></a>数组/Array Types</h3><p>数组通过 Array<type> 或 Type[] 标注，元素的类型必须一致，但可以是 undefined 或 null，如 Array<number> 或 number[]。</number></type></p>
+<h3 id="元祖-Tuple-Types"><a href="#元祖-Tuple-Types" class="headerlink" title="元祖/Tuple Types"></a>元祖/Tuple Types</h3><p>元祖通过 [type, type, type] 形式标注，即元素的类型单独标注，且元素不能增删，因此不能使用 push, pop 等数组原型方法，但可以使用 join 等方法，不同长度的元祖不能相互赋值，元祖和数组之间也不能相互赋值，如 [number, boolean, void]，该元祖标识可接受赋值如 [1, true]。</p>
+<h3 id="函数-Function-Types"><a href="#函数-Function-Types" class="headerlink" title="函数/Function Types"></a>函数/Function Types</h3><p>flow 可标注函数入参和返回值，如 function concat(a: string, b: string): string { return a + b; }。</p>
+<p>可选参数通过 ‘?’ 后缀标注，如 function acceptsOptionalString(value?: string) { }，参数可以是 undefined。</p>
+<p>默认参数可使用如下形式 function method(value: string = “default”) { /<em> … </em>/ }，参数可以是 undefined，但不能为 null。</p>
+<p>解构参数通过数组类型标注，如 function method(…args: Array<number>) { }。</number></p>
+<p>函数类型校验或者通过添加设定入参返回值标注，或者通过添加设定 Funtion 标注，如 function method(func: () =&gt; mixed) { } 或 function method(func: Function) { }。</p>
+<h3 id="对象-Object-Types"><a href="#对象-Object-Types" class="headerlink" title="对象/Object Types"></a>对象/Object Types</h3><p>对象通过 { propname: Type } 形式标注，如 var obj2: { foo: number, bar: boolean, baz: string, } = { foo: 1, bar: true, baz: ‘three’, }。</p>
+<p>可选属性通过 ‘?’ 后缀标注，如 { propertyName?: string }，propertyName 属性可以是 undefined。</p>
+<h3 id="类-Class-Types"><a href="#类-Class-Types" class="headerlink" title="类/Class Types"></a>类/Class Types</h3><p>类本身可作为类型标识。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> myInstance: MyClass = <span class="keyword">new</span> MyClass();</span><br></pre></td></tr></table></figure>
+<p>在类中，方法标识同函数，属性在使用前必须先标识。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123;</span><br><span class="line">  prop: number;</span><br><span class="line">  method(): <span class="keyword">void</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.prop = <span class="number">42</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>类支持泛型标识。将泛型标识的类作为标识时，必须为所有泛型传递参数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span>&lt;<span class="title">A</span>, <span class="title">B</span>, <span class="title">C</span>&gt; </span>&#123;</span><br><span class="line">  property: A;</span><br><span class="line">  method(val: B): C &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span>&lt;<span class="title">A</span>, <span class="title">B</span>, <span class="title">C</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(arg1: A, arg2: B, arg3: C) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> val: MyClass&lt;number, boolean, string&gt; = <span class="keyword">new</span> MyClass(<span class="number">1</span>, <span class="literal">true</span>, <span class="string">'three'</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="接口-Interface-Types"><a href="#接口-Interface-Types" class="headerlink" title="接口/Interface Types"></a>接口/Interface Types</h3><h4 id="接口作为类型标识"><a href="#接口作为类型标识" class="headerlink" title="接口作为类型标识"></a>接口作为类型标识</h4><p>接口可作为类型校验标识（结构类型校验/Structural typing，非名义类型校验/Nominal typing ）。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">interface Serializable &#123;</span><br><span class="line">  serialize(): string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>&#123;</span><br><span class="line">  serialize() &#123; <span class="keyword">return</span> <span class="string">'[Foo]'</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bar</span> </span>&#123;</span><br><span class="line">  serialize() &#123; <span class="keyword">return</span> <span class="string">'[Bar]'</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> foo: Serializable = <span class="keyword">new</span> Foo(); <span class="comment">// Works!</span></span><br><span class="line"><span class="keyword">const</span> bar: Serializable = <span class="keyword">new</span> Bar(); <span class="comment">// Works!</span></span><br></pre></td></tr></table></figure>
+<p>接口类型通过 ‘+’, ‘-‘ 符号设置只读、只写属性。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 当接口作为类型标识</span></span><br><span class="line">interface MyInterface &#123;</span><br><span class="line">  +readOnly: number | string;</span><br><span class="line">  -writeOnly: number | string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> value: MyInterface = &#123; </span><br><span class="line">  readOnly: <span class="number">3</span>,<span class="comment">// 可读，不可写</span></span><br><span class="line">  writeOnly: number | string<span class="comment">// 可写，不可读</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="接口作为类实现标准"><a href="#接口作为类实现标准" class="headerlink" title="接口作为类实现标准"></a>接口作为类实现标准</h4><p>接口用于类实现/implements，一个类可以实现多个接口。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">interface MyInterface &#123;</span><br><span class="line">  method(value: string): number;</span><br><span class="line">  property?: string;</span><br><span class="line">  [key: string]: number;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用泛型</span></span><br><span class="line">interface MyInterface&lt;A, B, C&gt; &#123;</span><br><span class="line">  foo: A;</span><br><span class="line">  bar: B;</span><br><span class="line">  baz: C;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="泛型-Generic-Types"><a href="#泛型-Generic-Types" class="headerlink" title="泛型/Generic Types"></a>泛型/Generic Types</h3><p>泛型用于在运行时注入特定的类型。以类型标识的变量使用接口中未声明的属性时，须先作校验属性是否存在。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 函数中使用泛型</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">method</span>&lt;<span class="title">T</span>&gt;(<span class="params">value: T</span>): <span class="title">T</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 类使用泛型</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Class</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  prop: T;</span><br><span class="line">  <span class="keyword">constructor</span>(param: T) &#123; &#125;</span><br><span class="line">  method(): T &#123; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 类型别名使用泛型</span></span><br><span class="line">type TypeAlias&lt;T&gt; = &#123;</span><br><span class="line">  key: T</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接口使用泛型</span></span><br><span class="line">interface Interface&lt;T&gt; &#123;</span><br><span class="line">  prop: T</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">logFoo</span>&lt;<span class="title">T</span>: </span>&#123; foo: string &#125;&gt;(obj: T): T &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(obj.foo); <span class="comment">// Works!</span></span><br><span class="line">  <span class="keyword">return</span> obj;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">logFoo(&#123; <span class="attr">foo</span>: <span class="string">'foo'</span>, <span class="attr">bar</span>: <span class="string">'bar'</span> &#125;);  <span class="comment">// Works!</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type Item&lt;T: number = <span class="number">1</span>&gt; = &#123;</span><br><span class="line">  prop: T,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> foo: Item&lt;&gt; = &#123; <span class="attr">prop</span>: <span class="number">1</span> &#125;;</span><br><span class="line"><span class="keyword">let</span> bar: Item&lt;<span class="number">2</span>&gt; = &#123; <span class="attr">prop</span>: <span class="number">2</span> &#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="可能的类型-Maybe-types"><a href="#可能的类型-Maybe-types" class="headerlink" title="可能的类型/Maybe types"></a>可能的类型/Maybe types</h3><p>可能的类型通过 ‘?’ 前缀标注，如 ?string，其值可以是 null 或 undefined。</p>
+<h3 id="联合类型-Union-Types"><a href="#联合类型-Union-Types" class="headerlink" title="联合类型/Union Types"></a>联合类型/Union Types</h3><p>联合类型使用 ype1 | Type2 | … | TypeN 标注，被标识数据应满足其中一个类型校验。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 联合类型在处理响应的情景中使用，'| ... |'用于避免 success, error 属性冲突</span></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type Success = &#123;| success: <span class="literal">true</span>, <span class="attr">value</span>: boolean |&#125;;</span><br><span class="line">type Failed  = &#123;| error: <span class="literal">true</span>, <span class="attr">message</span>: string |&#125;;</span><br><span class="line"></span><br><span class="line">type Response = Success | Failed;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleResponse</span>(<span class="params">response: Response</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (response.success) &#123;</span><br><span class="line">    <span class="keyword">var</span> value: boolean = response.value; <span class="comment">// Works!</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> error: string = response.error; <span class="comment">// Works!</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="交叉类型-Intersection-Types"><a href="#交叉类型-Intersection-Types" class="headerlink" title="交叉类型/Intersection Types"></a>交叉类型/Intersection Types</h3><p>交叉类型使用 Type1 &amp; Type2 &amp; … &amp; TypeN 标识，被标识数据应满足所有类型校验，需要由开发者避免类型冲突。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type A = &#123; <span class="attr">a</span>: number &#125;;</span><br><span class="line">type B = &#123; <span class="attr">b</span>: boolean &#125;;</span><br><span class="line">type C = &#123; <span class="attr">c</span>: string &#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">method</span>(<span class="params">value: A &amp; B &amp; C</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">method(&#123; <span class="attr">a</span>: <span class="number">1</span> &#125;); <span class="comment">// Error!</span></span><br><span class="line">method(&#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="literal">true</span> &#125;); <span class="comment">// Error!</span></span><br><span class="line">method(&#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="literal">true</span>, <span class="attr">c</span>: <span class="string">'three'</span> &#125;); <span class="comment">// Works!</span></span><br></pre></td></tr></table></figure>
+<h3 id="类型别名-Type-Aliases"><a href="#类型别名-Type-Aliases" class="headerlink" title="类型别名/Type Aliases"></a>类型别名/Type Aliases</h3><p>为常用的类型设置别名，采用如右形式语法 type Alias = Type。设置别名后，方便复用该类型。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">type NumberAlias = number;</span><br><span class="line">type ObjectAlias = &#123;</span><br><span class="line">  property: string,</span><br><span class="line">  method(): number,</span><br><span class="line">&#125;;</span><br><span class="line">type UnionAlias = <span class="number">1</span> | <span class="number">2</span> | <span class="number">3</span>;</span><br><span class="line">type AliasAlias = ObjectAlias;</span><br><span class="line">type GenericsObjectAlias&lt;A, B, C&gt; = &#123;</span><br><span class="line">  property: A,</span><br><span class="line">  method(val: B): C,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> val: ObjectAlias = &#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">method</span>(<span class="params">val: ObjectAlias</span>) </span>&#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>&#123; <span class="keyword">constructor</span>(val: ObjectAlias) &#123; <span class="comment">/* ... */</span> &#125; &#125;</span><br><span class="line"><span class="keyword">var</span> myObject: GenericsObjectAlias&lt;number, boolean, string&gt; = &#123;</span><br><span class="line">  property: <span class="number">1</span>,</span><br><span class="line">  method(val: boolean): string &#123; <span class="keyword">return</span> <span class="string">''</span>; &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="不透明的类型别名-Opaque-Type-Aliases"><a href="#不透明的类型别名-Opaque-Type-Aliases" class="headerlink" title="不透明的类型别名/Opaque Type Aliases"></a>不透明的类型别名/Opaque Type Aliases</h4><p>不透明的类型别名不允许在定义该类型别名的文件外使用其基础类型，如 opaque type Alias = Type; 或 opaque type Alias: SuperType = Type 用于约定父类型，Type 必须是 SuperType的子类型，且在声明文件外使用该父类型校验。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例 1</span></span><br><span class="line"><span class="comment">// exports.js</span></span><br><span class="line"><span class="keyword">export</span> opaque type NumberAlias = number;</span><br><span class="line"></span><br><span class="line"><span class="comment">// imports.js</span></span><br><span class="line"><span class="keyword">import</span> type &#123;NumberAlias&#125; <span class="keyword">from</span> <span class="string">'./exports'</span>;</span><br><span class="line"></span><br><span class="line">(<span class="number">0</span>: NumberAlias) <span class="comment">// Error: 0 is not a NumberAlias!</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">convert</span>(<span class="params">x: NumberAlias</span>): <span class="title">number</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> x; <span class="comment">// Error: x is not a number!</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例 2</span></span><br><span class="line"><span class="comment">// exports.js</span></span><br><span class="line"><span class="keyword">export</span> opaque type ID: string = string;</span><br><span class="line"></span><br><span class="line"><span class="comment">// imports.js</span></span><br><span class="line"><span class="keyword">import</span> type &#123;ID&#125; <span class="keyword">from</span> <span class="string">'./exports'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">formatID</span>(<span class="params">x: ID</span>): <span class="title">string</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"ID: "</span> + x; <span class="comment">// Ok! IDs are strings.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">toID</span>(<span class="params">x: string</span>): <span class="title">ID</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x; <span class="comment">// Error: strings are not IDs.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例 3 - 泛型</span></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line">opaque type MyObject&lt;A, B, C&gt;: &#123; <span class="attr">foo</span>: A, <span class="attr">bar</span>: B &#125; = &#123;</span><br><span class="line">  foo: A,</span><br><span class="line">  bar: B,</span><br><span class="line">  baz: C,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> val: MyObject&lt;number, boolean, string&gt; = &#123;</span><br><span class="line">  foo: <span class="number">1</span>,</span><br><span class="line">  bar: <span class="literal">true</span>,</span><br><span class="line">  baz: <span class="string">'three'</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例 4 - 使用声明</span></span><br><span class="line">declare opaque type Foo;</span><br><span class="line">declare opaque type PositiveNumber: number;</span><br></pre></td></tr></table></figure>
+<h3 id="typeof"><a href="#typeof" class="headerlink" title="typeof"></a>typeof</h3><p>typeof 操作符返回 flow 的数据类型，可能是开发者设置的类型标识。对基本类型，typeof 操作符返回名义类型；对类，typeof 操作符返回结构类型。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">let</span> num1 = <span class="number">42</span>;</span><br><span class="line"><span class="keyword">let</span> num2: <span class="keyword">typeof</span> num1 = <span class="number">3.14</span>;     <span class="comment">// Works!</span></span><br><span class="line"><span class="keyword">let</span> num3: <span class="keyword">typeof</span> num1 = <span class="string">'world'</span>;  <span class="comment">// Error!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> bool1 = <span class="literal">true</span>;</span><br><span class="line"><span class="keyword">let</span> bool2: <span class="keyword">typeof</span> bool1 = <span class="literal">false</span>;  <span class="comment">// Works!</span></span><br><span class="line"><span class="keyword">let</span> bool3: <span class="keyword">typeof</span> bool1 = <span class="number">42</span>;     <span class="comment">// Error!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> str1 = <span class="string">'hello'</span>;</span><br><span class="line"><span class="keyword">let</span> str2: <span class="keyword">typeof</span> str1 = <span class="string">'world'</span>; <span class="comment">// Works!</span></span><br><span class="line"><span class="keyword">let</span> str3: <span class="keyword">typeof</span> str1 = <span class="literal">false</span>;   <span class="comment">// Error!</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123;</span><br><span class="line">  method(val: number) &#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">YourClass</span> </span>&#123;</span><br><span class="line">  method(val: number) &#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> test1: <span class="keyword">typeof</span> MyClass = YourClass; <span class="comment">// Error!</span></span><br><span class="line"><span class="keyword">let</span> test1: <span class="keyword">typeof</span> MyClass = MyClass;   <span class="comment">// Works!</span></span><br></pre></td></tr></table></figure>
+<h3 id="类型断言-Type-Casting-Expressions"><a href="#类型断言-Type-Casting-Expressions" class="headerlink" title="类型断言/Type Casting Expressions"></a>类型断言/Type Casting Expressions</h3><p>类型断言可使用 (value: Type) 语法，flow 尝试将 value 转换为 Type 类型，且不作类型校验。</p>
+<p>flow 中只允许相关类型转换，由低级到高级，即 42 能转换到 number，不能转换到 string，number 类型不能转换为 42。通过 any 关键字可以将 42 从数值型转换到字符串型。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">let</span> value = <span class="number">42</span>;</span><br><span class="line"></span><br><span class="line">(value: number); <span class="comment">// Works!</span></span><br><span class="line">(value: string); <span class="comment">// Error!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> newValue = ((value: any): string);</span><br><span class="line"></span><br><span class="line">(newValue: number); <span class="comment">// Error!</span></span><br><span class="line">(newValue: string); <span class="comment">// Works!</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">cloneObject</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> clone = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">Object</span>.keys(obj).forEach(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">    clone[key] = obj[key];</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ((clone: any): <span class="keyword">typeof</span> obj); <span class="comment">// &lt;&lt;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> clone = cloneObject(&#123;</span><br><span class="line">  foo: <span class="number">1</span>,</span><br><span class="line">  bar: <span class="literal">true</span>,</span><br><span class="line">  baz: <span class="string">'three'</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">(clone.foo: <span class="number">1</span>);       <span class="comment">// Works!</span></span><br><span class="line">(clone.bar: <span class="literal">true</span>);    <span class="comment">// Works!</span></span><br><span class="line">(clone.baz: <span class="string">'three'</span>); <span class="comment">// Works!</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">cloneObject</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">  (obj: &#123; [key: string]: mixed &#125;); <span class="comment">// &lt;&lt;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> clone = &#123;&#125;;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">return</span> ((clone: any): <span class="keyword">typeof</span> obj);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> clone = cloneObject(&#123;</span><br><span class="line">  foo: <span class="number">1</span>,</span><br><span class="line">  bar: <span class="literal">true</span>,</span><br><span class="line">  baz: <span class="string">'three'</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">(clone.foo: <span class="number">1</span>);       <span class="comment">// Works!</span></span><br><span class="line">(clone.bar: <span class="literal">true</span>);    <span class="comment">// Works!</span></span><br><span class="line">(clone.baz: <span class="string">'three'</span>); <span class="comment">// Works!</span></span><br></pre></td></tr></table></figure>
+<h3 id="工具类型-Utility-Types"><a href="#工具类型-Utility-Types" class="headerlink" title="工具类型/Utility Types"></a>工具类型/Utility Types</h3><h4 id="Keys"><a href="#Keys" class="headerlink" title="$Keys"></a>$Keys<t></t></h4><p>$Keys<t> 以对象或类型的属性构建联合类型。</t></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">const</span> countries = &#123;</span><br><span class="line">  US: <span class="string">"United States"</span>,</span><br><span class="line">  IT: <span class="string">"Italy"</span>,</span><br><span class="line">  FR: <span class="string">"France"</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">type Country = $Keys&lt;<span class="keyword">typeof</span> countries&gt;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> italy: Country = <span class="string">'IT'</span>;</span><br><span class="line"><span class="keyword">const</span> nope: Country = <span class="string">'nope'</span>; <span class="comment">// 'nope' is not a Country</span></span><br></pre></td></tr></table></figure>
+<h4 id="Values"><a href="#Values" class="headerlink" title="$Values"></a>$Values<t></t></h4><p>$Values<t> 以对象或类型的值构建联合类型。</t></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type Props = &#123;</span><br><span class="line">  name: string,</span><br><span class="line">  age: number,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// The following two types are equivalent:</span></span><br><span class="line">type PropValues = string | number;</span><br><span class="line">type Prop$Values = $Values&lt;Props&gt;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> name: Prop$Values = <span class="string">'Jon'</span>;  <span class="comment">// OK</span></span><br><span class="line"><span class="keyword">const</span> age: Prop$Values = <span class="number">42</span>;  <span class="comment">// OK</span></span><br><span class="line"><span class="keyword">const</span> fn: Prop$Values = <span class="function"><span class="params">()</span> =&gt;</span> &#123;&#125;;  <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure>
+<h4 id="ReadOnly"><a href="#ReadOnly" class="headerlink" title="$ReadOnly"></a>$ReadOnly<t></t></h4><p>$ReadOnly<t> 用于将对象或类型的属性转化为只读属性。</t></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// The following two types are equivalent:</span></span><br><span class="line">type ReadOnlyObj = &#123;</span><br><span class="line">  +key: any,  <span class="comment">// read-only field, marked by the `+` annotation</span></span><br><span class="line">&#125;;</span><br><span class="line">type ReadOnlyObj = $ReadOnly&lt;&#123;</span><br><span class="line">  key: any,</span><br><span class="line">&#125;&gt;;</span><br></pre></td></tr></table></figure>
+<h4 id="Exact"><a href="#Exact" class="headerlink" title="$Exact"></a>$Exact<t></t></h4><p>$Exact&lt;{name: string}&gt; 语法和 {| name: string |} 等价，用于避免对象属性冲突。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type ExactUser = $Exact&lt;&#123;<span class="attr">name</span>: string&#125;&gt;;</span><br><span class="line">type ExactUserShorthand = &#123;| name: string |&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> user2 = &#123;<span class="attr">name</span>: <span class="string">'John Wilkes Booth'</span>&#125;;</span><br><span class="line"><span class="comment">// These will both be satisfied because they are equivalent</span></span><br><span class="line">(user2: ExactUser);</span><br><span class="line">(user2: ExactUserShorthand);</span><br></pre></td></tr></table></figure>
+<h4 id="Diff-lt-A-B-gt"><a href="#Diff-lt-A-B-gt" class="headerlink" title="$Diff&lt;A, B&gt;"></a>$Diff&lt;A, B&gt;</h4><p>$Diff&lt;A, B&gt; 语法中，待校验数据须包含 A 仅有的属性，能包含 B 有的属性，且 B 中不能有 A 没有的属性。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type Props = &#123; <span class="attr">name</span>: string, <span class="attr">age</span>: number &#125;;</span><br><span class="line">type DefaultProps = &#123; <span class="attr">age</span>: number &#125;;</span><br><span class="line">type RequiredProps = $Diff&lt;Props, DefaultProps&gt;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setProps</span>(<span class="params">props: RequiredProps</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">setProps(&#123; <span class="attr">name</span>: <span class="string">'foo'</span> &#125;);</span><br><span class="line">setProps(&#123; <span class="attr">name</span>: <span class="string">'foo'</span>, <span class="attr">age</span>: <span class="number">42</span>, <span class="attr">baz</span>: <span class="literal">false</span> &#125;); <span class="comment">// you can pass extra props too</span></span><br><span class="line">setProps(&#123; <span class="attr">age</span>: <span class="number">42</span> &#125;); <span class="comment">// error, name is required</span></span><br></pre></td></tr></table></figure>
+<h4 id="Rest-lt-A-B-gt"><a href="#Rest-lt-A-B-gt" class="headerlink" title="$Rest&lt;A, B&gt;"></a>$Rest&lt;A, B&gt;</h4><p>$Rest&lt;A, B&gt; 语法中，待校验数据只能包含 A 仅有的属性，不能包含 B 有的属性。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type Props = &#123; <span class="attr">name</span>: string, <span class="attr">age</span>: number &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> props: Props = &#123;<span class="attr">name</span>: <span class="string">'Jon'</span>, <span class="attr">age</span>: <span class="number">42</span>&#125;;</span><br><span class="line"><span class="keyword">const</span> &#123;age, ...otherProps&#125; = props;</span><br><span class="line">(otherProps: $Rest&lt;Props, &#123;|age: number|&#125;&gt;);</span><br><span class="line">otherProps.age;  <span class="comment">// Error</span></span><br></pre></td></tr></table></figure>
+<h4 id="PropertyType-lt-T-k-gt"><a href="#PropertyType-lt-T-k-gt" class="headerlink" title="$PropertyType&lt;T, k&gt;"></a>$PropertyType&lt;T, k&gt;</h4><p>$PropertyType&lt;T, k&gt; 语法用于获取特定属性的类型。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Tooltip</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  props: &#123;</span><br><span class="line">    text: string,</span><br><span class="line">    onMouseOver: <span class="function">(<span class="params">&#123;x: number, y: number&#125;</span>) =&gt;</span> <span class="keyword">void</span></span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> someProps: $PropertyType&lt;Tooltip, <span class="string">'props'</span>&gt; = &#123;</span><br><span class="line">  text: <span class="string">'foo'</span>,</span><br><span class="line">  onMouseOver: <span class="function">(<span class="params">data: &#123;x: number, y: number&#125;</span>) =&gt;</span> <span class="literal">undefined</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> otherProps: $PropertyType&lt;Tooltip, <span class="string">'props'</span>&gt; = &#123;</span><br><span class="line">  text: <span class="string">'foo'</span></span><br><span class="line">  <span class="comment">// Missing the `onMouseOver` definition</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="ElementType-lt-T-k-gt"><a href="#ElementType-lt-T-k-gt" class="headerlink" title="$ElementType&lt;T, k&gt;"></a>$ElementType&lt;T, k&gt;</h4><p>$ElementType&lt;T, k&gt; 语法用于获取特定元素的类型，包含数组项、元祖项、对象属性。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Using objects:</span></span><br><span class="line">type Obj = &#123;</span><br><span class="line">  name: string,</span><br><span class="line">  age: number,</span><br><span class="line">&#125;</span><br><span class="line">(<span class="string">'Jon'</span>: $ElementType&lt;Obj, <span class="string">'name'</span>&gt;);</span><br><span class="line">(<span class="number">42</span>: $ElementType&lt;Obj, <span class="string">'age'</span>&gt;);</span><br><span class="line">(<span class="literal">true</span>: $ElementType&lt;Obj, <span class="string">'name'</span>&gt;); <span class="comment">// Nope, `name` is not a boolean</span></span><br><span class="line">(<span class="literal">true</span>: $ElementType&lt;Obj, <span class="string">'other'</span>&gt;); <span class="comment">// Nope, property `other` is not in Obj</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Using tuples:</span></span><br><span class="line">type Tuple = [boolean, string];</span><br><span class="line">(<span class="literal">true</span>: $ElementType&lt;Tuple, <span class="number">0</span>&gt;);</span><br><span class="line">(<span class="string">'foo'</span>: $ElementType&lt;Tuple, <span class="number">1</span>&gt;);</span><br><span class="line">(<span class="string">'bar'</span>: $ElementType&lt;Tuple, <span class="number">2</span>&gt;); <span class="comment">// Nope, can't access position 2</span></span><br></pre></td></tr></table></figure>
+<h4 id="ObjMap-lt-T-F-gt"><a href="#ObjMap-lt-T-F-gt" class="headerlink" title="$ObjMap&lt;T, F&gt;"></a>$ObjMap&lt;T, F&gt;</h4><p>$ObjMap&lt;T, F&gt; 遍历 T 对象或类型，以函数 F 重新构建属性类型。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// let's write a function type that takes a `() =&gt; V` and returns a `V` (its return type)</span></span><br><span class="line">type ExtractReturnType = <span class="xml"><span class="tag">&lt;<span class="name">V</span>&gt;</span>(() =&gt; V) =&gt; V</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line">function run&lt;A, O: &#123;[key: string]: () =&gt; A&#125;&gt;(o: O): $ObjMap&lt;O, ExtractReturnType&gt; &#123;</span><br><span class="line">  return Object.keys(o).reduce((acc, k) =&gt; Object.assign(acc, &#123; [k]: o[k]() &#125;), &#123;&#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const o = &#123;</span><br><span class="line">  a: () =&gt; true,</span><br><span class="line">  b: () =&gt; 'foo'</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">(run(o).a: boolean); // Ok</span><br><span class="line">(run(o).b: string);  // Ok</span><br><span class="line">// $ExpectError</span><br><span class="line">(run(o).b: boolean); // Nope, b is a string</span><br><span class="line">// $ExpectError</span><br><span class="line">run(o).c;</span><br></pre></td></tr></table></figure>
+<h4 id="TupleMap-lt-T-F-gt"><a href="#TupleMap-lt-T-F-gt" class="headerlink" title="$TupleMap&lt;T, F&gt;"></a>$TupleMap&lt;T, F&gt;</h4><p>$TupleMap&lt;T, F&gt; 遍历 T 元祖或类型，以函数 F 重新构建元祖项。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line">type ExtractReturnType = <span class="xml"><span class="tag">&lt;<span class="name">V</span>&gt;</span>(() =&gt; V) =&gt; V</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line">function run&lt;A, I: Array&lt;() =&gt; A&gt;&gt;(iter: I): $TupleMap&lt;I, ExtractReturnType&gt; &#123;</span><br><span class="line">  return iter.map(fn =&gt; fn());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const arr = [() =&gt; 'foo', () =&gt; 'bar'];</span><br><span class="line">(run(arr)[0]: string); // OK</span><br><span class="line">(run(arr)[1]: string); // OK</span><br><span class="line">(run(arr)[1]: boolean); // Error</span><br></pre></td></tr></table></figure>
+<h4 id="Call"><a href="#Call" class="headerlink" title="$Call"></a>$Call<f></f></h4><p>$Call<f> 调用 F 函数，函数返回值用于校验类型，参数在 F 后添加。</f></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="comment">// Takes an object type, returns the type of its `prop` key</span></span><br><span class="line">type ExtractPropType = <span class="xml"><span class="tag">&lt;<span class="name">T</span>&gt;</span>(&#123;prop: T&#125;) =&gt; T;</span></span><br><span class="line"><span class="xml">type Obj = &#123;prop: number&#125;;</span></span><br><span class="line">type PropType = $Call&lt;ExtractPropType, Obj&gt;;  // Call `ExtractPropType` with `Obj` as an argument</span><br><span class="line">type Nope = $Call&lt;ExtractPropType, &#123;nope: number&#125;&gt;;  // Error: argument doesn't match `Obj`.</span><br><span class="line"></span><br><span class="line">(5: PropType); // OK</span><br><span class="line">(true: PropType);  // Error: PropType is a number</span><br><span class="line">(5: Nope);  // Error</span><br></pre></td></tr></table></figure>
+<h4 id="Class"><a href="#Class" class="headerlink" title="Class"></a>Class<t></t></h4><p>Class<t> 指用类 T 校验类型。</t></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Store</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ExtendedStore</span> <span class="keyword">extends</span> <span class="title">Store</span> </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Model</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeStore</span>(<span class="params">storeClass: Class&lt;Store&gt;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> storeClass();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(makeStore(Store): Store);</span><br><span class="line">(makeStore(ExtendedStore): Store);</span><br><span class="line">(makeStore(Model): Model); <span class="comment">// error</span></span><br><span class="line">(makeStore(ExtendedStore): Model); <span class="comment">// Flow infers the return type</span></span><br></pre></td></tr></table></figure>
+<h4 id><a href="#" class="headerlink" title="*"></a>*</h4><ul>
+<li>用于以占位符形式指明存在类型/Existential Type。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeParamStore</span>&lt;<span class="title">T</span>&gt;(<span class="params">storeClass: Class&lt;ParamStore&lt;T&gt;&gt;, data: T</span>): * </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> storeClass(data);</span><br><span class="line">&#125;</span><br><span class="line">(makeParamStore(ParamStore, <span class="number">1</span>): ParamStore&lt;number&gt;);</span><br><span class="line">(makeParamStore(ParamStore, <span class="number">1</span>): ParamStore&lt;boolean&gt;); <span class="comment">// failed because of the second parameter</span></span><br></pre></td></tr></table></figure>
+<h3 id="模块-Module-Types"><a href="#模块-Module-Types" class="headerlink" title="模块/Module Types"></a>模块/Module Types</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>&#123;&#125;;</span><br><span class="line"><span class="keyword">export</span> type MyObject = &#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"><span class="keyword">export</span> interface MyInterface &#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123; <span class="comment">/* ... */</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// @flow</span></span><br><span class="line"><span class="keyword">import</span> type Foo, &#123;MyObject, MyInterface&#125; <span class="keyword">from</span> <span class="string">'./exports'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="keyword">typeof</span> &#123;MyClass&#125; <span class="keyword">from</span> <span class="string">'./exports'</span>;</span><br></pre></td></tr></table></figure>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2018/02/24/frontend/js/flow使用指南/" data-id="ck7iyxkpx0088lyh944t4924h" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "flow使用指南",
+        "image": "http://xzfyu.com",
+        "keywords": "carrier js",
+        "genre": "frontend js",
+        "datePublished": "2018-02-24",
+        "dateCreated": "2018-02-24",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2018/02/24/frontend/js/flow使用指南/",
+        "description": "概述flow 是 facebook 推出的 js 代码类型检查工具。
+flow 可借助 babel 编译，添加 babel-preset-flow 即可；babel-preset-react 包含 babel-preset-flow。或者借助安装 flow-bin 启动类型检查，flow-remove-types 移除类型标记。
+通过在脚本前添加 // @flow 或 / @flow / 将文件标",
+        "wordCount": 3521
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2018/02/25/frontend/js/typescript文档笔记/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            typescript文档笔记
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/02/21/读书笔记/Pro Git读书笔记/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">Pro Git 笔记</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2018/02/24/frontend/js/flow使用指南/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

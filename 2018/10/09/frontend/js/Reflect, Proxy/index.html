@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>Reflect, Proxy | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="carrier,js">
+    
+    <meta name="description" content="ReflectES6 提供的 API，集成语言层面的对象操作（操作与 Proxy 一一对应，且为函数形式）。  Reflect.get(target, name, receiver): 获取属性。 Reflect.set(target, name, value, receiver): 对属性赋值。 Reflect.defineProperty(target, name, desc): 修改属性的描">
+<meta name="keywords" content="carrier,js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reflect, Proxy">
+<meta property="og:url" content="http://xzfyu.com/2018/10/09/frontend/js/Reflect, Proxy/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="ReflectES6 提供的 API，集成语言层面的对象操作（操作与 Proxy 一一对应，且为函数形式）。  Reflect.get(target, name, receiver): 获取属性。 Reflect.set(target, name, value, receiver): 对属性赋值。 Reflect.defineProperty(target, name, desc): 修改属性的描">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-08T10:38:48.659Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Reflect, Proxy">
+<meta name="twitter:description" content="ReflectES6 提供的 API，集成语言层面的对象操作（操作与 Proxy 一一对应，且为函数形式）。  Reflect.get(target, name, receiver): 获取属性。 Reflect.set(target, name, value, receiver): 对属性赋值。 Reflect.defineProperty(target, name, desc): 修改属性的描">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/frontend/es/">es</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-frontend/js/Reflect, Proxy" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        Reflect, Proxy
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2018/10/09/frontend/js/Reflect, Proxy/" class="article-date">
+         <time datetime="2018-10-08T16:00:00.000Z" itemprop="datePublished">2018-10-09</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/carrier/">carrier</a>, <a class="tag-link" href="/tags/js/">js</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="Reflect"><a href="#Reflect" class="headerlink" title="Reflect"></a>Reflect</h2><p>ES6 提供的 API，集成语言层面的对象操作（操作与 Proxy 一一对应，且为函数形式）。</p>
+<ul>
+<li>Reflect.get(target, name, receiver): 获取属性。</li>
+<li>Reflect.set(target, name, value, receiver): 对属性赋值。</li>
+<li>Reflect.defineProperty(target, name, desc): 修改属性的描述符。</li>
+<li>Reflect.deleteProperty(target, name): 删除属性。</li>
+<li>Reflect.has(target, name): propKey in proxy 判断。</li>
+<li>Reflect.ownKeys(target): 返回对象的自有属性。</li>
+<li>Reflect.enumerate(target): 以迭代器形式获取对象的可枚举属性。</li>
+<li>Reflect.isExtensible(target): 判断对象是否可扩展。</li>
+<li>Reflect.preventExtensions(target): 使对象不可扩展。</li>
+<li>Reflect.getOwnPropertyDescriptor(target, name): 获取属性的描述符。</li>
+<li>Reflect.getPrototypeOf(target): 获取对象的 <strong>proto</strong> 属性。</li>
+<li>Reflect.setPrototypeOf(target, prototype): 设置对象的原型。</li>
+<li>Reflect.apply(target, thisArg, args): 以 thisArg 为上下文执行 target 函数。</li>
+<li>Reflect.construct(target, args): 创建 target 实例。</li>
+</ul>
+<h2 id="Proxy"><a href="#Proxy" class="headerlink" title="Proxy"></a>Proxy</h2><p>Proxy 在语言层面，拦截针对对象的操作。ES6 原生提供 Proxy 构造函数，用来生成 Proxy 实例。</p>
+<p>使用 let proxy = new Proxy(target, handler); 创建 Proxy 实例。参数 target 可以是对象，也可以是函数。handler 为设定拦截操作的集合。操作 proxy，将同时影响 target。</p>
+<p>Proxy.revocable 方法返回一个可取消的 Proxy 实例。返回值中，proxy 属性即为 Proxy 实例，revoke 方法用于取消 Proxy 实例。</p>
+<p>在 Proxy 代理的情况下，目标对象内的 this 关键字将指向 Proxy 实例。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> proto = <span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">  <span class="keyword">get</span>(target, propertyKey, receiver) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'GET '</span> + propertyKey);</span><br><span class="line">    <span class="keyword">return</span> target[propertyKey];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> obj = <span class="built_in">Object</span>.create(proto);</span><br><span class="line">obj.foo <span class="comment">// "GET foo"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> target = &#123;&#125;;</span><br><span class="line"><span class="keyword">let</span> handler = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> &#123;proxy, revoke&#125; = <span class="built_in">Proxy</span>.revocable(target, handler);</span><br><span class="line"></span><br><span class="line">proxy.foo = <span class="number">123</span>;</span><br><span class="line">proxy.foo <span class="comment">// 123</span></span><br><span class="line"></span><br><span class="line">revoke();</span><br><span class="line">proxy.foo <span class="comment">// TypeError: Revoked</span></span><br></pre></td></tr></table></figure>
+<p>可拦截的操作包含：</p>
+<ul>
+<li>get(target, propKey, receiver): 拦截对象属性的读取。参数 reveiver 为操作行为所针对的对象，通常是 proxy 实例。</li>
+<li>set(target, propKey, value): 拦截对象属性的设置，返回布尔值。</li>
+<li>has(target, propKey): 拦截 propKey in proxy 操作，返回布尔值。</li>
+<li>delete(target, propKey): 拦截 delete proxy[propKey] 的操作，返回布尔值。</li>
+<li>ownKeys(target): 拦截 Object.getOwnPropertyNames(proxy)、Object.getOwnPropertySymbols(proxy)、Object.keys(proxy)、for…in 循环，返回目标对象自身所有的属性，Object.keys() 返回仅包括目标对象自身的可遍历属性。</li>
+<li>getOwnPropertyDescriptor(target, propKey): 拦截 Object.getOwnPropertyDescriptor(proxy, propKey)，返回属性的描述对象。</li>
+<li>defineProperty(target, propKey, propDesc): 拦截 Object.defineProperty(proxy, propKey, propDesc）、Object.defineProperties(proxy, propDescs)，返回布尔值。</li>
+<li>preventExtensions(target): 拦截 Object.preventExtensions(proxy)，返回布尔值。</li>
+<li>getPrototypeOf(target): 拦截 Object.getPrototypeOf(proxy)，返回对象。</li>
+<li>isExtensible(target): 拦截 Object.isExtensible(proxy)，返回布尔值。</li>
+<li>setPrototypeOf(target, proto): 拦截 Object.setPrototypeOf(proxy, proto)，返回布尔值。</li>
+<li>apply(target, object, args): 拦截 Proxy 实例作为函数调用的操作，比如 proxy(…args)、proxy.call(object, …args)、proxy.apply(…)。</li>
+<li>construct(target, args): 拦截 Proxy 实例作为构造函数调用的操作，比如 new proxy(…args)。</li>
+</ul>
+<h2 id="harmony-reflect"><a href="#harmony-reflect" class="headerlink" title="harmony-reflect"></a>harmony-reflect</h2><p>作为垫片，提供 Reflect 全局对象，扩展 Object 及 Proxy。</p>
+<h3 id="Reflect-1"><a href="#Reflect-1" class="headerlink" title="Reflect"></a>Reflect</h3><p>扩展或提供平台提供的 Reflect 对象。</p>
+<ul>
+<li>Reflect.get(target, name, receiver) 方法实现: 首先，若 target 为 Proxy 实例，获取并调用 handler.get 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取属性描述符，若属性描述符为 undefined，尝试通过 Object.getPrototypeOf 方法获取原型的 name 属性；其次，若属性描述符不是 undefined，尝试获取属性描述符中的 value 属性或执行 get 方法。</li>
+<li>Reflect.set(target, name, value, receiver) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.set 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取属性描述符，若属性描述符为 undefined，尝试通过 Object.getPrototypeOf 方法调用原型的 set 方法；其次，若属性描述符不是 undefined，且访问器属性 set 为真值，尝试以 receiver 为上下文调用属性描述符中的 set 方法；其次，通过 Object.getOwnPropertyDescriptor 获取 receiver 对象的属性描述符，若属性描述符为 undefined，调用 Object.defineProperty 重新设置属性描述符，更新 value 值；其次，若 receiver 对象的属性描述符不是 undefined，校验 receiver 是否可扩展，若可扩展，调用 Object.defineProperty 重新设置属性描述符。</li>
+<li>Reflect.defineProperty(target, name, desc) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.defineProperty 方法；其次，若 target 不是 Proxy 实例，通过 Object.getOwnPropertyDescriptor 获取当前的属性描述符，当属性描述符的 configurable 属性为 false 时，运行原有的 Object.defineProperty 将报错，实现上将引起报错的情形全部以 return false 形式剔除，随后再调用 Object.defineProperty，重新设定属性描述符。</li>
+<li>Reflect.deleteProperty(target, name) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.deleteProperty 方法；其次，通过 Object.getOwnPropertyDescriptor 获取当前的属性描述符并判断其 configurable 属性，若属性为真，调用 delete target[name] 语句，否则返回 false。</li>
+<li>Reflect.has(target, name) 方法: 执行 name in target 语句。</li>
+<li>Reflect.ownKeys(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.ownKeys 方法；其次，调用 Object.getOwnPropertyNames 方法。</li>
+<li>Reflect.enumerate(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.enumerate 方法；其次，通过 for…in 语句获取目标的可枚举属性集合，以迭代器形式输出。</li>
+<li>Reflect.isExtensible(target) 方法: 直接调用 Object.isExtensible 方法。</li>
+<li>Reflect.preventExtensions(target) 方法: 首先，若 target 为 Proxy 实例，获取并调用 handler.preventExtensions 方法；其次，调用 Object.preventExtensions 方法。</li>
+<li>Reflect.getOwnPropertyDescriptor(target, name) 方法: 直接调用 Object.getOwnPropertyDescriptor 方法。</li>
+<li>Reflect.getPrototypeOf(target) 方法: 直接调用 Object.getPrototypeOf 方法。</li>
+<li>Reflect.setPrototypeOf(target, prototype): 首先，若 target 为 Proxy 实例，获取并调用 handler.setPrototypeOf 方法；其次，判断目标的可扩展性，若其可扩展，以 try-catch 语句执行 Object.setPrototypeOf 方法，以捕获错误。</li>
+<li>Reflect.apply(target, thisArg, args): 调用 Function.prototype.apply.call(target, thisArg, args)。</li>
+<li>Reflect.construct(target, args, newTarget): 首先，若 target 为 Proxy 实例，获取并调用 handler.construct 方法；其次，在 newTarget 为 undefined 或与 target 等值的基础上，基于 target 并以 null 为上下文生成构造函数；否则，Object.create(newTarget.prototype) 为上文生成构造函数。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> <span class="built_in">Reflect</span> = &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  enumerate: <span class="function"><span class="keyword">function</span>(<span class="params">target</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> handler = directProxies.get(target);</span><br><span class="line">    <span class="keyword">var</span> result;</span><br><span class="line">    <span class="keyword">if</span> (handler !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      result = handler.enumerate(handler.target);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      result = [];</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">var</span> name <span class="keyword">in</span> target) &#123; result.push(name); &#125;;      </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> l = +result.length;</span><br><span class="line">    <span class="keyword">var</span> idx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      next: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (idx === l) <span class="keyword">return</span> &#123; <span class="attr">done</span>: <span class="literal">true</span> &#125;;</span><br><span class="line">        <span class="keyword">return</span> &#123; <span class="attr">done</span>: <span class="literal">false</span>, <span class="attr">value</span>: result[idx++] &#125;;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  construct: <span class="function"><span class="keyword">function</span>(<span class="params">target, args, newTarget</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> handler = directProxies.get(target);</span><br><span class="line">    <span class="keyword">if</span> (handler !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> handler.construct(handler.target, args, newTarget);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> target !== <span class="string">"function"</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">"target is not a function: "</span> + target);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (newTarget === <span class="literal">undefined</span> || newTarget === target) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> (<span class="built_in">Function</span>.prototype.bind.apply(target, [<span class="literal">null</span>].concat(args)));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> newTarget !== <span class="string">"function"</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">"newTarget is not a function: "</span> + target);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">var</span> proto = newTarget.prototype;</span><br><span class="line">      <span class="keyword">var</span> instance = (<span class="built_in">Object</span>(proto) === proto) ? <span class="built_in">Object</span>.create(proto) : &#123;&#125;;</span><br><span class="line">      <span class="keyword">var</span> result = <span class="built_in">Function</span>.prototype.apply.call(target, instance, args);</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">Object</span>(result) === result ? result : instance;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="proxy"><a href="#proxy" class="headerlink" title="proxy"></a>proxy</h3><p>构建 const vHandler = function Validator(target, handler){} 构造函数，用于对象操作并作校验。当平台提供 Proxy api 时，vHandler 将作为 Proxy.create, Proxy.createFunction 的参数，以改写 global.Proxy(target, handler) 构造函数。生成的 proxy 实例将以 { [proxy]: vHandler } 的形式存入 WeakMap 实例 directProxies 中，用于使 Object 的部分原型方法先作代理处理，再作常规处理。</p>
+<p>Validator 实例方法（proxy 为 new Proxy(target, handler) 实例）：</p>
+<ul>
+<li>proxy.get(receiver, propKey, receiver): 若没有设置 handler.get，调用 Reflect.get 方法；若设置，以 handler 为上下文调用 handler.get，并校验 target[propKey] 的 configurable, writable, get 属性或方法，特定条件下作报错处理。</li>
+<li>proxy.set(receiver, propKey, value): 若没有设置 handler.set，调用 Reflect.set 方法；若设置，以 handler 为上下文调用 handler.set，并校验 target[propKey] 的 configurable, writable, get 属性或方法，特定条件下作报错处理。</li>
+<li>proxy.has(propKey): 若没有设置 handler.has，调用 Reflect.has 方法；若设置，以 handler 为上下文调用 handler.has，当返回结果为 false 时，并校验 target[propKey] 的 configurable 属性, 及可扩展性，特定条件下作报错处理。</li>
+<li>proxy.delete(propKey): 若没有设置 handler.deleteProperty，调用 Reflect.deleteProperty 方法；若设置，以 handler 为上下文调用 handler.deleteProperty，校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.ownKeys(): 若没有设置 handler.ownKeys，调用 Reflect.ownKeys 方法；若设置，以 handler 为上下文调用 handler.ownKeys，并校验 target 各属性的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.enumate(), proxy.iterate(): 若没有设置 handler.enumate，调用 Reflect.enumate 方法；若设置，以 handler 为上下文调用 handler.enumate，并校验 target 各属性的可扩展性，特定条件下作报错处理。返回迭代器。</li>
+<li>proxy.getPropertyDescriptor(propKey): 若 proxy.has 返回否值，返回 undefined；否则以包装 proxy.set, proxy.get 形式返回属性描述符，且 enumerable, configurable 属性均为真值。</li>
+<li>proxy.getOwnPropertyDescriptor(propKey): 若没有设置 handler.getOwnPropertyDescriptor，调用 Reflect.getOwnPropertyDescriptor 方法；若设置，以 handler 为上下文调用 handler.getOwnPropertyDescriptor，校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.defineProperty(propKey, propDesc): 若没有设置 handler.defineProperty，调用 Reflect.defineProperty 方法；若设置，以 handler 为上下文调用 handler.defineProperty，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.preventExtensions(): 若没有设置 handler.preventExtensions，调用 Reflect.preventExtensions 方法；若设置，以 handler 为上下文调用 handler.preventExtensions，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.getPrototypeOf(): 若没有设置 handler.getPrototypeOf，调用 Reflect.getPrototypeOf 方法；若设置，以 handler 为上下文调用 handler.getPrototypeOf，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.isExtensible(): 若没有设置 handler.isExtensible，调用 Reflect.isExtensible 方法；若设置，以 handler 为上下文调用 handler.isExtensible，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.setPrototypeOf(proto): 若没有设置 handler.setPrototypeOf，调用 Reflect.setPrototypeOf 方法；若设置，以 handler 为上下文调用 handler.setPrototypeOf，并校验 target[propKey] 的可扩展性，特定条件下作报错处理。</li>
+<li>proxy.apply(target, thisBinding, args): 若没有设置 handler.apply，调用 Reflect.apply 方法；若设置，以 handler 为上下文调用 handler.apply。</li>
+<li>proxy.construct(target, args, newTarget): 若没有设置 handler.construct，调用 Reflect.construct 方法；若设置，以 handler 为上下文调用 handler.construct。</li>
+</ul>
+<h3 id="Object-扩展"><a href="#Object-扩展" class="headerlink" title="Object 扩展"></a>Object 扩展</h3><ul>
+<li>Object.preventExtensions(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 preventExtensions 方法；其次尝试调用 Object.preventExtensions 原始方法。</li>
+<li>Object.seal(subject): 密封对象，可改变现有属性，即将所有属性描述符的 configurable 置为否。</li>
+<li>Object.freeze(subject): 冻结对象，即将所有属性描述符的 configurable, writable 置为否（访问器属性的状况下仅需处理 configurable 属性）。</li>
+<li>Object.isExtensible(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 isExtensible 方法；其次尝试调用 Object.isExtensible 原始方法。</li>
+<li>Object.isSealed(subject): 判断是否密封。</li>
+<li>Object.isFrozen(subject): 判断是否冻结。</li>
+<li>Object.getOwnPropertyDescriptor(subject, name): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 getOwnPropertyDescriptor 方法；其次尝试调用 Object.getOwnPropertyDescriptor 原始方法。</li>
+<li>Object.defineProperty(subject, name, desc): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 defineProperty 方法；其次尝试调用 Object.defineProperty 原始方法。</li>
+<li>Object.defineProperties(subject, descs): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，针对属性逐个调用代理对象的 defineProperty 方法；其次尝试调用 Object.defineProperties 原始方法。</li>
+<li>Object.keys(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 ownKeys 方法，剔除其中的不可枚举项；其次尝试调用 Object.keys 原始方法。</li>
+<li>Object.getOwnPropertyNames(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 ownKeys 方法；其次尝试调用 Object.getOwnPropertyNames 原始方法。</li>
+<li>Object.getOwnPropertySymbols(subject): 平台提供 Object.getOwnPropertySymbols 原始方法的基础下封装。若 subject 为代理实例，从 directProxies 中获取代理对象的 vHandler，返回空数组；其次尝试调用 Object.getOwnPropertySymbols 原始方法。</li>
+<li>Object.assign(target, …source): 平台提供 Object.assign 原始方法的基础下封装。若各参数均为代理对象，直接调用 Object.assign 原始方法；否则，遍历属性以拷贝。</li>
+<li>Object.setPrototypeOf(target, proto): 若 target 为代理实例，从 directProxies 中获取代理对象的 vHandler，并调用代理对象的 setPrototypeOf 方法；其次尝试调用 Object.setPrototypeOf 原始方法；其次通过 Object.defineProperty 设置target 的 <strong>proto</strong> 属性。</li>
+<li>Object.prototype.isPrototypeOf(arg): 若 arg 为代理实例，通过 vHandler.getPrototypeOf 方法向上逐层获取 arg 的原型，原型同 this 作等值比较；否则直接调用 Object.prototype.isPrototypeOf 作判断。</li>
+<li>Object.prototype.valueOf(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Object.prototype.valueOf；否则，直接执行 Object.prototype.valueOf。</li>
+<li>Object.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Object.prototype.toString；否则，直接执行 Object.prototype.toString。</li>
+<li>Function.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Function.prototype.toString；否则，直接执行 Function.prototype.toString。</li>
+<li>Date.prototype.toString(): 若 this 为代理实例，从 directProxies 中获取代理对象的 target，以 target 作为上下文执行 Date.prototype.toString；否则，直接执行 Date.prototype.toString。</li>
+<li>Object.prototype.hasOwnProperty(propKey): 若 this 为代理实例，从 directProxies 中获取代理对象的 vHandler，调动 vHandler.getOwnPropertyDescriptor，并判断返回值是否为 undefined；否则，直接执行 Object.prototype.hasOwnProperty。</li>
+<li>Array.isArray(subject): 若 subject 为代理实例，从 directProxies 中获取代理对象的 target，并调用 Array.isArray 原始方法判断 target 是否为数组；其次尝试调用 Array.isArray 原始方法。</li>
+<li>Array.prototype.concat(…args): 使用 Array.prototype.slice 方法将 args 数组项中的代理实例数组拆解为普通数组，随后使用 Array.prototype.concat 原始方法拼接数组。</li>
+</ul>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2018/10/09/frontend/js/Reflect, Proxy/" data-id="ck7iyxkpq0084lyh9ehohghv6" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "Reflect, Proxy",
+        "image": "http://xzfyu.com",
+        "keywords": "carrier js",
+        "genre": "frontend es",
+        "datePublished": "2018-10-09",
+        "dateCreated": "2018-10-09",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2018/10/09/frontend/js/Reflect, Proxy/",
+        "description": "ReflectES6 提供的 API，集成语言层面的对象操作（操作与 Proxy 一一对应，且为函数形式）。
+
+Reflect.get(target, name, receiver): 获取属性。
+Reflect.set(target, name, value, receiver): 对属性赋值。
+Reflect.defineProperty(target, name, desc): 修改属性的描",
+        "wordCount": 1351
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2018/10/10/frontend/library/react-jsonschema-form源码分析/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            react-jsonschema-form源码分析
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/09/11/frontend/工程化/前端构建工具dawn/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">前端构建工具 dawn 不完全解密</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2018/10/09/frontend/js/Reflect, Proxy/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

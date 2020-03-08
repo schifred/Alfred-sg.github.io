@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>single-spa 实现前端微服务 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst">
+    
+    <meta name="description" content="文档及示例single-spa 具有以下功能特性：在无须刷新页面的前提下，同一个页面可使用不同的框架；基于不同框架实现的前端应用可以独立部署；制作新内容时可以使用不同的框架；支持应用内脚本的懒加载。 single-spa 借鉴了组件生命周期的思想，它为应用设置了针对路由的生命周期。当应用匹配路由/处于激活状态时，应用会把自身的内容挂载到页面上；反之则卸载。典型的 single-spa 由 html">
+<meta name="keywords" content="analyst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="single-spa 实现前端微服务">
+<meta property="og:url" content="http://xzfyu.com/2020/02/15/frontend/architecture/single-spa 实现前端微服务/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="文档及示例single-spa 具有以下功能特性：在无须刷新页面的前提下，同一个页面可使用不同的框架；基于不同框架实现的前端应用可以独立部署；制作新内容时可以使用不同的框架；支持应用内脚本的懒加载。 single-spa 借鉴了组件生命周期的思想，它为应用设置了针对路由的生命周期。当应用匹配路由/处于激活状态时，应用会把自身的内容挂载到页面上；反之则卸载。典型的 single-spa 由 html">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-08T10:42:40.982Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="single-spa 实现前端微服务">
+<meta name="twitter:description" content="文档及示例single-spa 具有以下功能特性：在无须刷新页面的前提下，同一个页面可使用不同的框架；基于不同框架实现的前端应用可以独立部署；制作新内容时可以使用不同的框架；支持应用内脚本的懒加载。 single-spa 借鉴了组件生命周期的思想，它为应用设置了针对路由的生命周期。当应用匹配路由/处于激活状态时，应用会把自身的内容挂载到页面上；反之则卸载。典型的 single-spa 由 html">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/frontend/architecture/">architecture</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-frontend/architecture/single-spa 实现前端微服务" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        single-spa 实现前端微服务
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/02/15/frontend/architecture/single-spa 实现前端微服务/" class="article-date">
+         <time datetime="2020-02-14T16:00:00.000Z" itemprop="datePublished">2020-02-15</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="文档及示例"><a href="#文档及示例" class="headerlink" title="文档及示例"></a>文档及示例</h2><p><a href="https://single-spa.js.org" target="_blank" rel="noopener">single-spa</a> 具有以下功能特性：在无须刷新页面的前提下，同一个页面可使用不同的框架；基于不同框架实现的前端应用可以独立部署；制作新内容时可以使用不同的框架；支持应用内脚本的懒加载。</p>
+<p>single-spa 借鉴了组件生命周期的思想，它为应用设置了针对路由的生命周期。当应用匹配路由/处于激活状态时，应用会把自身的内容挂载到页面上；反之则卸载。典型的 single-spa 由 html 页面、应用注册脚本、应用脚本自身构成。应用注册内容包含：name 应用名；loadingFunction 应用脚本加载函数；activityFunction 应用激活态判断函数。single-spa 又约定应用脚本包含以下生命周期：load 当应用匹配路由时就会加载脚本（非函数，只是一种状态）、bootstrap 引导函数（对接 html，应用内容首次挂载到页面前调用）、mount 挂载函数、unmount 卸载函数（须移除事件绑定等内容）、unload 非必要（unload 之后会重新启动 bootstrap 流程；借助 unload 可实现热更新）。生命周期函数获得参数包含 name 应用名、singleSpa 实例、mountParcel 手动挂载函数、customProps 自定义信息；它必须返回 Promise 或其本身为 async 函数；bootstrap、mount、unmount 生命周期函数不可缺省；生命周期函数可以指定多个，它们会构成异步调用链，逐个调用。官网中的实例如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. html 页面</span></span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">  &lt;script src=<span class="string">"single-spa-config.js"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;<span class="regexp">/body&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>html&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 应用注册脚本</span></span><br><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> singleSpa <span class="keyword">from</span> <span class="string">'single-spa'</span>;</span><br><span class="line"><span class="keyword">const</span> appName = <span class="string">'app1'</span>;</span><br><span class="line"><span class="keyword">const</span> loadingFunction = <span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./app1/app1.js'</span>);<span class="comment">// loadingFunction，须返回 promise</span></span><br><span class="line"><span class="keyword">const</span> activityFunction = <span class="function"><span class="params">location</span> =&gt;</span> location.pathname.startsWith(<span class="string">'/app1'</span>);<span class="comment">// activityFunction，纯函数</span></span><br><span class="line"><span class="keyword">const</span> customProps = &#123;&#125;;</span><br><span class="line">singleSpa.registerApplication(appName, loadingFunction, activityFunction, customProps);<span class="comment">// customProps 可以不填</span></span><br><span class="line">singleSpa.start();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 应用脚本 app1.js，可以在另一个仓库中</span></span><br><span class="line"><span class="keyword">let</span> domEl;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> &#123;</span><br><span class="line">    name,        <span class="comment">// The name of the application</span></span><br><span class="line">    singleSpa,   <span class="comment">// The singleSpa instance</span></span><br><span class="line">    mountParcel, <span class="comment">// Function for manually mounting </span></span><br><span class="line">    customProps  <span class="comment">// Additional custom information</span></span><br><span class="line">  &#125; = props;     <span class="comment">// Props are given to every lifecycle</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>);</span><br><span class="line">      domEl.id = <span class="string">'app1'</span>;</span><br><span class="line">      <span class="built_in">document</span>.body.appendChild(domEl);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">mount</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl.textContent = <span class="string">'App 1 is mounted!'</span></span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">unmount</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">    .resolve()</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      domEl.textContent = <span class="string">''</span>;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="快速对接框架"><a href="#快速对接框架" class="headerlink" title="快速对接框架"></a>快速对接框架</h3><p>在官方提供的示例项目 <a href="https://github.com/single-spa/single-spa-examples" target="_blank" rel="noopener">single-spa-examples</a> 中，single-spa 提供了便捷的引导、挂载、卸载工具（如 single-spa-angular、single-spa-angularjs、single-spa-ember、single-spa-inferno、single-spa-preact、single-spa-react、single-spa-svelte、single-spa-vue），便于对接各种框架。具体可参考官方的示例项目或官方文档 <a href="https://single-spa.js.org/docs/starting-from-scratch" target="_blank" rel="noopener">Starting From Scratch</a>。以下为 single-spa-react 的使用示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> ReactDOM <span class="keyword">from</span> <span class="string">'react-dom'</span>;</span><br><span class="line"><span class="keyword">import</span> singleSpaReact <span class="keyword">from</span> <span class="string">'single-spa-react'</span>;</span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./containers/App.js'</span>;</span><br><span class="line"><span class="keyword">const</span> reactLifecycles = singleSpaReact(&#123;</span><br><span class="line">  React,</span><br><span class="line">  ReactDOM,</span><br><span class="line">  rootComponent: App,<span class="comment">// 应用顶层组件</span></span><br><span class="line">  domElementGetter,<span class="comment">// 挂载应用的页面 dom 元素</span></span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> bootstrap = [</span><br><span class="line">  reactLifecycles.bootstrap,</span><br><span class="line">];</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> mount = [</span><br><span class="line">  reactLifecycles.mount,</span><br><span class="line">];</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> unmount = [</span><br><span class="line">  reactLifecycles.unmount,</span><br><span class="line">];</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">domElementGetter</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">document</span>.getElementById(<span class="string">"root"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="拆分部署"><a href="#拆分部署" class="headerlink" title="拆分部署"></a>拆分部署</h3><p>single-app 推荐的应用拆分部署策略有如下三种：</p>
+<ol>
+<li>将所有应用置于同一个包下。构建时间将会变慢，构建和部署都绑定在一起，这就需要固定的发布计划，而不是临时发布。</li>
+<li>创建根应用程序，以 npm 方式安装子应用。子应用程序有单独的存储仓库，每次更新时需要发版。根应用在单个 spa 应用更改时都需要重新安装、重建和重新部署。根应用和各个子应用也可以使用 monorepo 方法（借助 lerna 等）组织。</li>
+<li>创建根应用程序，以动态模块加载的方式加载子应用。独立发布的子应用提供一个活动 url 资源地址，随后在根应用中借助模块加载器（如 SystemJS）动态加载。</li>
+</ol>
+<h3 id="超时"><a href="#超时" class="headerlink" title="超时"></a>超时</h3><p>single-app 允许在应用脚本中设置超时时间，一旦超时，应用即予挂死。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span>(<span class="params">props</span>) </span>&#123;...&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">mount</span>(<span class="params">props</span>) </span>&#123;...&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">unmount</span>(<span class="params">props</span>) </span>&#123;...&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> timeouts = &#123;</span><br><span class="line">  bootstrap: &#123;</span><br><span class="line">    millis: <span class="number">5000</span>,</span><br><span class="line">    dieOnTimeout: <span class="literal">true</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  mount: &#123;</span><br><span class="line">    millis: <span class="number">5000</span>,</span><br><span class="line">    dieOnTimeout: <span class="literal">false</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  unmount: &#123;</span><br><span class="line">    millis: <span class="number">5000</span>,</span><br><span class="line">    dieOnTimeout: <span class="literal">true</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  unload: &#123;</span><br><span class="line">    millis: <span class="number">5000</span>,</span><br><span class="line">    dieOnTimeout: <span class="literal">true</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="动效"><a href="#动效" class="headerlink" title="动效"></a>动效</h3><p>应用挂载、卸载时的动效既可以在应用内部处理，又可以使用 <a href="https://github.com/frehner/singlespa-transitions" target="_blank" rel="noopener">singlespa-transitions</a> 处理。</p>
+<h3 id="包"><a href="#包" class="headerlink" title="包"></a>包</h3><p>与应用不同，包没有 activityFunction 激活函数，而是通过手动调用加载。包可以像应用程序一样大，也可以像组件一样小。官方建议在应用程序上下文中装入包，那时包将与应用程序一起卸载。包有四种生命周期：bootstrap、mount、unmount、update。使用包允许我们在跨应用中共享组件。以下是官方示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例 1：普通应用中装入包</span></span><br><span class="line"><span class="keyword">const</span> parcelConfig = &#123;</span><br><span class="line">  bootstrap() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve()</span><br><span class="line">  &#125;,</span><br><span class="line">  mount() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve()</span><br><span class="line">  &#125;,</span><br><span class="line">  unmount() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> domElement = <span class="built_in">document</span>.getElementById(<span class="string">'place-in-dom-to-mount-parcel'</span>)<span class="comment">// 挂载点</span></span><br><span class="line"><span class="keyword">const</span> parcelProps = &#123;domElement, <span class="attr">customProp1</span>: <span class="string">'foo'</span>&#125;</span><br><span class="line"><span class="keyword">const</span> parcel = singleSpa.mountRootParcel(parcelConfig, parcelProps)</span><br><span class="line">parcel.mountPromise.then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;<span class="comment">// 包挂载后触发</span></span><br><span class="line">  parcelProps.customProp1 = <span class="string">'bar'</span></span><br><span class="line">  <span class="keyword">return</span> parcel.update(parcelProps)</span><br><span class="line">&#125;)</span><br><span class="line">.then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> parcel.unmount()</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例 2：react 应用中装入包</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> ReactDom <span class="keyword">from</span> <span class="string">'react-dom'</span></span><br><span class="line"><span class="keyword">import</span> singleSpaReact <span class="keyword">from</span> <span class="string">'single-spa-react'</span></span><br><span class="line"><span class="keyword">import</span> MyParcelComponent <span class="keyword">from</span> <span class="string">'./my-parcel-component.component.js'</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> MyParcel = singleSpaReact(&#123;</span><br><span class="line">  React,</span><br><span class="line">  ReactDom,</span><br><span class="line">  rootComponent: MyParcelComponent</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> Parcel <span class="keyword">from</span> <span class="string">'single-spa-react/parcel'</span></span><br><span class="line"><span class="keyword">import</span> MyParcel <span class="keyword">from</span> <span class="string">'./myparcel.js'</span></span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">myComponent</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  render () &#123;</span><br><span class="line">    <span class="comment">// 以 Parcel 组件形式加载包</span></span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;Parcel</span><br><span class="line">        config=&#123;MyParcel&#125;</span><br><span class="line">        &#123; <span class="comment">/* optional props */</span> &#125;</span><br><span class="line">        &#123; <span class="comment">/* and any extra props you want here */</span> &#125;</span><br><span class="line">      /&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例 3：跨应用复用包</span></span><br><span class="line"><span class="comment">// app1</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> AddContactParcel = &#123;</span><br><span class="line">  bootstrap: bootstrapFn,</span><br><span class="line">  mount: mountFn,</span><br><span class="line">  unmount: unmountFn,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// app2</span></span><br><span class="line">componentDidMount() &#123;</span><br><span class="line">  SystemJS.import(<span class="string">'App1'</span>).then(<span class="function"><span class="params">App1</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> domElement = <span class="built_in">document</span>.body</span><br><span class="line">    App2MountProps.mountParcel(App1.AddContactParcel, &#123;domElement&#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><p>在实现上，single-spa 约定了应用、包的生命周期，并调度着应用、包生命周期周转（路由匹配机制）的流程。至于应用、包的加载函数、路由匹配策略及其生命周期函数则由开发者手动实现。</p>
+<h3 id="应用部分"><a href="#应用部分" class="headerlink" title="应用部分"></a>应用部分</h3><p>single-app 将应用抽象为如下形式：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  name: <span class="built_in">string</span>;<span class="comment">// 应用名</span></span><br><span class="line">  parcels: &#123;&#125;,<span class="comment">// 包</span></span><br><span class="line">  status: NOT_LOADED | LOADING_SOURCE_CODE | NOT_BOOTSTRAPPED | BOOTSTRAPPING | NOT_MOUNTED | </span><br><span class="line">    MOUNTING | UPDATING | LOAD_ERROR | MOUNTED | UNMOUNTING | SKIP_BECAUSE_BROKEN;<span class="comment">// 应用状态</span></span><br><span class="line">  customProps: &#123; [key: <span class="built_in">string</span>]: <span class="built_in">any</span> &#125;;<span class="comment">// 自定义属性</span></span><br><span class="line">  loadImpl: <span class="built_in">string</span> | <span class="function">(<span class="params">url: <span class="built_in">string</span></span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 应用模块位置或应用脚本加载函数</span></span><br><span class="line">  activeWhen: <span class="function">(<span class="params">location: <span class="built_in">string</span></span>) =&gt;</span> <span class="built_in">boolean</span>;<span class="comment">// 应用激活状态判断函数</span></span><br><span class="line">  bootstrap: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 引导函数</span></span><br><span class="line">  mount: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 挂载函数</span></span><br><span class="line">  unmount: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 卸载函数</span></span><br><span class="line">  unload: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 卸载脚本函数</span></span><br><span class="line">  timeouts: &#123; bootstrap, mount, unmount, unload &#125;;<span class="comment">// 超时设置</span></span><br><span class="line">  loadErrorTime: <span class="literal">null</span>,<span class="comment">// </span></span><br><span class="line">  devtools: &#123; overlays &#125;,<span class="comment">// 设置 window.__SINGLE_SPA_DEVTOOLS__ 的调试环境中使用</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>应用的生命周期（这些生命周期都会改变应用的状态）（如果设置了超时时间且 dieOnTimeout 为 true 时，bootstrap、mount、unmount 执行超时时会通过 Promise.reject 机制阻断后续流程）：</p>
+<ul>
+<li>load: 调用 app.loadImpl 加载脚本，并将 bootstrap、mount、unmount、unload 转化成异步调用链，设置超时时间。</li>
+<li>bootstrap: 调用 app.bootstrap 作引导处理。</li>
+<li>mount: 调用 app.mount 挂载内容，失败时 unmount。</li>
+<li>unmount: 首先对应用中的包执行 unmountThisParcel 方法，其次调用 app.unmount 卸载内容。</li>
+<li>unload: 调用 app.unload 卸载脚本，卸载后移除 app.bootstrap、app.mount、app.unmount、app.unload 等属性。unload 周期在开发者手动调用 unloadApplication 函数时触发，应用会重新退回到 NOT_LOADED 状态，需要再次执行 bootstrap 流程。</li>
+</ul>
+<p>从全局层面看，single-app 按以下流程处理应用：</p>
+<ol>
+<li>全局劫持 hashchange、popstate 事件，绑定 reroute 函数；并捕获单页应用中的绑定函数，以备后续处理。</li>
+<li>registerApplication(appName, applicationOrLoadingFn, activityFn, customProps) 注册应用。该过程将调用 reroute 函数加载应用脚本；其他使用 registerApplication 注册的应用将在等待状态，直到 reroute 递归调用时才予加载。备注：registerApplication 期间，single-app 会通过调用 ensureJQuerySupport 改写 $.on 绑定 hashchange、popstate 事件的功能，以便支持使用 window.$。</li>
+<li>start() 启动应用，该过程也将调用 reroute 函数。start 若未执行，reroute 将只加载应用脚本，但不会调用应用脚本内的 bootstrap、mount、unmount 等生命周期函数。</li>
+<li>监听到 hashchange、popstate 事件，触发 reroute 函数卸载、挂载应用。对于挂载的应用，捕获到的绑定函数会在 reroute 尾端手动调用。</li>
+</ol>
+<p>single-app 最核心的模块是 reroute，其负责调控应用脚本加载、卸载，应用内容挂载、卸载的流程。reroute 函数额外会使用 window.dispatchEvent 发送事件，以便于实现事件监听。</p>
+<ul>
+<li>若应用未启动，通过 loadApps 加载匹配路由的应用脚本。加载完成后，若有其他应用脚本在排队注册中，递归调用 reroute 加载之。</li>
+<li>若应用已启动，首先对不在用的应用脚本执行 unload、unmount 操作；然后对在用的但是未加载的应用脚本执行 load、bootstrap 操作，等到不在用的脚本 unmount 完成，再执行 mount 操作；其次对在用的同时已加载的应用脚本执行 bootstrap、mount 操作（mount 操作也要等到不在用的脚本 unmount 完成）。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * reroute 或者由 registerApplication 触发调用，或者由 hashchange、popstate 事件触发调用。多个 registerApplication 会引起 reroute 递归调用；或者路由多次变更，reroute 未执行完成，也会导致 reroute 递归调动</span></span><br><span class="line"><span class="comment"> * reroute 作为编程接口，也可以后接 then 方法拿取已挂载的应用</span></span><br><span class="line"><span class="comment"> * @param &#123;array&#125; pendingPromises reroute 在执行期间，调用 registerApplication 或变更路由，pendingPromises 非空数组</span></span><br><span class="line"><span class="comment"> * @param &#123;event&#125; eventArguments 事件对象，hashchange、popstate 事件时携带</span></span><br><span class="line"><span class="comment"> * @state appChangeUnderway 指明 reroute 在一次执行周期中，其他 reroute 将被挂起，直到本次 reroute 递归调用才予以执行</span></span><br><span class="line"><span class="comment"> * @state wasNoOp 应用是否发生变更，如加载了一个应用，卸载了一个应用</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">reroute</span>(<span class="params">pendingPromises = [], eventArguments</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (appChangeUnderway) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      peopleWaitingOnAppChange.push(&#123;</span><br><span class="line">        resolve,</span><br><span class="line">        reject,</span><br><span class="line">        eventArguments,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  appChangeUnderway = <span class="literal">true</span>;</span><br><span class="line">  <span class="keyword">let</span> wasNoOp = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// single-app 是否已 start。start 意味应用变更由路由变更引起</span></span><br><span class="line">  <span class="keyword">if</span> (isStarted()) &#123;</span><br><span class="line">    <span class="keyword">return</span> performAppChanges();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> loadApps();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 筛选出待加载的脚本并加载之。所有加载完成后，调用 finishUpAndReturn</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">loadApps</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> loadPromises = getAppsToLoad().map(toLoadPromise);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (loadPromises.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        wasNoOp = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">        .all(loadPromises)</span><br><span class="line">        .then(finishUpAndReturn)</span><br><span class="line">        .catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">          callAllEventListeners();<span class="comment">// 执行所有捕获的路由变更时间</span></span><br><span class="line">          <span class="keyword">throw</span> err;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 处理路由变更引起的应用变更</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">performAppChanges</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">window</span>.dispatchEvent(<span class="keyword">new</span> CustomEvent(<span class="string">"single-spa:before-routing-event"</span>, getCustomEventDetail()));</span><br><span class="line">      <span class="keyword">const</span> unloadPromises = getAppsToUnload().map(toUnloadPromise);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> unmountUnloadPromises = getAppsToUnmount()</span><br><span class="line">        .map(toUnmountPromise)</span><br><span class="line">        .map(<span class="function"><span class="params">unmountPromise</span> =&gt;</span> unmountPromise.then(toUnloadPromise));</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> allUnmountPromises = unmountUnloadPromises.concat(unloadPromises);</span><br><span class="line">      <span class="keyword">if</span> (allUnmountPromises.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        wasNoOp = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> unmountAllPromise = <span class="built_in">Promise</span>.all(allUnmountPromises);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 先 load，再 bootstrap，然后等待其他应用 unmount、unload 完成，再 mount</span></span><br><span class="line">      <span class="keyword">const</span> appsToLoad = getAppsToLoad();</span><br><span class="line">      <span class="keyword">const</span> loadThenMountPromises = appsToLoad.map(<span class="function"><span class="params">app</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> toLoadPromise(app)</span><br><span class="line">          .then(toBootstrapPromise)</span><br><span class="line">          .then(<span class="function"><span class="params">app</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> unmountAllPromise</span><br><span class="line">              .then(<span class="function"><span class="params">()</span> =&gt;</span> toMountPromise(app))</span><br><span class="line">          &#125;)</span><br><span class="line">      &#125;)</span><br><span class="line">      <span class="keyword">if</span> (loadThenMountPromises.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        wasNoOp = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 已 bootstrap 过，再次 bootstrap，然后等待其他应用 unmount、unload 完成，再 mount</span></span><br><span class="line">      <span class="keyword">const</span> mountPromises = getAppsToMount()</span><br><span class="line">        .filter(<span class="function"><span class="params">appToMount</span> =&gt;</span> appsToLoad.indexOf(appToMount) &lt; <span class="number">0</span>)</span><br><span class="line">        .map(<span class="function"><span class="params">appToMount</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> toBootstrapPromise(appToMount)</span><br><span class="line">            .then(<span class="function"><span class="params">()</span> =&gt;</span> unmountAllPromise)</span><br><span class="line">            .then(<span class="function"><span class="params">()</span> =&gt;</span> toMountPromise(appToMount))</span><br><span class="line">        &#125;)</span><br><span class="line">      <span class="keyword">if</span> (mountPromises.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        wasNoOp = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> unmountAllPromise</span><br><span class="line">        .catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">          callAllEventListeners();</span><br><span class="line">          <span class="keyword">throw</span> err;</span><br><span class="line">        &#125;)</span><br><span class="line">        .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="comment">// 非必须的应用已卸载，可以安心调用挂载应用的 hashchange、popstate 绑定函数</span></span><br><span class="line">          callAllEventListeners();</span><br><span class="line"></span><br><span class="line">          <span class="keyword">return</span> <span class="built_in">Promise</span></span><br><span class="line">            .all(loadThenMountPromises.concat(mountPromises))</span><br><span class="line">            .catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">              pendingPromises.forEach(<span class="function"><span class="params">promise</span> =&gt;</span> promise.reject(err));</span><br><span class="line">              <span class="keyword">throw</span> err;</span><br><span class="line">            &#125;)</span><br><span class="line">            .then(<span class="function"><span class="params">()</span> =&gt;</span> finishUpAndReturn(<span class="literal">false</span>))</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">finishUpAndReturn</span>(<span class="params">callEventListeners=true</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> returnValue = getMountedApps();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (callEventListeners) &#123;</span><br><span class="line">      callAllEventListeners();</span><br><span class="line">    &#125;</span><br><span class="line">    pendingPromises.forEach(<span class="function"><span class="params">promise</span> =&gt;</span> promise.resolve(returnValue));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> appChangeEventName = wasNoOp ? <span class="string">"single-spa:no-app-change"</span>: <span class="string">"single-spa:app-change"</span>;</span><br><span class="line">      <span class="built_in">window</span>.dispatchEvent(<span class="keyword">new</span> CustomEvent(appChangeEventName, getCustomEventDetail()));</span><br><span class="line">      <span class="built_in">window</span>.dispatchEvent(<span class="keyword">new</span> CustomEvent(<span class="string">"single-spa:routing-event"</span>, getCustomEventDetail()));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      <span class="comment">// single-spa:no-app-change 事件监听器报错，single-spa 不予处理</span></span><br><span class="line">      setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> err;</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// reroute 单次执行结束，无挂起的 reroute 时，调用 reroute 将直接执行</span></span><br><span class="line">    appChangeUnderway = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 被挂起的 reroute，需要手动触发之</span></span><br><span class="line">    <span class="keyword">if</span> (peopleWaitingOnAppChange.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> nextPendingPromises = peopleWaitingOnAppChange;</span><br><span class="line">      peopleWaitingOnAppChange = [];</span><br><span class="line">      reroute(nextPendingPromises);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> returnValue;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 手动调用挂载应用中被阻断的 haschange、popstate 绑定函数</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">callAllEventListeners</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    pendingPromises.forEach(<span class="function"><span class="params">pendingPromise</span> =&gt;</span> &#123;</span><br><span class="line">      callCapturedEventListeners(pendingPromise.eventArguments);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    callCapturedEventListeners(eventArguments);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">getCustomEventDetail</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> result = &#123;<span class="attr">detail</span>: &#123;&#125;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (eventArguments &amp;&amp; eventArguments[<span class="number">0</span>]) &#123;</span><br><span class="line">      result.detail.originalEvent = eventArguments[<span class="number">0</span>]</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="包部分"><a href="#包部分" class="headerlink" title="包部分"></a>包部分</h3><p>single-app 将包抽象为如下内部表现形式：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  id: <span class="built_in">number</span>;<span class="comment">// id</span></span><br><span class="line">  name: <span class="built_in">string</span>;<span class="comment">// 包名</span></span><br><span class="line">  parentName: <span class="built_in">string</span>;<span class="comment">// 父包名或应用名</span></span><br><span class="line">  parcels: &#123;&#125;,<span class="comment">// 包，以 &#123; id: parcel &#125; 形式存储</span></span><br><span class="line">  status: NOT_LOADED | LOADING_SOURCE_CODE | NOT_BOOTSTRAPPED | BOOTSTRAPPING | NOT_MOUNTED | </span><br><span class="line">    MOUNTING | UPDATING | LOAD_ERROR | MOUNTED | UNMOUNTING | SKIP_BECAUSE_BROKEN;<span class="comment">// 状态</span></span><br><span class="line">  customProps: &#123; [key: <span class="built_in">string</span>]: <span class="built_in">any</span> &#125;;<span class="comment">// 自定义属性，包含 domElement 挂载节点</span></span><br><span class="line">  bootstrap: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 引导函数</span></span><br><span class="line">  mount: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 挂载函数</span></span><br><span class="line">  update: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 更新函数</span></span><br><span class="line">  unmountThisParcel: <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 卸载接口，内部会调用 parcel.unmount 方法</span></span><br><span class="line">  unmount: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 卸载函数</span></span><br><span class="line">  unload: <span class="function">(<span class="params">props: &#123; customProps, name, mountParcel, singleSpa &#125;</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 卸载脚本函数</span></span><br><span class="line">  timeouts: &#123; bootstrap, mount, unmount, unload &#125;;<span class="comment">// 超时设置</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>singleSpa.mountRootParcel(config, customProps)、singleSpa.mountParcel(config, customProps) 方法能将外部配置项 [config.name]、config.bootstrap、config.mount、[config.update]、config.unmount、customProps.domElement 转化成内部表现形式（config 可以包模块的加载函数）。在 singleSpa.mountRootParcel、singleSpa.mountParcel 调用期间，single-spa 会加载包模块，并为内部表现形式添加 name、bootstrap、mount、update、unmount、timeouts 等属性，并返回 { mount, unmount, getStatus, loadPromise, bootstrapPromise, mountPromise, unmountPromise } 对象，用于手动挂载或卸载包。</p>
+<p>特别注意，singleSpa.mountRootParcel 将包挂在顶部；singleSpa.mountParcel 一般以应用的 props.mountParcel 形式使用，也即作为应用下的包，其将会随着应用的销毁而销毁。</p>
+<p>从总体层面看，包加载、卸载的机制与应用相同，只是多了一个 update 生命周期，以及包的存活空间限制、包需要手动渲染。</p>
+<h3 id="single-spa-react"><a href="#single-spa-react" class="headerlink" title="single-spa-react"></a>single-spa-react</h3><p><a href="https://github.com/single-spa/single-spa-react" target="_blank" rel="noopener">single-spa-react</a> 便于 react 应用快速对接 single-app。</p>
+<p>singleSpaReact(opts) 函数能指定顶层组件及其渲染位置、渲染方式，其返回内容可作为应用或包脚本的 bootstrap、mount、unmount、update 导出。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">singleSpaReact(opts: &#123; </span><br><span class="line">  React: React;</span><br><span class="line">  ReactDOM: ReactDOM;</span><br><span class="line">  rootComponent: React.Component;<span class="comment">// 顶层组件，通过 React.createElement 加载元素</span></span><br><span class="line">  loadRootComponent: <span class="function"><span class="params">()</span> =&gt;</span> React.Component;<span class="comment">// 顶层组件加载函数，与 rootComponent 选填一项即可</span></span><br><span class="line">  suppressComponentDidCatchWarning: boolean;<span class="comment">// react16 以上版本，若 rootComponent 未实现 componentDidCatch 方法，予以警告</span></span><br><span class="line">  domElementGetter?: <span class="function"><span class="params">()</span> =&gt;</span> DOMElement;<span class="comment">// 获取挂载节点，不填会创建 id 为 `single-spa-application:$&#123;appName&#125;` 的节点进行挂载</span></span><br><span class="line">  parcelCanUpdate: boolean;<span class="comment">// 包是否可渲染</span></span><br><span class="line">  renderType?: <span class="string">'createRoot'</span> | <span class="string">'createBlockingRoot'</span> | <span class="string">'hydrate'</span>;<span class="comment">// 渲染方式，分别使用 ReactDOM.createRoot、ReactDOM.createBlockingRoot、ReactDOM.hydrate、ReactDOM.render 方法渲染</span></span><br><span class="line">&#125;): &#123;</span><br><span class="line">  bootstrap: <span class="function">(<span class="params">props</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 加载顶层组件脚本</span></span><br><span class="line">  mount: <span class="function">(<span class="params">props</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 将顶层组件渲染到页面上</span></span><br><span class="line">  unmount: <span class="function">(<span class="params">props</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 使用 ReactDOM.unmountComponentAtNode 移除顶层组件</span></span><br><span class="line">  update: <span class="function">(<span class="params">props</span>) =&gt;</span> <span class="built_in">Promise</span>;<span class="comment">// 指定 parcelCanUpdate 前提下，刷新 rootComponent</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>特别的，当以 React.createContext 机制赋值 SingleSpaContext 导出时，single-spa-react 会为所有应用、包添加上下文容器 SingleSpaContext.Providev，其 value 值为 mount 生命周期的 props（包含 mountParcel 方法，指定在当前应用或包中渲染其他包）。</p>
+<p>single-spa-react 额外提供了 Parcel 组件，其接受 props.config 为包的生命周期导出模块（即 singleSpaReact 函数返回值），默认会将包渲染到组件树中；当指定 props.appendTo 属性，则会将包渲染到 props.appendTo 元素上。渲染的前提是它能获得 SingleSpaContext 传递的 mountParcel 函数（即包挂载在应用或其他包的 rootComponent 下），否则需要开发者显式指定 props.mountParcel 方法。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>造物必有迹可循，只是曲折的历史会把它打扮得较难领会。创造者不只创造为外部所用的产物，还有对内部加倍透明的历史。如果只是使用，不是创造，何必知晓历史之古。</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2020/02/15/frontend/architecture/single-spa 实现前端微服务/" data-id="ck7iyxkod005xlyh9aoujzj93" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "single-spa 实现前端微服务",
+        "image": "http://xzfyu.com",
+        "keywords": "analyst",
+        "genre": "frontend architecture",
+        "datePublished": "2020-02-15",
+        "dateCreated": "2020-02-15",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2020/02/15/frontend/architecture/single-spa 实现前端微服务/",
+        "description": "文档及示例single-spa 具有以下功能特性：在无须刷新页面的前提下，同一个页面可使用不同的框架；基于不同框架实现的前端应用可以独立部署；制作新内容时可以使用不同的框架；支持应用内脚本的懒加载。
+single-spa 借鉴了组件生命周期的思想，它为应用设置了针对路由的生命周期。当应用匹配路由/处于激活状态时，应用会把自身的内容挂载到页面上；反之则卸载。典型的 single-spa 由 html",
+        "wordCount": 3427
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/02/16/frontend/工程化/umi 插件钩子机制/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            umi 插件钩子机制（修正版）
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2020/02/13/frontend/antd/DatePicker/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">DatePicker</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2020/02/15/frontend/architecture/single-spa 实现前端微服务/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

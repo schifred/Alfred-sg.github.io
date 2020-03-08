@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>react fiber 类组件状态更新篇 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst">
+    
+    <meta name="description" content="前言本文仅在局部层面上解释类组件的状态更新机制，并没有对函数组件的 hooks、fiber 优先级等作说明。 Update 及 UpdateQueueUpdatefiber reconciler 将 fiber 的状态更新抽象为 Update 单向链表：  tag：更新类型，UpdateState、ReplaceState、ForceUpdate、CaptureUpdate payload：状态变">
+<meta name="keywords" content="analyst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="react fiber 类组件状态更新篇">
+<meta property="og:url" content="http://xzfyu.com/2020/03/04/frontend/react16/react fiber 类组件状态更新篇/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="前言本文仅在局部层面上解释类组件的状态更新机制，并没有对函数组件的 hooks、fiber 优先级等作说明。 Update 及 UpdateQueueUpdatefiber reconciler 将 fiber 的状态更新抽象为 Update 单向链表：  tag：更新类型，UpdateState、ReplaceState、ForceUpdate、CaptureUpdate payload：状态变">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-08T10:46:29.900Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="react fiber 类组件状态更新篇">
+<meta name="twitter:description" content="前言本文仅在局部层面上解释类组件的状态更新机制，并没有对函数组件的 hooks、fiber 优先级等作说明。 Update 及 UpdateQueueUpdatefiber reconciler 将 fiber 的状态更新抽象为 Update 单向链表：  tag：更新类型，UpdateState、ReplaceState、ForceUpdate、CaptureUpdate payload：状态变">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/frontend/react/">react</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-frontend/react16/react fiber 类组件状态更新篇" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        react fiber 类组件状态更新篇
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/03/04/frontend/react16/react fiber 类组件状态更新篇/" class="article-date">
+         <time datetime="2020-03-03T16:00:00.000Z" itemprop="datePublished">2020-03-04</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文仅在局部层面上解释类组件的状态更新机制，并没有对函数组件的 hooks、fiber 优先级等作说明。</p>
+<h2 id="Update-及-UpdateQueue"><a href="#Update-及-UpdateQueue" class="headerlink" title="Update 及 UpdateQueue"></a>Update 及 UpdateQueue</h2><h3 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h3><p>fiber reconciler 将 fiber 的状态更新抽象为 Update 单向链表：</p>
+<ul>
+<li>tag：更新类型，UpdateState、ReplaceState、ForceUpdate、CaptureUpdate</li>
+<li>payload：状态变更函数或新状态本身</li>
+<li>callback：回调，作用于 fiber.effectTag，并将 callback 作为 side-effects 回调</li>
+<li>expirationTime：deadline 时间，未到该时间点，不予更新</li>
+<li>suspenseConfig：suspense 配置</li>
+<li>next：指向下一个 Update</li>
+<li>priority：仅限于 dev 环境</li>
+</ul>
+<p>createUpdate 函数用于创建 Update。getStateFromUpdate 函数用于通过 Update 获取新的 fiber 状态，其处理方式基于 tag 类型。如 tag 为 UpdateState 时，getStateFromUpdate 将取用更新前的 state 值，并混入 payload 返回值或 payload 本身，作为新的 state 值返回。“payload 返回值”指的是 payload 本身是一个函数，它会以组件实例作为上下文，并以 prevState、nextProps 作为参数。getStateFromUpdate 依循 tag 值的处理机制如下：</p>
+<ul>
+<li>UpdateState：基于 prevState 以及 payload 增量更新</li>
+<li>ReplaceState：基于 payload 全量更新</li>
+<li>ForceUpdate：state 值依旧取 prevState，同时 hasForceUpdate 会被置为 true。</li>
+<li>CaptureUpdate：将 fiber.effectTag 置为 </li>
+</ul>
+<p>我们可以看到，虽然 Update 表现为链表形式，可以处理多个 state 更新作业，但是 getStateFromUpdate 与 fiber 任务的优先级、side-effects 机制均无关联。</p>
+<h3 id="UpdateQueue"><a href="#UpdateQueue" class="headerlink" title="UpdateQueue"></a>UpdateQueue</h3><p>如<a href="https://zhuanlan.zhihu.com/p/108477707" target="_blank" rel="noopener">react fiber 搜罗整理篇</a>提到的，render 阶段的 state 更新作业可以被丢弃。在实现上，fiber reconciler 使用 UpdateQueue 存储 Update 更新队列。更新队列有两条，baseQueue 执行中的更新队列，pendingQueue（即 shared.pending）待执行的更新队列。因为 Update 表现为环状单向链表，baseQueue、pendingQueue 均存储单向链表的尾节点。丢弃更新作业的实现在于，将 pendingQueue 复制给 baseQueue，丢弃之前的 baseQueue（current fiber 和 work-in-progress fiber 均会重置 baseQueue）。UpdateQueue 的数据结构如下：</p>
+<ul>
+<li>baseState：先前的状态，作为 payload 函数的 prevState 参数</li>
+<li>baseQueue：存储执行中的更新任务 Update 队列，尾节点存储形式</li>
+<li>shared：以 pending 属性存储待执行的更新任务 Update 队列，尾节点存储形式</li>
+<li>effects：side-effects 队列，commit 阶段执行</li>
+</ul>
+<p>fiber reconciler 会在挂载组件时调用 initializeUpdateQueue 函数初始化 fiber 节点的 updateQueue 队列。只有挂载的组件才会有有效的状态更新，卸载的组件没必要使用 updateQueue 属性。enqueueUpdate 函数将 update 添加到 pendingQueue 队列中，典型如类组件在 setState 方法调用期间将 update 添加到 pendingQueue 中。</p>
+<p>processUpdateQueue 函数用于应用 Update 队列完成状态更新。其流程如：</p>
+<ol>
+<li>丢失原先的 baseQueue，将 pendingQueue 复制给 baseQueue，作为执行中的 Update 队列。</li>
+<li>启用 while 循环处理 Update 队列。如优先级足够，获取最新的状态值；如不够，添加到 newBaseQueue 队列，等待下次处理。至于为什么要使用 while 循环？是因为函数式组件可能会同步使用多个 useState 更新状态。特殊的，对于优先级不足的任务，其所处理的 prevState 是前一个任务更新后的状态值，如官方注释所示；当 baseQueue 已清空，while 循环会继续遍历 pendingQueue 并应用更新。</li>
+<li>while 循环结束后，如 newBaseQueue 队列非空，将其作为新的 baseQueue 以备更新；如为空，更新 baseState。</li>
+<li>最后更新 work-in-progress fiber 的 memoizedState 等属性。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processUpdateQueue</span>&lt;<span class="title">State</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  workInProgress: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  props: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  instance: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  renderExpirationTime: ExpirationTime,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">void</span> </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> queue: UpdateQueue&lt;State&gt; = (workInProgress.updateQueue: any);</span><br><span class="line">  hasForceUpdate = <span class="literal">false</span>;</span><br><span class="line">  <span class="comment">// 丢弃原先的更新任务 baseQueue，将 pendingQueue 复制给 baseQueue</span></span><br><span class="line">  <span class="keyword">let</span> baseQueue = queue.baseQueue;</span><br><span class="line">  <span class="keyword">let</span> pendingQueue = queue.shared.pending;</span><br><span class="line">  <span class="keyword">if</span> (pendingQueue !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (baseQueue !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">let</span> baseFirst = baseQueue.next;</span><br><span class="line">      <span class="keyword">let</span> pendingFirst = pendingQueue.next;</span><br><span class="line">      baseQueue.next = pendingFirst;</span><br><span class="line">      pendingQueue.next = baseFirst;</span><br><span class="line">    &#125;</span><br><span class="line">    baseQueue = pendingQueue;</span><br><span class="line">    queue.shared.pending = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">const</span> current = workInProgress.alternate;</span><br><span class="line">    <span class="keyword">if</span> (current !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> currentQueue = current.updateQueue;</span><br><span class="line">      <span class="keyword">if</span> (currentQueue !== <span class="literal">null</span>) &#123;</span><br><span class="line">        currentQueue.baseQueue = pendingQueue;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// These values may change as we process the queue.</span></span><br><span class="line">  <span class="keyword">if</span> (baseQueue !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> first = baseQueue.next;</span><br><span class="line">    <span class="keyword">let</span> newState = queue.baseState;</span><br><span class="line">    <span class="keyword">let</span> newExpirationTime = NoWork;</span><br><span class="line">    <span class="keyword">let</span> newBaseState = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">let</span> newBaseQueueFirst = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">let</span> newBaseQueueLast = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (first !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">let</span> update = first;</span><br><span class="line">      <span class="keyword">do</span> &#123;</span><br><span class="line">        <span class="comment">// 优先级不足，将 update 添加到 newBaseQueue 队列中</span></span><br><span class="line">        <span class="comment">// newBaseState 更新为前一个 update 任务的结果</span></span><br><span class="line">        <span class="keyword">const</span> updateExpirationTime = update.expirationTime;</span><br><span class="line">        <span class="keyword">if</span> (updateExpirationTime &lt; renderExpirationTime) &#123;</span><br><span class="line">          <span class="keyword">const</span> clone: Update&lt;State&gt; = &#123;</span><br><span class="line">            expirationTime: update.expirationTime,</span><br><span class="line">            suspenseConfig: update.suspenseConfig,</span><br><span class="line">            tag: update.tag,</span><br><span class="line">            payload: update.payload,</span><br><span class="line">            callback: update.callback,</span><br><span class="line">            next: (<span class="literal">null</span>: any),</span><br><span class="line">          &#125;;</span><br><span class="line">          <span class="keyword">if</span> (newBaseQueueLast === <span class="literal">null</span>) &#123;</span><br><span class="line">            newBaseQueueFirst = newBaseQueueLast = clone;</span><br><span class="line">            newBaseState = newState;</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            newBaseQueueLast = newBaseQueueLast.next = clone;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (updateExpirationTime &gt; newExpirationTime) &#123;</span><br><span class="line">            newExpirationTime = updateExpirationTime;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果 update 在优先级不足的 update 之后，将其拷贝到 newBaseQueue 队列中</span></span><br><span class="line">          <span class="keyword">if</span> (newBaseQueueLast !== <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">const</span> clone: Update&lt;State&gt; = &#123;</span><br><span class="line">              expirationTime: Sync, <span class="comment">// This update is going to be committed so we never want uncommit it.</span></span><br><span class="line">              suspenseConfig: update.suspenseConfig,</span><br><span class="line">              tag: update.tag,</span><br><span class="line">              payload: update.payload,</span><br><span class="line">              callback: update.callback,</span><br><span class="line">              next: (<span class="literal">null</span>: any),</span><br><span class="line">            &#125;;</span><br><span class="line">            newBaseQueueLast = newBaseQueueLast.next = clone;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">// Mark the event time of this update as relevant to this render pass.</span></span><br><span class="line">          <span class="comment">// <span class="doctag">TODO:</span> This should ideally use the true event time of this update rather than</span></span><br><span class="line">          <span class="comment">// its priority which is a derived and not reverseable value.</span></span><br><span class="line">          <span class="comment">// <span class="doctag">TODO:</span> We should skip this update if it was already committed but currently</span></span><br><span class="line">          <span class="comment">// we have no way of detecting the difference between a committed and suspended</span></span><br><span class="line">          <span class="comment">// update here.</span></span><br><span class="line">          markRenderEventTimeAndConfig(</span><br><span class="line">            updateExpirationTime,</span><br><span class="line">            update.suspenseConfig,</span><br><span class="line">          );</span><br><span class="line">          newState = getStateFromUpdate(</span><br><span class="line">            workInProgress,</span><br><span class="line">            queue,</span><br><span class="line">            update,</span><br><span class="line">            newState,</span><br><span class="line">            props,</span><br><span class="line">            instance,</span><br><span class="line">          );</span><br><span class="line">          </span><br><span class="line">          <span class="comment">// 包含 callback 回调，更新 fiber.effectTag、baseQueue.effects</span></span><br><span class="line">          <span class="keyword">const</span> callback = update.callback;</span><br><span class="line">          <span class="keyword">if</span> (callback !== <span class="literal">null</span>) &#123;</span><br><span class="line">            workInProgress.effectTag |= Callback;</span><br><span class="line">            <span class="keyword">let</span> effects = queue.effects;</span><br><span class="line">            <span class="keyword">if</span> (effects === <span class="literal">null</span>) &#123;</span><br><span class="line">              queue.effects = [update];</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">              effects.push(update);</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        update = update.next;</span><br><span class="line">        <span class="keyword">if</span> (update === <span class="literal">null</span> || update === first) &#123;</span><br><span class="line">          pendingQueue = queue.shared.pending;</span><br><span class="line">          <span class="keyword">if</span> (pendingQueue === <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// An update was scheduled from inside a reducer. Add the new</span></span><br><span class="line">            <span class="comment">// pending updates to the end of the list and keep processing.</span></span><br><span class="line">            update = baseQueue.next = pendingQueue.next;</span><br><span class="line">            pendingQueue.next = first;</span><br><span class="line">            queue.baseQueue = baseQueue = pendingQueue;</span><br><span class="line">            queue.shared.pending = <span class="literal">null</span>;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果没有优先级不足的 Update，更新 baseState</span></span><br><span class="line">    <span class="keyword">if</span> (newBaseQueueLast === <span class="literal">null</span>) &#123;</span><br><span class="line">      newBaseState = newState;</span><br><span class="line">    <span class="comment">// 如果有优先级不足的 Update，使这些 Update 首尾相连</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      newBaseQueueLast.next = (newBaseQueueFirst: any);</span><br><span class="line">    &#125;</span><br><span class="line">    queue.baseState = ((newBaseState: any): State);<span class="comment">// 最新状态</span></span><br><span class="line">    queue.baseQueue = newBaseQueueLast;<span class="comment">// 优先级不足的 update 队列</span></span><br><span class="line">    <span class="comment">// Set the remaining expiration time to be whatever is remaining in the queue.</span></span><br><span class="line">    <span class="comment">// This should be fine because the only two other things that contribute to</span></span><br><span class="line">    <span class="comment">// expiration time are props and context. We're already in the middle of the</span></span><br><span class="line">    <span class="comment">// begin phase by the time we start processing the queue, so we've already</span></span><br><span class="line">    <span class="comment">// dealt with the props. Context in components that specify</span></span><br><span class="line">    <span class="comment">// shouldComponentUpdate is tricky; but we'll have to account for</span></span><br><span class="line">    <span class="comment">// that regardless.</span></span><br><span class="line">    markUnprocessedUpdateTime(newExpirationTime);</span><br><span class="line">    workInProgress.expirationTime = newExpirationTime;</span><br><span class="line">    workInProgress.memoizedState = newState;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="类组件状态更新流程"><a href="#类组件状态更新流程" class="headerlink" title="类组件状态更新流程"></a>类组件状态更新流程</h2><p>类组件状态更新按如下 4 种场景处理：</p>
+<ol>
+<li>当组件挂载时，通过 initializeUpdateQueue 函数初始化 updateQueue 队列。</li>
+<li>当 state 变更或强制渲染时，通过 enqueueUpdate 函数将 update 添加到 pendingQueue 队列。</li>
+<li>在 render 阶段，cloneUpdateQueue 函数能把 current fiber 中的 updateQueue 复制给 work-in-progress fiber。这样就如官方注释所说，current fiber 和 work-in-progress 会持有相同的 updateQueue。cloneUpdateQueue 函数执行后，就会调用 processUpdateQueue 获取最新状态。</li>
+<li>在 commit 阶段，通过 commitUpdateQueue 函数执行 side-effects 回调。</li>
+</ol>
+<p>其中，render 阶段和 commit 阶段均通过 scheduleWork（即 scheduleUpdateOnFiber） 启动。这里仅简要说明 scheduleWork 的内部表现：</p>
+<ol>
+<li>使用 <a href="https://zhuanlan.zhihu.com/p/110161396" target="_blank" rel="noopener">react scheduler 再解析篇</a>提到的 unstable_scheduleCallback 调度任务，以整个渲染流程作为单个任务（表现为 performSyncWorkOnRoot 或 performConcurrentWorkOnRoot，内容包含<a href="https://zhuanlan.zhihu.com/p/108477707" target="_blank" rel="noopener">react fiber 搜罗整理篇</a>提到的 work-loop 大循环、 commitRootImpl 提交流程。届时 state 更新在 performSyncWorkOnRoot 等函数中表现为 batch 批量任务）；</li>
+<li>commitRootImpl 通过 Scheduler_runWithPriority 执行，因此在 scheduler 调度机制之外，不可打断。</li>
+</ol>
+<h3 id="setState"><a href="#setState" class="headerlink" title="setState"></a>setState</h3><p>当类组件通过 constructClassInstance 函数实例化期间，组件实例的 updater 属性即会赋值为 classComponentUpdater。组件实例的 setState 方法最终会触发 classComponentUpdater.enqueueSetState 方法的调用。其原理如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react 包下 ReactBaseClasses.js 文件</span></span><br><span class="line">Component.prototype.setState = <span class="function"><span class="keyword">function</span>(<span class="params">partialState, callback</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.updater.enqueueSetState(<span class="keyword">this</span>, partialState, callback, <span class="string">'setState'</span>);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// react-reconciler 包下 ReactFiberClassComponent.js 文件</span></span><br><span class="line"><span class="keyword">const</span> classComponentUpdater = &#123;</span><br><span class="line">  isMounted,</span><br><span class="line">  enqueueSetState(inst, payload, callback) &#123;</span><br><span class="line">    <span class="keyword">const</span> fiber = getInstance(inst);</span><br><span class="line">    <span class="keyword">const</span> currentTime = requestCurrentTimeForUpdate();</span><br><span class="line">    <span class="keyword">const</span> suspenseConfig = requestCurrentSuspenseConfig();</span><br><span class="line">    <span class="keyword">const</span> expirationTime = computeExpirationForFiber(</span><br><span class="line">      currentTime,</span><br><span class="line">      fiber,</span><br><span class="line">      suspenseConfig,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">const</span> update = createUpdate(expirationTime, suspenseConfig);</span><br><span class="line">    update.payload = payload;</span><br><span class="line">    <span class="keyword">if</span> (callback !== <span class="literal">undefined</span> &amp;&amp; callback !== <span class="literal">null</span>) &#123;</span><br><span class="line">      update.callback = callback;</span><br><span class="line">    &#125;</span><br><span class="line">    enqueueUpdate(fiber, update);<span class="comment">// 添加到 pendingQueue</span></span><br><span class="line">    scheduleWork(fiber, expirationTime);<span class="comment">// 调度工作</span></span><br><span class="line">  &#125;,</span><br><span class="line">  enqueueReplaceState(inst, payload, callback) &#123;<span class="comment">/** **/</span>&#125;,</span><br><span class="line">  enqueueForceUpdate(inst, callback) &#123;<span class="comment">/** **/</span>&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="processUpdateQueue"><a href="#processUpdateQueue" class="headerlink" title="processUpdateQueue"></a>processUpdateQueue</h3><p>对于类组件，processUpdateQueue 会在以下场景中执行：</p>
+<ul>
+<li>mountClassInstance 函数挂载组件时，以及该函数执行到 componentWillMount 生命周期时</li>
+<li>resumeMountClassInstance 函数复用组件时</li>
+<li>updateClassInstance 函数更新组件时</li>
+</ul>
+<h2 id="错误捕获及-Suspense"><a href="#错误捕获及-Suspense" class="headerlink" title="错误捕获及 Suspense"></a>错误捕获及 Suspense</h2><p>在执行 work-loop 期间，fiber reconciler 会对捕获的错误进行处理，如<a href="https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1408" target="_blank" rel="noopener">这里</a>，或<a href="https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1464" target="_blank" rel="noopener">这里</a>。<a href="https://zhuanlan.zhihu.com/p/98518655" target="_blank" rel="noopener">React Suspense 源码解读</a>指出，react 先抛出错误，然后在 completeWork 执行完成之前捕获错误，并添加到 updateQueue 队列中。这里仅贴示 <a href="https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberThrow.js#L177" target="_blank" rel="noopener">throwException 函数</a>所用到的 createClassErrorUpdate 代码，用于将错误处理制作成 update。据此可以发现，getDerivedStateFromError、componentDidCatch 生命周期均基于构建 update 的方式得到调用。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createClassErrorUpdate</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  fiber: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  errorInfo: CapturedValue&lt;mixed&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  expirationTime: ExpirationTime,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Update</span>&lt;<span class="title">mixed</span>&gt; </span>&#123;</span><br><span class="line">  <span class="comment">// 通过 update 执行 getDerivedStateFromError</span></span><br><span class="line">  <span class="keyword">const</span> update = createUpdate(expirationTime, <span class="literal">null</span>);</span><br><span class="line">  update.tag = CaptureUpdate;</span><br><span class="line">  <span class="keyword">const</span> getDerivedStateFromError = fiber.type.getDerivedStateFromError;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> getDerivedStateFromError === <span class="string">'function'</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> error = errorInfo.value;</span><br><span class="line">    update.payload = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      logError(fiber, errorInfo);</span><br><span class="line">      <span class="keyword">return</span> getDerivedStateFromError(error);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> inst = fiber.stateNode;</span><br><span class="line">  <span class="keyword">if</span> (inst !== <span class="literal">null</span> &amp;&amp; <span class="keyword">typeof</span> inst.componentDidCatch === <span class="string">'function'</span>) &#123;</span><br><span class="line">    update.callback = <span class="function"><span class="keyword">function</span> <span class="title">callback</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> getDerivedStateFromError !== <span class="string">'function'</span>) &#123;</span><br><span class="line">        <span class="comment">// To preserve the preexisting retry behavior of error boundaries,</span></span><br><span class="line">        <span class="comment">// we keep track of which ones already failed during this batch.</span></span><br><span class="line">        <span class="comment">// This gets reset before we yield back to the browser.</span></span><br><span class="line">        <span class="comment">// <span class="doctag">TODO:</span> Warn in strict mode if getDerivedStateFromError is</span></span><br><span class="line">        <span class="comment">// not defined.</span></span><br><span class="line">        markLegacyErrorBoundaryAsFailed(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Only log here if componentDidCatch is the only error boundary method defined</span></span><br><span class="line">        logError(fiber, errorInfo);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 通过 side-effects 执行 componentDidCatch 生命周期</span></span><br><span class="line">      <span class="keyword">const</span> error = errorInfo.value;</span><br><span class="line">      <span class="keyword">const</span> stack = errorInfo.stack;</span><br><span class="line">      <span class="keyword">this</span>.componentDidCatch(error, &#123;</span><br><span class="line">        componentStack: stack !== <span class="literal">null</span> ? stack : <span class="string">''</span>,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> update;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>特殊的，对于使用 React.Suspense 包裹的懒加载组件，fiber reconciler 会将 thenable 形式的懒加载函数抛出，以此进入错误处理；随后在 throwException 函数处理过程，thenable 会被添加到 updateQueue 队列中。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">readLazyComponentType</span>&lt;<span class="title">T</span>&gt;(<span class="params">lazyComponent: LazyComponent&lt;T&gt;</span>): <span class="title">T</span> </span>&#123;</span><br><span class="line">  initializeLazyComponentType(lazyComponent);</span><br><span class="line">  <span class="keyword">if</span> (lazyComponent._status !== Resolved) &#123;</span><br><span class="line">    <span class="keyword">throw</span> lazyComponent._result;<span class="comment">// 即懒加载函数</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> lazyComponent._result;<span class="comment">// 懒加载成功或失败结果</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如上，错误捕获及 Suspense 处理都是在 work-loop 循环抛出异常后，再行更新 updateQueue 队列。既然已经退出了 work-loop 循环，这时 updateQueue 队列就需要在下次重绘时执行。<a href="https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberThrow.js#L275" target="_blank" rel="noopener">throwException 函数</a>注释部分指出，fiber reconciler 会通过 attachPingListener 函数重新 restart 渲染流程。</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2020/03/04/frontend/react16/react fiber 类组件状态更新篇/" data-id="ck7iyxkra009plyh9681y3jt5" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "react fiber 类组件状态更新篇",
+        "image": "http://xzfyu.com",
+        "keywords": "analyst",
+        "genre": "frontend react",
+        "datePublished": "2020-03-04",
+        "dateCreated": "2020-03-04",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2020/03/04/frontend/react16/react fiber 类组件状态更新篇/",
+        "description": "前言本文仅在局部层面上解释类组件的状态更新机制，并没有对函数组件的 hooks、fiber 优先级等作说明。
+Update 及 UpdateQueueUpdatefiber reconciler 将 fiber 的状态更新抽象为 Update 单向链表：
+
+tag：更新类型，UpdateState、ReplaceState、ForceUpdate、CaptureUpdate
+payload：状态变",
+        "wordCount": 3030
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            react fiber hooks钩子篇
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2020/03/01/frontend/architecture/js 事件循环/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">js 事件循环</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2020/03/04/frontend/react16/react fiber 类组件状态更新篇/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

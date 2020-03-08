@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>浏览器渲染机制及性能优化 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst,性能">
+    
+    <meta name="description" content="网页渲染机制网页渲染过程包含页面加载和页面渲染两个过程。页面加载过程指的是从服务器请求资源并构建 DOM 树的过程。网页渲染过程指的是通过 DOM 树渲染出视图内容。这两个过程有重合内容，因为异步加载的 js 脚本可能会修改 DOM 结构。 在 webkit 中，针对不同类型的资源，会有多个加载类进行处理。其大体策略为：先从本地缓存池中查找资源；如果找不到，再从网络上获取以 url 为标识的资源。">
+<meta name="keywords" content="analyst,性能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浏览器渲染机制及性能优化">
+<meta property="og:url" content="http://xzfyu.com/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="网页渲染机制网页渲染过程包含页面加载和页面渲染两个过程。页面加载过程指的是从服务器请求资源并构建 DOM 树的过程。网页渲染过程指的是通过 DOM 树渲染出视图内容。这两个过程有重合内容，因为异步加载的 js 脚本可能会修改 DOM 结构。 在 webkit 中，针对不同类型的资源，会有多个加载类进行处理。其大体策略为：先从本地缓存池中查找资源；如果找不到，再从网络上获取以 url 为标识的资源。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://xzfyu.com/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/RenderTree.png">
+<meta property="og:updated_time" content="2020-03-08T10:42:40.983Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浏览器渲染机制及性能优化">
+<meta name="twitter:description" content="网页渲染机制网页渲染过程包含页面加载和页面渲染两个过程。页面加载过程指的是从服务器请求资源并构建 DOM 树的过程。网页渲染过程指的是通过 DOM 树渲染出视图内容。这两个过程有重合内容，因为异步加载的 js 脚本可能会修改 DOM 结构。 在 webkit 中，针对不同类型的资源，会有多个加载类进行处理。其大体策略为：先从本地缓存池中查找资源；如果找不到，再从网络上获取以 url 为标识的资源。">
+<meta name="twitter:image" content="http://xzfyu.com/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/RenderTree.png">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/frontend/architecture/">architecture</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-frontend/architecture/浏览器渲染机制及性能优化" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        浏览器渲染机制及性能优化
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/" class="article-date">
+         <time datetime="2019-03-02T16:00:00.000Z" itemprop="datePublished">2019-03-03</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>, <a class="tag-link" href="/tags/性能/">性能</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="网页渲染机制"><a href="#网页渲染机制" class="headerlink" title="网页渲染机制"></a>网页渲染机制</h2><p>网页渲染过程包含页面加载和页面渲染两个过程。页面加载过程指的是从服务器请求资源并构建 DOM 树的过程。网页渲染过程指的是通过 DOM 树渲染出视图内容。这两个过程有重合内容，因为异步加载的 js 脚本可能会修改 DOM 结构。</p>
+<p>在 webkit 中，针对不同类型的资源，会有多个加载类进行处理。其大体策略为：先从本地缓存池中查找资源；如果找不到，再从网络上获取以 url 为标识的资源。缓存分为两种：其一是内存缓存，其二是磁盘缓存。页面资源通常是同步加载；以同步模式加载 js 资源时会打断 DOM 树的构建。</p>
+<p>浏览器首先加载网页内容，使用 html 解释器将网页转变成一系列的 token，再根据 token 构建 DOM 树。当一个可见的 DOM 节点（不包含 head 元素和 display 置为 none 的节点）插入到 DOM 树时，浏览器就会构建一个 RenderObject 节点并将其插入到 Render 树中（Render 树即 RenderObject 节点构成的树）。Render 树包含节点的样式信息，可以简单地理解为由 DOM + CSS 构成（css 样式会经由 css 解释器计算出各元素的样式，然后再将挂到 RenderObject 节点上）。Render 树将交由排版引擎处理，计算出每一个 RenderObject 节点的大小和位置等信息；然后再交由渲染引擎完成页面内容的绘制。</p>
+<img src="/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/RenderTree.png">
+<p>在 Render 树之外，为方便处理 Positioning（定位），Clipping（裁剪），Overflow-scroll（页內滚动），CSS Transform/Opacity/Animation/Filter，Mask or Reflection，Z-indexing（Z排序）等，浏览器还会生成  Layer 树。比如根节点从属于一个 RenderLayer 节点，绝对定位的节点从属于另一个 RenderLayer 节点，这样就能有效地处理视图元素的层次结构。如果某 DOM 节点没有对应的 RenderLayer，就从属于父节点的 RenderLayer。</p>
+<img src="/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/LayerTree.png">
+<p>Layer 树会交由浏览器渲染引擎处理。渲染引擎首先以一个布局信息不够明确的矩形绘制 RenderLayer 节点；再向下遍历子 RenderLayer 节点，并完成相关的 RenderObject 节点的绘制；然后向上递归并调整 RenderLayer 节点的布局（即回流）。可以理解的是，Render 树决定了网页的内容，Layer 树决定了网页的层次结构。RenderLayer 布局由 CPU 处理，并将位图作为纹理上传给 GPU，由 GPU 绘制内容并缓存（缓存的意义在于避免重绘）。完整过程如下：</p>
+<img src="/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/RenderFlow.png">
+<p>对于网页中的 js 脚本，浏览器首先会使用 js 引擎解释脚本，然后再通过 DOM 接口和 CSSOM 接口修改网页内容和样式，最终也以影响 Render 树的方式干预绘制过程。</p>
+<p>在 chrome 浏览器中，F12 开发者工具 - more tools - Layers、rendering 插件可用于查看网页层级及渲染性能。</p>
+<h2 id="Navigation-Timing"><a href="#Navigation-Timing" class="headerlink" title="Navigation Timing"></a>Navigation Timing</h2><p>Navigation Timing 说明了当用户在键入 url 后，浏览器中所发生的行为过程，主要包含：unload（卸载前一份文档），redirect（重定向），App Cache（重用缓存资源），DNS（DNS 查询） ，TCP（建立 TCP 连接），Request（请求网络资源），Processing（DOM 构建），onload（资源加载完成）。见下图：</p>
+<img src="/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/NavigationTiming.png">
+<p>Performance API 可用于分析网页的渲染性能，如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> performanceTest = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; timing &#125; = performance;</span><br><span class="line">  <span class="keyword">const</span> readyStart = timing.fetchStart - timing.navigationStart;</span><br><span class="line">  <span class="keyword">const</span> redirectTime = timing.redirectEnd - timing.redirectStart;</span><br><span class="line">  <span class="keyword">const</span> appcacheTime = timing.domainLookupStart - timing.fetchStart;</span><br><span class="line">  <span class="keyword">const</span> unloadEventTime = timing.unloadEventEnd - timing.unloadEventStart;</span><br><span class="line">  <span class="keyword">const</span> lookupDomainTime = timing.domainLookupEnd - timing.domainLookupStart;</span><br><span class="line">  <span class="keyword">const</span> connectTime = timing.connectEnd - timing.connectStart;</span><br><span class="line">  <span class="keyword">const</span> requestTime = timing.reponseEnd - timing.requestStart;</span><br><span class="line">  <span class="keyword">const</span> initDomTreeTime = timing.domInteractive - timing.reponseEnd;</span><br><span class="line">  <span class="keyword">const</span> domReadyTime = timing.domComplete - timing.domInteractive;</span><br><span class="line">  <span class="keyword">const</span> loadEventTime = timing.loadEventEnd - timing.loadEventStart;</span><br><span class="line">  <span class="keyword">const</span> loadTime = timing.loadEventEnd - timing.navigationStart;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`准备新页面时间耗时：<span class="subst">$&#123;readyStart&#125;</span>`</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`redirect 重定向耗时：<span class="subst">$&#123;redirectTime&#125;</span>`</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`Appcache 耗时：<span class="subst">$&#123;appcacheTime&#125;</span>`</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`unload 前文档耗时：<span class="subst">$&#123;unloadEventTime&#125;</span>`</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`DNS 查询耗时：<span class="subst">$&#123;lookupDomainTime&#125;</span>`</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`TCP 连接耗时：<span class="subst">$&#123;connectTime&#125;</span>`</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`request 请求耗时：<span class="subst">$&#123;requestTime&#125;</span>`</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`请求完毕至 DOM 加载：<span class="subst">$&#123;initDomTreeTime&#125;</span>`</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`解析 DOM 树耗时：<span class="subst">$&#123;domReadyTime&#125;</span>`</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`load 事件耗时：<span class="subst">$&#123;domReadyTime&#125;</span>`</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`加载时间耗时：<span class="subst">$&#123;loadTime&#125;</span>`</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="单资源加载过程"><a href="#单资源加载过程" class="headerlink" title="单资源加载过程"></a>单资源加载过程</h3><p>点开浏览器 Network 面板，鼠标悬浮在某资源的 waterfall 区域，可以查看某一资源的加载过程。如下图：</p>
+<img src="/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/download.png">
+<ul>
+<li>Queuing：请求排队中。在 HTTP 1 上，浏览器仅允许每个源拥有六个 TCP 连接；若请求的资源为低优先级资源，将让位给高优先级的样式或脚本资源</li>
+<li>Stalled：请求等待发送所用的时间，包含代理协商所用的任何时间</li>
+<li>DNS Lookup：执行 DNS 查询所用的时间。页面上的每一个新域都需要完整的往返才能执行 DNS 查询</li>
+<li>Initial Connection：建立连接所用的时间，包括 TCP 握手/重试和协商 SSL 的时间</li>
+<li>SSL：完成 SSL 握手所用的时间</li>
+<li>Request Sent：发出网络请求所用的时间</li>
+<li>Waiting(TTFB)：等待初始响应所用的时间，也称为至第一字节的响应时间</li>
+<li>Content Download：接收响应数据所用的时间</li>
+</ul>
+<p>performance.getEntries() 可用于获取页面所有资源的 performance timing 情况。</p>
+<h2 id="回流、重绘"><a href="#回流、重绘" class="headerlink" title="回流、重绘"></a>回流、重绘</h2><p>回流（重排）指的是，当元素的布局或显示等信息改变时，引起 Render 树部分或整体的重新构建，即网页布局的调整。重绘指的是，Render 树中节点属性的更新。因此，回流必然会引起重绘，重绘不一定引起回流。与布局无关的元素属性操作将只引起重绘，否则将同时引起回流和重绘。可能引起回流、重绘的行为如下：</p>
+<ul>
+<li>添加、删除元素（回流+重绘）</li>
+<li>隐藏元素：display:none（回流+重绘）；visibility:hidden（只重绘，不回流）</li>
+<li>移动元素：改变 top,left（不一定引起回流）；将元素移动到另一个父元素中（回流+重绘）等</li>
+<li>改变 style：布局相关属性如 padding, border-width, font-size（回流+重绘）；布局无关属性（只重绘，不回流）。可查看 <a href="https://csstriggers.com/" target="_blank" rel="noopener">https://csstriggers.com/</a> 以获取更多信息</li>
+<li>用户操作：改变浏览器大小，改变浏览器的字体大小等（回流+重绘）</li>
+</ul>
+<p>回流的开销比重绘大。如果 body 顶部插入一个节点，将引起整个 body 的回流；如果尾部插入一个节点，将只引起部分内容的回流，因此开销较小。浏览器为提升回流、重绘的性能，会构建队列以执行批量处理。但是，访问节点的 offsetTop, scrollTop, clientTop, width, height 类属性或调用了 getComputedStyle 方法，将迫使浏览器提前执行队列以获得最新的样式。减少回流、重绘的方法如下：</p>
+<ol>
+<li>className 或 cssText 批量更新样式，避免单属性操作引起的频繁回流或重绘</li>
+<li>新创建的元素改完样式后，再插入文档；或者先将节点的 display 属性置为 none，调整样式后再置回显示状态</li>
+<li>使用变量缓存元素的样式，避免频繁读取元素的样式，致使浏览器提前执行回流队列（以计算元素的布局信息）</li>
+<li>指定图片的宽高，避免新加载的图片调整大小时引起的回流</li>
+<li>[慎用]使频繁回流、重绘的元素单独有一个 RenderLayer：借助 video 元素、WebGL、Canvas、CSS3 3D、CSS滤镜、z-index 大于某个相邻节点的元素都会有独立的 RenderLayer，比如通过添加 transform: translateZ(0);<br>backface-visibility: hidden; 样式即可。</li>
+</ol>
+<p>回流、重绘可借助 dynaTrace（测试ie）、Speed Tracer（测试Chrome） 测试。</p>
+<h2 id="性能分析"><a href="#性能分析" class="headerlink" title="性能分析"></a>性能分析</h2><h3 id="performance"><a href="#performance" class="headerlink" title="performance"></a>performance</h3><p>Performance API 除了可以用于分析网页渲染过程的性能外，也可以用于分析某个方法的执行性能等。</p>
+<ul>
+<li>performance.memory：内存占用的具体数据</li>
+<li>performance.now()：获取从 navigationStart 到当前时间的时间，可用于计算方法的执行时间</li>
+<li>performance.mark(markName)：给相应的视点做标记</li>
+<li>performance.measure(name, startMark, endMark)：计算方法的执行时间</li>
+<li>performance.getEntriesByName(name)：获取指定 measure</li>
+<li>performance.clearMarks()：清除标记</li>
+<li>performance.clearMeasures()：清除 measure</li>
+</ul>
+<h3 id="profile"><a href="#profile" class="headerlink" title="profile"></a>profile</h3><p>console.profile() 或 console.profileEnd() 可用于分析 js 脚本的内存、cpu 占用情况。以下代码为使用 performance，profile 监控某方法执行性能的示例（）。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> analyse = <span class="function">(<span class="params">fn, options</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; measureName &#125; = options;</span><br><span class="line"></span><br><span class="line">  performance.mark(<span class="string">`<span class="subst">$&#123;measureName&#125;</span>-start`</span>);</span><br><span class="line">  <span class="built_in">console</span>.profile();</span><br><span class="line"></span><br><span class="line">  fn();</span><br><span class="line"></span><br><span class="line">  <span class="built_in">console</span>.profileEnd();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 标记一个结束点</span></span><br><span class="line">  performance.mark(<span class="string">`<span class="subst">$&#123;measureName&#125;</span>-end`</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 标记开始点和结束点之间的时间戳</span></span><br><span class="line">  performance.measure(</span><br><span class="line">    measureName,</span><br><span class="line">    <span class="string">`<span class="subst">$&#123;measureName&#125;</span>-start`</span>,</span><br><span class="line">    <span class="string">`<span class="subst">$&#123;measureName&#125;</span>-end`</span>,</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取所有名称为mySetTimeout的measures</span></span><br><span class="line">  <span class="keyword">const</span> measures = performance.getEntriesByName(measureName);</span><br><span class="line">  <span class="keyword">const</span> measure = measures[<span class="number">0</span>];</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`<span class="subst">$&#123;measureName&#125;</span> milliseconds: <span class="subst">$&#123;measure.duration&#125;</span>`</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 清除标记</span></span><br><span class="line">  performance.clearMarks();</span><br><span class="line">  performance.clearMeasures();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">analyse(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++)&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(i + <span class="number">1</span>);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;, &#123;</span><br><span class="line">  measureName: <span class="string">'cycle'</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="分析工具"><a href="#分析工具" class="headerlink" title="分析工具"></a>分析工具</h3><ul>
+<li>chrome 浏览器的 Page Speed 扩展工具能帮助我们查看网页加载性能，并给出有效的建议。</li>
+</ul>
+<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><p>YSlow 性能优化原则主要包含网络加载类、页面渲染类、css 优化类、js 执行类、缓存类、图片类、架构协议类等几大类。概要性总结如下：</p>
+<h3 id="网络加载类"><a href="#网络加载类" class="headerlink" title="网络加载类"></a>网络加载类</h3><ol>
+<li>减少 http 请求次数，可以利用构建工具合并文件、使用雪碧图等。原因是浏览器同域资源的请求数有所限制。</li>
+<li>减小 http 请求大小，可以利用构建工具压缩混淆 js 脚本或 css 样式，使用 base64 图片等。</li>
+<li>避免使用 style 或 script 标签直接引入代码块，使用外部文件引入（这样做会增加请求数，手机端可以酌情引入样式、代码块）。</li>
+<li>避免空的 href 和 src。原因是渲染过程中仍会引起加载动作。</li>
+<li><p>为 html 指定 Cache-Control 或 Expires 以缓存页面。如 </p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Cache-Control"</span> <span class="attr">content</span>=<span class="string">"max-age=7200"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Expires"</span> <span class="attr">content</span>=<span class="string">"Mon, 20 Jul 2019 23:00:00 GMT"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>为 html 指定 Etag 或 Last-Modified 以缓存页面。对于未修改的文件，浏览器会从本地缓存中读取。如</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"last-modified"</span> <span class="attr">content</span>=<span class="string">"Mon, 20 Jul 2019 23:00:00 GMT"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>避免重定向，每次重定向会消耗大约 600 毫秒的时间。</p>
+</li>
+<li>使用静态资源粉鱼存放来增加并行下载数。原因还是浏览器同域资源的请求数有所限制。</li>
+<li>使用 CDN 内容分发网络。CDN 可以提升静态资源的加载速度。</li>
+<li>使用 CDN Combo，即将多个文件请求打包成一个文件，这样可以服用同一个 http 请求，加快资源下载速度。 </li>
+<li>使用 ajax 缓存：针对 get 请求，消息头添加 Expires，可以缓存响应。</li>
+<li>使用 get 请求。原因是 post 请求先发送文件头，再发送 http 正文；get 请求只发送文件头。</li>
+<li>减少 cookie 的大小并进行 cookie 隔离（即使用不同域名存放静态资源，这样就隔离了 cookie）；设置合适的域级别和有效期。</li>
+<li>减小 favicon.ico 的大小并缓存。</li>
+<li>推荐使用异步 js 资源；异步的 js 资源不会阻塞文档解析。</li>
+<li>合理拆分 css 及 js 资源，避免阻塞渲染。</li>
+<li>避免在 import 方式加载 css 资源。原因是 import 方式需等解析到 @import 时才会加载指定的 css 资源，会大大延后 css 渲染完成的时间。</li>
+<li>通过 Content-Encoding: gzip 响应头压缩资源。以下是基于 nginx 压缩文件。<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">etag</span> <span class="string">on;</span> <span class="comment"># 开启etag验证</span></span><br><span class="line"><span class="string">expires</span> <span class="number">7</span><span class="string">d;</span> <span class="comment"># 设置缓存过期时间为7天</span></span><br><span class="line"><span class="string">gzip</span> <span class="string">on;</span> <span class="comment"># 压缩资源</span></span><br><span class="line"><span class="string">gzip_types</span> <span class="string">text/plain</span> <span class="string">application/javascriptapplication/x-javascripttext/css</span> <span class="string">application/xml</span> <span class="string">text/javascriptapplication/x-httpd-php</span> <span class="string">application/vnd.ms-fontobject</span> <span class="string">font/ttf</span> <span class="string">font/opentype</span> <span class="string">font/x-woff</span> <span class="string">image/svg+xml;</span> <span class="comment"># 压缩资源类型（压缩图片会占用后台资源，效果也不佳）</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="页面渲染类"><a href="#页面渲染类" class="headerlink" title="页面渲染类"></a>页面渲染类</h3><ol>
+<li>把 css 资源放在 html 顶部，保证浏览器尽早完成页面渲染。</li>
+<li>把 js 资源放在 html 尾部，避免加载和解析 js 过程中阻塞页面渲染。</li>
+<li>避免在 html 中直接缩放图片。原因是缩放图片的动作会引起重排重绘。</li>
+<li>减少 dom 节点的数量和深度，以提升 dom 树构建的速度。</li>
+<li>避免使用 table, iframe 等慢元素。原因是 table 会等到它的 dom 树全部生成后再一次性插入页面中；iframe 内资源的下载过程会阻塞父页面静态资源的下载及 css, dom 树的解析。</li>
+<li>避免运行耗时的 js；采用预加载方式加载资源，即当浏览器空闲候，再预加载资源（包含跳转页面的资源、新版本的资源等）。</li>
+<li>避免使用运行较慢的 css 表达式或滤镜。</li>
+</ol>
+<h3 id="移动端优化策略"><a href="#移动端优化策略" class="headerlink" title="移动端优化策略"></a>移动端优化策略</h3><h4 id="网络加载类-1"><a href="#网络加载类-1" class="headerlink" title="网络加载类"></a>网络加载类</h4><ol>
+<li>首屏数据提前请求，避免 js 文件加载后再请求数据。</li>
+<li>首屏加载和按需加载，非首屏内容滚屏加载，保证首屏内容最小化。</li>
+<li>模块化资源异步并行下载，可借助 webpack 达成 dynamic-import 实现。</li>
+<li>inline 首屏必要的 css 和 js，避免页面出现空白。</li>
+<li><p>设置文件资源的 DNS 预解析，让浏览器提前解析获取静态资源的主机 IP，避免等到请求时才发起 DNS 解析请求。如</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"x-dns-prefetch-control"</span> <span class="attr">content</span>=<span class="string">"on"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"dns-prefetch"</span> <span class="attr">href</span>=<span class="string">"//cdn.domain.com"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>资源预加载。</p>
+</li>
+<li>保证 html 内容在 1KB 以内。TCP 网络传输的最大传输单元（Maximum Transimission Unit，MTU）为 1500B，即一个 RTT（Round-Tip Time，网络请求往返时间）内可以传输的数据量最大为 1500 字节。保证 html 内容在 1KB 以内，可以使 html 在一个 RTT 内加载完成。</li>
+</ol>
+<h4 id="缓存类"><a href="#缓存类" class="headerlink" title="缓存类"></a>缓存类</h4><ol>
+<li>合理利用浏览器缓存，Cache-Control, Expires, Etag, Last-Modified 以及 localStorage 等，尽可能减少网络请求。</li>
+<li>静态资源离线方案？？？</li>
+<li>尝试使用 <a href="https://segmentfault.com/a/1190000012311882" target="_blank" rel="noopener">AMP HTML</a>？？？</li>
+</ol>
+<h4 id="图片类"><a href="#图片类" class="headerlink" title="图片类"></a>图片类</h4><ol>
+<li>压缩图片，合理使用 base64 图片。</li>
+<li>使用更高压缩比格式的图片，如 webp 等。</li>
+<li><p>图片懒加载。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">data-src</span>=<span class="string">"//cdn.domain.com/path/photo.js"</span> <span class="attr">alt</span>=<span class="string">"懒加载"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用 media query 或 srcset 根据不同屏幕加载不同大小的图片。</p>
+</li>
+<li><p>使用 iconfront 代替图片图标。可使用 <a href="https://www.iconfont.cn/" target="_blank" rel="noopener">阿里矢量图标库</a> 制作图标。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@<span class="keyword">font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: iconfront;</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">"./iconfront.eot"</span>);</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">"./iconfront.eot?#iefix"</span>) <span class="built_in">format</span>(<span class="string">"eot"</span>),</span><br><span class="line">       <span class="built_in">url</span>(<span class="string">"./iconfront.woff"</span>) <span class="built_in">format</span>(<span class="string">"woff"</span>),</span><br><span class="line">       <span class="built_in">url</span>(<span class="string">"./iconfront.ttf"</span>) <span class="built_in">format</span>(<span class="string">"truetype"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>限制图片大小：推荐 10KB 以内，不能超过 30KB。</p>
+</li>
+</ol>
+<h4 id="脚本类"><a href="#脚本类" class="headerlink" title="脚本类"></a>脚本类</h4><ol>
+<li>尽量使用 id 选择器。原因选择 id 元素时执行速度最快。</li>
+<li>尽量缓存 dom 对象，避免每次使用时需要从 dom 树中重新查找。</li>
+<li>尽量使用事件代理，避免直接使用事件绑定。这样可以避免不必要的内存泄露及需要动态添加元素的事件绑定问题。</li>
+<li>使用 touchstart 代替 click。因为移动端 touchstart 事件和 click 事件之间存在 300 毫秒的延时。</li>
+<li>避免 touchmove, scroll 链接事件处理，事件触发频繁容易使页面卡顿，可每隔 16ms （60 帧的真间隔为 16.7ms）再触发事件。</li>
+<li>避免使用 eval, with，使用 join 代替连接符 +，推荐使用 es6 的模板字符串。这样更安全。</li>
+<li>尽量使用 es6+ 的特性来编程。这样更安全高效。</li>
+</ol>
+<h4 id="渲染类"><a href="#渲染类" class="headerlink" title="渲染类"></a>渲染类</h4><ol>
+<li><p>使用 viewport 固定品目渲染，可以加载渲染过程，同时可以避免缩放导致的重排重绘。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>避免各种形式的重排重绘。</p>
+</li>
+<li>使用 css3 动画，使用 transform: translateZ(0) 开启 GPU 加速，让动画更流畅。</li>
+<li>合理使用 canvas 和 requestAnimationFrame 等更高效的动画实现方式，避免 setTimeout, setInterval 等方式直接处理连续动画。</li>
+<li>使用 svg 代替图片，因为 svg 内容更小，结构更方便调整。</li>
+<li>避免 float 比较耗时的布局方式，推荐使用固定布局或弹性布局。</li>
+<li>避免过多的 font-size 声明，这样会增加字体的大小计算。</li>
+</ol>
+<h4 id="架构协议类"><a href="#架构协议类" class="headerlink" title="架构协议类"></a>架构协议类</h4><ol>
+<li>尝试使用 SPDY 和 http2 协议。SPDY 协议可复用连接，以加快传输过程，缩短资源加载时间。</li>
+<li>使用后端数据渲染（数据回填到 html 中），这样可以避免空白页的出现，同时可以解决移动端 SEO 问题。</li>
+<li>使用 Native View 代替 DOM，以便将页面内容渲染提升到接近客户端 Native 应用级别。</li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.nowamagic.net/academy/detail/48110562" target="_blank" rel="noopener">Render树、RenderObject与RenderLayer</a><br><a href="https://segmentfault.com/a/1190000015808716" target="_blank" rel="noopener">webkit渲染机制浅析</a><br><a href="https://developers.google.cn/web/tools/chrome-devtools/network-performance/understanding-resource-timing" target="_blank" rel="noopener">了解 Resource Timing</a><br><a href="https://blog.csdn.net/xingsilong/article/details/80624765" target="_blank" rel="noopener">页面呈现、重绘、回流</a><br><a href="https://www.cnblogs.com/bldxh/p/6857324.html" target="_blank" rel="noopener">Performance — 前端性能监控利器</a><br><a href="https://blog.csdn.net/qq_40128367/article/details/82920370" target="_blank" rel="noopener">首屏时间从12.67s到1.06s，我是如何做到的？</a><br><a href="https://www.cnblogs.com/xianyulaodi/p/5755079.html" target="_blank" rel="noopener">雅虎前端优化的35条军规</a><br><a href="http://www.barretlee.com/blog/2016/04/01/optimization-in-taobao-homepage/" target="_blank" rel="noopener">淘宝首页性能优化实践</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/" data-id="ck7iyxkp2006vlyh9tmoxfx60" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "浏览器渲染机制及性能优化",
+        "image": "http://xzfyu.com/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/RenderTree.png",
+        "keywords": "analyst 性能",
+        "genre": "frontend architecture",
+        "datePublished": "2019-03-03",
+        "dateCreated": "2019-03-03",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/",
+        "description": "网页渲染机制网页渲染过程包含页面加载和页面渲染两个过程。页面加载过程指的是从服务器请求资源并构建 DOM 树的过程。网页渲染过程指的是通过 DOM 树渲染出视图内容。这两个过程有重合内容，因为异步加载的 js 脚本可能会修改 DOM 结构。
+在 webkit 中，针对不同类型的资源，会有多个加载类进行处理。其大体策略为：先从本地缓存池中查找资源；如果找不到，再从网络上获取以 url 为标识的资源。",
+        "wordCount": 1232
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2019/03/17/backend/spring/spring boot试水/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            Spring Boot试水
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2019/02/26/backend/部署/nginx/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">nginx</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2019/03/03/frontend/architecture/浏览器渲染机制及性能优化/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

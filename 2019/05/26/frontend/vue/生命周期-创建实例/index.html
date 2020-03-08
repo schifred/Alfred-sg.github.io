@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>Vue 生命周期 - 创建实例 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst,vue">
+    
+    <meta name="description" content="对应上图前半部分，当执行 new Vue(options) 语句创建 vm 实例（即 Vue 实例）时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 in">
+<meta name="keywords" content="analyst,vue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue 生命周期 - 创建实例">
+<meta property="og:url" content="http://xzfyu.com/2019/05/26/frontend/vue/生命周期-创建实例/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="对应上图前半部分，当执行 new Vue(options) 语句创建 vm 实例（即 Vue 实例）时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 in">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://xzfyu.com/2019/05/26/frontend/vue/生命周期-创建实例/lifecycle.png">
+<meta property="og:updated_time" content="2020-03-08T10:53:35.162Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vue 生命周期 - 创建实例">
+<meta name="twitter:description" content="对应上图前半部分，当执行 new Vue(options) 语句创建 vm 实例（即 Vue 实例）时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：  解析 options 配置项。 通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。 通过 initLifecycle 函数初始化设置生命周期相关实例属性。 通过 in">
+<meta name="twitter:image" content="http://xzfyu.com/2019/05/26/frontend/vue/生命周期-创建实例/lifecycle.png">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/frontend/vue/">vue</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-frontend/vue/生命周期-创建实例" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        Vue 生命周期 - 创建实例
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2019/05/26/frontend/vue/生命周期-创建实例/" class="article-date">
+         <time datetime="2019-05-25T16:00:00.000Z" itemprop="datePublished">2019-05-26</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>, <a class="tag-link" href="/tags/vue/">vue</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <img src="/2019/05/26/frontend/vue/生命周期-创建实例/lifecycle.png">
+<p>对应上图前半部分，当执行 new Vue(options) 语句创建 vm 实例（即 Vue 实例）时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：</p>
+<ol>
+<li>解析 options 配置项。</li>
+<li>通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。</li>
+<li>通过 initLifecycle 函数初始化设置生命周期相关实例属性。</li>
+<li>通过 initEvents 绑定父组件传入的事件。</li>
+<li>通过 initRender 解析插槽，父组件传入的数据，创建 createElement 方法等。</li>
+<li>执行 beforeCreate 生命周期方法。</li>
+<li>通过 initInjections 解析 inject。</li>
+<li>通过 initState 初始化 props, methods, data, computed, watch。</li>
+<li>通过 initProvide 解析 provide。</li>
+<li>执行 created 生命周期方法。</li>
+<li>在 1-10 步骤执行过程中，使用 performance 接口记录耗时。</li>
+<li>若 options.el 为真值，通过 vm.$mount 方法挂载组件。</li>
+</ol>
+<p>下面，我们将以上步骤拆解了看。</p>
+<h2 id="解析选项"><a href="#解析选项" class="headerlink" title="解析选项"></a>解析选项</h2><p>创建 vm 实例有两种方式：显式调用 new Vue(options) 语句或者解析模板中组件形式的自定义元素。解析选项按这两种方式分为两种可能。我们将这两种方式分为如下两个小节：显式构建组件、解析模板组件。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 解析模板组件</span></span><br><span class="line"><span class="keyword">if</span> (options &amp;&amp; options._isComponent) &#123;</span><br><span class="line">  initInternalComponent(vm, options)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 显式构建组件</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  vm.$options = mergeOptions(</span><br><span class="line">    resolveConstructorOptions(vm.constructor),</span><br><span class="line">    options || &#123;&#125;,</span><br><span class="line">    vm</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如 mergeOptions 函数所展示的那样，options 包含 props, methods, inject, computed, data, provider, watch, el, propsData，以及 beforeCreate 等生命周期钩子函数，以及 components 组件, directives 指令, filters 过滤器。props 声明父子组件通信的 key 键；methods 组件中所使用的方法；inject 用于组件跨级通信接值；computed 为计算属性。data 响应式数据；provider 用于组件跨级通信传值，响应式；watch 以键作为观察的数据 key，监听数据变化；el 与 propsData 等同，等价于父组件传入子组件的 prop 值。beforeCreate 等生命周期钩子函数可以使用数组形式或构造函数预先声明的方式声明多个。</p>
+<h3 id="显式构建组件"><a href="#显式构建组件" class="headerlink" title="显式构建组件"></a>显式构建组件</h3><img src="/2019/05/26/frontend/vue/生命周期-创建实例/new_Vue.png">
+<p>new Vue(options) 语句处理 options 选项的大致逻辑如上图：即把 Vue 或自定义构造函数的 options 静态属性混入实例的显式 options 配置中，以此获得实例最终的 options 属性。有两个过程需要加以说明：Vue 或自定义构造函数的 options 因何而来？实例最终的 options 属性怎样产生？</p>
+<p>对于第一个过程，Vue 会通过 initAssetRegisters 函数生成 Vue.component, Vue.directive, Vue.filter 方法，这些方法可用于注册全局组件、指令和过滤器。而全局组件、指令或过滤器正是通过 Vue.options.components 等属性存储的。这样就可以把这些全局组件、指令和过滤器作为某个特定组件的依赖项。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ASSET_TYPES = [</span><br><span class="line">  <span class="string">'component'</span>,</span><br><span class="line">  <span class="string">'directive'</span>,</span><br><span class="line">  <span class="string">'filter'</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment">// 生成 Vue.component, Vue.directive, Vue.filter 注册方法</span></span><br><span class="line">initAssetRegisters (Vue: GlobalAPI) &#123;</span><br><span class="line">  ASSET_TYPES.forEach(<span class="function"><span class="params">type</span> =&gt;</span> &#123;</span><br><span class="line">    Vue[type] = <span class="function"><span class="keyword">function</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">      id: string,</span></span></span><br><span class="line"><span class="function"><span class="params">      definition: Function | Object</span></span></span><br><span class="line"><span class="function"><span class="params">    </span>): <span class="title">Function</span> | <span class="title">Object</span> | <span class="title">void</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (!definition) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.options[type + <span class="string">'s'</span>][id]</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* istanbul ignore if */</span></span><br><span class="line">        <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; type === <span class="string">'component'</span>) &#123;</span><br><span class="line">          validateComponentName(id)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (type === <span class="string">'component'</span> &amp;&amp; isPlainObject(definition)) &#123;</span><br><span class="line">          definition.name = definition.name || id</span><br><span class="line">          definition = <span class="keyword">this</span>.options._base.extend(definition)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (type === <span class="string">'directive'</span> &amp;&amp; <span class="keyword">typeof</span> definition === <span class="string">'function'</span>) &#123;</span><br><span class="line">          definition = &#123; <span class="attr">bind</span>: definition, <span class="attr">update</span>: definition &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.options[type + <span class="string">'s'</span>][id] = definition</span><br><span class="line">        <span class="keyword">return</span> definition</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>除此而外，Vue.mixin 方法用于扩展 Vue.options 属性，这样就便于一次性注册全局组件、指令或过滤器。Vue.extend(extendOptions) 方法用于构造子类，该子类犹如工厂，可以批量生产含有特定 options 的组件；extendOptions 可包含 prop 和计算属性等。特别的，当 extendOptions 为对象变量时，Vue 会将子类工厂缓存到该对象变量的 _Ctor 属性中，方便下次直接获取。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 扩展 Vue.options</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initMixin</span> (<span class="params">Vue: GlobalAPI</span>) </span>&#123;</span><br><span class="line">  Vue.mixin = <span class="function"><span class="keyword">function</span> (<span class="params">mixin: Object</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.options = mergeOptions(<span class="keyword">this</span>.options, mixin)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initExtend</span> (<span class="params">Vue: GlobalAPI</span>) </span>&#123;</span><br><span class="line">  Vue.cid = <span class="number">0</span></span><br><span class="line">  <span class="keyword">let</span> cid = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">  Vue.extend = <span class="function"><span class="keyword">function</span> (<span class="params">extendOptions: Object</span>): <span class="title">Function</span> </span>&#123;</span><br><span class="line">    extendOptions = extendOptions || &#123;&#125;</span><br><span class="line">    <span class="keyword">const</span> Super = <span class="keyword">this</span></span><br><span class="line">    <span class="keyword">const</span> SuperId = Super.cid</span><br><span class="line">    <span class="keyword">const</span> cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = &#123;&#125;)</span><br><span class="line">    <span class="keyword">if</span> (cachedCtors[SuperId]) &#123;</span><br><span class="line">      <span class="keyword">return</span> cachedCtors[SuperId]</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> name = extendOptions.name || Super.options.name</span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; name) &#123;</span><br><span class="line">      validateComponentName(name)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> Sub = <span class="function"><span class="keyword">function</span> <span class="title">VueComponent</span> (<span class="params">options</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>._init(options)</span><br><span class="line">    &#125;</span><br><span class="line">    Sub.prototype = <span class="built_in">Object</span>.create(Super.prototype)</span><br><span class="line">    Sub.prototype.constructor = Sub</span><br><span class="line">    Sub.cid = cid++</span><br><span class="line">    Sub.options = mergeOptions(</span><br><span class="line">      Super.options,</span><br><span class="line">      extendOptions</span><br><span class="line">    )</span><br><span class="line">    Sub[<span class="string">'super'</span>] = Super</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化 props、计算属性</span></span><br><span class="line">    <span class="keyword">if</span> (Sub.options.props) &#123;</span><br><span class="line">      initProps(Sub)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (Sub.options.computed) &#123;</span><br><span class="line">      initComputed(Sub)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Sub.extend = Super.extend</span><br><span class="line">    Sub.mixin = Super.mixin</span><br><span class="line">    Sub.use = Super.use</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成 Sub.component, Sub.directive, Sub.filter 注册方法</span></span><br><span class="line">    ASSET_TYPES.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">type</span>) </span>&#123;</span><br><span class="line">      Sub[type] = Super[type]</span><br><span class="line">    &#125;)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (name) &#123;</span><br><span class="line">      Sub.options.components[name] = Sub</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Sub.superOptions = Super.options<span class="comment">// 父类 options</span></span><br><span class="line">    Sub.extendOptions = extendOptions<span class="comment">// 自定义 options</span></span><br><span class="line">    Sub.sealedOptions = extend(&#123;&#125;, Sub.options)<span class="comment">// 综合 options 备份</span></span><br><span class="line"></span><br><span class="line">    cachedCtors[SuperId] = Sub</span><br><span class="line">    <span class="keyword">return</span> Sub</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initProps</span> (<span class="params">Comp</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> props = Comp.options.props</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> props) &#123;</span><br><span class="line">    proxy(Comp.prototype, <span class="string">`_props`</span>, key)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initComputed</span> (<span class="params">Comp</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> computed = Comp.options.computed</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> computed) &#123;</span><br><span class="line">    defineComputed(Comp.prototype, key, computed[key])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于第二个过程，Vue 提供 resolveConstructorOptions 函数，用于向上递归获取构造函数携带的 options 属性，并将其与构造实例时获得的 options 选项混合，最终生成 vm 实例的 options 属性。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">resolveConstructorOptions</span> (<span class="params">Ctor: Class&lt;Component&gt;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> options = Ctor.options</span><br><span class="line">  <span class="keyword">if</span> (Ctor.super) &#123;</span><br><span class="line">    <span class="comment">// 递归获取父级构造函数的 options，这里考虑了父级构造函数的 options 变更的情况</span></span><br><span class="line">    <span class="keyword">const</span> superOptions = resolveConstructorOptions(Ctor.super)</span><br><span class="line">    <span class="keyword">const</span> cachedSuperOptions = Ctor.superOptions</span><br><span class="line">    <span class="keyword">if</span> (superOptions !== cachedSuperOptions) &#123;</span><br><span class="line">      Ctor.superOptions = superOptions</span><br><span class="line"></span><br><span class="line">      <span class="comment">// https://github.com/vuejs/vue/issues/4976</span></span><br><span class="line">      <span class="comment">// 避免延迟注入构造函数的 options 引发 bug？？？</span></span><br><span class="line">      <span class="keyword">const</span> modifiedOptions = resolveModifiedOptions(Ctor)</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> (modifiedOptions) &#123;</span><br><span class="line">        extend(Ctor.extendOptions, modifiedOptions)</span><br><span class="line">      &#125;</span><br><span class="line">      options = Ctor.options = mergeOptions(superOptions, Ctor.extendOptions)</span><br><span class="line">      <span class="keyword">if</span> (options.name) &#123;</span><br><span class="line">        options.components[options.name] = Ctor</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> options</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolveModifiedOptions</span> (<span class="params">Ctor: Class&lt;Component&gt;</span>): ?<span class="title">Object</span> </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> modified</span><br><span class="line">  <span class="keyword">const</span> latest = Ctor.options</span><br><span class="line">  <span class="keyword">const</span> sealed = Ctor.sealedOptions</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> latest) &#123;</span><br><span class="line">    <span class="keyword">if</span> (latest[key] !== sealed[key]) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!modified) modified = &#123;&#125;</span><br><span class="line">      modified[key] = latest[key]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> modified</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="解析模板组件"><a href="#解析模板组件" class="headerlink" title="解析模板组件"></a>解析模板组件</h3><p>在 Vue 中，父组件模板会被解析成虚拟 dom（即 vNode）。该 vNode 包含当前组件的构造函数、以及通过模板注入的数据和绑定函数等信息。在此基础上，Vue 就可以对子组件进行实例化了。这一过程可以称为 Vue 组建的内部实例化过程。区别于显式实例化，Vue 会把 options._isComponent 置为真值，以此标明这是内部实例化过程。同时，在内部实例化的过程中，Vue 会把从模板中解析到的配置信息传入 vm.$options 终极选项中，如 options._parentVnode 当前组件在父组件中的占位节点、options.parent 父组件实例、options.render 渲染函数、options._parentListeners 子组件绑定的事件信息、options._renderChildren 子组件包含的下级节点。有了这些从父组件模板中透传过来的信息以后，Vue 就可以在实例化过程中消费这些数据，笔者将在下文予以展开。</p>
+<p>以下是内部实例化过程中生成最终选项 vm.$options 的源码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initInternalComponent</span> (<span class="params">vm: Component, options: InternalComponentOptions</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> opts = vm.$options = <span class="built_in">Object</span>.create(vm.constructor.options)<span class="comment">// 构造函数中携带的选项</span></span><br><span class="line">  <span class="keyword">const</span> parentVnode = options._parentVnode<span class="comment">// 组件在父组件模板的占位节点</span></span><br><span class="line">  opts.parent = options.parent<span class="comment">// 父组件实例</span></span><br><span class="line">  opts._parentVnode = parentVnode</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> vnodeComponentOptions = parentVnode.componentOptions</span><br><span class="line">  opts.propsData = vnodeComponentOptions.propsData<span class="comment">// 父组件传入的 props 数据</span></span><br><span class="line">  opts._parentListeners = vnodeComponentOptions.listeners<span class="comment">// 父组件传入的绑定事件</span></span><br><span class="line">  opts._renderChildren = vnodeComponentOptions.children<span class="comment">// 父组件传入的 children</span></span><br><span class="line">  opts._componentTag = vnodeComponentOptions.tag<span class="comment">// 组件的 tag</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 渲染函数</span></span><br><span class="line">  <span class="keyword">if</span> (options.render) &#123;</span><br><span class="line">    opts.render = options.render</span><br><span class="line">    opts.staticRenderFns = options.staticRenderFns</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="initProxy"><a href="#initProxy" class="headerlink" title="initProxy"></a>initProxy</h2><p>有了上一小节的 vm.$options.render 方法（从父组件模板中解析到子组件渲染函数），Vue 仍需要将 vm 实例作为执行上下文灌入到 render 方法中，以使 render 方法执行期间可以访问到 vm 实例的属性或方法。为什么要构建 vm 实例的代理呢？当 render 方法访问 vm 实例不存在的属性时，通过 vm 代理就可以予以提示。详情参阅源码。</p>
+<h2 id="initLifecycle"><a href="#initLifecycle" class="headerlink" title="initLifecycle"></a>initLifecycle</h2><p>initLifecycle 主要用于创建生命周期相关属性。源码见下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initLifecycle</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> options = vm.$options</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取非抽象父组件</span></span><br><span class="line">  <span class="keyword">let</span> parent = options.parent</span><br><span class="line">  <span class="keyword">if</span> (parent &amp;&amp; !options.abstract) &#123;</span><br><span class="line">    <span class="keyword">while</span> (parent.$options.abstract &amp;&amp; parent.$parent) &#123;</span><br><span class="line">      parent = parent.$parent</span><br><span class="line">    &#125;</span><br><span class="line">    parent.$children.push(vm)<span class="comment">// 作为子组件</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  vm.$parent = parent<span class="comment">// 父组件</span></span><br><span class="line">  vm.$root = parent ? parent.$root : vm<span class="comment">// 根组件</span></span><br><span class="line"></span><br><span class="line">  vm.$children = []</span><br><span class="line">  vm.$refs = &#123;&#125;</span><br><span class="line"></span><br><span class="line">  vm._watcher = <span class="literal">null</span></span><br><span class="line">  vm._inactive = <span class="literal">null</span></span><br><span class="line">  vm._directInactive = <span class="literal">false</span></span><br><span class="line">  vm._isMounted = <span class="literal">false</span><span class="comment">// 是否挂载</span></span><br><span class="line">  vm._isDestroyed = <span class="literal">false</span><span class="comment">// 是否销毁</span></span><br><span class="line">  vm._isBeingDestroyed = <span class="literal">false</span><span class="comment">// 是否开始销毁</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="initEvents"><a href="#initEvents" class="headerlink" title="initEvents"></a>initEvents</h2><p>首先 Vue 通过 eventsMixin 自建事件系统 vm.$on, vm.$.once, vm.$off, vm.$emit。事件的绑定函数以对象数组的形式存储在 vm._events 属性中。结合解析模板组件一节由父组件模板配置的 options._parentListeners 信息，Vue 中的 initEvents 方法可用于更新 vm 实例上挂载的事件处理函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initEvents</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  vm._events = <span class="built_in">Object</span>.create(<span class="literal">null</span>)</span><br><span class="line">  vm._hasHookEvent = <span class="literal">false</span></span><br><span class="line">  <span class="keyword">const</span> listeners = vm.$options._parentListeners</span><br><span class="line">  <span class="keyword">if</span> (listeners) &#123;</span><br><span class="line">    <span class="comment">// 更新绑定函数</span></span><br><span class="line">    updateComponentListeners(vm, listeners)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="initRender"><a href="#initRender" class="headerlink" title="initRender"></a>initRender</h2><p>initRender 用于解析插槽 vm.$slots（与 React 中 props.chidren 同等功用，但能传多个），创建 vm._c, vm.$createElement 方法用于为子组件构建 vnode，同时将从父模板中注入的节点属性或事件存储为响应式数据 vm.$attrs, vm.$listeners。有了 vm.$createElement 方法后，原型方法 vm._render 就能实际调用 vm.$options.render.call(vm._renderProxy, vm.$createElement) 方法了，进而实现将模板真正解析为 vnode。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initRender</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  vm._vnode = <span class="literal">null</span> <span class="comment">// 当前组件的节点树根元素</span></span><br><span class="line">  vm._staticTrees = <span class="literal">null</span> <span class="comment">// 当前组件的节点树</span></span><br><span class="line">  <span class="keyword">const</span> options = vm.$options</span><br><span class="line">  <span class="keyword">const</span> parentVnode = vm.$vnode = options._parentVnode <span class="comment">// 当前组件在父模板中的占位节点</span></span><br><span class="line">  <span class="keyword">const</span> renderContext = parentVnode &amp;&amp; parentVnode.context</span><br><span class="line">  vm.$slots = resolveSlots(options._renderChildren, renderContext)<span class="comment">// 解析插槽</span></span><br><span class="line">  vm.$scopedSlots = emptyObject</span><br><span class="line">  <span class="comment">// 创建 vnode 的内部方法，解析父模板后由 Vue 自动调用</span></span><br><span class="line">  <span class="comment">// 参数依次为 vm 实例、tag 节点标签、data 父模板传入数据、children 父模板传入的子节点、</span></span><br><span class="line">  <span class="comment">//    normalizationType 序列化子节点的方式，alwaysNormalize 是否需要序列化子节点</span></span><br><span class="line">  vm._c = <span class="function">(<span class="params">a, b, c, d</span>) =&gt;</span> createElement(vm, a, b, c, d, <span class="literal">false</span>)</span><br><span class="line">  <span class="comment">// 创建 vnode 的公共方法，当开发者显式执行 new Vue 语句时调用</span></span><br><span class="line">  vm.$createElement = <span class="function">(<span class="params">a, b, c, d</span>) =&gt;</span> createElement(vm, a, b, c, d, <span class="literal">true</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 通过父模板绑定的属性值</span></span><br><span class="line">  <span class="keyword">const</span> parentData = parentVnode &amp;&amp; parentVnode.data</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">    defineReactive(vm, <span class="string">'$attrs'</span>, parentData &amp;&amp; parentData.attrs || emptyObject, () =&gt; &#123;</span><br><span class="line">      !isUpdatingChildComponent &amp;&amp; warn(<span class="string">`$attrs is readonly.`</span>, vm)</span><br><span class="line">    &#125;, <span class="literal">true</span>)</span><br><span class="line">    defineReactive(vm, <span class="string">'$listeners'</span>, options._parentListeners || emptyObject, () =&gt; &#123;</span><br><span class="line">      !isUpdatingChildComponent &amp;&amp; warn(<span class="string">`$listeners is readonly.`</span>, vm)</span><br><span class="line">    &#125;, <span class="literal">true</span>)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    defineReactive(vm, <span class="string">'$attrs'</span>, parentData &amp;&amp; parentData.attrs || emptyObject, <span class="literal">null</span>, <span class="literal">true</span>)</span><br><span class="line">    defineReactive(vm, <span class="string">'$listeners'</span>, options._parentListeners || emptyObject, <span class="literal">null</span>, <span class="literal">true</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 解析插槽，将父模板中灌入子组件的 children 解析为 slots 对象或 slots.default 数组</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolveSlots</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  children: ?Array&lt;VNode&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  context: ?Component</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): </span>&#123; [key: string]: <span class="built_in">Array</span>&lt;VNode&gt; &#125; &#123;</span><br><span class="line">  <span class="keyword">if</span> (!children || !children.length) &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> slots = &#123;&#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>, l = children.length; i &lt; l; i++) &#123;</span><br><span class="line">    <span class="keyword">const</span> child = children[i]</span><br><span class="line">    <span class="keyword">const</span> data = child.data</span><br><span class="line">    <span class="keyword">if</span> (data &amp;&amp; data.attrs &amp;&amp; data.attrs.slot) &#123;</span><br><span class="line">      <span class="keyword">delete</span> data.attrs.slot</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ((child.context === context || child.fnContext === context) &amp;&amp;</span><br><span class="line">      data &amp;&amp; data.slot != <span class="literal">null</span></span><br><span class="line">    ) &#123;</span><br><span class="line">      <span class="keyword">const</span> name = data.slot</span><br><span class="line">      <span class="keyword">const</span> slot = (slots[name] || (slots[name] = []))</span><br><span class="line">      <span class="keyword">if</span> (child.tag === <span class="string">'template'</span>) &#123;</span><br><span class="line">        slot.push.apply(slot, child.children || [])</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        slot.push(child)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      (slots.default || (slots.default = [])).push(child)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> name <span class="keyword">in</span> slots) &#123;</span><br><span class="line">    <span class="keyword">if</span> (slots[name].every(isWhitespace)) &#123;</span><br><span class="line">      <span class="keyword">delete</span> slots[name]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> slots</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isWhitespace</span> (<span class="params">node: VNode</span>): <span class="title">boolean</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (node.isComment &amp;&amp; !node.asyncFactory) || node.text === <span class="string">' '</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="initInjections、initProvide"><a href="#initInjections、initProvide" class="headerlink" title="initInjections、initProvide"></a>initInjections、initProvide</h2><p>vm.$options.provide，vm.$options.inject 辅助于组件之间跨级传递数据。provide 约定祖先组件传给子孙组件的数据，inject 约定子孙组件接受祖先组件的哪些数据。initProvide 函数用于将 vm.$options.provide 以实际数据的形式写入 vm._provided；initInjections 函数先解析到当前组件实际需要从祖先组件获得的数据或默认数据，然后将这部分数据以响应式数据形式写入 vm 实例属性中，以在数据变更时可引起重绘。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initProvide</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> provide = vm.$options.provide</span><br><span class="line">  <span class="keyword">if</span> (provide) &#123;</span><br><span class="line">    vm._provided = <span class="keyword">typeof</span> provide === <span class="string">'function'</span></span><br><span class="line">      ? provide.call(vm)</span><br><span class="line">      : provide</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initInjections</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> result = resolveInject(vm.$options.inject, vm)</span><br><span class="line">  <span class="keyword">if</span> (result) &#123;</span><br><span class="line">    toggleObserving(<span class="literal">false</span>)</span><br><span class="line">    <span class="built_in">Object</span>.keys(result).forEach(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">/* istanbul ignore else */</span></span><br><span class="line">      <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">        defineReactive(vm, key, result[key], () =&gt; &#123;</span><br><span class="line">          warn(</span><br><span class="line">            <span class="string">`Avoid mutating an injected value directly since the changes will be `</span> +</span><br><span class="line">            <span class="string">`overwritten whenever the provided component re-renders. `</span> +</span><br><span class="line">            <span class="string">`injection being mutated: "<span class="subst">$&#123;key&#125;</span>"`</span>,</span><br><span class="line">            vm</span><br><span class="line">          )</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        defineReactive(vm, key, result[key])</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    toggleObserving(<span class="literal">true</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获得从祖先组件传入的数据或者取默认值</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolveInject</span> (<span class="params">inject: any, vm: Component</span>): ?<span class="title">Object</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (inject) &#123;</span><br><span class="line">    <span class="keyword">const</span> result = <span class="built_in">Object</span>.create(<span class="literal">null</span>)</span><br><span class="line">    <span class="keyword">const</span> keys = hasSymbol</span><br><span class="line">      ? <span class="built_in">Reflect</span>.ownKeys(inject)</span><br><span class="line">      : <span class="built_in">Object</span>.keys(inject)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; keys.length; i++) &#123;</span><br><span class="line">      <span class="keyword">const</span> key = keys[i]</span><br><span class="line">      <span class="comment">// #6574 in case the inject object is observed...</span></span><br><span class="line">      <span class="keyword">if</span> (key === <span class="string">'__ob__'</span>) <span class="keyword">continue</span></span><br><span class="line">      <span class="keyword">const</span> provideKey = inject[key].from</span><br><span class="line">      <span class="keyword">let</span> source = vm</span><br><span class="line">      <span class="keyword">while</span> (source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (source._provided &amp;&amp; hasOwn(source._provided, provideKey)) &#123;</span><br><span class="line">          result[key] = source._provided[provideKey]</span><br><span class="line">          <span class="keyword">break</span></span><br><span class="line">        &#125;</span><br><span class="line">        source = source.$parent</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (!source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">'default'</span> <span class="keyword">in</span> inject[key]) &#123;</span><br><span class="line">          <span class="keyword">const</span> provideDefault = inject[key].default</span><br><span class="line">          result[key] = <span class="keyword">typeof</span> provideDefault === <span class="string">'function'</span></span><br><span class="line">            ? provideDefault.call(vm)</span><br><span class="line">            : provideDefault</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">          warn(<span class="string">`Injection "<span class="subst">$&#123;key&#125;</span>" not found`</span>, vm)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="initState"><a href="#initState" class="headerlink" title="initState"></a>initState</h2><p>initState 函数用于依次初始化 vm 实例的 props, methods, data, computed, watch 相关信息。其中，在 key 键不冲突的理想状况下，props, methods, data, computed 中的子属性都可以通过 vm 实例进行访问。关于这部分内容，笔者将在后续的文章中加以分析。</p>
+<h2 id="vm-mount"><a href="#vm-mount" class="headerlink" title="vm.$mount"></a>vm.$mount</h2><p>当 vm.$options.el 为真值时，创建 vm 实例的过程中将会显式调用 vm.$mount 挂载组件。对于从模板中解析渲染的 vm 实例，将由 Vue 框架调用 vm.$mount 方法挂载组件。参考 <a href="http://xzfyu.com/2019/05/29/Vue/%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-%E7%BB%84%E4%BB%B6%E6%8C%82%E8%BD%BD%E5%8F%8A%E6%9B%B4%E6%96%B0/">Vue 生命周期 - 组件挂载及更新</a>。</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2019/05/26/frontend/vue/生命周期-创建实例/" data-id="ck7iyxkrl00a7lyh9t7kecrm2" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "Vue 生命周期 - 创建实例",
+        "image": "http://xzfyu.com/2019/05/26/frontend/vue/生命周期-创建实例/lifecycle.png",
+        "keywords": "analyst vue",
+        "genre": "frontend vue",
+        "datePublished": "2019-05-26",
+        "dateCreated": "2019-05-26",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2019/05/26/frontend/vue/生命周期-创建实例/",
+        "description": "
+对应上图前半部分，当执行 new Vue(options) 语句创建 vm 实例（即 Vue 实例）时，在 Vue 框架内到底发生了什么呢？为此，我们简要地把执行过程小结为如下步骤：
+
+解析 options 配置项。
+通过 initProxy 函数构建 vm 代理，其将作为模板渲染函数的参数，而不是 vm 实例。
+通过 initLifecycle 函数初始化设置生命周期相关实例属性。
+通过 in",
+        "wordCount": 3460
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2019/05/29/frontend/vue/生命周期-组件挂载及更新/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            Vue 生命周期 - 组件挂载及更新
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2019/05/13/backend/java/集合/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">集合</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2019/05/26/frontend/vue/生命周期-创建实例/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

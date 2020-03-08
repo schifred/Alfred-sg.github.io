@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>进程与线程踩点 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="carrier">
+    
+    <meta name="description" content="前言本篇基于《现代操作系统》整理。虽然笔者也不甚理解，但是这篇总结可以为后续深入探究 node 进程、java 并发、react 调度算法打个桩，从中也确实增进了对进程、中断等的理解。 进程进程概要单核 CPU 一瞬只能运行一个进程，因此需要通过多道程序设计实现多进程的伪并行，营造在 1 秒钟内有多个进程同时运行的错觉。一个进程就是一个正在执行程序的实例，包含程序计数器、寄存器和变量的当前值。程序">
+<meta name="keywords" content="carrier">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程与线程踩点">
+<meta property="og:url" content="http://xzfyu.com/2020/02/29/计算机科学/操作系统/进程与线程/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="前言本篇基于《现代操作系统》整理。虽然笔者也不甚理解，但是这篇总结可以为后续深入探究 node 进程、java 并发、react 调度算法打个桩，从中也确实增进了对进程、中断等的理解。 进程进程概要单核 CPU 一瞬只能运行一个进程，因此需要通过多道程序设计实现多进程的伪并行，营造在 1 秒钟内有多个进程同时运行的错觉。一个进程就是一个正在执行程序的实例，包含程序计数器、寄存器和变量的当前值。程序">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-08T11:06:02.127Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="进程与线程踩点">
+<meta name="twitter:description" content="前言本篇基于《现代操作系统》整理。虽然笔者也不甚理解，但是这篇总结可以为后续深入探究 node 进程、java 并发、react 调度算法打个桩，从中也确实增进了对进程、中断等的理解。 进程进程概要单核 CPU 一瞬只能运行一个进程，因此需要通过多道程序设计实现多进程的伪并行，营造在 1 秒钟内有多个进程同时运行的错觉。一个进程就是一个正在执行程序的实例，包含程序计数器、寄存器和变量的当前值。程序">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/计算机科学/操作系统/">操作系统</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-计算机科学/操作系统/进程与线程" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        进程与线程踩点
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/02/29/计算机科学/操作系统/进程与线程/" class="article-date">
+         <time datetime="2020-02-28T16:00:00.000Z" itemprop="datePublished">2020-02-29</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/carrier/">carrier</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本篇基于《现代操作系统》整理。虽然笔者也不甚理解，但是这篇总结可以为后续深入探究 node 进程、java 并发、react 调度算法打个桩，从中也确实增进了对进程、中断等的理解。</p>
+<h2 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h2><h3 id="进程概要"><a href="#进程概要" class="headerlink" title="进程概要"></a>进程概要</h3><p>单核 CPU 一瞬只能运行一个进程，因此需要通过多道程序设计实现多进程的伪并行，营造在 1 秒钟内有多个进程同时运行的错觉。<br>一个进程就是一个正在执行程序的实例，包含程序计数器、寄存器和变量的当前值。程序计数器用于存放指令，CPU 层面有物理程序计数器，以进程抽象的程序层面有逻辑程序计数器。程序运行时，它的逻辑程序计数器会被装入物理程序计数器中；当程序结束或暂停时，物理程序计数器会被保存在内存中该程序的逻辑程序计数器中。进程有程序、输入、输出及状态；多个进程可共享 CPU，通过调度算法实现进程间的切换。</p>
+<h3 id="创建进程"><a href="#创建进程" class="headerlink" title="创建进程"></a>创建进程</h3><ul>
+<li>UNIX 系统，已存在的进程执行 fork 系统调用创建一个与调用进程相同的副本进程。这两个进程拥有相同的内存映像、环境字符串和打开文件。当子进程执行 execve 等系统调用时，子进程的内存映像会被修改，随后运行一个新程序。在 fork 之后、execve 之前，子进程可以处理它的文件描述符，这样可以完成对标准输入文件、标准输出文件和标准错误文件的重定向。有关文件描述符，可参考 理解文件描述符。</li>
+<li>Windows 系统，一个 Win32 函数调用 CreateProcess 创建进程，同时把程序装入进程。该调用的参数包含要执行的程序、输入给程序的命令行参数、各种安全属性、打开文件是否继承的控制位、优先级信息、窗口规格等。</li>
+</ul>
+<p>UNIX 中的父子进程会共享不可写内存，某些 UNIX 实现会允许子进程在写时 copy 父进程的内存。 Windows 中的父子进程一开始就会拥有不同的地址空间。</p>
+<h3 id="终止进程"><a href="#终止进程" class="headerlink" title="终止进程"></a>终止进程</h3><ul>
+<li>正常退出。UNIX 通过执行 exit 系统调用退出；Windows 通过执行 ExitProcess 退出。</li>
+<li>出错退出，因为进程发现严重的错误而自愿退出。</li>
+<li>严重错误，因为程序本身的错误而非自愿退出。</li>
+<li>被其他进程杀死。UNIX 通过执行 kill 系统调用杀死其他进程；Windows 通过执行 TerminateProcess 系统调用杀死其他进程。两者都需要相当的权限。</li>
+</ul>
+<h3 id="进程的状态"><a href="#进程的状态" class="headerlink" title="进程的状态"></a>进程的状态</h3><ul>
+<li>运行态（实际占用 CPU 运行中）</li>
+<li>就绪态（可运行，等待 CPU 空闲）</li>
+<li>阻塞态（除非外部事件触发，否则进程不能运行）</li>
+</ul>
+<p>进程间的切换、进程状态的变更由运行调度算法的进程调度程序完成。</p>
+<h3 id="进程的实现"><a href="#进程的实现" class="headerlink" title="进程的实现"></a>进程的实现</h3><p>操作系统维护着一张进程表，它为每个进程分配一个进程表项。该表项包含程序计数器、堆栈指针、内存分配状态、打开文件的状态、账号、调度信息、以及进程切换操作所需的信息。</p>
+<p>进程调度中与 I/O 相关的是中断服务。当磁盘中断发生时，中断硬件会将程序计数器、程序状态字、[寄存器]压入堆栈（保存到进程表中），计算机随即跳到中断向量所指示的地址，运行处理中断服务。当中断服务处理完成后，被中断的进程都会返回到中断前的状态。完整流程如下（保存寄存器值、设置堆栈指针等需要汇编语言实现）：</p>
+<ol>
+<li>硬件压入堆栈程序计数器等。</li>
+<li>硬件从中断向量装入新的程序计数器。</li>
+<li>汇编语言过程保存寄存器值。</li>
+<li>汇编语言过程设置新的堆栈。</li>
+<li>C中断服务历程运行（典型地读和缓冲输入）。</li>
+<li>调度程序决定下一个将运行的进程。</li>
+<li>C过程返回至汇编代码。</li>
+<li>汇编语言过程开始运行新的当前进程。</li>
+</ol>
+<h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><h3 id="线程概要"><a href="#线程概要" class="headerlink" title="线程概要"></a>线程概要</h3><p>同一个应用程序的某些活动会随着时间推移进入阻塞态，这时将应用程序拆解成准并行运行的多个顺序线程，会使程序设计模型变得简单。线程可以共享同一个地址控件和所有可用数据，不必考虑单道程序设计时所需面对的中断、定时器和上下文切换；线程也远比进程更为轻量级，创建和销毁都比较容易；多线程面对大量 I/O 处理时有性能优势。</p>
+<p>《现代操作系统》举例说明了多线程的优点：在字处理软件中，交互线程负责处理与用户的交互；格式化线程在后台默默进行格式化操作；磁盘备份线程实现自动保存功能。这样就避免了用户须等待格式化完成再进行其他处理的问题。这三个线程也能共享处理中的文件，而不像进程那样不能共享。在 web 服务器中，分派线程用于从网络中读取请求，并分发给工作线程。当请求到达时，分派线程会挑选一个阻塞的工作线程，提交该请求，通常是对该工作线程所配有的某个专门字写入消息指针。接着分派线程会唤醒工作线程，将它从阻塞态转为就绪态，以处理请求；等请求处理完成后，工作线程会重新进入阻塞态。在大量数据处理中，输入线程用于把数据读入缓冲区；处理线程用于处理数据，并将输出写入缓冲区；输出线程将结果写到磁盘上。</p>
+<h4 id="三种处理模式"><a href="#三种处理模式" class="headerlink" title="三种处理模式"></a>三种处理模式</h4><ul>
+<li>单线程：阻塞系统调用，便于程序设计，舍弃了性能。</li>
+<li>多线程：阻塞系统调用，便于程序设计，通过并行改善了性能。</li>
+<li>有限状态机：将这一程序转向 I/O 处理后，通过有限状态机机制保存状态，转而处理那一程序。当 I/O 处理完成后，通过信号或中断的形式唤醒这一程序，并装入状态。典型如 nodejs，借助中断实现非阻塞式调用。</li>
+</ul>
+<h4 id="进程与线程对比"><a href="#进程与线程对比" class="headerlink" title="进程与线程对比"></a>进程与线程对比</h4><p>进程的内容有地址空间、全局变量、打开文件、子进程、即将发生的定时器、信号处理程序、账号信息等属性。线程的内容有程序计数器、存放工作变量的寄存器、记录执行历史的堆栈（每一帧保存了已调用但未返回的过程）、状态等属性。进程的意义在于将资源分组后进行集中处理；线程的意义在于对某一分组资源采用多道程序处理。</p>
+<h3 id="线程基本特征"><a href="#线程基本特征" class="headerlink" title="线程基本特征"></a>线程基本特征</h3><p>线程有四种状态：运行、阻塞、就绪或终止。</p>
+<p>线程的堆栈用于存放调用中但为返回的过程，同时包含相应过程的局部变量以及过程执行完成的返回地址。</p>
+<p>在多线程模式下，执行线程有能力通过调用库函数创建或终止线程。如使用 thread_create 创建线程（通过参数指定要运行的过程名，通常会返回一个线程标识符）；thread_exit 退出线程；thread_join 等待某线程退出后再运行，参数为待运行线程的标识符；thread_yield 释放 CPU 来运行另一线程（线程没法像进程那样利用时间中断强制让出 CPU）；thread_attr_init 初始化某线程的属性结构；thread_attr_destory 删除某线程的属性结构。</p>
+<h3 id="线程的实现"><a href="#线程的实现" class="headerlink" title="线程的实现"></a>线程的实现</h3><p>线程包可以在用户空间或内核中实现，即在进程的运行时系统中存放线程表或在内核中存放线程表。线程表与进程表类似，用于存放线程重新启动所需的信息。</p>
+<p>在用户空间切换线程比在内核中更为高效，同时允许每个进程定制自己的调度算法。用户空间线程包需要处理阻塞问题，等待 I/O 的线程会长期占用 CPU，导致其他线程无法展开工作。解决方式有二：通过修改操作系统的方式将调用改成非阻塞式（不乐观）；二则通过包装器 jacker 提前检测系统调用是否会被阻塞，等线程安全了再进行调用。</p>
+<p>内核线程包开销较大，且需要面对 fork 的子进程是否拥有与父进程相同线程、以及线程怎样订阅进程间通信信号等问题。但是，内核线程包中能够阻塞线程的调用都以系统调用的形式实现，内核有能力切换到其他就绪线程上，避免 CPU 空转。其能力体现为：采用调度程序激活机制，内核会为每个进程安排一定数量的虚拟处理器，随后由运行时系统将线程分配到处理器上。当内核感知到线程被阻塞后，内核会通知运行时系统，并且在堆栈中以参数形式传递有问题的线程编号和所发生事件的一个描述。内核在上述堆栈地址启动运行时系统，从而发出通知，这是对 UNIX 中信号的一种粗略模拟。</p>
+<p>混合实现综合了用户级线程和内核级线程的优点，单条内核线程下挂多条用户级线程，同样可以创建、销毁和调度这些用户级线程。</p>
+<h4 id="弹出式线程"><a href="#弹出式线程" class="headerlink" title="弹出式线程"></a>弹出式线程</h4><p>消息如 web 服务请求到达时，传统的做法是使用阻塞进程或线程等待消息达到，然后进行处理。另一种方式是在消息到达系统后创建一个弹出式线程（全新的，没有历史，创建会非常快）。在内核创建弹出式线程比在用户空间中更快捷，且容易访问所有的表格和 I/O 设备，以便于作中断处理。但是，出错的内核线程比用户线程危害更大。</p>
+<h3 id="多线程程序设计问题"><a href="#多线程程序设计问题" class="headerlink" title="多线程程序设计问题"></a>多线程程序设计问题</h3><p>多线程会面临如下问题：</p>
+<ul>
+<li>全局变量问题：某线程使用的全局变量会被另一线程篡改掉。有种解决方案是，为每个线程创建私有的全局变量，比如引入新的库过程（create_global、set_global、read_global 等）以创建、设置和读取这些线程范围内的全局变量。</li>
+<li>库调用、内存分配问题：库调用在前一个执行期间，仍可进行二次调用；内存指针在线程切换期间可能会处于不稳定状态。有种解决方案是，为每个过程提供包装器，包装器会设置某个库在使用中的标识，这样该库的其他线程都会被阻塞。使用信号处理上述问题时会遇到额外的问题，在内核中发送非线程专用的信号，无法感知要把信号发送到哪个线程；如果信号采用广播模式，也会遇上诸如“某个线程想捕获信号，另一个想中断进程”的问题。</li>
+<li>堆栈管理问题：进程的堆栈溢出时，内核会为该进程分配更多的堆栈；内核没法了解多线程的所有堆栈，无法为它们分配更多的堆栈。</li>
+</ul>
+<h2 id="进程通信"><a href="#进程通信" class="headerlink" title="进程通信"></a>进程通信</h2><p>进程间通信（Inter Process Communication, IPC）需要解决以下三个问题：</p>
+<ol>
+<li>A 进程怎样把信息传递给 B 进程（因为线程共享地址控件，线程间通信就没有这问题）。</li>
+<li>怎样保证多个进程读写某一共享资源时会有一致性问题（线程间通信也会有这问题）。</li>
+<li>B 进程处理前需要等待 A 进程处理完成之类的顺序问题（线程间通信也会有这问题）。</li>
+</ol>
+<p>多进程读写同一共享资源时的一致性问题也称为竞争条件，因其处理结果取决于多进程运行的精确时序。处理竞争条件的策略有互斥，即避免多个进程同时读写共享数据。当把读写共享数据的程序片段称为临界区后，多个进程在某一时刻只能有一个进入临界区。其实现有（线程竞争也可以使用同样的解决思路：</p>
+<ul>
+<li>屏蔽中断：在每个进程进入临界区时屏蔽中断，这样依赖于中断的进程切换就没法展开，某一时间就只能有一个进程在临界区中。在用户进程中屏蔽中断会导致其他 CPU 无法继续运行。</li>
+<li>锁变量：通过共享锁变量标记某一进程在临界区中，阻断其他进程进入临界区。锁变量同样会有竞争条件问题。</li>
+<li>严格轮换法：通过自旋锁阻断其他进程运行（自旋锁在 A 进程执行过程为 0，执行后为 1；B 进程执行过程为 1，执行后为 0），阻断可以用 while 锁变量实现（自旋锁为 0 时，B 进程无法运行；为 1 时， A 进程无法运行），使进程处于忙等待状态。</li>
+<li>Pererson 算法：有两个进程，设置两个标识，一则以变量记录申请进入临界区的进程，二则以集合形式记录已申请进入临界区（处于运行态或阻塞态）的进程，直到运行结束才会释放。在 A 进程进入临界区期间，因为 A 进程在集合记录中，B 进程没法进入临界区；只有等到集合记录释放时，B 进程才能进入临界区。后续进程会进入忙等待状态。</li>
+<li>TSL、XCHG 指令：通过汇编语言向寄存器中写入非零值，作循环处理，其他指令均无法修改，直到本指令的调用者执行结束。这样做就是锁住了内存总线（只能允许当前指令访问内存）。锁住内存总线的机制与屏蔽中断不同；屏蔽中断时，其他进程仍能访问内存。后续进程会进入忙等待状态。</li>
+<li>sleep、wakeup 进程间通信原语（属于系统调用）：sleep 将引起调用进程阻塞，直到被另外一个进程唤起；wakeup 唤醒进程。有例子：生产者向缓存区刷入文件，消费者取出文件并打印，缓冲区计数标识有多少文件待打印。若计数标识为 0，消费者将睡眠；若计数标识已满，生产者将睡眠。</li>
+<li>信号量：抽象为 down、up 系统调用。down 操作检查信号量，将信号量减 1；若该值为 0，进程将睡眠，但是 down 操作并未结束。up 操作将信号量增 1，唤醒由 down 操作休眠的进程，使其继续运行未完成的 down 操作。检查、更新信号量时，系统会调用 TSL、XCHG 指令锁住内存总线，屏蔽其他进程的竞争。信号量可用于实现中断，如启动 I/O 设备时执行 down 操作阻塞进程，中断到来时执行 up 操作使进程重新就绪；信号量可用于实现同步，如设置缓冲区空状态和满状态两个信号量，生产者 down 空状态信号量、up 满状态信号量，这样就能空状态下不能运行消费者进程。</li>
+<li>互斥量 mutex：互斥量只有两种值，解锁或加锁，可基于 TSL、XCHG 指令实现只能单进程运行。使用互斥量也可以借助 futex 库或 pthread 库。</li>
+<li>管程：管程由过程、变量和数据结构组成，任意时刻只能有一个活跃进程，它在编译器层面处理。wait 操作对条件变量执行，将阻塞进程；single 操作用于唤醒进程。Java 中的 synchronized 关键字即是管程的一种实现。</li>
+<li>消息传递：通过 send、receive 收发消息。消息可以按进程地址编址，也可以按信箱这种新数据结构取用。生产者先接受消费者发送的空缓冲区，生产数据后，然后将数据项以消息的方式发送给消费者；消费者先接受生产者填充的数据项，消费数据后，然后将空缓冲区以消息的方式发送给生产者。</li>
+</ul>
+<p>上述方式都通过共享内存实现进程间的通信，即生产者向共享内存填入数据，消费者从共享内存取出数据。上述方式或者适用于保证双进程模式下只有一个进程读写内存，或者保证了双进程模式下进程处理的时序性。</p>
+<p>不同于以上，屏障机制适用于处理进程组：只有当所有的进程完成工作后才会着手下一个阶段，否则运行完成的进程都会被阻塞。屏障通过对运行完成的进程调用 barrier 源于实现。</p>
+<p>此外，某些数据结构和算法组合在多进程处理中不必上锁，也能保证读写的一致性。如树在写竭诚中使用新节点数据填充后在插入或树结构变更后再删除节点，在读进程中仍能访问新增前或删除前的节点，在特定操作下也能保证读写一致性。</p>
+<h2 id="scheduler-调度"><a href="#scheduler-调度" class="headerlink" title="scheduler 调度"></a>scheduler 调度</h2><p>进程按处理内容分为计算密集型和 I/O 密集型两类。因为 CPU 处理速度在提升，更多的进程越来越偏向于 I/O 密集型。对于 I/O 密集型进程，应使它们尽快得到处理，以便磁盘始终忙碌；对于计算密集型，则需要多运行一些这类进程，以使 CPU 充分利用。</p>
+<h3 id="调度时机"><a href="#调度时机" class="headerlink" title="调度时机"></a>调度时机</h3><ul>
+<li>当父进程创建子进程时，调度程序可任意选择运行父进程或子进程。</li>
+<li>进程退出时，调度程序会选择运行一个就绪态进程或空闲进程（当没有就绪态进程时）。</li>
+<li>当进程由于 I/O、信号量等原因被阻塞时，调度程序会选择运行一个就绪态进程或空闲进程。</li>
+<li>当 I/O 处理完结、中断发生时，调度程序将原进程置为就绪态。</li>
+</ul>
+<p>调度程序对时钟中断的表现分为两类：非抢占式调度算法允许进程运行到直至阻塞或主动让出 CPU 为止；抢占式调度算法会为进程设置最大时段，当该时段结束时，调度程序就会挂起运行中的进程。对于硬件提供的 50HZ、60HZ 或其他频率的周期性中断，调度程序会在每个时钟中断或没 k 个时钟中断时做出调度决策，以实现抢占式调度。</p>
+<h3 id="调度环境及其调度算法"><a href="#调度环境及其调度算法" class="headerlink" title="调度环境及其调度算法"></a>调度环境及其调度算法</h3><p>调度环境分为三种：</p>
+<ul>
+<li>批处理系统，一般使用非抢占式算法或长时间周期的抢占式算法，须保证吞吐量（每小时批处理作业数）足够大、周转时间（批处理作业平均完成时间）足够小、CPU 利用率足够高。</li>
+<li>交互式环境，使用抢占式算法，须使响应时间足够快、满足用户期望。</li>
+<li>实时系统，有时候没必要使用抢占，须满足截止时间要求、可预测性高（即错误少）。实时系统如病人监控装置、飞机自动驾驶系统以及自动化工厂中的机器人控制等。实时系统分为硬实时、软实时两种，硬实时要求在规定时间内必须执行完成，软实时可以容忍超过规定时间。实时系统会通过将程序拆分为一组进程以提升性能，其中每个进程的行为都是可预测和提前掌握的。实时系统按响应方式可分为周期性事件或非周期性事件。实时系统额调度算法可以在开始运行前作决定（静态的）或在运行过程中作决定（动态的）。</li>
+</ul>
+<p>三种环境都需使每个进程公平分摊 CPU 份额，保证规定的策略被执行，保证系统的所有部分都忙碌。</p>
+<p>适用于批处理系统的调度算法有：</p>
+<ul>
+<li>先来先服务：非抢占式，使用队列维护就绪进程，算法简单，可能会引起不必要的性能消耗。</li>
+<li>最短作业优先：非抢占式，先决条件是运行时间可预期，能使作业的平均处理时间缩短，在作业非同时运行的情况下未必是最优解。</li>
+<li>最短剩余时间优先：抢占式，先决条件是运行时间可预期，补充了最短作业优先算法的不足。</li>
+</ul>
+<p>适用于交互式系统的调度算法有：</p>
+<ul>
+<li>轮转调度：抢占式，为每个进程设置最大可运行时长 —— 时间片。超过时间片的运行进程将被挂起，不满时间片的运行进程会在结束时立即被切换。时间片设置过小，将会使进程切换时的性能损耗比重加大；过大，将会使后续的叫请求长时间得不到处理。时间片一般设为 20-50 ms。</li>
+<li>优先级调度：抢占式，为进程设置优先级，高优先级的会先行得到运行。为避免高优先级的进程霸占 CPU，调度程序会基于时钟中断降低该进程的优先级。当优先级分为多类后，对归属一类的进程可以再使用轮转调度算法。优先级也可以动态设置，即看进程在上一次时间片中所消耗的时长，时长越短，优先级越高。</li>
+<li>多级队列：抢占式，先为进程设置高优先级，给予一个时间片，以使 I/O 密集型进程能得到尽快处理。若为计算密集型且在一个时间片内处理不完，则为进程设置次高优先级，给予两个时间片的运行时间；处理不完再将优先级逐级递减，时间片逐级增大。为了防止计算密集型进程长期抢占 CPU，当用户按下 Enter 键时，所有进程将会被移到最高优先级。</li>
+<li>最短进程优先：类似最短作业优先，使用进程历史运行时间的加权平均预估进程的当前运行时间。</li>
+<li>保证调度：抢占式，使进程均摊 CPU 运行时间，即调度程序会为运行时间比重最低的进程分配更多的时间，直到它超过运行时间比重次低的进程。</li>
+<li>彩票调度：抢占式。以每秒运行时长抽象彩票，运行时长 20 ms，即 50 张彩票。持有彩票数越多的进程会占用相同分量的 CPU 执行时间。进程也可以将彩票让渡给协作式进程，以使协作式进程尽快完成工作。</li>
+<li>公平分享调度：上述调度以进程度量调度策略，公平分享调度以用户度量调度策略，即满足用户 1 持有 4 个进程，用户 2 持有 2 个进程，两个用户均摊 CPU 的场景。</li>
+</ul>
+<h3 id="调度策略和调度机制"><a href="#调度策略和调度机制" class="headerlink" title="调度策略和调度机制"></a>调度策略和调度机制</h3><p>对于父进程启动多个子进程的场景，在系统中调度没法或者子进程的重要性，而父进程却知道。因此，在系统层面实现 scheduling mechanism 调度机制并参数化，由用户进程决定 scheduling policy 调度策略。调度机制与调度策略分离，见及数据库管理系统、浏览器的实现。</p>
+<h3 id="线程调度"><a href="#线程调度" class="headerlink" title="线程调度"></a>线程调度</h3><p>如上文，线程分为两种：用户级线程和内核级线程。切换内核级线程比切换用户级线程要消耗更多性能。对于用户级线程，也可以在用户进程中实现线程调度算法，如 web 服务器中的分派线程。如没有进程内的调度算法，计算密集型的用户线程很可能长期占用 CPU。</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2020/02/29/计算机科学/操作系统/进程与线程/" data-id="ck7iyxksj00bhlyh9gr6s7br6" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "进程与线程踩点",
+        "image": "http://xzfyu.com",
+        "keywords": "carrier",
+        "genre": "计算机科学 操作系统",
+        "datePublished": "2020-02-29",
+        "dateCreated": "2020-02-29",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2020/02/29/计算机科学/操作系统/进程与线程/",
+        "description": "前言本篇基于《现代操作系统》整理。虽然笔者也不甚理解，但是这篇总结可以为后续深入探究 node 进程、java 并发、react 调度算法打个桩，从中也确实增进了对进程、中断等的理解。
+进程进程概要单核 CPU 一瞬只能运行一个进程，因此需要通过多道程序设计实现多进程的伪并行，营造在 1 秒钟内有多个进程同时运行的错觉。一个进程就是一个正在执行程序的实例，包含程序计数器、寄存器和变量的当前值。程序",
+        "wordCount": 309
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/03/01/frontend/react16/react scheduler 再解析篇/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            react scheduler 再解析篇
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2020/02/28/frontend/antd/聊聊组件库的构成/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">聊聊 Ant Design 组件库的构成</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2020/02/29/计算机科学/操作系统/进程与线程/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>react-redux源码分析 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst,react">
+    
+    <meta name="description" content="概述react-redux 类库的意义是将 redux 状态注入到组件中，且在状态更新时驱动组件重绘。在这个类库的设计和实现上，需要面临两个问题：如何将 store 中缓存的状态注入到组件中；在状态更新时，如何驱动组件重绘。 对于第一个问题，react-redux 解决手法也极为简单且常见。通过顶层 Provider 容器接受 store 作为 props，再将 store 作为 context">
+<meta name="keywords" content="analyst,react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="react-redux源码分析">
+<meta property="og:url" content="http://xzfyu.com/2018/07/08/frontend/library/react-redux源码分析/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="概述react-redux 类库的意义是将 redux 状态注入到组件中，且在状态更新时驱动组件重绘。在这个类库的设计和实现上，需要面临两个问题：如何将 store 中缓存的状态注入到组件中；在状态更新时，如何驱动组件重绘。 对于第一个问题，react-redux 解决手法也极为简单且常见。通过顶层 Provider 容器接受 store 作为 props，再将 store 作为 context">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://xzfyu.com/2018/07/08/frontend/library/react-redux源码分析/react-redux.png">
+<meta property="og:updated_time" content="2020-03-08T10:50:15.845Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="react-redux源码分析">
+<meta name="twitter:description" content="概述react-redux 类库的意义是将 redux 状态注入到组件中，且在状态更新时驱动组件重绘。在这个类库的设计和实现上，需要面临两个问题：如何将 store 中缓存的状态注入到组件中；在状态更新时，如何驱动组件重绘。 对于第一个问题，react-redux 解决手法也极为简单且常见。通过顶层 Provider 容器接受 store 作为 props，再将 store 作为 context">
+<meta name="twitter:image" content="http://xzfyu.com/2018/07/08/frontend/library/react-redux源码分析/react-redux.png">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/frontend/library/">library</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-frontend/library/react-redux源码分析" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        react-redux源码分析
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2018/07/08/frontend/library/react-redux源码分析/" class="article-date">
+         <time datetime="2018-07-07T16:00:00.000Z" itemprop="datePublished">2018-07-08</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>, <a class="tag-link" href="/tags/react/">react</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>react-redux 类库的意义是将 redux 状态注入到组件中，且在状态更新时驱动组件重绘。在这个类库的设计和实现上，需要面临两个问题：如何将 store 中缓存的状态注入到组件中；在状态更新时，如何驱动组件重绘。</p>
+<p>对于第一个问题，react-redux 解决手法也极为简单且常见。通过顶层 Provider 容器接受 store 作为 props，再将 store 作为 context 内容传入子孙组件；在用户端实际消费状态的组件（自定义组件）外层构造直属父级容器（HOC 高阶组件），由直属父级容器将通过 context.store 属性获取的状态数据输入为自定义组件的 props。</p>
+<p>对于第二个问题，react-redux 解决手法是：通过 store.subscribe 方法注册状态变更后待执行的回调函数 listener，在该回调函数执行直属父级容器的 forceUpdate 或 setState 方法，重新计算注入自定义组件的 props 数据，由此重绘自定义组件。在这个过程中，无论 store 中的状态数据作何种更新，均会触发 listener 回调的执行，因而实现上有一个优化性能的关键点，即怎样使组件在指定状态更新时启用重绘机制。这一优化点通过重新计算注入自定义组件的 props 实现。在 react-redux 源码中，重新计算 props 数据由 selector 筛选器完成。除此以外，react-redux 还有另一处优化：为减少 listener 的数量，当某个 HOC 组件的重绘机制（在 redux 源码中，表现为该 HOC 组件的 onStateChange 方法）已挂载为 listener 时，其下子孙容器（同样是 HOC 组件）的重绘机制将在这个 listener 的函数体中实现。</p>
+<p><em>图 1，react-redux 执行流程</em><br><img src="/2018/07/08/frontend/library/react-redux源码分析/react-redux.png"></p>
+<p><em>图 1</em> 中，store, action, listener 概念来自于 redux，可参见<a href="http://xzfyu.com/2018/07/08/react/react%E7%9B%B8%E5%85%B3/redux%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">react源码分析</a>；context 用于为子孙组件传入数据，概念来自于 react；Provider 作为顶层容器，由 react-redux 提供；Component，实际为自定义组件的直属父级容器，由 react-redux 提供；selector 是 react-redux 机制中将state、dispatch 和 boundAction 转化为自定义组件所需的 props 的筛选器。</p>
+<h2 id="selector"><a href="#selector" class="headerlink" title="selector"></a>selector</h2><p>selector 筛选器注入组件的 props 有两种：store 中存储的状态值、驱动状态值变更的方法 boundAction（包含 store.dispatch 方法）。这两份数据分别通过用户配置项 mapStateToProps, mapDispatchToProps 获得，再由用户配置的 mergeProps = (stateProps, dispatchProps, ownProps) =&gt; props 获取注入组件的 props（ownProps 是由父组件注入自定义组件的 props）。</p>
+<p>主要处理流程：</p>
+<ol>
+<li>采用泛职责链模式处理用户配置项 mapStateToProps, mapDispatchToProps 的多态特征（配置项类型可能为函数、对象或 undefined），转换成 mapStateToProps = (state, ownProps) =&gt; stateProps, mapDispatchToProps = (dispatch, ownProps) =&gt; dispatchProps。链式处理参数多态的手法值得借鉴。</li>
+<li>mapStateToProps, mapDispatchToProps 经由 wrapMapToPropsConstant, wrapMapToPropsFunc 函数封装为 initSelector = (dispatch, options) =&gt; sourceSelector 函数（在源码中，initSelector 函数实际表现为 connect/wrapMapToProps 模块中的 initConstantSelector, initProxySelector 函数，作归一化处理需要）。initSelector 的参数 dispatch 由组件传入。sourceSelector 为 (stateOrDispatch, ownProps?) =&gt; props 函数形式，返回值为 stateProps, dispatchProps，参数同样由组件注入（与 dispatch 不同的是，参数 state 是动态的），用于获取 stateProps, dispatchProps。封装的意义，就是将 selector 筛选器从组件中独立出来。</li>
+<li>将前两步的处理逻辑复合为 mapStateToPropsFactory = mapStateToProps =&gt; initSelector, mapDispatchToPropsFactory = mapDispatchToProps =&gt; initSelector，可在构建父级直属容器时直接使用。返回值 initSelector = (dispatch, options) =&gt; stateOrDispatchSelector 通过父级指数容器获得入参 store.dispatch，并生成 stateOrDispatchSelector = (stateOrDispatch, ownProps) =&gt; props 。stateOrDispatchSelector 用于获得注入组件的 props，在源码中实际表现为 mapStateToPropsProxy, mapdispatchToPropsSelector。</li>
+<li>stateOrDispatchSelector 由 selectorFctory 函数调用，并在 selectorFctory 函数体内通过 mergeProps 将 stateProps, dispatchProps 复合成待传入组件的 props（mergeProps 的多态特征也经过链式处理）。selectorFctory 函数的特殊意义是，如果 state 或 ownProps 未作更改，沿用缓存的 stateProps, dispatchProps，以提升性能。</li>
+</ol>
+<p><em>图 2，selector 总体执行流程</em><br><img src="/2018/07/08/frontend/library/react-redux源码分析/selector.png"></p>
+<h3 id="mapToPropsFactory"><a href="#mapToPropsFactory" class="headerlink" title="mapToPropsFactory"></a>mapToPropsFactory</h3><p>mapToPropsFactory 包含 mapStateToPropsFactory, mapDispatchToPropsFactory，这里只概述 mapDispatchToPropsFactory 的处理流程。mapStateToPropsFactory 实现同 mapDispatchToPropsFactory。</p>
+<p><em>图 3，mapToPropsFactory 执行流程</em><br><img src="/2018/07/08/frontend/library/react-redux源码分析/mapToPropsFactory.png"></p>
+<p><em>代码段 1，mapToPropsFactory</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// connect/mapDispatchToProps</span></span><br><span class="line"><span class="keyword">import</span> &#123; bindActionCreators &#125; <span class="keyword">from</span> <span class="string">'redux'</span></span><br><span class="line"><span class="keyword">import</span> &#123; wrapMapToPropsConstant, wrapMapToPropsFunc &#125; <span class="keyword">from</span> <span class="string">'./wrapMapToProps'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">whenMapDispatchToPropsIsFunction</span>(<span class="params">mapDispatchToProps</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (<span class="keyword">typeof</span> mapDispatchToProps === <span class="string">'function'</span>)</span><br><span class="line">    ? wrapMapToPropsFunc(mapDispatchToProps, <span class="string">'mapDispatchToProps'</span>)</span><br><span class="line">    : <span class="literal">undefined</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">whenMapDispatchToPropsIsMissing</span>(<span class="params">mapDispatchToProps</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (!mapDispatchToProps)</span><br><span class="line">    ? wrapMapToPropsConstant(<span class="function"><span class="params">dispatch</span> =&gt;</span> (&#123; dispatch &#125;))</span><br><span class="line">    : <span class="literal">undefined</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">whenMapDispatchToPropsIsObject</span>(<span class="params">mapDispatchToProps</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (mapDispatchToProps &amp;&amp; <span class="keyword">typeof</span> mapDispatchToProps === <span class="string">'object'</span>)</span><br><span class="line">    ? wrapMapToPropsConstant(<span class="function"><span class="params">dispatch</span> =&gt;</span> bindActionCreators(mapDispatchToProps, dispatch))</span><br><span class="line">    : <span class="literal">undefined</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> [</span><br><span class="line">  whenMapDispatchToPropsIsFunction,</span><br><span class="line">  whenMapDispatchToPropsIsMissing,</span><br><span class="line">  whenMapDispatchToPropsIsObject</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment">// connect/wrapMapToProps</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">wrapMapToPropsConstant</span>(<span class="params">getConstant</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">initConstantSelector</span>(<span class="params">dispatch, options</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> constant = getConstant(dispatch, options)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">constantSelector</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> constant &#125;</span><br><span class="line">    constantSelector.dependsOnOwnProps = <span class="literal">false</span> </span><br><span class="line">    <span class="keyword">return</span> constantSelector</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">wrapMapToPropsFunc</span>(<span class="params">mapToProps, methodName</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">initProxySelector</span>(<span class="params">dispatch, &#123; displayName &#125;</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> proxy = <span class="function"><span class="keyword">function</span> <span class="title">mapToPropsProxy</span>(<span class="params">stateOrDispatch, ownProps</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> proxy.dependsOnOwnProps</span><br><span class="line">        ? proxy.mapToProps(stateOrDispatch, ownProps)</span><br><span class="line">        : proxy.mapToProps(stateOrDispatch)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    proxy.dependsOnOwnProps = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    proxy.mapToProps = <span class="function"><span class="keyword">function</span> <span class="title">detectFactoryAndVerify</span>(<span class="params">stateOrDispatch, ownProps</span>) </span>&#123;</span><br><span class="line">      proxy.mapToProps = mapToProps</span><br><span class="line">      <span class="comment">// getDependsOnOwnProps 判断 mapToProps 是否依赖于父组件传入的 props</span></span><br><span class="line">      <span class="comment">//    通过 mapToProps.dependsOnOwnProps 属性进行判断</span></span><br><span class="line">      proxy.dependsOnOwnProps = getDependsOnOwnProps(mapToProps)</span><br><span class="line">      <span class="keyword">let</span> props = proxy(stateOrDispatch, ownProps)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> props === <span class="string">'function'</span>) &#123;</span><br><span class="line">        proxy.mapToProps = props</span><br><span class="line">        proxy.dependsOnOwnProps = getDependsOnOwnProps(props)</span><br><span class="line">        props = proxy(stateOrDispatch, ownProps)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> props</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> proxy</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><em>代码段 1</em> 中，wrapMapToPropsFunc 函数的写法相当有趣。如果想使用 ownProps 的某个方法决定当前组件需要 store 中的哪些状态值，首先需设定 mapStateToProps.dependsOnOwnProps 为真值，其次用户配置的 mapDispatchToProps 函数须以 ownProps 的那个方法作为返回值，该返回值将构成新的 mapDispatchToProps 函数，用于计算 dispatchProps。在源码编写上，react-redux 采用在函数执行过程中改变函数指向，两次调用自身的方式实现。以 proxy 字样命名函数也值得借鉴，因为 mapToPropsProxy 函数与 mapToProps 功能相同。</p>
+<h4 id="mergeProps"><a href="#mergeProps" class="headerlink" title="mergeProps"></a>mergeProps</h4><p>mergeProps 处理流程可以参见上文，其意义是针对复杂的应用场景，能设置更灵活的 props 获取方式。</p>
+<p><em>代码段 2，mergeProps 机制，mergePropsProxy 实现参看源码，与 mapToPropsFactory 相似</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// connect/selectorFactory</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">impureFinalPropsSelectorFactory</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  mapStateToProps,</span></span></span><br><span class="line"><span class="function"><span class="params">  mapDispatchToProps,</span></span></span><br><span class="line"><span class="function"><span class="params">  mergeProps,</span></span></span><br><span class="line"><span class="function"><span class="params">  dispatch</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">impureFinalPropsSelector</span>(<span class="params">state, ownProps</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> mergeProps(</span><br><span class="line">      mapStateToProps(state, ownProps),</span><br><span class="line">      mapDispatchToProps(dispatch, ownProps),</span><br><span class="line">      ownProps</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">pureFinalPropsSelectorFactory</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  mapStateToProps,</span></span></span><br><span class="line"><span class="function"><span class="params">  mapDispatchToProps,</span></span></span><br><span class="line"><span class="function"><span class="params">  mergeProps,</span></span></span><br><span class="line"><span class="function"><span class="params">  dispatch,</span></span></span><br><span class="line"><span class="function"><span class="params">  &#123; areStatesEqual, areOwnPropsEqual, areStatePropsEqual &#125;</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> hasRunAtLeastOnce = <span class="literal">false</span></span><br><span class="line">  <span class="keyword">let</span> state</span><br><span class="line">  <span class="keyword">let</span> ownProps</span><br><span class="line">  <span class="keyword">let</span> stateProps</span><br><span class="line">  <span class="keyword">let</span> dispatchProps</span><br><span class="line">  <span class="keyword">let</span> mergedProps</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handleFirstCall</span>(<span class="params">firstState, firstOwnProps</span>) </span>&#123;</span><br><span class="line">    state = firstState</span><br><span class="line">    ownProps = firstOwnProps</span><br><span class="line">    stateProps = mapStateToProps(state, ownProps)</span><br><span class="line">    dispatchProps = mapDispatchToProps(dispatch, ownProps)</span><br><span class="line">    mergedProps = mergeProps(stateProps, dispatchProps, ownProps)</span><br><span class="line">    hasRunAtLeastOnce = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">return</span> mergedProps</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handleNewPropsAndNewState</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    stateProps = mapStateToProps(state, ownProps)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mapDispatchToProps.dependsOnOwnProps)</span><br><span class="line">      dispatchProps = mapDispatchToProps(dispatch, ownProps)</span><br><span class="line"></span><br><span class="line">    mergedProps = mergeProps(stateProps, dispatchProps, ownProps)</span><br><span class="line">    <span class="keyword">return</span> mergedProps</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handleNewProps</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mapStateToProps.dependsOnOwnProps)</span><br><span class="line">      stateProps = mapStateToProps(state, ownProps)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mapDispatchToProps.dependsOnOwnProps)</span><br><span class="line">      dispatchProps = mapDispatchToProps(dispatch, ownProps)</span><br><span class="line"></span><br><span class="line">    mergedProps = mergeProps(stateProps, dispatchProps, ownProps)</span><br><span class="line">    <span class="keyword">return</span> mergedProps</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handleNewState</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> nextStateProps = mapStateToProps(state, ownProps)</span><br><span class="line">    <span class="keyword">const</span> statePropsChanged = !areStatePropsEqual(nextStateProps, stateProps)</span><br><span class="line">    stateProps = nextStateProps</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (statePropsChanged)</span><br><span class="line">      mergedProps = mergeProps(stateProps, dispatchProps, ownProps)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mergedProps</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handleSubsequentCalls</span>(<span class="params">nextState, nextOwnProps</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> propsChanged = !areOwnPropsEqual(nextOwnProps, ownProps)</span><br><span class="line">    <span class="keyword">const</span> stateChanged = !areStatesEqual(nextState, state)</span><br><span class="line">    state = nextState</span><br><span class="line">    ownProps = nextOwnProps</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (propsChanged &amp;&amp; stateChanged) <span class="keyword">return</span> handleNewPropsAndNewState()</span><br><span class="line">    <span class="keyword">if</span> (propsChanged) <span class="keyword">return</span> handleNewProps()</span><br><span class="line">    <span class="keyword">if</span> (stateChanged) <span class="keyword">return</span> handleNewState()</span><br><span class="line">    <span class="keyword">return</span> mergedProps</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">pureFinalPropsSelector</span>(<span class="params">nextState, nextOwnProps</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> hasRunAtLeastOnce</span><br><span class="line">      ? handleSubsequentCalls(nextState, nextOwnProps)</span><br><span class="line">      : handleFirstCall(nextState, nextOwnProps)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// initMapStateToProps, initMapDispatchToProps 为 _图 6_ 中的 initSelector</span></span><br><span class="line"><span class="comment">//    源码中实际表现为 wrapMapToProps 模块的 initProxySelector</span></span><br><span class="line"><span class="comment">//    通过传参 dispatch, options，获取实际可用的 mapStateToProps, mapDispatchToProps</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">finalPropsSelectorFactory</span>(<span class="params">dispatch, &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">  initMapStateToProps,</span></span></span><br><span class="line"><span class="function"><span class="params">  initMapDispatchToProps,</span></span></span><br><span class="line"><span class="function"><span class="params">  initMergeProps,</span></span></span><br><span class="line"><span class="function"><span class="params">  ...options</span></span></span><br><span class="line"><span class="function"><span class="params">&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> mapStateToProps = initMapStateToProps(dispatch, options)</span><br><span class="line">  <span class="keyword">const</span> mapDispatchToProps = initMapDispatchToProps(dispatch, options)</span><br><span class="line">  <span class="keyword">const</span> mergeProps = initMergeProps(dispatch, options)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> selectorFactory = options.pure</span><br><span class="line">    ? pureFinalPropsSelectorFactory</span><br><span class="line">    : impureFinalPropsSelectorFactory</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> selectorFactory(</span><br><span class="line">    mapStateToProps,</span><br><span class="line">    mapDispatchToProps,</span><br><span class="line">    mergeProps,</span><br><span class="line">    dispatch,</span><br><span class="line">    options</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="connect"><a href="#connect" class="headerlink" title="connect"></a>connect</h3><p>如前文所指出的，dispatch 只能通过直属父级容器获得，state 又在 listener（直属父级容器的方法）执行过程中获取，因此对于用户配置项 mapStateToProps, mapDispatchToProps, mergeProps，react-redux 通过 connect 函数构建直属父级容器的时候将其转变为 initSelector, mergeProps，并注入直属父级容器中。当直属父级容器获得 store.dispatch 时，initSelector, mergeProps 又会通过 selectorFactory 转变为最终的 sourceSelector = (state, ownProps) =&gt; props，用于获取注入自定义组件的 props（包含状态值以及驱动状态转变的方法）。</p>
+<p>在上述过程中，react-redux 为了实现逻辑的灵活性，connect 通过 createConnect 函数生成，执行逻辑中所使用的 mapStateToPropsFactory, mapDispatchToPropsFactory, mergePropsFactory, selectorFactory 均为 createConnect 的入参。而 sourceSelector 又用于构建直属父级容器的 this.selector，其 run 方法用于重新计算 props，shouldComponentUpdate 属性用于判断 props 是否便能，props 属性即是注入自定义组件的 props。</p>
+<p>当 state 状态变更时，直属父级容器的 onStateChange 方法将以 listener 回调形式被执行。在 onStateChange 方法体中，首先调用 selector.run 重新计算 props，若变更，调用直属父级容器的 setState 方法重绘自定义组件。同时，无论 props 变更与否，直属父级容器都会驱动其子孙组件父容器的 onStateChange 执行。</p>
+<p><em>图 4，connect 执行流程，不包含驱动子孙容器 onStateChange 执行部分</em><br><img src="/2018/07/08/frontend/library/react-redux源码分析/connect.png"></p>
+<p><em>代码段 3，HOC 驱动自定义组件重绘，省略 displayName 等处理</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// connect/connect.js</span></span><br><span class="line"><span class="comment">// 上文 selector 内容输出的模块</span></span><br><span class="line"><span class="keyword">import</span> defaultMapDispatchToPropsFactories <span class="keyword">from</span> <span class="string">'./mapDispatchToProps'</span></span><br><span class="line"><span class="keyword">import</span> defaultMapStateToPropsFactories <span class="keyword">from</span> <span class="string">'./mapStateToProps'</span></span><br><span class="line"><span class="keyword">import</span> defaultMergePropsFactories <span class="keyword">from</span> <span class="string">'./mergeProps'</span></span><br><span class="line"><span class="keyword">import</span> defaultSelectorFactory <span class="keyword">from</span> <span class="string">'./selectorFactory'</span></span><br><span class="line"><span class="keyword">import</span> connectAdvanced <span class="keyword">from</span> <span class="string">'../components/connectAdvanced'</span></span><br><span class="line"><span class="keyword">import</span> shallowEqual <span class="keyword">from</span> <span class="string">'../utils/shallowEqual'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createConnect</span>(<span class="params">&#123;</span></span></span><br><span class="line"><span class="function"><span class="params">  connectHOC = connectAdvanced,</span></span></span><br><span class="line"><span class="function"><span class="params">  mapStateToPropsFactories = defaultMapStateToPropsFactories,</span></span></span><br><span class="line"><span class="function"><span class="params">  mapDispatchToPropsFactories = defaultMapDispatchToPropsFactories,</span></span></span><br><span class="line"><span class="function"><span class="params">  mergePropsFactories = defaultMergePropsFactories,</span></span></span><br><span class="line"><span class="function"><span class="params">  selectorFactory = defaultSelectorFactory</span></span></span><br><span class="line"><span class="function"><span class="params">&#125; = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">connect</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">    mapStateToProps,</span></span></span><br><span class="line"><span class="function"><span class="params">    mapDispatchToProps,</span></span></span><br><span class="line"><span class="function"><span class="params">    mergeProps,</span></span></span><br><span class="line"><span class="function"><span class="params">    &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">      pure = true,</span></span></span><br><span class="line"><span class="function"><span class="params">      areStatesEqual = strictEqual,</span></span></span><br><span class="line"><span class="function"><span class="params">      areOwnPropsEqual = shallowEqual,</span></span></span><br><span class="line"><span class="function"><span class="params">      areStatePropsEqual = shallowEqual,</span></span></span><br><span class="line"><span class="function"><span class="params">      areMergedPropsEqual = shallowEqual,</span></span></span><br><span class="line"><span class="function"><span class="params">      ...extraOptions</span></span></span><br><span class="line"><span class="function"><span class="params">    &#125; = &#123;&#125;</span></span></span><br><span class="line"><span class="function"><span class="params">  </span>) </span>&#123;</span><br><span class="line">    <span class="comment">// match 用于使用 factory 链式处理 mapToProps，以获得 initSelector = (dispatch, options) =&gt; selector</span></span><br><span class="line">    <span class="keyword">const</span> initMapStateToProps = match(mapStateToProps, mapStateToPropsFactories, <span class="string">'mapStateToProps'</span>)</span><br><span class="line">    <span class="keyword">const</span> initMapDispatchToProps = match(mapDispatchToProps, mapDispatchToPropsFactories, <span class="string">'mapDispatchToProps'</span>)</span><br><span class="line">    <span class="keyword">const</span> initMergeProps = match(mergeProps, mergePropsFactories, <span class="string">'mergeProps'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> connectHOC(selectorFactory, &#123;</span><br><span class="line">      initMapStateToProps,</span><br><span class="line">      initMapDispatchToProps,</span><br><span class="line">      initMergeProps,</span><br><span class="line">      pure,</span><br><span class="line">      areStatesEqual,</span><br><span class="line">      areOwnPropsEqual,</span><br><span class="line">      areStatePropsEqual,</span><br><span class="line">      areMergedPropsEqual,</span><br><span class="line"></span><br><span class="line">      ...extraOptions</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// components/connectAdvanced.js</span></span><br><span class="line"><span class="keyword">import</span> hoistStatics <span class="keyword">from</span> <span class="string">'hoist-non-react-statics'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> dummyState = &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">noop</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeSelectorStateful</span>(<span class="params">sourceSelector, store</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> selector = &#123;</span><br><span class="line">    run: <span class="function"><span class="keyword">function</span> <span class="title">runComponentSelector</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> nextProps = sourceSelector(store.getState(), props)</span><br><span class="line">        <span class="keyword">if</span> (nextProps !== selector.props || selector.error) &#123;</span><br><span class="line">          selector.shouldComponentUpdate = <span class="literal">true</span></span><br><span class="line">          selector.props = nextProps</span><br><span class="line">          selector.error = <span class="literal">null</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">        selector.shouldComponentUpdate = <span class="literal">true</span></span><br><span class="line">        selector.error = error</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> selector</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">connectAdvanced</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  selectorFactory,</span></span></span><br><span class="line"><span class="function"><span class="params">  &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">    storeKey = <span class="string">'store'</span></span></span></span><br><span class="line"><span class="function"><span class="params">  &#125; = &#123;&#125;</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> subscriptionKey = storeKey + <span class="string">'Subscription'</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> contextTypes = &#123;</span><br><span class="line">    [storeKey]: storeShape,</span><br><span class="line">    <span class="comment">// 子孙容器的 onStateChange 挂载到当前父容器创建的 listener 中，用于减少 listener 的数量</span></span><br><span class="line">    [subscriptionKey]: subscriptionShape,</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> childContextTypes = &#123;</span><br><span class="line">    [subscriptionKey]: subscriptionShape,</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">wrapWithConnect</span>(<span class="params">WrappedComponent</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Connect</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">      <span class="keyword">constructor</span>(props, context) &#123;</span><br><span class="line">        <span class="keyword">super</span>(props, context)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.state = &#123;&#125;</span><br><span class="line">        <span class="keyword">this</span>.store = context[storeKey]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.initSelector()</span><br><span class="line">        <span class="keyword">this</span>.initSubscription()</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      getChildContext() &#123;</span><br><span class="line">        <span class="keyword">const</span> subscription = <span class="keyword">this</span>.subscription</span><br><span class="line">        <span class="keyword">return</span> &#123; [subscriptionKey]: <span class="keyword">this</span>.subscription || <span class="keyword">this</span>.context[subscriptionKey] &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      componentDidMount() &#123;</span><br><span class="line">        <span class="keyword">this</span>.subscription.trySubscribe()</span><br><span class="line">        <span class="keyword">this</span>.selector.run(<span class="keyword">this</span>.props)</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.selector.shouldComponentUpdate) <span class="keyword">this</span>.forceUpdate()</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      componentWillReceiveProps(nextProps) &#123;</span><br><span class="line">        <span class="keyword">this</span>.selector.run(nextProps)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      componentWillUnmount() &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.subscription) <span class="keyword">this</span>.subscription.tryUnsubscribe()</span><br><span class="line">        <span class="keyword">this</span>.subscription = <span class="literal">null</span></span><br><span class="line">        <span class="keyword">this</span>.notifyNestedSubs = noop</span><br><span class="line">        <span class="keyword">this</span>.store = <span class="literal">null</span></span><br><span class="line">        <span class="keyword">this</span>.selector.run = noop</span><br><span class="line">        <span class="keyword">this</span>.selector.shouldComponentUpdate = <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      initSelector() &#123;</span><br><span class="line">        <span class="keyword">const</span> sourceSelector = selectorFactory(<span class="keyword">this</span>.store.dispatch, selectorFactoryOptions)</span><br><span class="line">        <span class="keyword">this</span>.selector = makeSelectorStateful(sourceSelector, <span class="keyword">this</span>.store)</span><br><span class="line">        <span class="keyword">this</span>.selector.run(<span class="keyword">this</span>.props)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      initSubscription() &#123;</span><br><span class="line">        <span class="keyword">const</span> parentSub = <span class="keyword">this</span>.context[subscriptionKey]</span><br><span class="line">        <span class="keyword">this</span>.subscription = <span class="keyword">new</span> Subscription(<span class="keyword">this</span>.store, parentSub, <span class="keyword">this</span>.onStateChange.bind(<span class="keyword">this</span>))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.notifyNestedSubs = <span class="keyword">this</span>.subscription.notifyNestedSubs.bind(<span class="keyword">this</span>.subscription)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      onStateChange() &#123;</span><br><span class="line">        <span class="keyword">this</span>.selector.run(<span class="keyword">this</span>.props)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">this</span>.selector.shouldComponentUpdate) &#123;</span><br><span class="line">          <span class="keyword">this</span>.notifyNestedSubs()</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">this</span>.componentDidUpdate = <span class="keyword">this</span>.notifyNestedSubsOnComponentDidUpdate</span><br><span class="line">          <span class="keyword">this</span>.setState(dummyState)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      notifyNestedSubsOnComponentDidUpdate() &#123;</span><br><span class="line">        <span class="keyword">this</span>.componentDidUpdate = <span class="literal">undefined</span></span><br><span class="line">        <span class="keyword">this</span>.notifyNestedSubs()</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      render() &#123;</span><br><span class="line">        <span class="keyword">const</span> selector = <span class="keyword">this</span>.selector</span><br><span class="line">        selector.shouldComponentUpdate = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (selector.error) &#123;</span><br><span class="line">          <span class="keyword">throw</span> selector.error</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> createElement(WrappedComponent, selector.props)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Connect.childContextTypes = childContextTypes</span><br><span class="line">    Connect.contextTypes = contextTypes</span><br><span class="line">    Connect.propTypes = contextTypes</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> hoistStatics(Connect, WrappedComponent)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><em>代码段 3</em> 展示了直属父级容器的构建过程，其实例化过程中首先创建 selector 筛选器和 subscription 订阅器。随后，在 componentDidMount 生命周期执行过程中，将容器的 onStateChange 方法挂载为 store 的 listener 回调；调用 selector.run 方法重新计算 props，若 props 值变更，调用 forceUpdate 方法重绘组件。在 componentWillReceiveProps 生命周期中，再次调用 selector.run 方法重新计算 props，因为 ownProps 的变更可能影响注入自定义组件的 state, boundAction 数据（react-redux 为直属父级容器的 componentWillReceiveProps 和 componentDidUpdate 方法分派了不同的职能，前者驱动 ownProps, stateProps, dispatchProps 变更时自定义组件的重绘，后者驱动 stateProps, dispatchProps 变更时子孙容器的重绘。因此在 stateProps, dispatchProps 无变更的情形下，componentDidUpdate 方法将置为 undefined）。在 componentWillUnmount 生命周期里，将重置 selector 筛选器和 subscription 订阅器。</p>
+<p>在状态值变更的情形下，容器的 onStateChange 方法将以 listener 回调形式得到执行，其将调用 selector.run 方法重新计算 props。若 props 已变更，调用 setState 方法驱动直属父级容器重绘；在自定义组件重绘完成后，通过 componentDidUpdate 生命周期方法通知子孙容器状态已更新，尝试执行其 onStateChange 方法。若 props 未作变更，直接通知子孙容器状态已更新，尝试执行其 onStateChange 方法。</p>
+<p>subscription 用于将直属父级容器的 onStateChange 方法挂载为 store 中的 listener 回调，而子孙容器的 onStateChange 方法将存储在 subscription.listeners 数组中。当 action 被派发引起 state 变更时，直属父级容器的 onStateChange 方法自然会执行，而子孙容器的 onStateChange 方法则需要在当前直属父级容器中通过调用 subscription.notifyNestedSubs 执行（其执行时机参见 <em>代码段 3</em>，即在当前直属父级容器的 onStateChange 方法调用过程中唤起执行）。</p>
+<p><em>代码段 4，subscription 订阅器</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> CLEARED = <span class="literal">null</span></span><br><span class="line"><span class="keyword">const</span> nullListeners = &#123; notify() &#123;&#125; &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createListenerCollection</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> current = []</span><br><span class="line">  <span class="keyword">let</span> next = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    clear() &#123;</span><br><span class="line">      next = CLEARED</span><br><span class="line">      current = CLEARED</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    notify() &#123;</span><br><span class="line">      <span class="keyword">const</span> listeners = current = next</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; listeners.length; i++) &#123;</span><br><span class="line">        listeners[i]()</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span>() &#123;</span><br><span class="line">      <span class="keyword">return</span> next</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    subscribe(listener) &#123;</span><br><span class="line">      <span class="keyword">let</span> isSubscribed = <span class="literal">true</span></span><br><span class="line">      <span class="keyword">if</span> (next === current) next = current.slice()</span><br><span class="line">      next.push(listener)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">unsubscribe</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!isSubscribed || current === CLEARED) <span class="keyword">return</span></span><br><span class="line">        isSubscribed = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (next === current) next = current.slice()</span><br><span class="line">        next.splice(next.indexOf(listener), <span class="number">1</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">Subscription</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(store, parentSub, onStateChange) &#123;</span><br><span class="line">    <span class="keyword">this</span>.store = store</span><br><span class="line">    <span class="keyword">this</span>.parentSub = parentSub</span><br><span class="line">    <span class="keyword">this</span>.onStateChange = onStateChange</span><br><span class="line">    <span class="keyword">this</span>.unsubscribe = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.listeners = nullListeners</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  addNestedSub(listener) &#123;</span><br><span class="line">    <span class="keyword">this</span>.trySubscribe()</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.listeners.subscribe(listener)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  notifyNestedSubs() &#123;</span><br><span class="line">    <span class="keyword">this</span>.listeners.notify()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  isSubscribed() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Boolean</span>(<span class="keyword">this</span>.unsubscribe)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  trySubscribe() &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.unsubscribe) &#123;</span><br><span class="line">      <span class="keyword">this</span>.unsubscribe = <span class="keyword">this</span>.parentSub</span><br><span class="line">        ? <span class="keyword">this</span>.parentSub.addNestedSub(<span class="keyword">this</span>.onStateChange)</span><br><span class="line">        : <span class="keyword">this</span>.store.subscribe(<span class="keyword">this</span>.onStateChange)</span><br><span class="line"> </span><br><span class="line">      <span class="keyword">this</span>.listeners = createListenerCollection()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  tryUnsubscribe() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.unsubscribe) &#123;</span><br><span class="line">      <span class="keyword">this</span>.unsubscribe()</span><br><span class="line">      <span class="keyword">this</span>.unsubscribe = <span class="literal">null</span></span><br><span class="line">      <span class="keyword">this</span>.listeners.clear()</span><br><span class="line">      <span class="keyword">this</span>.listeners = nullListeners</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>俗语，”麻雀虽小，五脏俱全“，”苔米花虽小，也学牡丹开“。使用 react-redux 无非 ‘Provider store={store}’ 和 ‘connect(mapStateToProps, mapDispatchToProps)(Component)’ 两段代码，而在 react-redux 的设计和实现上，我们又可以看见丰富的矿藏，真是”人不可貌相，海不可斗量，代码不可管窥“。</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2018/07/08/frontend/library/react-redux源码分析/" data-id="ck7iyxkqp008ylyh9267ylb0c" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "react-redux源码分析",
+        "image": "http://xzfyu.com/2018/07/08/frontend/library/react-redux源码分析/react-redux.png",
+        "keywords": "analyst react",
+        "genre": "frontend library",
+        "datePublished": "2018-07-08",
+        "dateCreated": "2018-07-08",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2018/07/08/frontend/library/react-redux源码分析/",
+        "description": "概述react-redux 类库的意义是将 redux 状态注入到组件中，且在状态更新时驱动组件重绘。在这个类库的设计和实现上，需要面临两个问题：如何将 store 中缓存的状态注入到组件中；在状态更新时，如何驱动组件重绘。
+对于第一个问题，react-redux 解决手法也极为简单且常见。通过顶层 Provider 容器接受 store 作为 props，再将 store 作为 context ",
+        "wordCount": 3958
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2018/08/03/frontend/library/mobx源码分析1/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            mobx源码分析（一） 构造响应式数据
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/07/02/frontend/library/redux源码分析/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">redux源码分析</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2018/07/08/frontend/library/react-redux源码分析/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

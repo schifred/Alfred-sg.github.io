@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>红黑树 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst,java,算法">
+    
+    <meta name="description" content="与数组相比，链表提升了插入元素的效率。因为数组在插入元素时，需要移动后续元素的位置；而链表只需要改变后继元素的 prev 属性。然而在查询元素时，链表需要遍历所有元素，并不高效。借助于红黑树，既能提升查询的效率，又能保证插入的效率。 为什么说红黑树有助于提升查询和插入的效率呢？因为红黑树本质上是一棵完美平衡的二叉查找树，可以通过节点的有序性保证查找和插入操作的便捷，其作时间复杂度就是树的高度 O(">
+<meta name="keywords" content="analyst,java,算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="红黑树">
+<meta property="og:url" content="http://xzfyu.com/2019/04/07/计算机科学/算法/红黑树/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="与数组相比，链表提升了插入元素的效率。因为数组在插入元素时，需要移动后续元素的位置；而链表只需要改变后继元素的 prev 属性。然而在查询元素时，链表需要遍历所有元素，并不高效。借助于红黑树，既能提升查询的效率，又能保证插入的效率。 为什么说红黑树有助于提升查询和插入的效率呢？因为红黑树本质上是一棵完美平衡的二叉查找树，可以通过节点的有序性保证查找和插入操作的便捷，其作时间复杂度就是树的高度 O(">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://xzfyu.com/2019/04/07/计算机科学/算法/红黑树/red-black.png">
+<meta property="og:updated_time" content="2020-03-08T11:05:42.975Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="红黑树">
+<meta name="twitter:description" content="与数组相比，链表提升了插入元素的效率。因为数组在插入元素时，需要移动后续元素的位置；而链表只需要改变后继元素的 prev 属性。然而在查询元素时，链表需要遍历所有元素，并不高效。借助于红黑树，既能提升查询的效率，又能保证插入的效率。 为什么说红黑树有助于提升查询和插入的效率呢？因为红黑树本质上是一棵完美平衡的二叉查找树，可以通过节点的有序性保证查找和插入操作的便捷，其作时间复杂度就是树的高度 O(">
+<meta name="twitter:image" content="http://xzfyu.com/2019/04/07/计算机科学/算法/红黑树/red-black.png">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/计算机科学/算法/">算法</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-计算机科学/算法/红黑树" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        红黑树
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2019/04/07/计算机科学/算法/红黑树/" class="article-date">
+         <time datetime="2019-04-06T16:00:00.000Z" itemprop="datePublished">2019-04-07</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>, <a class="tag-link" href="/tags/java/">java</a>, <a class="tag-link" href="/tags/算法/">算法</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p>与数组相比，链表提升了插入元素的效率。因为数组在插入元素时，需要移动后续元素的位置；而链表只需要改变后继元素的 prev 属性。然而在查询元素时，链表需要遍历所有元素，并不高效。借助于红黑树，既能提升查询的效率，又能保证插入的效率。</p>
+<p>为什么说红黑树有助于提升查询和插入的效率呢？因为红黑树本质上是一棵完美平衡的<a href="http://xzfyu.com/2019/04/21/%E7%AE%97%E6%B3%95/%E7%AC%A6%E5%8F%B7%E8%A1%A8%E4%B8%8E%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91/">二叉查找树</a>，可以通过节点的有序性保证查找和插入操作的便捷，其作时间复杂度就是树的高度 O(lgN)，自然比链表的 O(N) 高效很多。红黑树有如下两个特征：有序性、平衡性。我们讲一棵红黑树是有序的，通常指的是树中的节点会遵照 key 键自小到大或自大到小的顺序。有序性是实现二叉树完美平衡的先决条件。完美平衡指的是树从根节点到每个底部节点的高度大致相当，这样才能保证查询操作的时间复杂度为 O(lgN)。设想当二叉树出现了单边有值的极端情况时，其查询效率就和链表一样同为 O(N)。因此，实际上是完美平衡的二叉树便于查询节点，而红黑树是完美平衡二叉树的一种实现方式。</p>
+<p>犹如红黑树是完美平衡树的一种实现方式，红黑树自身也有多种实现方式。本文所介绍的红黑树（即算法红宝书中的红黑树）是基于 2-3 树实现的。在插入元素方面，2-3 树所具有的优点为：当向 2- 节点插入新节点时，通过将 2- 节点转变成 3- 节点，可以迅速接纳新的节点；当向 3- 节点插入新节点时，通过将 3- 节点转变成 4- 节点，再将 4- 节点转变成 3 个 2- 节点构成的子树，也可以迅速接纳新的节点。在实现上，若使用不同的数据类型表示 2- 节点或 3- 节点及其附属信息，接着实现不同类型节点的转换，这样势必会使程序相当复杂，且容易遇上性能问题。红黑树就应运而生了。</p>
+<p>红宝书中的红黑树有如下性质：</p>
+<ul>
+<li>红链接均为左链接</li>
+<li>没有任何一个节点同时和两条红链接相连</li>
+<li>该树是完美黑色平衡的，即任意空链接到根节点的路径上的黑链接数量相同</li>
+</ul>
+<p>第一条性质指的是红黑树中构成 3- 节点的方式总是唯一的。当红链接为右链接时，需要通过左旋操作将其转变为标准的左链接 3- 节点。第二条性质包含以下两种情况：父子节点不能同时为红链接（无论子节点是左链接还是右链接）；父节点下的两个子节点不能同时为红链接。当父子节点同时为红链接时，可通过旋转操作将其转变为 3 个 2- 节点的子树，这样就能同时消除父子节点的红链接。当父节点下的两个子节点同时为红链接时，可通过颜色转换操作将两个子节点变为黑链接。从 2-3 树的角度直观地看第二条性质，也是指红黑树中的每一个节点不能同时从属于两个 3- 节点。因此，第二条性质和第三条性质一样，表明红黑树是和 2-3 树一一对应的。</p>
+<p>需要说明的是：2- 节点是包含 2 个子节点的节点，在红黑树中就是普通节点；3- 节点由两个节点构成，其下包含 3 个子节点，在红黑树中就是左子节点为红链接；4- 节点由三个节点构成，其下包含 4 个子节点，在红黑树中就是左右两侧子节点均为红链接。当分析红黑树的直观视图时，我们只需要考虑 2- 节点和 3- 节点。在插入和删除元素时，我们才需要考虑 4- 节点。红黑树的直观视图就是二叉树。特别的，当将 3- 节点拉平后，红黑树的直观视图就会变成 2-3 树。</p>
+<img src="/2019/04/07/计算机科学/算法/红黑树/red-black.png">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">boolean</span> RED = <span class="keyword">true</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">boolean</span> BLACK = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span> </span>&#123;</span><br><span class="line">    Key key;</span><br><span class="line">    Value value;</span><br><span class="line">    Node left, right;<span class="comment">// 左右子树</span></span><br><span class="line">    <span class="keyword">int</span> N;<span class="comment">// 节点总数</span></span><br><span class="line">    <span class="keyword">boolean</span> color;<span class="comment">// 标识红链接或黑链接</span></span><br><span class="line"></span><br><span class="line">    Node(Key key, Value value, <span class="keyword">int</span> N, <span class="keyword">boolean</span> color)&#123;</span><br><span class="line">        <span class="keyword">this</span>.key = key;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">        <span class="keyword">this</span>.N = N;</span><br><span class="line">        <span class="keyword">this</span>.color = color;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isRed</span><span class="params">(Node x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (x == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">return</span> x.color == RED;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在分析红黑树时，我们需要致力于解决如下这样一个命题：怎样在插入和删除节点时保证树的平衡性？</p>
+<h2 id="左旋、右旋、颜色转换"><a href="#左旋、右旋、颜色转换" class="headerlink" title="左旋、右旋、颜色转换"></a>左旋、右旋、颜色转换</h2><p>红黑树抽象了三种抽象操作：左旋转、右旋转和颜色转换。这三种抽象操作都是局部变换。简单地说，左旋转用于将红链接从右链接转变成左链接，即红链接均为左链接的标准红黑树；右旋转用于将父节点和左子节点均为红链接的子树转变成 3 个 2- 节点的子树；颜色转换将两个子节点同时为红链接的子树转变成 3 个 2- 节点的子树，同时子树的根节点转变为红链接，颜色转换操作可以向上递归，以实现整颗红黑树中不能有两个子节点同时为红链接。</p>
+<h3 id="左旋"><a href="#左旋" class="headerlink" title="左旋"></a>左旋</h3><img src="/2019/04/07/计算机科学/算法/红黑树/rotate-left.gif">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Node <span class="title">rotateLeft</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">  Node x = h.right;<span class="comment">// 取出原红链接节点 x</span></span><br><span class="line">  h.right = x.left;<span class="comment">// 将中间部分 x.left 置于左节点 h 下</span></span><br><span class="line">  x.left = h;<span class="comment">// 因 x 将作为子树的根节点，将左节点 h 置为红链接节点 x 的左子节点</span></span><br><span class="line">  x.color = h.color;<span class="comment">// 不改变子树根节点的颜色</span></span><br><span class="line">  h.color = RED;<span class="comment">// 将子树中的红链接节点置为 h，即左移 </span></span><br><span class="line">  x.N = h.N;<span class="comment">// 调整节点数目</span></span><br><span class="line">  h.N = <span class="number">1</span> + size(h.left) + size(h.right);</span><br><span class="line">  <span class="keyword">return</span> x;<span class="comment">// 返回子树的根节点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上文已指出，左旋的目的就是将作为右链接的红链接转变为标准的左链接。</p>
+<h3 id="右旋"><a href="#右旋" class="headerlink" title="右旋"></a>右旋</h3><img src="/2019/04/07/计算机科学/算法/红黑树/rotate-right.gif">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Node <span class="title">rotateRight</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">  Node x = h.left;<span class="comment">// 取出原红链接节点 x</span></span><br><span class="line">  h.left = x.right;<span class="comment">// 将中间部分 x.left 置于右节点 h 下</span></span><br><span class="line">  x.right = h;<span class="comment">// 因 x 将作为子树的根节点，右节点 h 置为红链接节点 x 的右子节点</span></span><br><span class="line">  x.color = h.color;<span class="comment">// 不改变子树根节点的颜色</span></span><br><span class="line">  h.color = RED;<span class="comment">// 将子树中的红链接节点置为 h，即右移</span></span><br><span class="line">  x.N = h.N;<span class="comment">// 调整节点数目</span></span><br><span class="line">  h.N = <span class="number">1</span> + size(h.left) + size(h.right);</span><br><span class="line">  <span class="keyword">return</span> x;<span class="comment">// 返回子树的根节点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>右旋的目的需要结合使用场景，即当在父节点和左子节点同时为红链接时，通过右旋和颜色转换可以将子树转变为包含 3 个 2- 节点的子树。试想一下，当父节点和左侧子节点都为红链接时，即上图中 less than E 子树的根节点也是红链接，右旋操作就可以使旋转后的根节点 E 与其两侧子节点构成 4- 节点（即两侧子节点同时为红链接）。这时再通过颜色转换就可以把这两个子节点均置为黑链接，以避免单个节点同时和两条红链接相连。图示参见节点插入部分。</p>
+<h4 id="颜色转换"><a href="#颜色转换" class="headerlink" title="颜色转换"></a>颜色转换</h4><img src="/2019/04/07/计算机科学/算法/红黑树/flip-colors.png">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">flipColors</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">  h.color = RED;<span class="comment">// 根节点置为红链接</span></span><br><span class="line">  h.left.color = BLACK;<span class="comment">// 左右子节点置为黑链接</span></span><br><span class="line">  h.right.color = BLACK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上文已经指出，在父节点和左侧子节点同时为红链接的情形下，通过右旋操作可以使祖父节点拥有两个红链接子节点，再通过颜色转换可以将这两个节点都转换成黑链接。因为左旋、右旋和颜色转换都基于红链接，将子树的根节点置为红链接有助于向上递归调整树的平衡性（即使得左旋、右旋、颜色转换操作能作用于自根节点始的整棵树）。</p>
+<h2 id="节点插入"><a href="#节点插入" class="headerlink" title="节点插入"></a>节点插入</h2><p>节点插入需要针对以下情况：</p>
+<img src="/2019/04/07/计算机科学/算法/红黑树/2-node.png">
+<ul>
+<li>当插入对象为 2- 节点时，向左插入就是在根节点左侧直接添加一个红链接，使父子节点构成一个 3- 节点；向右插入就是在根节点右侧先添加一个红链接，然后通过左旋反转父子节点的位置。</li>
+</ul>
+<img src="/2019/04/07/计算机科学/算法/红黑树/3-node.png">
+<ul>
+<li>当插入对象为 3- 节点时，向左插入就使得父子节点同时为红链接，因此就需要通过右旋和颜色转换将其转变为包含 3 个 2- 节点的子树；中间插入就使得父子节点既同时是红链接，子节点又是非法的右链接，因此先需通过左旋将子树变更为向左插入一样的形态，然后再沿用向左插入的调整策略；向右插入可以通过颜色转换将两个子节点变为黑链接。完成以上操作后，向上递归调整自根节点始的整棵树。</li>
+</ul>
+<p>插入算法的实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Node root;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Key key, Value val)</span></span>&#123;</span><br><span class="line">    root = put(root, key, val);</span><br><span class="line">    root.color = BLACK;<span class="comment">// 根节点始终为黑链接</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">put</span><span class="params">(Node h, Key key, Value val)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (h == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">new</span> Node(key, val, <span class="number">1</span>, RED);<span class="comment">// 创建根节点或底部节点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向下递归插入节点</span></span><br><span class="line">    <span class="keyword">int</span> cmp = key.CompareTo(h.key);</span><br><span class="line">    <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) h.left = put(h.left, key, val);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>) h.right = put(h.right, key, val);</span><br><span class="line">    <span class="keyword">else</span> h.val = val;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向上递归调整树的平衡性</span></span><br><span class="line">    <span class="comment">// [左旋]，[右旋，颜色转换]是连贯一体的操作，可能有，也可能没有</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 红链接为右链接，左旋，针对 2- 节点或 3-节点中插入情况</span></span><br><span class="line">    <span class="comment">// 可能会引起向上递归执行左旋操作</span></span><br><span class="line">    <span class="keyword">if</span> (isRed(h.right) &amp;&amp; !isRed(h.left)) h = rotateLeft(h);</span><br><span class="line">    <span class="comment">// 父子节点均为红链接，右旋</span></span><br><span class="line">    <span class="keyword">if</span> (isRed(h.left) &amp;&amp; isRed(h.left.left)) h = rotateRight(h);</span><br><span class="line">    <span class="comment">// 两侧子节点均为红链接，颜色转换</span></span><br><span class="line">    <span class="keyword">if</span> (isRed(h.left) &amp;&amp; isRed(h.right)) h = flipColors(h);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调整节点数目</span></span><br><span class="line">    h.Number = Size(h.left) + Size(h.right) + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> h;<span class="comment">// 返回根节点，便于向上递归</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="节点删除"><a href="#节点删除" class="headerlink" title="节点删除"></a>节点删除</h2><p>可想而知，当待删除的节点在 3- 节点中，如果 3- 节点在底部，那么这个节点就可以直接删除；如果 3- 节点不在底部，就可以用该节点的前驱或后继节点替换这个节点，然后再删除这个节点。当删除的节点在 2- 节点中，删除操作将破坏树的平衡性，这时就需要从父节点或兄弟节点中借一个节点构成 3- 节点或 4- 节点，然后再执行删除操作。在删除节点的过程中，程序会自顶向下构建 3- 节点或 4- 节点；删除结点后，再自底向上拆解 4- 节点。</p>
+<p>需要指出的是，上文中左旋、右旋操作所具有的一般性为：即便子节点不是红链接，左旋、右旋在反转父子节点时，还能创建红链接。因此，构建 3- 节点需要借助于左旋、右旋操作；构建 4- 节点借助于反向颜色转换操作。</p>
+<h3 id="反向颜色转换"><a href="#反向颜色转换" class="headerlink" title="反向颜色转换"></a>反向颜色转换</h3><p>反向颜色转换是上文 flipColors 方法的反向操作，即将左右子节点均置为红链接，这会使得单侧父子节点构成一个 3- 节点（可视为将父节点借给子节点），同时父节点和两侧子节点又会构成一个 4- 节点。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">moveFlipColors</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    h.color = Black;            </span><br><span class="line">    h.left.color = Red;       </span><br><span class="line">    h.right.color = Red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="左移"><a href="#左移" class="headerlink" title="左移"></a>左移</h3><p>左移操作适用于子树中的最小键，即左侧节点。对比上文，左移操作包含如下两个步骤：</p>
+<ol>
+<li>通过反向颜色转换 moveFlipColors 操作构建 4- 节点。</li>
+<li>若右侧为 3- 节点，将 3- 节点中的最小键左移到左节点下，使左节点变为 3- 节点。这时需要通过颜色转换 flipColors 拿掉 4- 节点。</li>
+</ol>
+<img src="/2019/04/07/计算机科学/算法/红黑树/moveRedLeft.png">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">moveRedLeft</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    moveFlipColors(h);<span class="comment">// 从父节点中借一个</span></span><br><span class="line">    <span class="keyword">if</span> (isRed(h.right.left))&#123;<span class="comment">// 兄弟节点不是 2- 节点，从兄弟节点中借一个</span></span><br><span class="line">        h.right = rotateRight(h.right);</span><br><span class="line">        h = rotateLeft(h);</span><br><span class="line">        flipColors(h);<span class="comment">// 从兄弟节点借了一个后，把从父节点中借来的还回去</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="右移"><a href="#右移" class="headerlink" title="右移"></a>右移</h3><p>右移操作适用于子树中的最大键，即右侧节点。同样包含两个步骤：</p>
+<ol>
+<li>通过反向颜色转换 moveFlipColors 操作构建 4- 节点。</li>
+<li>若左侧为 2- 节点，将该 2- 节点的父节点右移，使右节点变为 3- 节点。这时需要通过颜色转换 flipColors 拿掉 4- 节点。</li>
+</ol>
+<img src="/2019/04/07/计算机科学/算法/红黑树/moveRedRight.png">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">moveRedRight</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    moveFlipColors(h);<span class="comment">// 从父节点中借一个</span></span><br><span class="line">    <span class="keyword">if</span> (!isRed(h.left.left))&#123;<span class="comment">// 兄弟节点是 2- 节点，从兄弟节点中借一个</span></span><br><span class="line">        h = rotateRight(h);</span><br><span class="line">        flipColors(h);<span class="comment">// 从兄弟节点借了一个后，把从父节点中借来的还回去</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="再平衡"><a href="#再平衡" class="headerlink" title="再平衡"></a>再平衡</h3><p>无论在删除左侧节点还是在删除右侧节点时，都可能会在右侧创建新的红链接，所以我们需要通过左旋操作移除该红链接。且删除操作会破坏红黑树的性质，使红黑树下拥有不合法的作为右链接的红链接，或者父节点和左子节点同时为红链接，或者两侧子节点同时为红链接，这时就需要借助节点插入时的左旋、右旋、颜色转换操作逐级向上调整了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">balance</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    <span class="comment">// 删除左节点可能会创建 4- 节点，右链接为红链接</span></span><br><span class="line">    <span class="comment">// 删除右节点可能会使用左旋创建居于右侧的红链接</span></span><br><span class="line">    <span class="comment">// 两种情况均通过 rotateLeft 还原</span></span><br><span class="line">    <span class="keyword">if</span> (isRed(h.right)) h = rotateLeft(h);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 和节点插入时相同，通过[左旋]、[右旋，颜色转换]调整树的平衡性</span></span><br><span class="line">    <span class="keyword">if</span> (isRed(h.right) &amp;&amp; !isRed(h.left)) h = rotateLeft(h);</span><br><span class="line">    <span class="keyword">if</span> (isRed(h.left) &amp;&amp; isRed(h.left.left)) h = rotateRight(h);</span><br><span class="line">    <span class="keyword">if</span> (isRed(h.left) &amp;&amp; isRed(h.right)) flipColors(h);</span><br><span class="line"></span><br><span class="line">    h.N = size(h.left) + size(h.right) + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="删除最小键"><a href="#删除最小键" class="headerlink" title="删除最小键"></a>删除最小键</h3><img src="/2019/04/07/计算机科学/算法/红黑树/deleteMin.png">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteMin</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 当 flipColors, moveFlipColors 由同一个函数实现时，需要将根节点置红，以便进行反向颜色转换</span></span><br><span class="line">    <span class="keyword">if</span>(!isRed(root.left) &amp;&amp; !isRed(root.right))&#123;</span><br><span class="line">        root.color = Red;</span><br><span class="line">    &#125;</span><br><span class="line">    root = deleteMin(root);</span><br><span class="line">    <span class="keyword">if</span> ( !isEmpty() ) root.color = Black;<span class="comment">// 根节点颜色复原</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">deleteMin</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    <span class="comment">// h 就是为最小键，置为 null 移除</span></span><br><span class="line">    <span class="keyword">if</span>(h.left == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向下递归构建 3- 节点和 4- 节点，并删除节点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 左子节点为 2- 节点，通过左移操作向右子节点或父节点中借一个</span></span><br><span class="line">    <span class="keyword">if</span>(!isRed(h.left) &amp;&amp; !isRed(h.left.left))</span><br><span class="line">        h = moveRedLeft(h);</span><br><span class="line">    h.left = deleteMin(h.left);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向上递归移除临时的 4- 节点，调整树的平衡性</span></span><br><span class="line">    <span class="keyword">return</span> balance(h);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="删除最大键"><a href="#删除最大键" class="headerlink" title="删除最大键"></a>删除最大键</h3><img src="/2019/04/07/计算机科学/算法/红黑树/deleteMax.png">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteMax</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!isRed(root.left) &amp;&amp; isRed(root.right))&#123;</span><br><span class="line">        root.color = Red;</span><br><span class="line">    &#125;</span><br><span class="line">    root = deleteMax(root);</span><br><span class="line">    <span class="keyword">if</span> ( !isEmpty() ) root.color = Black;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">deleteMax</span><span class="params">(Node h)</span></span>&#123;</span><br><span class="line">    <span class="comment">// 左子节点为红链接时，通过右旋将其给到右侧，以构建 3- 节点</span></span><br><span class="line">    <span class="keyword">if</span>(isRed(h.left))&#123;                                     </span><br><span class="line">        h = rotateRight(h);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// h 就是为最大键，置为 null 移除</span></span><br><span class="line">    <span class="keyword">if</span>(h.right == <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向下递归构建 3- 节点和 4- 节点，并删除节点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 右子节点为 2- 节点，通过右移操作向左子节点或父节点中借一个</span></span><br><span class="line">    <span class="keyword">if</span>(!isRed(h.right) &amp;&amp; !isRed(h.right.left))&#123;</span><br><span class="line">        h = moveRedRight(h);</span><br><span class="line">    &#125;</span><br><span class="line">    h.right = deleteMax(h.right);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向上递归移除临时的 4- 节点，调整树的平衡性</span></span><br><span class="line">    <span class="keyword">return</span> balance(h);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="删除节点"><a href="#删除节点" class="headerlink" title="删除节点"></a>删除节点</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">(Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!isRed(root.left)&amp;&amp; !isRed(root.right))&#123;</span><br><span class="line">        root.color = Red;</span><br><span class="line">    &#125;</span><br><span class="line">    root = delete(root, key);</span><br><span class="line">    <span class="keyword">if</span> ( !isEmpty() ) root.color = Black;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">delete</span><span class="params">(Node h, Key key)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (key.compareTo(h.key) &lt; <span class="number">0</span>)&#123; </span><br><span class="line">        <span class="comment">// 向下递归构建 3- 节点和 4- 节点，并删除节点</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 左子节点为 2- 节点，通过左移操作向右子节点或父节点中借一个       </span></span><br><span class="line">        <span class="keyword">if</span> (!isRed(h.left) &amp;&amp; !isRed(h.left.left)) </span><br><span class="line">            h = moveRedLeft(h);    </span><br><span class="line"></span><br><span class="line">        <span class="comment">// 递归删除</span></span><br><span class="line">        h.left = delete(h.left, key);         </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 左子节点为红链接时，通过右旋将其给到右侧，以构建 3- 节点</span></span><br><span class="line">        <span class="keyword">if</span> (isRed(h.left)) </span><br><span class="line">            h = rotateRight(h);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 无后继节点，意味待删除节点为底部节点，置为 null 删除</span></span><br><span class="line">        <span class="comment">// 怎么保证 h 是 3- 节点？</span></span><br><span class="line">        <span class="keyword">if</span> (key.compareTo(h.key) == <span class="number">0</span> &amp;&amp; (h.right == <span class="keyword">null</span>)) </span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 向下递归构建 3- 节点和 4- 节点，并删除节点</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 右子节点为 2- 节点，通过右移操作向左子节点或父节点中借一个</span></span><br><span class="line">        <span class="keyword">if</span> (!isRed(h.right) &amp;&amp; !isRed(h.right.left)) </span><br><span class="line">            h = moveRedRight(h);           </span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用后继节点替换</span></span><br><span class="line">        <span class="keyword">if</span> (key.compareTo(h.key) == <span class="number">0</span>)&#123;      </span><br><span class="line">            h.val = get(h.right, min(h.right).key);            </span><br><span class="line">            h.key = min(h.right).key;                   </span><br><span class="line">            h.right = deleteMin(h.right);             </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 递归删除</span></span><br><span class="line">        <span class="keyword">else</span> h.right = delete(h.right, key);  </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> balance(h);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="小记"><a href="#小记" class="headerlink" title="小记"></a>小记</h2><p>这篇文章是我在理解 HashMap 过程中的一阵整理。回头想想，仍觉得自己对红黑树的理解不是很透彻。留在网上暂作为一种记录，以便于渐进式修改。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.cnblogs.com/yangecnu/p/Introduce-Red-Black-Tree.html" target="_blank" rel="noopener">浅谈算法和数据结构: 九 平衡查找树之红黑树</a><br><a href="https://www.jianshu.com/p/37c845a5add6" target="_blank" rel="noopener">一篇文章搞懂红黑树的原理及实现</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://xzfyu.com/2019/04/07/计算机科学/算法/红黑树/" data-id="ck7iyxksn00bplyh9inx3nq2o" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "红黑树",
+        "image": "http://xzfyu.com/2019/04/07/计算机科学/算法/红黑树/red-black.png",
+        "keywords": "analyst java 算法",
+        "genre": "计算机科学 算法",
+        "datePublished": "2019-04-07",
+        "dateCreated": "2019-04-07",
+        "dateModified": "2020-03-08",
+        "url": "http://xzfyu.com/2019/04/07/计算机科学/算法/红黑树/",
+        "description": "与数组相比，链表提升了插入元素的效率。因为数组在插入元素时，需要移动后续元素的位置；而链表只需要改变后继元素的 prev 属性。然而在查询元素时，链表需要遍历所有元素，并不高效。借助于红黑树，既能提升查询的效率，又能保证插入的效率。
+为什么说红黑树有助于提升查询和插入的效率呢？因为红黑树本质上是一棵完美平衡的二叉查找树，可以通过节点的有序性保证查找和插入操作的便捷，其作时间复杂度就是树的高度 O(",
+        "wordCount": 2317
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2019/04/14/计算机科学/算法/HashMap中的红黑树/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            HashMap中的红黑树
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2019/03/23/backend/web 服务/Servlet/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">Servlet</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/12/31/frontend/architecture/前端工程体系/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/12/31/frontend/architecture/前端工程体系/global.png)" alt="前端工程体系" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/03/29/计算机科学/软件工程/电商后台建模/" class="title">电商后台建模</a></p>
+                            <p class="item-date"><time datetime="2020-03-28T16:00:00.000Z" itemprop="datePublished">2020-03-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/03/08/frontend/react16/react fiber hooks钩子篇/" class="title">react fiber hooks钩子篇</a></p>
+                            <p class="item-date"><time datetime="2020-03-07T16:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">85</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">12</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/analyst/">analyst</a><span class="tag-list-count">109</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antd/">antd</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/carrier/">carrier</a><span class="tag-list-count">21</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js设计模式/">js设计模式</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lint/">lint</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/">proxy</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react-components/">react-components</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/validate/">validate</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/虚拟-dom/">虚拟 dom</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://xzfyu.com/2019/04/07/计算机科学/算法/红黑树/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

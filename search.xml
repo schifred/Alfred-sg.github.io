@@ -2122,16 +2122,15 @@
       </tags>
   </entry>
   <entry>
-    <title>前端监控</title>
-    <url>/2019/11/10/frontend/architecture/%E5%89%8D%E7%AB%AF%E7%9B%91%E6%8E%A7/</url>
-    <content><![CDATA[<h2 id="前端监控"><a href="#前端监控" class="headerlink" title="前端监控"></a>前端监控</h2><p>前端监控包含 js 错误统计、js 错误诊断、api 统计监控、前后端链路追踪、文件加载失败监控、页面访问速度、慢回话追踪等。</p>
-<p>js 错误统计可以借助 try…catch、window.onerror 实现。try…catch 能捕获到错误信息描述、堆栈、行号、列号、具体的出错文件信息等，但是它只能在单一的作用域内捕获错误，不能捕获异步函数的错误，如 setTimeout 函数就需要在其内部使用 try…catch 语句，才能捕获定时器回调函数的错误内容。这时候想要使用 try…catch 捕获错误，就需要对 setTimeout 等函数进行封装。window.onerror 可以在任何执行上下文中执行，也能捕获脚本语法错误、运行时错误（出错信息、出错文件、行号等），但不能捕获跨域脚本的错误（跨域脚本只会简单报 script error 错误）。</p>
-<p>文件加载失败可以通过加载节点的 onreadystatechange 或 onload 事件加以统计。</p>
-<p>页面访问性能可以通过 Performance API 加以统计。</p>
-<h2 id="retcode"><a href="#retcode" class="headerlink" title="retcode"></a>retcode</h2><p>retcode 是阿里云 <a href="https://www.alibabacloud.com/help/zh/doc-detail/58652.htm?spm=a2c63.p38356.b99.80.4fcf86c0Gnp5qS" target="_blank" rel="noopener">ARMS 前端监控平台</a>配套的 jssdk。其压缩代码地址为 <a href="https://retcode.alicdn.com/retcode/bl.js。这里不作详解。" target="_blank" rel="noopener">https://retcode.alicdn.com/retcode/bl.js。这里不作详解。</a></p>
-<h2 id="Bombay"><a href="#Bombay" class="headerlink" title="Bombay"></a>Bombay</h2><p><a href="https://github.com/bombayjs/bombayjs" target="_blank" rel="noopener">Bombay</a> 通过 xhr 对象或者 window.navigator.sendBeacon 上报数据。上报数据类型包含 error、behavior、health 以及其他，除了 health 尝试使用 window.navigator.sendBeacon 上报以外，其他全部使用 xhr 对象。上报数据的功能实现由 reporter 模块承担；在 reporter 模块的基础上，handlers 模块用于实际上报不同类型的数据，如 pv、health（页面停留时长）、click 点击事件、blur 失焦事件（点击和失焦事件的上报内容包含节点的路径）、performance 性能（首屏渲染时各操作的处理时长）、resource（资源加载时长）、navigation（页面跳转情况）、hashChange（单页应用跳转情况）、caughtError（js 报错，通过 window.addEventListener(‘error’, …) 实现）、promiseError（promise 错误，通过 window.addEventListener(‘unhandledrejection’, …) 实现）、resourceError（资源加载错误）、api（ajax 处理情况）、message（window.postMessage 发送消息）等。在处理单页应用的页面跳转或 ajax 请求等时，Bombay 通过 hack 机制劫持了 window.console、history.pushState、history.replaceState、window.fetch、window.XMLHttpRequest、window.onpopstate 等原生语法，以在封装后的函数执行过程中上报数据。最后，Bombay 根据用户配置项启用功能。</p>
-<p>与 mixpanel 一样，Bombay 在上报数据时需要设置 token，即避免其他应用调用上报接口。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/passkey/p/9981654.html" target="_blank" rel="noopener">监控平台前端SDK开发实践</a></p>
+    <title>前端调试</title>
+    <url>/2019/11/10/frontend/architecture/%E5%89%8D%E7%AB%AF%E8%B0%83%E8%AF%95/</url>
+    <content><![CDATA[<p>基本调试可以借助 chrome 控制台实现。</p>
+<h2 id="同步刷新"><a href="#同步刷新" class="headerlink" title="同步刷新"></a>同步刷新</h2><h3 id="browser-sync"><a href="#browser-sync" class="headerlink" title="browser-sync"></a>browser-sync</h3><p>browser-sync 通过 web-socket 将变更内容透出到页面侧，因此无须刷新页面。browser-sync 提供了两个方法：init({ server }) 启动本地静态服务器，init({ proxy }) 启动代理服务器（当本地服务器通过其他方式启动时，browser-sync 选用代理模式启动）；reload 实时更新页面变动内容。</p>
+<h3 id="emmet-livestyle"><a href="#emmet-livestyle" class="headerlink" title="emmet livestyle"></a>emmet livestyle</h3><p>emmet livestyle 扩展程序（浏览器、编辑器有各自的扩展程序）允许将编辑器的变更内容自动反应在页面上，又将浏览器的变更内容自动反应在编辑器上。</p>
+<h2 id="抓包工具"><a href="#抓包工具" class="headerlink" title="抓包工具"></a>抓包工具</h2><p>charles 是 mac os 中的抓包工具，fiddler 是 windows 中的抓包工具，两者都通过将自己设置成系统的网络访问代理服务器实现。即所有请求先经过 charles、fiddler，然后再发送到远程服务器中，因此可以拦截请求、修改请求、修改响应，甚至将响应内容替换成本地资源。fiddler 还可以通过 tools - options - connection 设置监听端口，然后手机代理到该端口，就可以将手机端获得的响应资源替换成本地文件，详情可参阅 <a href="https://www.cnblogs.com/wenbodeboke/p/9770771.html" target="_blank" rel="noopener">fiddler手机抓包配置方法</a>。</p>
+<h3 id="charles"><a href="#charles" class="headerlink" title="charles"></a>charles</h3><p>官方网址：<a href="https://www.charlesproxy.com/" target="_blank" rel="noopener">https://www.charlesproxy.com/</a><br>破解jar包获取地址：<a href="https://www.zzzmode.com/mytools/charles/" target="_blank" rel="noopener">https://www.zzzmode.com/mytools/charles/</a><br>charles 参考文档：<a href="https://www.jianshu.com/p/0bc767840e42" target="_blank" rel="noopener">CharlesMac破解版安装以及使用</a></p>
+<h2 id="模拟器"><a href="#模拟器" class="headerlink" title="模拟器"></a>模拟器</h2><p>Genymotion</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/xy-nb/p/web.html" target="_blank" rel="noopener">手机web前端调试页面的几种方式</a></p>
 ]]></content>
       <categories>
         <category>frontend</category>
@@ -2142,15 +2141,16 @@
       </tags>
   </entry>
   <entry>
-    <title>前端调试</title>
-    <url>/2019/11/10/frontend/architecture/%E5%89%8D%E7%AB%AF%E8%B0%83%E8%AF%95/</url>
-    <content><![CDATA[<p>基本调试可以借助 chrome 控制台实现。</p>
-<h2 id="同步刷新"><a href="#同步刷新" class="headerlink" title="同步刷新"></a>同步刷新</h2><h3 id="browser-sync"><a href="#browser-sync" class="headerlink" title="browser-sync"></a>browser-sync</h3><p>browser-sync 通过 web-socket 将变更内容透出到页面侧，因此无须刷新页面。browser-sync 提供了两个方法：init({ server }) 启动本地静态服务器，init({ proxy }) 启动代理服务器（当本地服务器通过其他方式启动时，browser-sync 选用代理模式启动）；reload 实时更新页面变动内容。</p>
-<h3 id="emmet-livestyle"><a href="#emmet-livestyle" class="headerlink" title="emmet livestyle"></a>emmet livestyle</h3><p>emmet livestyle 扩展程序（浏览器、编辑器有各自的扩展程序）允许将编辑器的变更内容自动反应在页面上，又将浏览器的变更内容自动反应在编辑器上。</p>
-<h2 id="抓包工具"><a href="#抓包工具" class="headerlink" title="抓包工具"></a>抓包工具</h2><p>charles 是 mac os 中的抓包工具，fiddler 是 windows 中的抓包工具，两者都通过将自己设置成系统的网络访问代理服务器实现。即所有请求先经过 charles、fiddler，然后再发送到远程服务器中，因此可以拦截请求、修改请求、修改响应，甚至将响应内容替换成本地资源。fiddler 还可以通过 tools - options - connection 设置监听端口，然后手机代理到该端口，就可以将手机端获得的响应资源替换成本地文件，详情可参阅 <a href="https://www.cnblogs.com/wenbodeboke/p/9770771.html" target="_blank" rel="noopener">fiddler手机抓包配置方法</a>。</p>
-<h3 id="charles"><a href="#charles" class="headerlink" title="charles"></a>charles</h3><p>官方网址：<a href="https://www.charlesproxy.com/" target="_blank" rel="noopener">https://www.charlesproxy.com/</a><br>破解jar包获取地址：<a href="https://www.zzzmode.com/mytools/charles/" target="_blank" rel="noopener">https://www.zzzmode.com/mytools/charles/</a><br>charles 参考文档：<a href="https://www.jianshu.com/p/0bc767840e42" target="_blank" rel="noopener">CharlesMac破解版安装以及使用</a></p>
-<h2 id="模拟器"><a href="#模拟器" class="headerlink" title="模拟器"></a>模拟器</h2><p>Genymotion</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/xy-nb/p/web.html" target="_blank" rel="noopener">手机web前端调试页面的几种方式</a></p>
+    <title>前端监控</title>
+    <url>/2019/11/10/frontend/architecture/%E5%89%8D%E7%AB%AF%E7%9B%91%E6%8E%A7/</url>
+    <content><![CDATA[<h2 id="前端监控"><a href="#前端监控" class="headerlink" title="前端监控"></a>前端监控</h2><p>前端监控包含 js 错误统计、js 错误诊断、api 统计监控、前后端链路追踪、文件加载失败监控、页面访问速度、慢回话追踪等。</p>
+<p>js 错误统计可以借助 try…catch、window.onerror 实现。try…catch 能捕获到错误信息描述、堆栈、行号、列号、具体的出错文件信息等，但是它只能在单一的作用域内捕获错误，不能捕获异步函数的错误，如 setTimeout 函数就需要在其内部使用 try…catch 语句，才能捕获定时器回调函数的错误内容。这时候想要使用 try…catch 捕获错误，就需要对 setTimeout 等函数进行封装。window.onerror 可以在任何执行上下文中执行，也能捕获脚本语法错误、运行时错误（出错信息、出错文件、行号等），但不能捕获跨域脚本的错误（跨域脚本只会简单报 script error 错误）。</p>
+<p>文件加载失败可以通过加载节点的 onreadystatechange 或 onload 事件加以统计。</p>
+<p>页面访问性能可以通过 Performance API 加以统计。</p>
+<h2 id="retcode"><a href="#retcode" class="headerlink" title="retcode"></a>retcode</h2><p>retcode 是阿里云 <a href="https://www.alibabacloud.com/help/zh/doc-detail/58652.htm?spm=a2c63.p38356.b99.80.4fcf86c0Gnp5qS" target="_blank" rel="noopener">ARMS 前端监控平台</a>配套的 jssdk。其压缩代码地址为 <a href="https://retcode.alicdn.com/retcode/bl.js。这里不作详解。" target="_blank" rel="noopener">https://retcode.alicdn.com/retcode/bl.js。这里不作详解。</a></p>
+<h2 id="Bombay"><a href="#Bombay" class="headerlink" title="Bombay"></a>Bombay</h2><p><a href="https://github.com/bombayjs/bombayjs" target="_blank" rel="noopener">Bombay</a> 通过 xhr 对象或者 window.navigator.sendBeacon 上报数据。上报数据类型包含 error、behavior、health 以及其他，除了 health 尝试使用 window.navigator.sendBeacon 上报以外，其他全部使用 xhr 对象。上报数据的功能实现由 reporter 模块承担；在 reporter 模块的基础上，handlers 模块用于实际上报不同类型的数据，如 pv、health（页面停留时长）、click 点击事件、blur 失焦事件（点击和失焦事件的上报内容包含节点的路径）、performance 性能（首屏渲染时各操作的处理时长）、resource（资源加载时长）、navigation（页面跳转情况）、hashChange（单页应用跳转情况）、caughtError（js 报错，通过 window.addEventListener(‘error’, …) 实现）、promiseError（promise 错误，通过 window.addEventListener(‘unhandledrejection’, …) 实现）、resourceError（资源加载错误）、api（ajax 处理情况）、message（window.postMessage 发送消息）等。在处理单页应用的页面跳转或 ajax 请求等时，Bombay 通过 hack 机制劫持了 window.console、history.pushState、history.replaceState、window.fetch、window.XMLHttpRequest、window.onpopstate 等原生语法，以在封装后的函数执行过程中上报数据。最后，Bombay 根据用户配置项启用功能。</p>
+<p>与 mixpanel 一样，Bombay 在上报数据时需要设置 token，即避免其他应用调用上报接口。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.cnblogs.com/passkey/p/9981654.html" target="_blank" rel="noopener">监控平台前端SDK开发实践</a></p>
 ]]></content>
       <categories>
         <category>frontend</category>

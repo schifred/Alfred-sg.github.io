@@ -142,6 +142,19 @@
       </tags>
   </entry>
   <entry>
+    <title>webpack 踩坑录</title>
+    <url>/2020/03/18/%E8%B8%A9%E5%9D%91/webpack%20%E8%B8%A9%E5%9D%91%E5%BD%95/</url>
+    <content><![CDATA[<h2 id="懒加载"><a href="#懒加载" class="headerlink" title="懒加载"></a>懒加载</h2><p>Q: 使用 webpack4, @babel/plugin-syntax-dynamic-import 插件后，react-router3 中基于 require.ensure 将不再生效，需要使用如 react-loadable 等加载方式。可参考 <a href="https://blog.csdn.net/jacktesla/article/details/80792110" target="_blank" rel="noopener">react-router的3种按需加载介绍</a>。<br>A: 猜想：webpack 中使用 require.ensure, import() 采用同一套机制，dynamic-import 插件也会影响 require.ensure，将导出模块转换成 promise。babel 文档 <a href="https://babeljs.io/docs/en/babel-plugin-syntax-dynamic-import/" target="_blank" rel="noopener">@babel/plugin-syntax-dynamic-import</a>、webpack 文档 <a href="https://webpack.js.org/guides/code-splitting/#dynamic-imports" target="_blank" rel="noopener">Dynamic Imports</a> 指明，import() 需要加载 <a href="https://github.com/stefanpenner/es6-promise" target="_blank" rel="noopener">es6-promise</a> 或者 <a href="https://github.com/taylorhakes/promise-polyfill" target="_blank" rel="noopener">promise-polyfill</a> 垫片。<a href="https://webpack.js.org/api/module-methods/#requireensure" target="_blank" rel="noopener">require.ensure</a> 是 webpack 所使用的传统方法。</p>
+<p>Q: chunkFileName </p>
+]]></content>
+      <categories>
+        <category>踩坑</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>图片校验码</title>
     <url>/2020/03/11/frontend/guide/%E5%9B%BE%E7%89%87%E6%A0%A1%E9%AA%8C%E7%A0%81/</url>
     <content><![CDATA[<h2 id="纯前端实现"><a href="#纯前端实现" class="headerlink" title="纯前端实现"></a>纯前端实现</h2><p>纯前端实现图片校验码指的是通过 canvas 绘制随机串的方式。这种方式有极大的弊端：如果随机串在前端生成，那么通过拦截伪造请求仍然能正常调用后台接口；如果随机串由后台发送给前端，那么中间可以被拦截并伪造（当然，可尝试用加密技术进行保护）。因此，这种方式大体适用于学习研究的目的。以下代码段基于 <a href="https://blog.csdn.net/u012149906/article/details/95484216" target="_blank" rel="noopener">react 验证码组件</a> 整理，其实现也可以参考 <a href="https://www.cnblogs.com/zppsakura/p/11375864.html" target="_blank" rel="noopener">在React中随机生成图形验证码</a>。您可以在 codesandbox 查看<a href="https://codesandbox.io/s/zifuchuanxiaoyanma-4p8jl" target="_blank" rel="noopener">效果</a>。</p>

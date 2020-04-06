@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>前端模块化机制 | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst">
+    
+    <meta name="description" content="前端模块化规范有 ES2015、CommonJS、CMD、AMD 规范：  AMD 规范：requirejs 所使用的前端模块加载规范。 CMD 规范：seajs 所使用的前端模块加载规范。 CommonJS 规范：nodejs 所使用的规范，模块加载机制仅是其中一部分。 ES 2015 规范：es 官方规范，模块加载机制仅是其中一部分。  AMD模块导出及加载123456789101112131">
+<meta name="keywords" content="analyst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="前端模块化机制">
+<meta property="og:url" content="http://xzfyu.com/2020/04/10/frontend/architecture/模块化机制/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="前端模块化规范有 ES2015、CommonJS、CMD、AMD 规范：  AMD 规范：requirejs 所使用的前端模块加载规范。 CMD 规范：seajs 所使用的前端模块加载规范。 CommonJS 规范：nodejs 所使用的规范，模块加载机制仅是其中一部分。 ES 2015 规范：es 官方规范，模块加载机制仅是其中一部分。  AMD模块导出及加载123456789101112131">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-06T14:21:22.342Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="前端模块化机制">
+<meta name="twitter:description" content="前端模块化规范有 ES2015、CommonJS、CMD、AMD 规范：  AMD 规范：requirejs 所使用的前端模块加载规范。 CMD 规范：seajs 所使用的前端模块加载规范。 CommonJS 规范：nodejs 所使用的规范，模块加载机制仅是其中一部分。 ES 2015 规范：es 官方规范，模块加载机制仅是其中一部分。  AMD模块导出及加载123456789101112131">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/frontend/architecture/">architecture</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-frontend/architecture/模块化机制" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        前端模块化机制
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/04/10/frontend/architecture/模块化机制/" class="article-date">
+         <time datetime="2020-04-09T16:00:00.000Z" itemprop="datePublished">2020-04-10</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p>前端模块化规范有 ES2015、CommonJS、CMD、AMD 规范：</p>
+<ul>
+<li>AMD 规范：<a href="https://github.com/requirejs/requirejs" target="_blank" rel="noopener">requirejs</a> 所使用的前端模块加载规范。</li>
+<li>CMD 规范：<a href>seajs</a> 所使用的前端模块加载规范。</li>
+<li>CommonJS 规范：nodejs 所使用的规范，模块加载机制仅是其中一部分。</li>
+<li>ES 2015 规范：es 官方规范，模块加载机制仅是其中一部分。</li>
+</ul>
+<h2 id="AMD"><a href="#AMD" class="headerlink" title="AMD"></a>AMD</h2><h3 id="模块导出及加载"><a href="#模块导出及加载" class="headerlink" title="模块导出及加载"></a>模块导出及加载</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 直接导出对象</span></span><br><span class="line">define(<span class="built_in">module</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义没有依赖的模块</span></span><br><span class="line">define(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">module</span>;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义有依赖的模块</span></span><br><span class="line">define([<span class="string">'module1'</span>, <span class="string">'module2'</span>], <span class="function"><span class="keyword">function</span>(<span class="params">module1, module2</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">module</span>;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// callback 内部通过 require 加载模块</span></span><br><span class="line">define(<span class="function"><span class="keyword">function</span>(<span class="params">require, exports, module</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> module1 = <span class="built_in">require</span>(<span class="string">'module1'</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">module</span>;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">require</span>([<span class="string">'module1'</span>, <span class="string">'module2'</span>], <span class="function"><span class="keyword">function</span>(<span class="params">m1, m2</span>)</span>&#123;</span><br><span class="line">  <span class="comment">// 使用 module1、module2</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="requirejs"><a href="#requirejs" class="headerlink" title="requirejs"></a>requirejs</h3><ul>
+<li>支持浏览器、web worker、nodejs 环境。</li>
+<li>插件机制，’plugin!resource’ 形式指定资源。</li>
+</ul>
+<p>requirejs 中有两类模块：一类为使用 define 语法书写的模块；另一类为使用 require 语法加载的模块。requirejs 会在全局上下文中定义 define、require 函数；这两个函数都会基于不同的上下文实现分区定义和加载模块，默认在顶层上下文中定义和加载模块。</p>
+<ul>
+<li>define(name?, deps?, callback): 定义模块名、依赖、函数体（返回导出）。callback 有两种形式，一种显式指定依赖，另一种显式以 require, exports, module 为参数。</li>
+<li>require(config?, deps, callback, errback, optional): 加载模块，通过 config.context 定义所使用的上下文，deps 依赖，callback 用于导出模块的句柄。</li>
+</ul>
+<p>context 上下文主要包含如下属性或方法：</p>
+<ul>
+<li>registry：已注册、尚未启动加载流程的模块，对象形式，属性值为 Module 实例。</li>
+<li>enabledRegistry：通过将 enabled = true 启动加载流程的模块，对象形式。</li>
+<li>defined：已创建导出的模块，对象形式。</li>
+<li>defQueue：define 模块已加载，它并未转化成 requirejs 内部的 Module 形式，依赖也未曾加载，</li>
+<li>require：在当前上下文环境中加载模块。由 context.makeRequire 创建。</li>
+</ul>
+<p>模块的内部表示为 Module 实例，主要包含以下属性或方法：</p>
+<ul>
+<li>map：moduleMap 对象，通过 <a href="https://github.com/requirejs/requirejs/blob/master/require.js#L416" target="_blank" rel="noopener">makeModuleMap</a> 获得。其下包含 prefix 属性为插件，即 ‘i18n!my/nls/colors’ 中 i18n 插件；isDefine 是否命名模块。</li>
+<li>pluginMaps：插件，用于转换加载的模块。</li>
+<li>depMaps：依赖，数组形式；depCount：未加载的依赖数；depMatched：标识依赖已加载；depExports：依赖的导出内容，作为 callback 的参数。</li>
+<li>load 方法：通过创建 script 节点或调用 importScripts 形式加载模块。</li>
+<li>callPlguin 方法：通过插件加载模块。</li>
+<li>fetch 方法：加载模块总接口，内部会以 load 或 callPlguin 方法加载模块。</li>
+<li>init 方法：初始化，按条件执行 enable 或 check 方法。特别的，当模块作为依赖时，它会未经 init 方法处理，即使用 <a href="https://github.com/requirejs/requirejs/blob/master/require.js#L1161" target="_blank" rel="noopener">enable</a> 方法加载。enable 方法尾部调用的 check 会依据 !inited 状态 fetch 模块。</li>
+<li>enable 方法：将当前模块及其依赖、所使用的插件置为 enabled = true。若依赖已加载，则更新 mod.depExports 当前模块的依赖；若依赖未加载，调用依赖的 enable 方法加载依赖。尾部调用 check 方法，尝试创建模块的导出、或作错误处理、或加载模块。</li>
+<li>check 方法：若模块尚未 inited 且不在 context.defQueue 队列中，调用 fetch 方法加载它；若报错，错误处理；若模块的依赖已加载完成，创建模块的导出，并触发 defined 事件，以向上创建 parentMod 的导出。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 加载模块及其依赖</span></span><br><span class="line"><span class="keyword">const</span> enable = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.enabled = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  each(<span class="keyword">this</span>.depMaps, bind(<span class="keyword">this</span>, <span class="function"><span class="keyword">function</span> (<span class="params">depMap, i</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> id, mod, handler;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> depMap === <span class="string">'string'</span>) &#123;</span><br><span class="line">      depMap = makeModuleMap(depMap,</span><br><span class="line">        (<span class="keyword">this</span>.map.isDefine ? <span class="keyword">this</span>.map : <span class="keyword">this</span>.map.parentMap),</span><br><span class="line">        <span class="literal">false</span>,</span><br><span class="line">        !<span class="keyword">this</span>.skipMap);</span><br><span class="line">      <span class="keyword">this</span>.depMaps[i] = depMap;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 依赖已加载</span></span><br><span class="line">      handler = getOwn(handlers, depMap.id);</span><br><span class="line">      <span class="keyword">if</span> (handler) &#123;</span><br><span class="line">        <span class="keyword">this</span>.depExports[i] = handler(<span class="keyword">this</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">this</span>.depCount += <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 绑定事件，依赖加载完成后，调用 this.check 加载当前模块</span></span><br><span class="line">      on(depMap, <span class="string">'defined'</span>, bind(<span class="keyword">this</span>, <span class="function"><span class="keyword">function</span> (<span class="params">depExports</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.undefed) &#123;</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.defineDep(i, depExports);</span><br><span class="line">        <span class="keyword">this</span>.check();</span><br><span class="line">      &#125;));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将依赖的 enabled 置为 true，尝试加载依赖</span></span><br><span class="line">    id = depMap.id;</span><br><span class="line">    mod = registry[id];</span><br><span class="line">    <span class="keyword">if</span> (!hasProp(handlers, id) &amp;&amp; mod &amp;&amp; !mod.enabled) &#123;</span><br><span class="line">      context.enable(depMap, <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将插件的 enabled 置为 true</span></span><br><span class="line">  eachProp(<span class="keyword">this</span>.pluginMaps, bind(<span class="keyword">this</span>, <span class="function"><span class="keyword">function</span> (<span class="params">pluginMap</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> mod = getOwn(registry, pluginMap.id);</span><br><span class="line">    <span class="keyword">if</span> (mod &amp;&amp; !mod.enabled) &#123;</span><br><span class="line">      context.enable(pluginMap, <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 创建模块的导出</span></span><br><span class="line">  <span class="keyword">this</span>.check();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载模块、或错误处理、或创建导出</span></span><br><span class="line"><span class="keyword">const</span> check = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="keyword">this</span>.enabled) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> err, cjsModule,</span><br><span class="line">    id = <span class="keyword">this</span>.map.id,</span><br><span class="line">    depExports = <span class="keyword">this</span>.depExports,</span><br><span class="line">    exports = <span class="keyword">this</span>.exports,</span><br><span class="line">    factory = <span class="keyword">this</span>.factory;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 模块未经初始化，通常是依赖，加载该模块</span></span><br><span class="line">  <span class="keyword">if</span> (!<span class="keyword">this</span>.inited) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!hasProp(context.defQueueMap, id)) &#123;</span><br><span class="line">      <span class="keyword">this</span>.fetch();</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="comment">// 错误处理</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.error) &#123;</span><br><span class="line">    <span class="keyword">this</span>.emit(<span class="string">'error'</span>, <span class="keyword">this</span>.error);</span><br><span class="line">  <span class="comment">// 依赖已加载完成，创建导出，并触发 defined 事件</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!<span class="keyword">this</span>.defining) &#123;</span><br><span class="line">    <span class="keyword">this</span>.defining = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// depCount &lt; 1 表示依赖已加载完成</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.depCount &lt; <span class="number">1</span> &amp;&amp; !<span class="keyword">this</span>.defined) &#123;</span><br><span class="line">      <span class="keyword">if</span> (isFunction(factory)) &#123;</span><br><span class="line">        <span class="comment">// 执行 factory 句柄，生成刀块的导出</span></span><br><span class="line">        exports = context.execCb(id, factory, depExports, exports);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// factory 句柄如 CommonJS 一样使用 module、module.exports 进行赋值导出</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.map.isDefine &amp;&amp; exports === <span class="literal">undefined</span>) &#123;</span><br><span class="line">          cjsModule = <span class="keyword">this</span>.module;</span><br><span class="line">          <span class="keyword">if</span> (cjsModule) &#123;</span><br><span class="line">            exports = cjsModule.exports;</span><br><span class="line">          &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.usingExports) &#123;</span><br><span class="line">            exports = <span class="keyword">this</span>.exports;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        exports = factory;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">this</span>.exports = exports;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 清理 context.registry，设置 context.defined，表示模块已 defined</span></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.map.isDefine &amp;&amp; !<span class="keyword">this</span>.ignore) &#123;</span><br><span class="line">        defined[id] = exports;</span><br><span class="line">      &#125;</span><br><span class="line">      cleanRegistry(id);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">this</span>.defined = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.defining = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.defined &amp;&amp; !<span class="keyword">this</span>.defineEmitted) &#123;</span><br><span class="line">      <span class="keyword">this</span>.defineEmitted = <span class="literal">true</span>;</span><br><span class="line">      <span class="comment">// 触发 defined 事件，促使加载已当前模块为依赖的模块</span></span><br><span class="line">      <span class="keyword">this</span>.emit(<span class="string">'defined'</span>, <span class="keyword">this</span>.exports);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>requirejs 主要是在浏览器环境实现 js 脚本的模块化加载，其基本逻辑流程为：</p>
+<ol>
+<li>首先在 html 中通过 script 节点加载 requirejs 模块，该 script 节点的 data-main 属性指定了 entryMod 入口模块。</li>
+<li>requirejs 模块执行期间，会通过 <a href="https://github.com/requirejs/requirejs/blob/master/require.js#L1836" target="_blank" rel="noopener">req({})</a> 创建顶层上下文并加载 entryMod 入口模块。</li>
+<li>入口模块通常为 require 模块，因此会执行 require 函数，创建内部表示 Module 实例，并执行 entryMod.enable 方法。<ul>
+<li>当入口模块没有依赖，会直接调用 entryMod.check 执行入口模块的句柄。</li>
+<li>当入口模块有依赖，调用依赖的 enable 方法，此时依赖没有经过 init 方法处理，它会使用 <a href="https://github.com/requirejs/requirejs/blob/master/require.js#L856" target="_blank" rel="noopener">fetch</a> 方法加载依赖。<ul>
+<li>当依赖为 require 模块时，重复 entryMod 的处理机制。</li>
+<li>当依赖为 define 模块，加载该 define 模块，通过 intakeDefines 函数加载依赖，内部还是调用依赖的 check 方法。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>完成入口模块的句柄。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// define 定义模块，只更新 context.defQueue 或 globalDefQueue，并不会加载依赖、执行 callback</span></span><br><span class="line">define = <span class="function"><span class="keyword">function</span> (<span class="params">name, deps, callback</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...参数处理，会将 require, [exports], [module] 注入 deps 依赖中</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如 define() 函数指定了上下文（通过 script 节点属性指定），直接更新 context.defQueue</span></span><br><span class="line">  <span class="comment">// 如未指定，等待 takeGlobalQueue 函数更新 context.defQueue</span></span><br><span class="line">  <span class="comment">// https://github.com/requirejs/requirejs/blob/master/require.js#L558</span></span><br><span class="line">  <span class="keyword">if</span> (context) &#123;</span><br><span class="line">    context.defQueue.push([name, deps, callback]);</span><br><span class="line">    context.defQueueMap[name] = <span class="literal">true</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    globalDefQueue.push([name, deps, callback]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// require 加载模块，对外接口</span></span><br><span class="line">req = requirejs = <span class="function"><span class="keyword">function</span> (<span class="params">deps, callback, errback, optional</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 参数处理，deps 可能以 config 形式传入</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (config &amp;&amp; config.context) &#123;</span><br><span class="line">    contextName = config.context;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  context = getOwn(contexts, contextName);</span><br><span class="line">  <span class="keyword">if</span> (!context) &#123;</span><br><span class="line">    context = contexts[contextName] = req.s.newContext(contextName);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 配置 context，并加载 data-main 入口模块</span></span><br><span class="line">  <span class="keyword">if</span> (config) context.configure(config);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> context.require(deps, callback, errback);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">req(&#123;&#125;);<span class="comment">// 加载入口模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// context.require 函数内部实现，通过 context.makeRequire(relMap, options) 制作</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">localRequire</span>(<span class="params">deps, callback, errback</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> map, requireMod;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// require('module') 形式，直接导出模块</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> deps === <span class="string">'string'</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (relMap &amp;&amp; hasProp(handlers, deps)) &#123;</span><br><span class="line">      <span class="keyword">return</span> handlers[deps](registry[relMap.id]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// nodejs 等环境使用 req.get 获取模块</span></span><br><span class="line">    <span class="keyword">if</span> (req.get) &#123;</span><br><span class="line">      <span class="keyword">return</span> req.get(context, deps, relMap, localRequire);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    map = makeModuleMap(deps, relMap, <span class="literal">false</span>, <span class="literal">true</span>);</span><br><span class="line">    <span class="keyword">return</span> defined[map.id];</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// define 模块已加载，将其转换成 Module 实例并执行该实例的 check 方法</span></span><br><span class="line">  intakeDefines();</span><br><span class="line"></span><br><span class="line">  context.nextTick(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    intakeDefines();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获得 moduleMap 并创建 context.Module 实例，存入 context.registry[moduleMap.id] 中</span></span><br><span class="line">    requireMod = getModule(makeModuleMap(<span class="literal">null</span>, relMap));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行 requireMod 的 enable 方法，将当前模块及其依赖、插件的 enabled 属性置为 true</span></span><br><span class="line">    <span class="comment">// 若依赖已加载，更新 requireMod.depExports</span></span><br><span class="line">    requireMod.init(deps, callback, errback, &#123;</span><br><span class="line">      enabled: <span class="literal">true</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    checkLoaded();</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> localRequire;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkLoaded</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> reqCalls = [];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (inCheckLoaded) <span class="keyword">return</span>;</span><br><span class="line">  inCheckLoaded = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  eachProp(enabledRegistry, <span class="function"><span class="keyword">function</span> (<span class="params">mod</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> map = mod.map;</span><br><span class="line">    <span class="keyword">if</span> (!mod.enabled) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">if</span> (!map.isDefine) reqCalls.push(mod);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  each(reqCalls, <span class="function"><span class="keyword">function</span> (<span class="params">mod</span>) </span>&#123;</span><br><span class="line">    breakCycle(mod, &#123;&#125;, &#123;&#125;);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  inCheckLoaded = <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">breakCycle</span>(<span class="params">mod, traced, processed</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> id = mod.map.id;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (mod.error) &#123;</span><br><span class="line">    mod.emit(<span class="string">'error'</span>, mod.error);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    traced[id] = <span class="literal">true</span>;</span><br><span class="line">    each(mod.depMaps, <span class="function"><span class="keyword">function</span> (<span class="params">depMap, i</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">var</span> depId = depMap.id,</span><br><span class="line">        dep = getOwn(registry, depId);</span><br><span class="line"></span><br><span class="line">      <span class="comment">//Only force things that have not completed</span></span><br><span class="line">      <span class="comment">//being defined, so still in the registry,</span></span><br><span class="line">      <span class="comment">//and only if it has not been matched up</span></span><br><span class="line">      <span class="comment">//in the module already.</span></span><br><span class="line">      <span class="keyword">if</span> (dep &amp;&amp; !mod.depMatched[i] &amp;&amp; !processed[depId]) &#123;</span><br><span class="line">        <span class="keyword">if</span> (getOwn(traced, depId)) &#123;</span><br><span class="line">          mod.defineDep(i, defined[depId]);</span><br><span class="line">          mod.check(); <span class="comment">//pass false?</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          breakCycle(dep, traced, processed);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    processed[id] = <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="CMD"><a href="#CMD" class="headerlink" title="CMD"></a>CMD</h2><h2 id="ES2015"><a href="#ES2015" class="headerlink" title="ES2015"></a>ES2015</h2><p>由ES2015规范定义的官方模块化标准。它有以下优点：</p>
+<ol>
+<li>语法结构适合静态分析，编译期即可识别语法错误。</li>
+<li>支持循环依赖。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 导入模块</span></span><br><span class="line"><span class="keyword">import</span> v <span class="keyword">from</span> <span class="string">"mod"</span>;</span><br><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> ns <span class="keyword">from</span> <span class="string">"mod"</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; x &#125; <span class="keyword">from</span> <span class="string">"mod"</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; x <span class="keyword">as</span> v &#125; <span class="keyword">from</span> <span class="string">"mod"</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">"mod"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 导出模块</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">var</span> v;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>)</span>&#123;&#125;;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125;;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="number">42</span>;</span><br><span class="line"><span class="keyword">export</span> &#123; x &#125;;</span><br><span class="line"><span class="keyword">export</span> &#123; v <span class="keyword">as</span> x &#125;;</span><br><span class="line"><span class="keyword">export</span> &#123; x &#125; <span class="keyword">from</span> <span class="string">"mod"</span>;</span><br><span class="line"><span class="keyword">export</span> &#123; v <span class="keyword">as</span> x &#125; <span class="keyword">from</span> <span class="string">"mod"</span>;</span><br><span class="line"><span class="keyword">export</span> * <span class="keyword">from</span> <span class="string">"mod"</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="CommonJS"><a href="#CommonJS" class="headerlink" title="CommonJS"></a>CommonJS</h2><h2 id="UMD"><a href="#UMD" class="headerlink" title="UMD"></a>UMD</h2><p><a href="https://segmentfault.com/a/1190000017466120" target="_blank" rel="noopener">https://segmentfault.com/a/1190000017466120</a><br><a href="https://blog.csdn.net/qq_41875664/article/details/98870815" target="_blank" rel="noopener">https://blog.csdn.net/qq_41875664/article/details/98870815</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+    <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more">分享到：</a>
+    <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间">QQ空间</a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">新浪微博</a>
+    <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博">腾讯微博</a>
+    <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网">人人网</a>
+    <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信</a>
+</div>
+<script>
+window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{"bdSize":16}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+<style>
+    .bdshare_popup_box {
+        border-radius: 4px;
+        border: #e1e1e1 solid 1px;
+    }
+    .bdshare-button-style0-16 a,
+    .bdshare-button-style0-16 .bds_more {
+        padding-left: 20px;
+        margin: 6px 10px 6px 0;
+    }
+    .bdshare_dialog_list a,
+    .bdshare_popup_list a,
+    .bdshare_popup_bottom a {
+        font-family: 'Microsoft Yahei';
+    }
+    .bdshare_popup_top {
+        display: none;
+    }
+    .bdshare_popup_bottom {
+        height: auto;
+        padding: 5px;
+    }
+</style>
+
+
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "前端模块化机制",
+        "image": "http://xzfyu.com",
+        "keywords": "analyst",
+        "genre": "frontend architecture",
+        "datePublished": "2020-04-10",
+        "dateCreated": "2020-04-10",
+        "dateModified": "2020-04-06",
+        "url": "http://xzfyu.com/2020/04/10/frontend/architecture/模块化机制/",
+        "description": "前端模块化规范有 ES2015、CommonJS、CMD、AMD 规范：
+
+AMD 规范：requirejs 所使用的前端模块加载规范。
+CMD 规范：seajs 所使用的前端模块加载规范。
+CommonJS 规范：nodejs 所使用的规范，模块加载机制仅是其中一部分。
+ES 2015 规范：es 官方规范，模块加载机制仅是其中一部分。
+
+AMD模块导出及加载123456789101112131",
+        "wordCount": 2403
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+<div id="comment-container"></div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            react fiber 代码梳理篇
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2020/04/05/frontend/工程化/命令行工具/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">node 命令行工具</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="no-thumbnail">
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/react/">react</a></p>
+                            <p class="item-title"><a href="/2020/04/29/frontend/react16/react fiber 代码梳理篇/" class="title">react fiber 代码梳理篇</a></p>
+                            <p class="item-date"><time datetime="2020-04-28T16:00:00.000Z" itemprop="datePublished">2020-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/04/10/frontend/architecture/模块化机制/" class="title">前端模块化机制</a></p>
+                            <p class="item-date"><time datetime="2020-04-09T16:00:00.000Z" itemprop="datePublished">2020-04-10</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/前端工程化/">前端工程化</a></p>
+                            <p class="item-title"><a href="/2020/04/05/frontend/工程化/命令行工具/" class="title">node 命令行工具</a></p>
+                            <p class="item-date"><time datetime="2020-04-04T16:00:00.000Z" itemprop="datePublished">2020-04-05</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">25</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">88</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">13</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">12</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/fiber-renconciler/" style="font-size: 10px;">fiber-renconciler</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 17.78px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/react16/" style="font-size: 10px;">react16</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: 'b91413aac6da3042133d',
+        clientSecret: '0ea2891e8a1163db789b8e5a4379771adb419be3',
+        id: '403f56881174c13b70e3efc65e3c7769',
+        repo: 'Alfred-sg.github.io',
+        owner: 'Alfred-sg',
+        admin: "Alfred-sg"
+    })
+    gitalk.render('comment-container')
+</script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

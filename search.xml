@@ -216,10 +216,13 @@
 </ul>
 <h3 id="示例-2"><a href="#示例-2" class="headerlink" title="示例"></a>示例</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 导入</span></span><br><span class="line"><span class="keyword">const</span> mod = <span class="built_in">require</span>(<span class="string">'moduleName'</span>);</span><br><span class="line"><span class="keyword">const</span> x = <span class="built_in">require</span>(<span class="string">'moduleName'</span>).x;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 导出</span></span><br><span class="line">exports.x = mod;<span class="comment">// 增量导出</span></span><br><span class="line"><span class="built_in">module</span>.exports = mod;<span class="comment">// 全量导出</span></span><br></pre></td></tr></table></figure>
 <h3 id="nodejs"><a href="#nodejs" class="headerlink" title="nodejs"></a>nodejs</h3><p>nodejs 实现 require 函数的源码见于 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js" target="_blank" rel="noopener">cjs/loader.js</a>。nodejs v13.12.0 也实现了 ES2015 模块的加载方式，参见 <a href="https://github.com/nodejs/node/blob/master/lib/internal/modules/esm/loader.js" target="_blank" rel="noopener">esm/loader.js</a>。</p>
-<p>CommonJS 在 nodejs 环境应用时，可用于加载 js、C++ 模块。与 requirejs、seajs 主要在浏览器环境加载远程资源不同的是，nodejs 加载的都是本地资源。<a href="http://nodejs.cn/api/modules.html#modules_all_together" target="_blank" rel="noopener">nodejs 文档</a>详细描绘了模块加载流程。以 require(x) 为例，即如下：</p>
+<p>CommonJS 在 nodejs 环境应用时，可用于加载 js、C++ 模块。与 requirejs、seajs 主要在浏览器环境加载远程资源不同的是，nodejs 加载的都是本地资源。<a href="http://nodejs.cn/api/modules.html#modules_all_together" target="_blank" rel="noopener">nodejs 文档</a>详细描绘了模块寻址流程。以 require(x) 为例，即如下：</p>
 <ol>
-<li>尝试从 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L861" target="_blank" rel="noopener">Module._cache</a> 中获取缓存模块（缓存模块可避免模块多次执行，同时提升加载效率）。</li>
-<li><a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L867" target="_blank" rel="noopener">loadNativeModule</a>：x 为 fs 等核心模块，加载该核心模块。</li>
+<li>x 为 fs 等核心模块，加载该核心模块。</li>
+<li>x 为文件模块<ul>
+<li>x 与就近的 package.json </li>
+</ul>
+</li>
 <li>创建 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L871" target="_blank" rel="noopener">Module 实例</a>并调用 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L890" target="_blank" rel="noopener">module.load</a> 方法加载文件模块。</li>
 <li>模块标识以 ‘/‘, ‘./‘, ‘../‘ 起始，<ul>
 <li>查找 x.js、x.json、x.node 模块。</li>
@@ -229,6 +232,11 @@
 </li>
 <li>模块标识不以 ‘/‘, ‘./‘, ‘../‘ 起始，且就近的 package.json 的 name 属性与 x 相同、exports 属性也存在，根据 exports 属性加载模块。参见 <a href="https://www.lizenghai.com/archives/54210.html" target="_blank" rel="noopener">LOAD_SELF_REFERENCE</a>。</li>
 <li>向上查找各 node_modules 文件夹中的 x 模块。</li>
+</ol>
+<ol>
+<li>尝试从 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L861" target="_blank" rel="noopener">Module._cache</a> 中获取缓存模块（缓存模块可避免模块多次执行，同时提升加载效率）。</li>
+<li><a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L867" target="_blank" rel="noopener">loadNativeModule</a>：x 为 fs 等核心模块，加载该核心模块。</li>
+<li>创建 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L871" target="_blank" rel="noopener">Module 实例</a>并调用 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L890" target="_blank" rel="noopener">module.load</a> 方法加载文件模块。</li>
 </ol>
 <p>加载的模块会按照解析后的文件路径进行缓存，以避免重新加载时的再次运行。想要再次运行模块，需要先清除缓存。</p>
 <p>跟 requirejs、seajs 一样，CommonJS 会通过模块封装器将 require、module、exports 等传入模块内部，这样做同时会隔离作用域。如<a href="http://nodejs.cn/api/modules.html#modules_all_together" target="_blank" rel="noopener">模块封装器</a>所指出的，除了 require、module、exports 之外，模块内还可以使用：</p>

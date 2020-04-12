@@ -21,7 +21,7 @@
 <meta property="og:description" content="前端模块化规范有 AMD、CMD、CommonJS、ES2015 规范：  AMD 模块化规范：requirejs 所使用的前端模块加载规范。 CMD 模块化规范：seajs 所使用的前端模块加载规范。 CommonJS 模块化规范：作为CommonJS 规范的一部分，nodejs是其较常见的实现。 ES 2015 模块化规范：es 官方规范的一部分。  AMD示例1234567891011121">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://xzfyu.com/2020/04/10/frontend/architecture/模块化机制/dep.png">
-<meta property="og:updated_time" content="2020-04-11T14:14:41.740Z">
+<meta property="og:updated_time" content="2020-04-12T06:32:28.395Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="前端模块化机制">
 <meta name="twitter:description" content="前端模块化规范有 AMD、CMD、CommonJS、ES2015 规范：  AMD 模块化规范：requirejs 所使用的前端模块加载规范。 CMD 模块化规范：seajs 所使用的前端模块加载规范。 CommonJS 模块化规范：作为CommonJS 规范的一部分，nodejs是其较常见的实现。 ES 2015 模块化规范：es 官方规范的一部分。  AMD示例1234567891011121">
@@ -270,38 +270,30 @@
 <li>require 函数以模块唯一标识为入参，模块导出 api 为出参。对于循环依赖，依赖模块须导出被依赖模块执行时所需的 api。require.main 或者为模块上下文中的 module 变量，或者为 undefined。require.pathes 用于指定 loader 加载模块的目录列表，优先级从高到低（loader 会对其进行解析）；但是 loader 不只会在 require.pathes 范围内查找模块。</li>
 <li>exports 初始时持有 module.exports 相同的指针。exports 可用于增量改写导出方法或属性；module.exports 可用于全量改写导出对象。</li>
 </ul>
+<p>CommonJS 的典型实现有 nodejs、<a href="https://github.com/browserify/browserify" target="_blank" rel="noopener">browserify</a>。</p>
 <h3 id="示例-2"><a href="#示例-2" class="headerlink" title="示例"></a>示例</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 导入</span></span><br><span class="line"><span class="keyword">const</span> mod = <span class="built_in">require</span>(<span class="string">'moduleName'</span>);</span><br><span class="line"><span class="keyword">const</span> x = <span class="built_in">require</span>(<span class="string">'moduleName'</span>).x;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 导出</span></span><br><span class="line">exports.x = mod;<span class="comment">// 增量导出</span></span><br><span class="line"><span class="built_in">module</span>.exports = mod;<span class="comment">// 全量导出</span></span><br></pre></td></tr></table></figure>
 <h3 id="nodejs"><a href="#nodejs" class="headerlink" title="nodejs"></a>nodejs</h3><p>nodejs 实现 require 函数的源码见于 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js" target="_blank" rel="noopener">cjs/loader.js</a>。nodejs v13.12.0 也实现了 ES2015 模块的加载方式，参见 <a href="https://github.com/nodejs/node/blob/master/lib/internal/modules/esm/loader.js" target="_blank" rel="noopener">esm/loader.js</a>。</p>
 <p>CommonJS 在 nodejs 环境应用时，可用于加载 js、C++ 模块。与 requirejs、seajs 主要在浏览器环境加载远程资源不同的是，nodejs 加载的都是本地资源。<a href="http://nodejs.cn/api/modules.html#modules_all_together" target="_blank" rel="noopener">nodejs 文档</a>详细描绘了模块寻址流程。以 require(x) 为例，即如下：</p>
 <ol>
 <li>x 为 fs 等核心模块，加载该核心模块。</li>
 <li>x 为文件模块<ul>
-<li>x 与就近的 package.json </li>
-</ul>
-</li>
-<li>创建 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L871" target="_blank" rel="noopener">Module 实例</a>并调用 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L890" target="_blank" rel="noopener">module.load</a> 方法加载文件模块。</li>
-<li>模块标识以 ‘/‘, ‘./‘, ‘../‘ 起始，<ul>
-<li>查找 x.js、x.json、x.node 模块。</li>
-<li>访问 x/package.json 文件，使用 main 属性加载模块。</li>
-<li>查找 x/index.js、x/index.json、x/index.node 模块。</li>
-</ul>
-</li>
-<li>模块标识不以 ‘/‘, ‘./‘, ‘../‘ 起始，且就近的 package.json 的 name 属性与 x 相同、exports 属性也存在，根据 exports 属性加载模块。参见 <a href="https://www.lizenghai.com/archives/54210.html" target="_blank" rel="noopener">LOAD_SELF_REFERENCE</a>。</li>
+<li>x 以 ‘/‘, ‘./‘, ‘../‘ 起始，首先查找 x 模块；其次查找 x.js、x.json、x.node 模块；其次查找 x/package.json 文件，取 main 属性加载模块，若 main 属性不存在，则加载 x/index.js、x/index.json、x/index.node 模块。</li>
+<li>x 在 package.json 的 exports 属性中，按 exports 属性检索文件。</li>
 <li>向上查找各 node_modules 文件夹中的 x 模块。</li>
-</ol>
-<ol>
-<li>尝试从 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L861" target="_blank" rel="noopener">Module._cache</a> 中获取缓存模块（缓存模块可避免模块多次执行，同时提升加载效率）。</li>
-<li><a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L867" target="_blank" rel="noopener">loadNativeModule</a>：x 为 fs 等核心模块，加载该核心模块。</li>
-<li>创建 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L871" target="_blank" rel="noopener">Module 实例</a>并调用 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L890" target="_blank" rel="noopener">module.load</a> 方法加载文件模块。</li>
-</ol>
-<p>加载的模块会按照解析后的文件路径进行缓存，以避免重新加载时的再次运行。想要再次运行模块，需要先清除缓存。</p>
-<p>跟 requirejs、seajs 一样，CommonJS 会通过模块封装器将 require、module、exports 等传入模块内部，这样做同时会隔离作用域。如<a href="http://nodejs.cn/api/modules.html#modules_all_together" target="_blank" rel="noopener">模块封装器</a>所指出的，除了 require、module、exports 之外，模块内还可以使用：</p>
-<ul>
-<li>__filename 获取文件名（包含文件路径）；</li>
-<li>__dirname 获取目录路径；</li>
-<li>require.resolve 首先基于 require 机制寻找模块，然后返回模块的绝对路径。</li>
 </ul>
-<p>死月在《Node.js 来一打 C++ 扩展》中提到，npm 2.x 嵌套式依赖管理方案适合 node 端开发，相同依赖可以有多个版本；npm 3.x 扁平化管理方案适合纯前端开发，打包体积会较小。</p>
+</li>
+</ol>
+<p>加载模块的整体流程为：</p>
+<ol>
+<li>基于寻址流程获取 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L859" target="_blank" rel="noopener">filename</a>。</li>
+<li>尝试从 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L861" target="_blank" rel="noopener">Module._cache</a> 中获取缓存。</li>
+<li><a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L867" target="_blank" rel="noopener">loadNativeModule</a> 加载核心模块。</li>
+<li>创建 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L871" target="_blank" rel="noopener">Module 实例</a>并调用 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L890" target="_blank" rel="noopener">module.load</a> 加载文件模块。在 module.load 执行过程中，会使用 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L996" target="_blank" rel="noopener">Module._extensions[extension]</a> 编译执行 js 文件、解析 json 文件或执行 C++ 模块。 <ul>
+<li>js 文件：使用 <a href="https://github.com/nodejs/node/blob/v13.12.0/lib/internal/modules/cjs/loader.js#L1101" target="_blank" rel="noopener">module._compile</a> 编译处理模块内容。正是在这一过程中，nodejs 会使用 <a href="http://nodejs.cn/api/modules.html#modules_all_together" target="_blank" rel="noopener">模块封装器</a> 包装模块体，为其注入 require、module、exports、<strong>filename、</strong>dirname。</li>
+</ul>
+</li>
+</ol>
+<p>另据死月在《Node.js 来一打 C++ 扩展》中提到，npm 2.x 嵌套式依赖管理方案适合 node 端开发，相同依赖可以有多个版本；npm 3.x 扁平化管理方案适合纯前端开发，打包体积会较小。</p>
 <h2 id="ES2015"><a href="#ES2015" class="headerlink" title="ES2015"></a>ES2015</h2><p>由ES2015规范定义的官方模块化标准。它有以下优点：</p>
 <ol>
 <li>语法结构适合静态分析，编译期即可识别语法错误。</li>
@@ -367,7 +359,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
         "genre": "frontend architecture",
         "datePublished": "2020-04-10",
         "dateCreated": "2020-04-10",
-        "dateModified": "2020-04-11",
+        "dateModified": "2020-04-12",
         "url": "http://xzfyu.com/2020/04/10/frontend/architecture/模块化机制/",
         "description": "前端模块化规范有 AMD、CMD、CommonJS、ES2015 规范：
 
@@ -377,7 +369,7 @@ CommonJS 模块化规范：作为CommonJS 规范的一部分，nodejs是其较�
 ES 2015 模块化规范：es 官方规范的一部分。
 
 AMD示例1234567891011121",
-        "wordCount": 3131
+        "wordCount": 3132
     }
 </script>
 

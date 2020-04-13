@@ -125,7 +125,7 @@
   <entry>
     <title>体系结构设计</title>
     <url>/2020/04/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<h2 id="分层体系结构"><a href="#分层体系结构" class="headerlink" title="分层体系结构"></a>分层体系结构</h2><p>分层结构将系统功能划分为几个独立的层次，每一层只依赖下一层提供的服务和设施，内部保持内聚性，层与层之间松耦合。</p>
+    <content><![CDATA[<h2 id="分层架构"><a href="#分层架构" class="headerlink" title="分层架构"></a>分层架构</h2><p>分层架构将系统功能划分为几个独立的层次，每一层只依赖下一层提供的服务和设施，内部保持内聚性，层与层之间松耦合。</p>
 <p>它的优点有：</p>
 <ul>
 <li>每一层可以由独立的小团队负责，以清晰的接口促成各层之间协作。在系统草创、不具形态时，这一点也是干扰多方协作的缺点。</li>
@@ -146,11 +146,31 @@
 </ol>
 <img src="/2020/04/29/计算机科学/软件工程/体系结构设计/oa.jpeg">
 <p>上图是网上找的一个 OA 系统的分层结构。即时通讯等通用服务即可游离在分层结构之外；也可以作为通用服务层，存在于应用逻辑层和数据服务层之间。</p>
-<h3 id="网络七层模型"><a href="#网络七层模型" class="headerlink" title="网络七层模型"></a>网络七层模型</h3><p>ISO 的开发系统互联（OSI，Open Systems Interconnection）参考模型分层如下：</p>
+<h3 id="网络模型"><a href="#网络模型" class="headerlink" title="网络模型"></a>网络模型</h3><p>ISO 的开发系统互联（OSI，Open Systems Interconnection）参考模型分层如下：</p>
 <ul>
-<li>物理层：关注在一条通信信道上传输原始比特</li>
+<li>物理层 physical layer：通过集线器、中继器、网线、双绞线等物理介质传递原始比特流。</li>
+<li>数据链路层 data link layer：将比特组合成字节，字节组合成帧，以帧传输数据；使用链路层地址（以太网使用MAC地址）访问网桥、网卡、以太网交换机等物理介质；主要功能包含差错控制（错误重发、成功应答）和流量控制（对接快速发送发和慢速接收方）。参考 <a href="https://www.dgzj.com/tongxin/90168.html" target="_blank" rel="noopener">数据链路层通俗的讲是什么</a>。</li>
+<li>网络层 network layer：通过 IP 寻址建立两个节点间的连接以控制子网的运行，将数据包从源端路由到接收方。物理介质为路由器、三层交换机。</li>
+<li>传输层 transport layer：将上层的数据切割成较小的单元，以完成点对点的通信。自传输层以上各层，均为点对点通信，源机器和目标机器通过报文头和控制信息通信；以下各层，一台机器仅与其直接另据通过协议通信，即源机器和目标机器被多个路由器隔离了。物理介质为四层路由器、四层交换机。</li>
+<li>会话层 session layer：负责建立、管理和终止表示层实体之间的通信会话，功能包含对话控制（谁来传递数据）、令牌管理（禁止双方同时执行某一操作）、同步功能（在长传输过程中设置断点，以便系统崩溃后的恢复）。</li>
+<li>表示层 presentation layer：表示层关注传递数据的语法和语义（包含数据转换、编码、加密、压缩等），其下各层关注怎样传递数据。</li>
+<li>应用层 application layer：为用户直接提供各种网络服务，包含 http、https、www、ftp 等</li>
 </ul>
-<img src="/2020/04/29/计算机科学/软件工程/体系结构设计/osi.jpeg">
+<img src="/2020/04/29/计算机科学/软件工程/体系结构设计/osi.png">
+<p>参考 <a href="https://www.jianshu.com/p/f32cfd6c208b" target="_blank" rel="noopener">OSI网络模型</a>。</p>
+<h3 id="前端实例"><a href="#前端实例" class="headerlink" title="前端实例"></a>前端实例</h3><p>典型的前端应用也体现出分层结构。</p>
+<ul>
+<li>services：接口层，对接后端服务。</li>
+<li>stores：状态机层，桥接页面和接口。</li>
+<li>pages：页面路由层，绘制页面。</li>
+</ul>
+<h2 id="插件架构"><a href="#插件架构" class="headerlink" title="插件架构"></a>插件架构</h2><p>插件架构由内核、插件集组成。因为主要功能逻辑由插件实现，内核相对较小，它也被称为微核架构。插件应尽可能的相互独立，以避免紧耦合带来的复杂性。插件之间通过内核进行交互。在插件架构中，内核决定了插件运行的生命周期。在笔者的理解中，插件架构的极致就是以组件表现插件，以容器表现内核，组件自行决定其生命周期，容器只是聚合了一些功能逻辑。</p>
+<p>它的优点有：</p>
+<ul>
+<li>易于通过开发插件的形式扩展功能，这样也支持了高度定制的场景。</li>
+<li>开发模式可以采用渐进式地推出或拓展插件。</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.ruanyifeng.com/blog/2016/09/software-architecture.html?20160911094326" target="_blank" rel="noopener">软件架构入门</a></p>
 ]]></content>
       <categories>
         <category>计算机科学</category>

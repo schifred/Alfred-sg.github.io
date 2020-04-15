@@ -21,7 +21,7 @@
 <meta property="og:description" content="分层架构分层架构将系统功能划分为几个独立的层次，每一层只依赖下一层提供的服务和设施，内部保持内聚性，层与层之间松耦合。 它的优点有：  每一层可以由独立的小团队负责，以清晰的接口促成各层之间协作。在系统草创、不具形态时，这一点也是干扰多方协作的缺点。 可以在不变更接口的基础上更换每一层的实现；也可以快速某一层之上快速实现新的一层，以便复用其下的处理逻辑。 在每一层可以提供身份校验等冗余服务，以提升">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://xzfyu.com/2020/04/29/计算机科学/软件工程/体系结构设计/oa.jpeg">
-<meta property="og:updated_time" content="2020-04-14T23:47:30.865Z">
+<meta property="og:updated_time" content="2020-04-15T14:20:12.483Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="架构入门">
 <meta name="twitter:description" content="分层架构分层架构将系统功能划分为几个独立的层次，每一层只依赖下一层提供的服务和设施，内部保持内聚性，层与层之间松耦合。 它的优点有：  每一层可以由独立的小团队负责，以清晰的接口促成各层之间协作。在系统草创、不具形态时，这一点也是干扰多方协作的缺点。 可以在不变更接口的基础上更换每一层的实现；也可以快速某一层之上快速实现新的一层，以便复用其下的处理逻辑。 在每一层可以提供身份校验等冗余服务，以提升">
@@ -220,6 +220,11 @@
 <li>stores：状态机层，桥接页面和接口。</li>
 <li>pages：页面路由层，绘制页面。</li>
 </ul>
+<h2 id="面向服务架构"><a href="#面向服务架构" class="headerlink" title="面向服务架构"></a>面向服务架构</h2><p>富客户端、客户端-服务器模式、基于 ESB 企业服务总线的 SOA 服务导向架构、microservices architecture 微服务架构，微服务架构是循着这条演进路线发展而来的。客户端-服务器模式可用于解释现行的很多架设，如 hsf 服务即包含客户端和服务端，此外还有微服务架构中的配置中心；redis 消息服务；sql 服务器和应用服务器的关系也是客户端-服务器模式。基于 ESB 企业服务总线的服务架构通常会聚焦于服务的注册和调用，未深入服务的集成、拓展和复用。如钟华在《企业IT架构转型之道》中所提到的，面向服务架构的核心在于服务的复用，微服务是 SOA 的一个演化。在面向服务架构中，系统的功能以服务的形态呈现，每一个服务来自于独立的服务器，便于水平扩展。</p>
+<p>它的优点即为缺点，因为在低耦合的各服务单独部署的情况下，一方面会便于开发和水平扩展，另一方面众多的服务会造成其调用链路过长，影响性能，难于管理和失败回滚。</p>
+<p>分层架构可用于解释单个 java 应用；微服务架构可用于解释企业生产中的应用簇。</p>
+<p><a href="http://www.oreilly.com/programming/free/software-architecture-patterns.csp" target="_blank" rel="noopener">《Software Architecture Patterns》</a>给出了下面这张微服务架构图。可是在实际工程中，通常结合业务所设计的微服务架构远不止这么简单：</p>
+<img src="/2020/04/29/计算机科学/软件工程/体系结构设计/microservices.png">
 <h2 id="插件架构"><a href="#插件架构" class="headerlink" title="插件架构"></a>插件架构</h2><p>插件架构由内核、插件集组成。因其主要功能逻辑由插件实现，内核相对较小，它也被称为微核架构。插件应尽可能的相互独立，以避免紧耦合带来的复杂性。插件之间通过内核进行交互。在插件架构中，内核决定了插件运行的生命周期。在笔者的理解中，插件架构的极致就是以组件表现插件，以容器表现内核，组件自行决定其生命周期，容器只是聚合了一些功能逻辑，比如统一的数据周转或存储流程。当插件架构表现为容器架构时，其适用于有大量数据需要保存的场景，如一个组件生产数据，其他组件消费数据。</p>
 <p>它的优点有：</p>
 <ul>
@@ -235,8 +240,7 @@
 <img src="/2020/04/29/计算机科学/软件工程/体系结构设计/plugins.png">
 <p>就前端层面，不少工具会采用插件架构，如 umi、mocha、babel、webpack 等。前端应用中的 stores 层也具有容器特征，因为可在这一层对数据作记录、追踪等统一处理。同样的，多数可视化编辑器也采用容器架构。在 Ian Sommerville 所著的《软件工程》中，作者指明使用容器架构的例子有指挥和控制系统、管理信息系统、CAD 系统和软件的交互开发环境（即 IDE）等，并给出了 IDE 系统的容器体系架构图：</p>
 <img src="/2020/04/29/计算机科学/软件工程/体系结构设计/ide.png">
-<h2 id="微服务架构"><a href="#微服务架构" class="headerlink" title="微服务架构"></a>微服务架构</h2><p>富客户端、客户端-服务器模式、SOA 服务导向架构、microservices architecture 微服务架构，微服务架构是循着这条演进路线逐步发展起来的。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.ruanyifeng.com/blog/2016/09/software-architecture.html?20160911094326" target="_blank" rel="noopener">软件架构入门</a><br><a href="https://wenku.baidu.com/view/72bab71877232f60dccca119.html" target="_blank" rel="noopener">体系结构设计</a><br><a href="https://juejin.im/entry/5b723ffb6fb9a009a85cafca" target="_blank" rel="noopener">https://juejin.im/entry/5b723ffb6fb9a009a85cafca</a></p>
+<h2 id="过滤器架构"><a href="#过滤器架构" class="headerlink" title="过滤器架构"></a>过滤器架构</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.ruanyifeng.com/blog/2016/09/software-architecture.html?20160911094326" target="_blank" rel="noopener">软件架构入门</a><br><a href="https://wenku.baidu.com/view/72bab71877232f60dccca119.html" target="_blank" rel="noopener">体系结构设计</a><br><a href="https://juejin.im/entry/5b723ffb6fb9a009a85cafca" target="_blank" rel="noopener">https://juejin.im/entry/5b723ffb6fb9a009a85cafca</a></p>
 
         </div>
         <footer class="article-footer">
@@ -303,7 +307,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
 每一层可以由独立的小团队负责，以清晰的接口促成各层之间协作。在系统草创、不具形态时，这一点也是干扰多方协作的缺点。
 可以在不变更接口的基础上更换每一层的实现；也可以快速某一层之上快速实现新的一层，以便复用其下的处理逻辑。
 在每一层可以提供身份校验等冗余服务，以提升",
-        "wordCount": 95
+        "wordCount": 118
     }
 </script>
 

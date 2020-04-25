@@ -12,18 +12,18 @@
     
     <meta name="keywords" content="analyst,java">
     
-    <meta name="description" content="文件上传1234567891011121314151617@PostMapping(&quot;/uploadFile&quot;)public Result&amp;lt;FileDTO&amp;gt; uploadFile(@RequestParam(&quot;file&quot;) MultipartFile file)&amp;#123;  FileDTO fileDTO;  try &amp;#123;    fileDTO = storageServic">
+    <meta name="description" content="文件上传文件上传可借助 MultipartFile。 1234567891011121314151617@PostMapping(&quot;/uploadFile&quot;)public Result&amp;lt;FileDTO&amp;gt; uploadFile(@RequestParam(&quot;file&quot;) MultipartFile file)&amp;#123;  FileDTO fileDTO;  try &amp;#123;">
 <meta name="keywords" content="analyst,java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="spring boot 应用常见问题">
 <meta property="og:url" content="http://xzfyu.com/2020/04/30/backend/java 工程/java 应用常见问题/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="文件上传1234567891011121314151617@PostMapping(&quot;/uploadFile&quot;)public Result&amp;lt;FileDTO&amp;gt; uploadFile(@RequestParam(&quot;file&quot;) MultipartFile file)&amp;#123;  FileDTO fileDTO;  try &amp;#123;    fileDTO = storageServic">
+<meta property="og:description" content="文件上传文件上传可借助 MultipartFile。 1234567891011121314151617@PostMapping(&quot;/uploadFile&quot;)public Result&amp;lt;FileDTO&amp;gt; uploadFile(@RequestParam(&quot;file&quot;) MultipartFile file)&amp;#123;  FileDTO fileDTO;  try &amp;#123;">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-04-23T14:31:17.010Z">
+<meta property="og:updated_time" content="2020-04-25T14:27:44.534Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spring boot 应用常见问题">
-<meta name="twitter:description" content="文件上传1234567891011121314151617@PostMapping(&quot;/uploadFile&quot;)public Result&amp;lt;FileDTO&amp;gt; uploadFile(@RequestParam(&quot;file&quot;) MultipartFile file)&amp;#123;  FileDTO fileDTO;  try &amp;#123;    fileDTO = storageServic">
+<meta name="twitter:description" content="文件上传文件上传可借助 MultipartFile。 1234567891011121314151617@PostMapping(&quot;/uploadFile&quot;)public Result&amp;lt;FileDTO&amp;gt; uploadFile(@RequestParam(&quot;file&quot;) MultipartFile file)&amp;#123;  FileDTO fileDTO;  try &amp;#123;">
     
 
     
@@ -179,9 +179,16 @@
         
         
         <div class="article-entry" itemprop="articleBody">
-            <h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostMapping</span>(<span class="string">"/uploadFile"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> Result&lt;FileDTO&gt; <span class="title">uploadFile</span><span class="params">(@RequestParam(<span class="string">"file"</span>)</span> MultipartFile file)</span>&#123;</span><br><span class="line">  FileDTO fileDTO;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    fileDTO = storageService.store(file);<span class="comment">// 实现存储 service</span></span><br><span class="line">  &#125; <span class="keyword">catch</span> (DAOException de) &#123;</span><br><span class="line">    <span class="keyword">return</span> Result.createFailResult(ResponseConstants.DAO_EXCEPTION);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (BusinessException be) &#123;</span><br><span class="line">      <span class="keyword">return</span> Result.createFailResult(String.valueOf(</span><br><span class="line">        ResponseConstants.BUSINESS_EXCEPTION.getCode()), be.getMessage()</span><br><span class="line">      );</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    <span class="keyword">return</span> Result.createFailResult(ResponseCodeConstants.UNKOWN_SYSTEM_ERROR);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> Result.createSuccessResult(fileDTO);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+            <h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><p>文件上传可借助 MultipartFile。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostMapping</span>(<span class="string">"/uploadFile"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> Result&lt;FileDTO&gt; <span class="title">uploadFile</span><span class="params">(@RequestParam(<span class="string">"file"</span>)</span> MultipartFile file)</span>&#123;</span><br><span class="line">  FileDTO fileDTO;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    fileDTO = storageService.store(file);<span class="comment">// 实现存储 service</span></span><br><span class="line">  &#125; <span class="keyword">catch</span> (DAOException de) &#123;</span><br><span class="line">    <span class="keyword">return</span> Result.createFailResult(ResponseConstants.DAO_EXCEPTION);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (BusinessException be) &#123;</span><br><span class="line">      <span class="keyword">return</span> Result.createFailResult(String.valueOf(</span><br><span class="line">        ResponseConstants.BUSINESS_EXCEPTION.getCode()), be.getMessage()</span><br><span class="line">      );</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    <span class="keyword">return</span> Result.createFailResult(ResponseCodeConstants.UNKOWN_SYSTEM_ERROR);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> Result.createSuccessResult(fileDTO);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>spring boot 官网<a href="https://spring.io/guides/gs/uploading-files/" target="_blank" rel="noopener">Uploading Files 文档</a>提供了上传文件、下载文件、列出文件清单的示例。</p>
-<h2 id="数据检验"><a href="#数据检验" class="headerlink" title="数据检验"></a>数据检验</h2><p><a href="https://blog.csdn.net/qq_27680317/article/details/79970590" target="_blank" rel="noopener">https://blog.csdn.net/qq_27680317/article/details/79970590</a></p>
+<h2 id="数据检验"><a href="#数据检验" class="headerlink" title="数据检验"></a>数据检验</h2><p>数据检验可借助 <a href="https://docs.jboss.org/hibernate/stable/validator/reference/en-US/html_single/#preface" target="_blank" rel="noopener">hibernate-validator</a>。从表现层到持久层都需要作数据校验，为了避免在各层实现校验函数的繁琐、性能消耗，hibernate-validator 依循 Jakarta Bean Validation 2.0 规范将校验规则绑定在领域模型 —— 实体类上（通过注解或 xml 文件的形式为实体类添加元数据描述）。</p>
+<ol>
+<li>pom.xml 文件添加 hibernate-validator 依赖。</li>
+<li>实体类添加 @NotNull 等注解，设定校验规则。</li>
+<li>调用 Validation.buildDefaultValidatorFactory 进行校验。</li>
+</ol>
+<p><a href="https://blog.csdn.net/qq_27680317/article/details/79970590" target="_blank" rel="noopener">https://blog.csdn.net/qq_27680317/article/details/79970590</a></p>
 
         </div>
         <footer class="article-footer">
@@ -240,10 +247,11 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
         "genre": "backend java 工程",
         "datePublished": "2020-04-30",
         "dateCreated": "2020-04-30",
-        "dateModified": "2020-04-23",
+        "dateModified": "2020-04-25",
         "url": "http://xzfyu.com/2020/04/30/backend/java 工程/java 应用常见问题/",
-        "description": "文件上传1234567891011121314151617@PostMapping("/uploadFile")public Result&lt;FileDTO&gt; uploadFile(@RequestParam("file") MultipartFile file)&#123;  FileDTO fileDTO;  try &#123;    fileDTO = storageServic",
-        "wordCount": 146
+        "description": "文件上传文件上传可借助 MultipartFile。
+1234567891011121314151617@PostMapping("/uploadFile")public Result&lt;FileDTO&gt; uploadFile(@RequestParam("file") MultipartFile file)&#123;  FileDTO fileDTO;  try &#123;    ",
+        "wordCount": 168
     }
 </script>
 

@@ -12,19 +12,19 @@
     
     <meta name="keywords" content="analyst">
     
-    <meta name="description" content="前言有三种技术可以应对不断增大的数据量：  读写分离：将数据库设置成读写分离状态，一个 Master 节点对应多个 Salve 节点。 垂直分区：将不同的业务表拆散，分别存储到不同的数据库中，仍保持 Master/Salve 模式。 水平分区（分库 or 分表，sharding）：将同一个业务表（或库）拆解成多个子表（或库），比如 db0、db1。  数据库中间件详解 这篇文章不只介绍了上述三种技">
+    <meta name="description" content="前言有三种技术可以应对不断增大的数据量：  读写分离：将数据库设置成读写分离状态，一个 Master 节点对应多个 Salve 节点，Master 节点数据会离线同步到 Salve 节点。 垂直分区：将不同的业务表拆散，分别存储到不同的数据库中，仍保持 Master/Salve 模式。 水平分区（分库 or 分表，sharding）：将同一个业务表（或库）中的数据按 hash 取模等方式拆解成多个">
 <meta name="keywords" content="analyst">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TDDL &amp; DRDS">
 <meta property="og:url" content="http://xzfyu.com/2019/12/30/backend/数据库技术/TDDL & DRDS/index.html">
 <meta property="og:site_name" content="修子范语">
-<meta property="og:description" content="前言有三种技术可以应对不断增大的数据量：  读写分离：将数据库设置成读写分离状态，一个 Master 节点对应多个 Salve 节点。 垂直分区：将不同的业务表拆散，分别存储到不同的数据库中，仍保持 Master/Salve 模式。 水平分区（分库 or 分表，sharding）：将同一个业务表（或库）拆解成多个子表（或库），比如 db0、db1。  数据库中间件详解 这篇文章不只介绍了上述三种技">
+<meta property="og:description" content="前言有三种技术可以应对不断增大的数据量：  读写分离：将数据库设置成读写分离状态，一个 Master 节点对应多个 Salve 节点，Master 节点数据会离线同步到 Salve 节点。 垂直分区：将不同的业务表拆散，分别存储到不同的数据库中，仍保持 Master/Salve 模式。 水平分区（分库 or 分表，sharding）：将同一个业务表（或库）中的数据按 hash 取模等方式拆解成多个">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://xzfyu.com/2019/12/30/backend/数据库技术/TDDL%20&%20DRDS/tddl.png">
-<meta property="og:updated_time" content="2020-03-08T11:17:11.774Z">
+<meta property="og:updated_time" content="2020-04-27T23:52:52.194Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TDDL &amp; DRDS">
-<meta name="twitter:description" content="前言有三种技术可以应对不断增大的数据量：  读写分离：将数据库设置成读写分离状态，一个 Master 节点对应多个 Salve 节点。 垂直分区：将不同的业务表拆散，分别存储到不同的数据库中，仍保持 Master/Salve 模式。 水平分区（分库 or 分表，sharding）：将同一个业务表（或库）拆解成多个子表（或库），比如 db0、db1。  数据库中间件详解 这篇文章不只介绍了上述三种技">
+<meta name="twitter:description" content="前言有三种技术可以应对不断增大的数据量：  读写分离：将数据库设置成读写分离状态，一个 Master 节点对应多个 Salve 节点，Master 节点数据会离线同步到 Salve 节点。 垂直分区：将不同的业务表拆散，分别存储到不同的数据库中，仍保持 Master/Salve 模式。 水平分区（分库 or 分表，sharding）：将同一个业务表（或库）中的数据按 hash 取模等方式拆解成多个">
 <meta name="twitter:image" content="http://xzfyu.com/2019/12/30/backend/数据库技术/TDDL%20&%20DRDS/tddl.png">
     
 
@@ -183,9 +183,9 @@
         <div class="article-entry" itemprop="articleBody">
             <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>有三种技术可以应对不断增大的数据量：</p>
 <ol>
-<li>读写分离：将数据库设置成读写分离状态，一个 Master 节点对应多个 Salve 节点。</li>
+<li>读写分离：将数据库设置成读写分离状态，一个 Master 节点对应多个 Salve 节点，Master 节点数据会离线同步到 Salve 节点。</li>
 <li>垂直分区：将不同的业务表拆散，分别存储到不同的数据库中，仍保持 Master/Salve 模式。</li>
-<li>水平分区（分库 or 分表，sharding）：将同一个业务表（或库）拆解成多个子表（或库），比如 db0、db1。</li>
+<li>水平分区（分库 or 分表，sharding）：将同一个业务表（或库）中的数据按 hash 取模等方式拆解成多个子表（或库），比如 db0、db1。</li>
 </ol>
 <p><a href="https://www.cnblogs.com/jpfss/p/11577780.html" target="_blank" rel="noopener">数据库中间件详解</a> 这篇文章不只介绍了上述三种技术，还道明了数据库中间件设计的两种方案：基于代理服务器的 proxy 模式（需要对接不同数据源、不同应用技术栈的通信协议，必须保持高可用，隔离租户）；基于封装 连接池或者 driver 为 sdk 的 smart-client 模式（需要对接不同数据源的通信协议，不需要对接不同应用技术栈的通信协议，天然去中心化）。TDDL 基于 smart-client 模式。DRDS 基于 proxy 模式。</p>
 <h2 id="TDDL"><a href="#TDDL" class="headerlink" title="TDDL"></a>TDDL</h2><img src="/2019/12/30/backend/数据库技术/TDDL%20&%20DRDS/tddl.png">
@@ -273,16 +273,14 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
         "genre": "backend 数据库技术",
         "datePublished": "2019-12-30",
         "dateCreated": "2019-12-30",
-        "dateModified": "2020-03-08",
+        "dateModified": "2020-04-28",
         "url": "http://xzfyu.com/2019/12/30/backend/数据库技术/TDDL & DRDS/",
         "description": "前言有三种技术可以应对不断增大的数据量：
 
-读写分离：将数据库设置成读写分离状态，一个 Master 节点对应多个 Salve 节点。
+读写分离：将数据库设置成读写分离状态，一个 Master 节点对应多个 Salve 节点，Master 节点数据会离线同步到 Salve 节点。
 垂直分区：将不同的业务表拆散，分别存储到不同的数据库中，仍保持 Master/Salve 模式。
-水平分区（分库 or 分表，sharding）：将同一个业务表（或库）拆解成多个子表（或库），比如 db0、db1。
-
-数据库中间件详解 这篇文章不只介绍了上述三种技",
-        "wordCount": 177
+水平分区（分库 or 分表，sharding）：将同一个业务表（或库）中的数据按 hash 取模等方式拆解成多个",
+        "wordCount": 182
     }
 </script>
 

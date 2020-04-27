@@ -20,7 +20,7 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="文件上传文件上传可借助 MultipartFile。 1234567891011121314151617@PostMapping(&quot;/uploadFile&quot;)public Result&amp;lt;FileDTO&amp;gt; uploadFile(@RequestParam(&quot;file&quot;) MultipartFile file)&amp;#123;  FileDTO fileDTO;  try &amp;#123;">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-04-25T14:27:44.534Z">
+<meta property="og:updated_time" content="2020-04-27T13:25:52.663Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spring boot 应用常见问题">
 <meta name="twitter:description" content="文件上传文件上传可借助 MultipartFile。 1234567891011121314151617@PostMapping(&quot;/uploadFile&quot;)public Result&amp;lt;FileDTO&amp;gt; uploadFile(@RequestParam(&quot;file&quot;) MultipartFile file)&amp;#123;  FileDTO fileDTO;  try &amp;#123;">
@@ -185,10 +185,32 @@
 <h2 id="数据检验"><a href="#数据检验" class="headerlink" title="数据检验"></a>数据检验</h2><p>数据检验可借助 <a href="https://docs.jboss.org/hibernate/stable/validator/reference/en-US/html_single/#preface" target="_blank" rel="noopener">hibernate-validator</a>。从表现层到持久层都需要作数据校验，为了避免在各层实现校验函数的繁琐、性能消耗，hibernate-validator 依循 Jakarta Bean Validation 2.0 规范将校验规则绑定在领域模型 —— 实体类上（通过注解或 xml 文件的形式为实体类添加元数据描述）。</p>
 <ol>
 <li>pom.xml 文件添加 hibernate-validator 依赖。</li>
-<li>实体类添加 @NotNull 等注解，设定校验规则。</li>
-<li>调用 Validation.buildDefaultValidatorFactory 进行校验。</li>
+<li>实体类添加 @NotNull 等注解，设定校验规则，参考 <a href="https://docs.jboss.org/hibernate/stable/validator/reference/en-US/html_single/#validator-gettingstarted-createmodel" target="_blank" rel="noopener">Applying constraints</a>。</li>
+<li>显式调用 Validation.buildDefaultValidatorFactory 等进行校验，参考 <a href="https://docs.jboss.org/hibernate/stable/validator/reference/en-US/html_single/#_validating_constraints" target="_blank" rel="noopener">Validating constraints</a>。</li>
 </ol>
-<p><a href="https://blog.csdn.net/qq_27680317/article/details/79970590" target="_blank" rel="noopener">https://blog.csdn.net/qq_27680317/article/details/79970590</a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Car</span> </span>&#123;</span><br><span class="line">  <span class="meta">@NotNull</span></span><br><span class="line">  <span class="keyword">private</span> String manufacturer;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@NotNull</span></span><br><span class="line">  <span class="meta">@Size</span>(min = <span class="number">2</span>, max = <span class="number">14</span>)</span><br><span class="line">  <span class="keyword">private</span> String licensePlate;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Min</span>(<span class="number">2</span>)</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">int</span> seatCount;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Car</span><span class="params">(String manufacturer, String licencePlate, <span class="keyword">int</span> seatCount)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.manufacturer = manufacturer;</span><br><span class="line">    <span class="keyword">this</span>.licensePlate = licencePlate;</span><br><span class="line">    <span class="keyword">this</span>.seatCount = seatCount;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ValidatorFactory factory = Validation.buildDefaultValidatorFactory();</span><br><span class="line">validator = factory.getValidator();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1</span></span><br><span class="line">Car car = <span class="keyword">new</span> Car(<span class="string">"Morris"</span>, <span class="string">"D"</span>, <span class="number">4</span>);</span><br><span class="line">Set&lt;ConstraintViolation&lt;Car&gt;&gt; constraintViolations =</span><br><span class="line">  validator.validate( car );</span><br><span class="line">assertEquals(<span class="number">1</span>, constraintViolations.size() );</span><br><span class="line">assertEquals(</span><br><span class="line">  <span class="string">"size must be between 2 and 14"</span>,</span><br><span class="line">  constraintViolations.iterator().next().getMessage()</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2</span></span><br><span class="line">Car car = <span class="keyword">new</span> Car( <span class="keyword">null</span>, <span class="keyword">true</span> );</span><br><span class="line">Set&lt;ConstraintViolation&lt;Car&gt;&gt; constraintViolations = validator.validateProperty(</span><br><span class="line">  car,</span><br><span class="line">  <span class="string">"manufacturer"</span></span><br><span class="line">);</span><br><span class="line">assertEquals( <span class="number">1</span>, constraintViolations.size() );</span><br><span class="line">assertEquals( <span class="string">"must not be null"</span>, constraintViolations.iterator().next().getMessage() );</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3</span></span><br><span class="line">Set&lt;ConstraintViolation&lt;Car&gt;&gt; constraintViolations = validator.validateValue(</span><br><span class="line">  Car.class,</span><br><span class="line">  <span class="string">"manufacturer"</span>,</span><br><span class="line">  <span class="keyword">null</span></span><br><span class="line">);</span><br><span class="line">assertEquals( <span class="number">1</span>, constraintViolations.size() );</span><br><span class="line">assertEquals( <span class="string">"must not be null"</span>, constraintViolations.iterator().next().getMessage() );</span><br></pre></td></tr></table></figure>
+<p>hibernate-validator 的校验条件可以放在属性、方法、Map 或 List 成员、类等。<a href="https://docs.jboss.org/hibernate/stable/validator/reference/en-US/html_single/#validator-defineconstraints-spec" target="_blank" rel="noopener">校验条件</a>主要包含：</p>
+<ul>
+<li>@NotNull、@Null：校验 null</li>
+<li>@NotEmpty：校验元素非空</li>
+<li>@NotBlank：校验 trim 后的字符串</li>
+<li>@AssertFalse、@AssertTrue：校验是否 false、true</li>
+<li>@DecimalMax(value=, inclusive=)、@DecimalMin(value=, inclusive=)：校验数值大小</li>
+<li>@Digits(integer=, fraction=)：校验整数、小数位数</li>
+<li>@Min(value=)、@Max(value=)、@Range(min=, max=)：最大值、最小值、范围校验</li>
+<li>@Negative、@NegativeOrZero、@Positive、@PositiveOrZero：正负值或零校验</li>
+<li>@Future、@FutureOrPresent、@Past、@PastOrPresent：校验日期是否将来或过去等</li>
+<li>@DurationMax(days=, hours=, minutes=, seconds=, millis=, nanos=, inclusive=)、@DurationMin(days=, hours=, minutes=, seconds=, millis=, nanos=, inclusive=)：校验时段</li>
+<li>@Length(min=, max=)：校验字符串的长度</li>
+<li>@Size(min=, max=)：校验集合的大小</li>
+<li>@UniqueElements：校验集合包含的元素均唯一</li>
+<li>@Currency(value=)：校验货币单位</li>
+<li>@Pattern(regex=, flags=)：正则表达式校验</li>
+<li>@Email：校验邮件</li>
+<li>@URL(protocol=, host=, port=, regexp=, flags=)：校验链接</li>
+<li>@CreditCardNumber(ignoreNonDigitCharacters=)：信用卡校验</li>
+</ul>
+<p><a href="https://blog.csdn.net/qq_27680317/article/details/79970590" target="_blank" rel="noopener">https://blog.csdn.net/qq_27680317/article/details/79970590</a><br><a href="https://blog.csdn.net/dh554112075/article/details/80790464" target="_blank" rel="noopener">https://blog.csdn.net/dh554112075/article/details/80790464</a></p>
 
         </div>
         <footer class="article-footer">
@@ -247,11 +269,11 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
         "genre": "backend java 工程",
         "datePublished": "2020-04-30",
         "dateCreated": "2020-04-30",
-        "dateModified": "2020-04-25",
+        "dateModified": "2020-04-27",
         "url": "http://xzfyu.com/2020/04/30/backend/java 工程/java 应用常见问题/",
         "description": "文件上传文件上传可借助 MultipartFile。
 1234567891011121314151617@PostMapping("/uploadFile")public Result&lt;FileDTO&gt; uploadFile(@RequestParam("file") MultipartFile file)&#123;  FileDTO fileDTO;  try &#123;    ",
-        "wordCount": 168
+        "wordCount": 487
     }
 </script>
 

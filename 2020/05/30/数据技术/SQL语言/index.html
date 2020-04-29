@@ -20,7 +20,7 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="SQL 关系数据库语言标准包含两个部分：  DDL —— Data Definition Language 数据定义语言：用于定义数据库结构和数据的访问控制。 DML —— Data Mnipulation Language 数据操作语言：用于检索和更新数据。  《数据库系统——设计、实现与管理（基础篇）》选用 BNF —— Backus Naur Form 巴克斯范式定义 SQL 语句：  大写">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-04-29T14:24:55.279Z">
+<meta property="og:updated_time" content="2020-04-29T23:55:32.255Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SQL 语言">
 <meta name="twitter:description" content="SQL 关系数据库语言标准包含两个部分：  DDL —— Data Definition Language 数据定义语言：用于定义数据库结构和数据的访问控制。 DML —— Data Mnipulation Language 数据操作语言：用于检索和更新数据。  《数据库系统——设计、实现与管理（基础篇）》选用 BNF —— Backus Naur Form 巴克斯范式定义 SQL 语句：  大写">
@@ -217,7 +217,10 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> branchNo, <span class="keyword">COUNT</span>(staffNo) <span class="keyword">AS</span> myCount, <span class="keyword">SUM</span>(salary) <span class="keyword">AS</span> mySum</span><br><span class="line"><span class="keyword">FROM</span> Staff</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> branchNo</span><br><span class="line"><span class="keyword">HAVING</span> <span class="keyword">COUNT</span>(staff) &gt; <span class="number">1</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> branchNo;</span><br></pre></td></tr></table></figure>
 <h4 id="嵌套查询"><a href="#嵌套查询" class="headerlink" title="嵌套查询"></a>嵌套查询</h4><p>在某种意义上，分组查询是特殊的嵌套查询。子查询可用于 WHEHE、HAVING 子句，也可用于 INSERT、UPDATE、DELETE 语句。根据子查询的结果，子查询可以分为标量子查询（返回单行单列）、行子查询（返回单行多列）、表子查询（返回多行数据）。子查询可以添加 ANY、ALL、SOME 等保留字，分别表示子查询获得的数据只要有任意一个、或全部满足条件即为真。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 等价于分组查询</span></span><br><span class="line"><span class="keyword">SELECT</span> branchNo, (<span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(staffNo) <span class="keyword">AS</span> myCount</span><br><span class="line">                  <span class="keyword">FROM</span> Staff s</span><br><span class="line">                  <span class="keyword">WHERE</span> s.branchNo = b.branchNO),</span><br><span class="line">                  (<span class="keyword">SELECT</span> <span class="keyword">SUM</span>(staffNo) <span class="keyword">AS</span> mySum</span><br><span class="line">                  <span class="keyword">FROM</span> Staff s</span><br><span class="line">                  <span class="keyword">WHERE</span> s.branchNo = b.branchNO)</span><br><span class="line"><span class="keyword">FROM</span> Branch b</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> branchNo;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 子查询作为 WHERE 条件</span></span><br><span class="line"><span class="keyword">SELECT</span> staffNo, fName, IName, <span class="keyword">position</span></span><br><span class="line"><span class="keyword">FROM</span> Staff</span><br><span class="line"><span class="keyword">WHERE</span> salary = (<span class="keyword">SELECT</span> salary</span><br><span class="line">                  <span class="keyword">FROM</span> Staff</span><br><span class="line">                  <span class="keyword">WHERE</span> branchNo = <span class="string">'B003'</span>);</span><br></pre></td></tr></table></figure>
-<h3 id="多表查询"><a href="#多表查询" class="headerlink" title="多表查询"></a>多表查询</h3>
+<h3 id="多表查询"><a href="#多表查询" class="headerlink" title="多表查询"></a>多表查询</h3><p>多表查询可使用子查询或连接操作。简单连接通过 WHERE 语句指定连接列。</p>
+<h4 id="简单连接"><a href="#简单连接" class="headerlink" title="简单连接"></a>简单连接</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> c.clientNo, fName, iName, propertyNo, <span class="keyword">comment</span></span><br><span class="line"><span class="keyword">FROM</span> <span class="keyword">Client</span> c, Viewing v</span><br><span class="line"><span class="keyword">WHERE</span> c.clientNo = v.clientNo</span><br></pre></td></tr></table></figure>
+<h4 id="JOIN-连接"><a href="#JOIN-连接" class="headerlink" title="JOIN 连接"></a>JOIN 连接</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
         </div>
         <footer class="article-footer">
             
@@ -275,7 +278,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
         "genre": "backend 数据库",
         "datePublished": "2020-05-30",
         "dateCreated": "2020-05-30",
-        "dateModified": "2020-04-29",
+        "dateModified": "2020-04-30",
         "url": "http://xzfyu.com/2020/05/30/数据技术/SQL语言/",
         "description": "SQL 关系数据库语言标准包含两个部分：
 
@@ -285,7 +288,7 @@ DML —— Data Mnipulation Language 数据操作语言：用于检索和更新�
 《数据库系统——设计、实现与管理（基础篇）》选用 BNF —— Backus Naur Form 巴克斯范式定义 SQL 语句：
 
 大写",
-        "wordCount": 503
+        "wordCount": 550
     }
 </script>
 

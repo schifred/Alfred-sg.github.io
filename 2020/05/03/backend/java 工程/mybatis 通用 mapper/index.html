@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>mybatis 通用 mapper | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst,java">
+    
+    <meta name="description" content="Mybatis-Mapper 插件 用于简化 mybatis 使用，这里只介绍基本使用和代码生成，扩展通用 Mapper 接口和 Example 的使用可参考官方文档。 基本使用 pom.xml 添加 tk.mybatis 依赖。 配置 application.yml，设置通用 Mapper（支持自定义）。 编写 Mapper.xml。 编写实体类，实体类中字段名默认按驼峰式进行转换（通过 @Na">
+<meta name="keywords" content="analyst,java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mybatis 通用 mapper">
+<meta property="og:url" content="http://xzfyu.com/2020/05/03/backend/java 工程/mybatis 通用 mapper/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="Mybatis-Mapper 插件 用于简化 mybatis 使用，这里只介绍基本使用和代码生成，扩展通用 Mapper 接口和 Example 的使用可参考官方文档。 基本使用 pom.xml 添加 tk.mybatis 依赖。 配置 application.yml，设置通用 Mapper（支持自定义）。 编写 Mapper.xml。 编写实体类，实体类中字段名默认按驼峰式进行转换（通过 @Na">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-03T11:05:56.619Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mybatis 通用 mapper">
+<meta name="twitter:description" content="Mybatis-Mapper 插件 用于简化 mybatis 使用，这里只介绍基本使用和代码生成，扩展通用 Mapper 接口和 Example 的使用可参考官方文档。 基本使用 pom.xml 添加 tk.mybatis 依赖。 配置 application.yml，设置通用 Mapper（支持自定义）。 编写 Mapper.xml。 编写实体类，实体类中字段名默认按驼峰式进行转换（通过 @Na">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库/">数据库</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/模块/">模块</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/css/">css</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/es/">es</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/webpack/">webpack</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/backend/">backend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/backend/java-工程/">java 工程</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-backend/java 工程/mybatis 通用 mapper" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        mybatis 通用 mapper
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/05/03/backend/java 工程/mybatis 通用 mapper/" class="article-date">
+         <time datetime="2020-05-02T16:00:00.000Z" itemprop="datePublished">2020-05-03</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>, <a class="tag-link" href="/tags/java/">java</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p><a href="https://github.com/abel533/Mapper" target="_blank" rel="noopener">Mybatis-Mapper 插件</a> 用于简化 mybatis 使用，这里只介绍基本使用和代码生成，扩展通用 Mapper 接口和 Example 的使用可参考<a href="https://github.com/abel533/Mapper/wiki/5.extend" target="_blank" rel="noopener">官方文档</a>。</p>
+<h2 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h2><ol>
+<li>pom.xml 添加 tk.mybatis 依赖。</li>
+<li>配置 application.yml，设置通用 Mapper（支持自定义）。</li>
+<li>编写 Mapper.xml。</li>
+<li>编写实体类，实体类中字段名默认按驼峰式进行转换（通过 @NameStyle 注解可改变转换方式）。</li>
+<li>以继承通用 Mapper 的方式编写 Mapper 接口。</li>
+<li>基于 Mapper 接口编写 Service 实现类。</li>
+</ol>
+<p>application.yml 配置示例，配置项可参考 <a href="https://github.com/abel533/Mapper/wiki/3.config" target="_blank" rel="noopener">文档</a>：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mapper:</span></span><br><span class="line"><span class="attr">  notEmpty:</span> <span class="literal">true</span> <span class="comment"># insertSelective 和 updateByPrimaryKeySelective 是否判断字符串类型 !=''</span></span><br></pre></td></tr></table></figure>
+<p>Mapper.xml 编写示例：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.example.demo.dao.mapper.CountryMapper"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">resultMap</span> <span class="attr">id</span>=<span class="string">"BaseResultMap"</span> <span class="attr">type</span>=<span class="string">"com.example.demo.dao.mapper.CountryMapper"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">id</span> <span class="attr">column</span>=<span class="string">"Id"</span> <span class="attr">jdbcType</span>=<span class="string">"INTEGER"</span> <span class="attr">property</span>=<span class="string">"id"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"countryname"</span> <span class="attr">jdbcType</span>=<span class="string">"VARCHAR"</span> <span class="attr">property</span>=<span class="string">"countryname"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"countrycode"</span> <span class="attr">jdbcType</span>=<span class="string">"VARCHAR"</span> <span class="attr">property</span>=<span class="string">"countrycode"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>实体类和 Mapper 接口编写示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实体类</span></span><br><span class="line"><span class="keyword">import</span> javax.persistence.Id;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Country</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Id</span></span><br><span class="line">  <span class="keyword">private</span> Integer id;</span><br><span class="line">  <span class="keyword">private</span> String  countryname;</span><br><span class="line">  <span class="keyword">private</span> String  countrycode;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//省略 getter 和 setter</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Mapper 接口</span></span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Select;</span><br><span class="line"><span class="keyword">import</span> tk.mybatis.mapper.common.Mapper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">CountryMapper</span> <span class="keyword">extends</span> <span class="title">Mapper</span>&lt;<span class="title">Country</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Select</span>(<span class="string">"select * from country where countryname = #&#123;countryname&#125;"</span>)</span><br><span class="line">    <span class="function">Country <span class="title">selectByCountryName</span><span class="params">(String countryname)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Service 实现类</span></span><br><span class="line"><span class="keyword">import</span> tk.mybatis.mapper.entity.Example;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CountryServiceImpl</span> <span class="keyword">implements</span> <span class="title">CountryService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> CountryMapper countryMapper;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Country <span class="title">select</span><span class="params">(<span class="keyword">int</span> id)</span></span>&#123;</span><br><span class="line">        Example example = <span class="keyword">new</span> Example(Country.class);</span><br><span class="line">        Example.Criteria criteria = example.createCriteria();</span><br><span class="line">        criteria.andEqualTo(<span class="string">"id"</span>, id);</span><br><span class="line">        <span class="keyword">return</span> countryMapper.selectOneByExample(example);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="实体类可用注解"><a href="#实体类可用注解" class="headerlink" title="实体类可用注解"></a>实体类可用注解</h3><ul>
+<li>@NameStyle：字段名到列名的映射方式，如 @NameStyle(Style.uppercase)。</li>
+<li>@Table：设置实体类关联的表名、数据库名。</li>
+<li>@Column：设置字段与哪个列关联，insertable、updateable 属性用于影响 sql 的插入、更新操作。</li>
+<li>@ColumnType：作用与 @Column 相似，优先级较低，可设置 jdbcType、类型处理器等。</li>
+<li>@Transient：说明不是表中的字段，List、Map 等属性不需要添加该注解。</li>
+<li>@Id：说明主键，联合主键可以配置多次，一个表中必须有一个主键。</li>
+<li>@KeySql：设置主键策略，用于替换 @GeneratedValue。如 @KeySql(useGeneratedKeys = true) 用于使 sql 操作返回主键等。参看 <a href="https://github.com/abel533/Mapper/wiki/2.3-generatedvalue" target="_blank" rel="noopener">文档</a>。</li>
+<li>@GeneratedValue：设置主键策略。</li>
+<li>@Version：实现乐观锁。</li>
+</ul>
+<h2 id="代码生成器"><a href="#代码生成器" class="headerlink" title="代码生成器"></a>代码生成器</h2><p>这里介绍的是通过 maven 插件生成代码。</p>
+<ol>
+<li>pom.xml 添加 org.mybatis.generator 等 maven 插件。</li>
+<li>添加 resources/generator/generatorConfig.xml 配置文件。</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- pom.xml --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">source</span>&gt;</span>$&#123;java.version&#125;<span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">target</span>&gt;</span>$&#123;java.version&#125;<span class="tag">&lt;/<span class="name">target</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.generator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-generator-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.3.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">configurationFile</span>&gt;</span></span><br><span class="line">      $&#123;basedir&#125;/src/main/resources/generator/generatorConfig.xml</span><br><span class="line">    <span class="tag">&lt;/<span class="name">configurationFile</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">overwrite</span>&gt;</span>true<span class="tag">&lt;/<span class="name">overwrite</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">verbose</span>&gt;</span>true<span class="tag">&lt;/<span class="name">verbose</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.29<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>tk.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mapper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- generatorConfig.xml --&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE generatorConfiguration</span></span><br><span class="line"><span class="meta">        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"</span></span><br><span class="line"><span class="meta">        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd"&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">generatorConfiguration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">context</span> <span class="attr">id</span>=<span class="string">"Mysql"</span> <span class="attr">targetRuntime</span>=<span class="string">"MyBatis3Simple"</span> <span class="attr">defaultModelType</span>=<span class="string">"flat"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"beginningDelimiter"</span> <span class="attr">value</span>=<span class="string">"`"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"endingDelimiter"</span> <span class="attr">value</span>=<span class="string">"`"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span> <span class="attr">type</span>=<span class="string">"tk.mybatis.mapper.generator.MapperPlugin"</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 设置通用 Mapper 接口 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"mappers"</span> <span class="attr">value</span>=<span class="string">"tk.mybatis.mapper.common.Mapper"</span>/&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 是否区分大小写 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"caseSensitive"</span> <span class="attr">value</span>=<span class="string">"true"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">jdbcConnection</span> <span class="attr">driverClass</span>=<span class="string">"com.mysql.jdbc.Driver"</span></span></span><br><span class="line"><span class="tag">                        <span class="attr">connectionURL</span>=<span class="string">"jdbc:mysql://localhost:3306/demo"</span></span></span><br><span class="line"><span class="tag">                        <span class="attr">userId</span>=<span class="string">"root"</span></span></span><br><span class="line"><span class="tag">                        <span class="attr">password</span>=<span class="string">"123456"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">jdbcConnection</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">javaModelGenerator</span> <span class="attr">targetPackage</span>=<span class="string">"com.example.demo.dao.entity"</span></span></span><br><span class="line"><span class="tag">                            <span class="attr">targetProject</span>=<span class="string">"src/main/java"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">sqlMapGenerator</span> <span class="attr">targetPackage</span>=<span class="string">"mapper"</span></span></span><br><span class="line"><span class="tag">                         <span class="attr">targetProject</span>=<span class="string">"src/main/resources"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">javaClientGenerator</span> <span class="attr">targetPackage</span>=<span class="string">"com.example.demo.dao.mapper"</span></span></span><br><span class="line"><span class="tag">                             <span class="attr">targetProject</span>=<span class="string">"src/main/java"</span></span></span><br><span class="line"><span class="tag">                             <span class="attr">type</span>=<span class="string">"XMLMAPPER"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">table</span> <span class="attr">tableName</span>=<span class="string">"mapper_test"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">generatedKey</span> <span class="attr">column</span>=<span class="string">"name"</span> <span class="attr">sqlStatement</span>=<span class="string">"JDBC"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">context</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">generatorConfiguration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+        </div>
+        <footer class="article-footer">
+            
+
+    <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more">分享到：</a>
+    <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间">QQ空间</a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">新浪微博</a>
+    <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博">腾讯微博</a>
+    <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网">人人网</a>
+    <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信</a>
+</div>
+<script>
+window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{"bdSize":16}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+<style>
+    .bdshare_popup_box {
+        border-radius: 4px;
+        border: #e1e1e1 solid 1px;
+    }
+    .bdshare-button-style0-16 a,
+    .bdshare-button-style0-16 .bds_more {
+        padding-left: 20px;
+        margin: 6px 10px 6px 0;
+    }
+    .bdshare_dialog_list a,
+    .bdshare_popup_list a,
+    .bdshare_popup_bottom a {
+        font-family: 'Microsoft Yahei';
+    }
+    .bdshare_popup_top {
+        display: none;
+    }
+    .bdshare_popup_bottom {
+        height: auto;
+        padding: 5px;
+    }
+</style>
+
+
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "mybatis 通用 mapper",
+        "image": "http://xzfyu.com",
+        "keywords": "analyst java",
+        "genre": "backend java 工程",
+        "datePublished": "2020-05-03",
+        "dateCreated": "2020-05-03",
+        "dateModified": "2020-05-03",
+        "url": "http://xzfyu.com/2020/05/03/backend/java 工程/mybatis 通用 mapper/",
+        "description": "Mybatis-Mapper 插件 用于简化 mybatis 使用，这里只介绍基本使用和代码生成，扩展通用 Mapper 接口和 Example 的使用可参考官方文档。
+基本使用
+pom.xml 添加 tk.mybatis 依赖。
+配置 application.yml，设置通用 Mapper（支持自定义）。
+编写 Mapper.xml。
+编写实体类，实体类中字段名默认按驼峰式进行转换（通过 @Na",
+        "wordCount": 1288
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+<div id="comment-container"></div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/06/04/backend/java 工程/常见问题/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            java 应用常见问题
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2020/05/02/backend/java 工程/分页/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">分页</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="no-thumbnail">
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/06/09/frontend/architecture/前端技术汇总贴/" class="title">前端技术汇总贴</a></p>
+                            <p class="item-date"><time datetime="2020-06-08T16:00:00.000Z" itemprop="datePublished">2020-06-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/backend/">backend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/backend/java-工程/">java 工程</a></p>
+                            <p class="item-title"><a href="/2020/06/04/backend/java 工程/application.yml 配置/" class="title">application.yml 配置</a></p>
+                            <p class="item-date"><time datetime="2020-06-03T16:00:00.000Z" itemprop="datePublished">2020-06-04</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/backend/">backend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/backend/java-工程/">java 工程</a></p>
+                            <p class="item-title"><a href="/2020/06/04/backend/java 工程/常见问题/" class="title">java 应用常见问题</a></p>
+                            <p class="item-date"><time datetime="2020-06-03T16:00:00.000Z" itemprop="datePublished">2020-06-04</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/backend/">backend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/backend/java-工程/">java 工程</a></p>
+                            <p class="item-title"><a href="/2020/05/03/backend/java 工程/mybatis 通用 mapper/" class="title">mybatis 通用 mapper</a></p>
+                            <p class="item-date"><time datetime="2020-05-02T16:00:00.000Z" itemprop="datePublished">2020-05-03</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">35</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库/">数据库</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/模块/">模块</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">88</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/es/">es</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/webpack/">webpack</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">13</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">13</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 14.44px;">antd</a> <a href="/tags/carrier/" style="font-size: 18.89px;">carrier</a> <a href="/tags/css/" style="font-size: 11.11px;">css</a> <a href="/tags/fiber-renconciler/" style="font-size: 10px;">fiber-renconciler</a> <a href="/tags/git/" style="font-size: 11.11px;">git</a> <a href="/tags/java/" style="font-size: 17.78px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 12.22px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13.33px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11.11px;">proxy</a> <a href="/tags/react/" style="font-size: 16.67px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/react16/" style="font-size: 10px;">react16</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12.22px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14.44px;">vue</a> <a href="/tags/webpack/" style="font-size: 15.56px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 12.22px;">算法</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: 'b91413aac6da3042133d',
+        clientSecret: '0ea2891e8a1163db789b8e5a4379771adb419be3',
+        id: '42d9e02b3d2566fde265ce513969573d',
+        repo: 'Alfred-sg.github.io',
+        owner: 'Alfred-sg',
+        admin: "Alfred-sg"
+    })
+    gitalk.render('comment-container')
+</script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

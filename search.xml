@@ -101,6 +101,24 @@
       </tags>
   </entry>
   <entry>
+    <title>react 工程中使用 ts</title>
+    <url>/2020/05/23/frontend/js/react%20%E5%B7%A5%E7%A8%8B%E4%B8%AD%E4%BD%BF%E7%94%A8%20ts/</url>
+    <content><![CDATA[<h2 id="常规"><a href="#常规" class="headerlink" title="常规"></a>常规</h2><p>React.ReactNode：children 类型。<br>React.CSSProperties：样式类型。<br>React.MouseEvent&lt;HTMLElement, MouseEvent&gt; 等：event 对象类型。<br>React.ChangeEventHandler<htmlinputelement | htmltextareaelement> 等：事件处理器。<br>React.Ref<htmlinputelement | htmltextareaelement>：ref 引用类型，通常需要结合 React.useRef<htmlinputelement>(null)。</htmlinputelement></htmlinputelement></htmlinputelement></p>
+<h2 id="使用-Omit-剔除某类型中的属性"><a href="#使用-Omit-剔除某类型中的属性" class="headerlink" title="使用 Omit 剔除某类型中的属性"></a>使用 Omit 剔除某类型中的属性</h2><figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line">Omit&lt;OptionGroupData, <span class="string">'options'</span>&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="函数组件指定静态属性"><a href="#函数组件指定静态属性" class="headerlink" title="函数组件指定静态属性"></a>函数组件指定静态属性</h2><p>以下代码示例来自 rc-select。</p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">interface</span> OptionGroupFC <span class="keyword">extends</span> React.FC&lt;OptGroupProps&gt; &#123;</span><br><span class="line">  isSelectOptGroup: <span class="built_in">boolean</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>frontend</category>
+        <category>antd</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+        <tag>react</tag>
+        <tag>antd</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Select 组件</title>
     <url>/2020/05/20/frontend/antd/Select/</url>
     <content><![CDATA[<p>Select 组件包含如下功能：</p>
@@ -111,6 +129,28 @@
 <li>扩展菜单：通过 props.dropdownRender 绘制扩展菜单。</li>
 <li>值处理：props.labelInValue 能将 label 添加到提交数据中。</li>
 </ul>
+<p>rc-select 组件构成：</p>
+<ul>
+<li>Selector：输入框，包含多选框、单选框两种模式。逻辑上包含点击聚焦事件、键盘事件、鼠标事件、手动录入事件、粘贴事件处理。其中，多选框会使用 rc-animate/lib/CSSMotionList 制作添加删除动效。</li>
+<li>SelectTrigger：基于 rc-trigger 处理弹层展示逻辑。</li>
+<li>OptionList：弹层内选择框，基于 rc-virtual-list 实现虚拟列表。</li>
+<li>Option、OptGroup：虚拟组件，其 props 作为选项、选项分组的属性。</li>
+<li>TransBtn：用于包装选择框中的后缀图标、多选框中的关清除图标。</li>
+</ul>
+<p>以上组件大多基于 React.forwardRef 包装，以便设置 ref 引用；这些组件内部基于 React.useImperativeHandle 向上提供调用方法。</p>
+<h2 id="逻辑"><a href="#逻辑" class="headerlink" title="逻辑"></a>逻辑</h2><p>value 处理：</p>
+<ol>
+<li>使用 React.useState 记录内部状态值 innerValue。</li>
+<li>innerValue 经 React.useRef 缓存成 prevValueRef 后，再通过 React.useEffect 机制在受控模式更新 prevValueRef。</li>
+<li>如果存储的值包含 label，作纯 value 值提取处理。</li>
+</ol>
+<p>options 处理：</p>
+<ol>
+<li>借助 React.useMemo 缓存 props.options 或通过 children 获取选项。tags 模式下额外会将输入值转化成选项。</li>
+<li>基于 flattenOptions 函数将 Option、OptGroup 转成扁平化数据。</li>
+<li>如果在搜索模式下，基于输入框的搜索值过滤选项列表并作扁平化处理。</li>
+</ol>
+<p>其他包含输入框展示值（通过 value、options 获取）、选项列表选中值、搜索值处理。</p>
 ]]></content>
       <categories>
         <category>frontend</category>

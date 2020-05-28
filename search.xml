@@ -139,20 +139,21 @@
 <li>TransBtn：用于包装选择框中的后缀图标、多选框中的关清除图标。</li>
 </ul>
 <p>以上组件大多基于 React.forwardRef 包装，以便设置 ref 引用；这些组件内部基于 React.useImperativeHandle 向上提供调用方法。</p>
-<h3 id="状态管理逻辑"><a href="#状态管理逻辑" class="headerlink" title="状态管理逻辑"></a>状态管理逻辑</h3><p>value 处理：</p>
-<ol>
-<li>使用 React.useState 记录内部状态值 innerValue。</li>
-<li>innerValue 经 React.useRef 缓存成 prevValueRef 后，再通过 React.useEffect 机制在受控模式更新 prevValueRef。</li>
-<li>如果存储的值包含 label，作纯 value 值提取处理。</li>
+<h3 id="状态管理逻辑"><a href="#状态管理逻辑" class="headerlink" title="状态管理逻辑"></a>状态管理逻辑</h3><h4 id="value"><a href="#value" class="headerlink" title="value"></a>value</h4><ol>
+<li>使用 React.useState 将 value 或 defaultValue 记录成内部状态值 innerValue。</li>
+<li>innerValue 经 React.useRef 缓存成 prevValueRef，受控模式下使用 React.useEffect 更新 prevValueRef。</li>
+<li>如果存储的值包含 label，使用 React.useMemo 作纯 value 值提取，存储为 mergedRawValue。</li>
+<li>为了方便处理，使用 React.useMemo 将 mergedRawValue 转换为 Set 类型，存储为 rawValues。</li>
 </ol>
-<p>options 处理：</p>
-<ol>
-<li>借助 React.useMemo 缓存 props.options 或通过 children 获取选项。tags 模式下额外会将输入值转化成选项。</li>
-<li>基于 flattenOptions 函数将 Option、OptGroup 转成扁平化数据。</li>
-<li>如果在搜索模式下，基于输入框的搜索值过滤选项列表并作扁平化处理。</li>
+<p>内部 triggerChange 用于变更内部 innerValue，并与 props.onChange 完成对接（视条件将 label 传出外围）。</p>
+<h4 id="options"><a href="#options" class="headerlink" title="options"></a>options</h4><ol>
+<li>使用 React.useMemo 缓存 props.options 或通过 children 获取选项，存储为 mergedOptions。tags 模式额外会将输入值转化成选项。</li>
+<li>使用 React.useMemo 缓存 Option、OptGroup 扁平化后的数据，存储为 mergedFlattenOptions。</li>
+<li>使用 React.useMemo 获取展示用的 displayOptions。如果在搜索模式下，会基于输入框的搜索值过滤选项列表。</li>
+<li>使用 React.useMemo 将 displayOptions 作扁平化处理，存储为 displayFlattenOptions。</li>
 </ol>
 <p>其他包含输入框展示值（通过 value、options 获取）、选项列表选中值、搜索值处理。</p>
-<h3 id="组件间交互逻辑"><a href="#组件间交互逻辑" class="headerlink" title="组件间交互逻辑"></a>组件间交互逻辑</h3><h3 id="container"><a href="#container" class="headerlink" title="container"></a>container</h3><p>div 容器挂载 onMouseDown、onKeyDown、onKeyUp、onFocus、onBlur 事件。笔者采用如下形式说明该节点的事件处理逻辑。如 container:focus -&gt; inputIcon:focusMock、popup:show; props.onFocus 意味着当 div 容器获得焦点时，inputIcon 按钮也会置为模拟聚焦状态，选项列表弹层显示，同时组件外围绑定的 props.onFocus 将被执行。#if event.which=enter 表示条件语句的主要内容为按键为回车键，antd 实现的条件语句还包含 Select 处于多选模式等。[(#if props.mode=tags) value:change] 表示当 Select 处于 tags 模式时，其值就会被改变。</p>
+<h3 id="组件间交互逻辑"><a href="#组件间交互逻辑" class="headerlink" title="组件间交互逻辑"></a>组件间交互逻辑</h3><h4 id="container"><a href="#container" class="headerlink" title="container"></a>container</h4><p>div 容器挂载 onMouseDown、onKeyDown、onKeyUp、onFocus、onBlur 事件。笔者采用如下形式说明该节点的事件处理逻辑。如 container:focus -&gt; inputIcon:focusMock、popup:show; props.onFocus 意味着当 div 容器获得焦点时，inputIcon 按钮也会置为模拟聚焦状态，选项列表弹层显示，同时组件外围绑定的 props.onFocus 将被执行。#if event.which=enter 表示条件语句的主要内容为按键为回车键，antd 实现的条件语句还包含 Select 处于多选模式等。[(#if props.mode=tags) value:change] 表示当 Select 处于 tags 模式时，其值就会被改变。</p>
 <figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">container:</span><span class="string">focus</span> <span class="bullet">-&gt;</span> <span class="attr">inputIcon:focusMock、popup:show;</span> <span class="string">props.onFocus</span></span><br><span class="line"><span class="attr">container:</span><span class="string">keydown</span> <span class="bullet">-&gt;</span> <span class="string">(#if</span> <span class="string">event.which=enter)</span> <span class="attr">popup:show;</span> <span class="string">props.onKeyDown</span></span><br><span class="line">                     <span class="string">(#elseif</span> <span class="string">event.which=backspace)</span> <span class="attr">value:change;</span> <span class="string">props.onKeyDown</span></span><br><span class="line">                     <span class="string">(#else)</span> <span class="attr">popup:keydown;</span> <span class="string">props.onKeyDown</span></span><br><span class="line"><span class="attr">container:</span><span class="string">keyup</span> <span class="bullet">-&gt;</span> <span class="attr">popup:keyup;</span> <span class="string">props.onKeyUp</span></span><br><span class="line"><span class="attr">container:</span><span class="string">blur</span> <span class="bullet">-&gt;</span> <span class="attr">inputIcon:unfocusMock、popup:hide、searchValue:reset、[(#if</span> <span class="string">props.mode=tags)</span> <span class="attr">value:change];</span> <span class="string">props.onBlur</span></span><br><span class="line"><span class="string">container(popup):mousedown</span> <span class="bullet">-&gt;</span> <span class="attr">selector:focus、inputIcon:unfocusMock;</span> <span class="string">props.onMouseDown</span></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>

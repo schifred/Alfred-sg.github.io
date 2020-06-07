@@ -97,6 +97,36 @@
       </tags>
   </entry>
   <entry>
+    <title>算法分析点到</title>
+    <url>/2020/06/07/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/%E7%AE%97%E6%B3%95/%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<p>算法分析的逻辑线条比如自然科学中的经典方法：通过观察或实验收集数据；抽象简化的假设性模型；基于模型预测未来；通过实验数据核实并校准分析模型。这方面耳熟能详的先例有：牛顿爵士推演得来的万有引力定律仰赖于第谷、开普勒的数据；借助万有引力定律，科学家后来成功预测了海王星的存在。简单地说，这种经典方法在定性和定量分析中往复折返，基于定性分析推断第一、第二自变量，基于定量分析明确因变量和自变量的关系（甚或将自变量作为噪声剔除），然后回到定性分析中试验剩余的自变量，以此不断修正模型。这种经典方法本质上是机械性的。笔者不妨以薄弱的力量补充说明一下这种经典方法的局限性。杰拉尔德·温伯格在《系统化思维导论》中给出了一个较高的视角。他首先将系统分为三类：有序的、简单的系统（小数系统）；有序的、复杂的系统（中数系统）；无序的、复杂的系统（大数系统）。机械论（包含如上的经典方法）适用于解释有序的、简单的系统。对于无序的、复杂的系统，因其无序、随机性，这也就为统计手段（比如大数定律）提供了用武的可能，中数系统的典型即如热力学。但是有序的、复杂的系统既不方便精确计算，又不方便统计。对此，《系统化思维导论》中称“我们可以预计它（中数系统）与任何理论都或多或少地存在很大的波动“，“科学技术的哲学基础局限于小数系统和大数系统” 。</p>
+<p>算法分析首先定性地将问题界定为运行时长和问题规模的关系。简单的算法样例如，给定一个数组，求任意三个元素相加之和为零的可能性。实现上，该算法需要将数组递归遍历三次。问题规模即为数组的长度 N。这一阶段的算法分析就是确定运行时长 T 与数组长度 N 之间的关系，即 T = f(N)。其方法在于不断改变数组长度 N，然后绘制运行时长与数组长度的曲线图。通过数学归纳法，我们得到三个元素相加的情形为 N(N - 1)(N - 2)/6 种。当 N 较大时，较低数量级的其他项相对较小。我们近似认为，T 与 N 的三次方成正比（T 与 N 的关系记为 T = ~f(N)，N 的三次方也称为增长数量级），也就是，lg(T) 与 lg(N) 成线性关系。lg(T) 与 lg(N) 成线性关系不止适用于数组递归遍历三次的情景，它也被称为幂次法则，即 T 与 N 的 m 次方 成正方，适用于解释很多自然和人工的现象。在算法分析方面，D.E.Knuth 更一般地指出运行时长取决于执行每条语句的耗时以及频率，执行每条语句的耗时取决于计算机性能，执行每条语句的频率即问题规模，总共执行了多少条指令。</p>
+<p>最常见的增长数量级有：常数级别、lgN 对数级别、N 线性级别、N*lgN 线性对数级别、平方级别、立方级别、指数级别。比如解题空间在于数组，遍历两次，就构成平方级别的增长数量级；零次，就构成常数级别的增长数量级。如果使用二分策略处理数组（如二分查找），其算法就是对数级别的。如果使用分而后治的手段处理数组，即算法由线性级别算法及对数级别算法组合得来，那就是线性对数级别的。对于一段程序，直观地可以依据是否使用循环语句等判断其增长数量级。</p>
+<p>算法所占用的内存与算法中所使用的数据类型息息相关。常见的数据结构有 Array 数组、Bag 背包、Queue 队列、Stack 栈、Linked List 链表、Tree 树、Graph 图、堆、散列表。背包指一种只允许塞入元素、不允许删除元素的集合类型，使用背包基于一种前提：通过迭代无差别的访问元素（如求平均值或方差）。队列是一种基于先进先出策略的集合类型；栈基于先进后出。链表以 Node 节点形式呈现，此一节点会持有彼一节点的引用。链表可用于实现背包、队列、栈。理解常见的数据结构有便于，使用这些基本数据结构对程序世界内在或外在的主客观实体建模。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 只进不出背包</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Bag</span>&lt;<span class="title">Item</span>&gt; <span class="keyword">implements</span> <span class="title">Iterable</span>&lt;<span class="title">Item</span>&gt; </span>&#123;</span><br><span class="line">  Bag()&#123;&#125;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">add</span><span class="params">(Item item)</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 先进先出队列</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Queue</span>&lt;<span class="title">Item</span>&gt; <span class="keyword">implements</span> <span class="title">Iterable</span>&lt;<span class="title">Item</span>&gt; </span>&#123;</span><br><span class="line">  Queue()&#123;&#125;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">enqueue</span><span class="params">(Item item)</span></span>;</span><br><span class="line">  <span class="function">Item <span class="title">dequeue</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 先进后出栈</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Stack</span>&lt;<span class="title">Item</span>&gt; <span class="keyword">implements</span> <span class="title">Iterable</span>&lt;<span class="title">Item</span>&gt; </span>&#123;</span><br><span class="line">  Stack()&#123;&#125;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">(Item item)</span></span>;</span><br><span class="line">  <span class="function">Item <span class="title">pop</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 链表节点</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span> </span>&#123;</span><br><span class="line">  Item item;</span><br><span class="line">  Node next;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来，笔者有意用只点明思路的方式概括常见的排序算法，详细内容可参考算法红宝书、<a href="https://www.cnblogs.com/onepixel/articles/7674659.html" target="_blank" rel="noopener">十大经典排序算法</a>、<a href="https://blog.csdn.net/weixin_39241397/article/details/79344179" target="_blank" rel="noopener">七大查找算法</a>。常见的排序算法有以下几种：</p>
+<ul>
+<li>冒泡排序：逐次比对相邻两元素，每次遍历完成后将数组中最大元素移到尾部。时间复杂度在平方级。</li>
+<li>快速排序：逐次遍历集合，每次将集合中的最小值移动到遍历起始位（首次即头部）。时间复杂度在平方级。</li>
+<li>插入排序：快速排序并没有有效的利用每次遍历前已排序的左侧元素，插入排序的演进思路基于此，即将待排序的元素插入到已排序的左侧元素中。时间复杂度最好在线性级，最差在平方级。</li>
+<li>希尔排序：希尔排序的着眼点还是基于插入排序的缺点，插入排序面对反序数组不可避免需要逐项比较。其设想是通过插入排序法构建间隔有序的元素（比如数组内第 1、4、7 项有序，相应的 2、5、8 项与 3、6、9 项也分别有序），随着间隔递减至 1，整个数组也就完成了排序。希尔排序提升算法性能的规模并不直观，它的时间复杂度最好在线性级，最差在平方级。</li>
+<li>归并排序：与希尔排序的间隔有序不同，归并排序是将数组拆分排序，无间隔。归并排序采用递归拆分数组再归并的方式，对整个数组进行排序。时间复杂度在线性对数级。</li>
+<li>快速排序：设定基准点，将数组元素分别安插到基准点前或后，随后递归实现排序。时间复杂度在线性对数级。</li>
+<li>堆排序：基于二叉堆的特性调换节点位置以实现排序。时间复杂度在线性对数级。</li>
+<li>计数排序：遍历数组，将元素以键值对形式存入 map，然后回填到新的数组中。时间复杂度在线性级。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>计算机科学</category>
+        <category>算法</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+        <tag>java</tag>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>java 应用常见问题</title>
     <url>/2020/06/04/backend/java%20%E5%B7%A5%E7%A8%8B/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/</url>
     <content><![CDATA[<h2 id="get-set-方法报错"><a href="#get-set-方法报错" class="headerlink" title="get/set 方法报错"></a>get/set 方法报错</h2><ol>
@@ -113,24 +143,6 @@
       <tags>
         <tag>analyst</tag>
         <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>算法分析</title>
-    <url>/2020/06/03/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/%E7%AE%97%E6%B3%95/%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90/</url>
-    <content><![CDATA[<p>算法分析的逻辑线条比如自然科学中的经典方法：通过观察或实验收集数据；抽象简化的假设性模型；基于模型预测未来；通过实验数据核实并校准分析模型。这方面耳熟能详的先例有：牛顿爵士推演得来的万有引力定律仰赖于第谷、开普勒的数据；借助万有引力定律，科学家后来成功预测了海王星的存在。简单地说，这种经典方法在定性和定量分析中往复折返，基于定性分析推断第一、第二自变量，基于定量分析明确因变量和自变量的关系（甚或将自变量作为噪声剔除），然后回到定性分析中试验剩余的自变量，以此不断修正模型。这种经典方法本质上是机械性的。笔者不妨以薄弱的力量补充说明一下这种经典方法的局限性。杰拉尔德·温伯格在《系统化思维导论》中给出了一个较高的视角。他首先将系统分为三类：有序的、简单的系统（小数系统）；有序的、复杂的系统（中数系统）；无序的、复杂的系统（大数系统）。机械论（包含如上的经典方法）适用于解释有序的、简单的系统。对于无序的、复杂的系统，因其无序、随机性，这也就为统计手段（比如大数定律）提供了用武的可能，中数系统的典型即如热力学。但是有序的、复杂的系统既不方便精确计算，又不方便统计。对此，《系统化思维导论》中称“我们可以预计它（中数系统）与任何理论都或多或少地存在很大的波动“，“科学技术的哲学基础局限于小数系统和大数系统” 。</p>
-<p>算法分析首先定性地将问题界定为运行时长和问题规模的关系。简单的算法样例如，给定一个数组，求任意三个元素相加之和为零的可能性。实现上，该算法需要将数组递归遍历三次。问题规模即为数组的长度 N。这一阶段的算法分析就是确定运行时长 T 与数组长度 N 之间的关系，即 T = f(N)。其方法在于不断改变数组长度 N，然后绘制运行时长与数组长度的曲线图。通过数学归纳法，我们得到三个元素相加的情形为 N(N - 1)(N - 2)/6 种。当 N 较大时，较低数量级的其他项相对较小。我们近似认为，T 与 N 的三次方成正比（T 与 N 的关系记为 T = ~f(N)，N 的三次方也称为增长数量级），也就是，lg(T) 与 lg(N) 成线性关系。lg(T) 与 lg(N) 成线性关系不止适用于数组递归遍历三次的情景，它也被称为幂次法则，即 T 与 N 的 m 次方 成正方，适用于解释很多自然和人工的现象。在算法分析方面，D.E.Knuth 更一般地指出运行时长取决于执行每条语句的耗时以及频率，执行每条语句的耗时取决于计算机性能，执行每条语句的频率即问题规模，总共执行了多少条指令。</p>
-<p>最常见的增长数量级有：常数级别、lgN 对数级别、N 线性级别、N*lgN 线性对数级别、平方级别、立方级别、指数级别。比如解题空间在于数组，遍历两次，就构成平方级别的增长数量级；零次，就构成常数级别的增长数量级。如果使用二分策略处理数组（如二分查找），其算法就是对数级别的。如果使用分而后治的手段处理数组，即算法由线性级别算法及对数级别算法组合得来，那就是线性对数级别的。</p>
-<p>算法所占用的内存与算法中所使用的数据类型息息相关，其计算方式即采用简单的求和，这里不作过多的介绍。</p>
-]]></content>
-      <categories>
-        <category>计算机科学</category>
-        <category>算法</category>
-      </categories>
-      <tags>
-        <tag>analyst</tag>
-        <tag>java</tag>
-        <tag>算法</tag>
       </tags>
   </entry>
   <entry>

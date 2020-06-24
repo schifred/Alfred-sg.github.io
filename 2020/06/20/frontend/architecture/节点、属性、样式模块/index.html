@@ -20,7 +20,7 @@
 <meta property="og:site_name" content="修子范语">
 <meta property="og:description" content="节点模块节点模块包含针对 DOM 节点的增、删、改、克隆操作。总括起来，添加节点的方式有以下两种：基于 createElement 创建 Element 元素或基于 createDocumentFragment、createContextualFragment 创建 DocumentFragment 元素，然后通过 appendChild、insertBefore 将其添加到指定元素下；通过 in">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-22T13:09:31.006Z">
+<meta property="og:updated_time" content="2020-06-24T13:24:01.546Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="节点、属性、样式模块">
 <meta name="twitter:description" content="节点模块节点模块包含针对 DOM 节点的增、删、改、克隆操作。总括起来，添加节点的方式有以下两种：基于 createElement 创建 Element 元素或基于 createDocumentFragment、createContextualFragment 创建 DocumentFragment 元素，然后通过 appendChild、insertBefore 将其添加到指定元素下；通过 in">
@@ -194,11 +194,24 @@
 <p>text 方法无参时返回 text 内容，有参时通过 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Node/textContent" target="_blank" rel="noopener">textContent</a> 赋值。</p>
 <h4 id="clone"><a href="#clone" class="headerlink" title="clone"></a>clone</h4><p>jQuery 中的 clone 方法可以复制元素绑定的事件处理函数，并且复制方式也有深浅两种。可复制的条件在于 jQuery 元素上缓存绑定事件函数等信息。除了赋值事件以外，对于 script 节点，复制过程也将调用执行其脚本。兼容性方式，IE11 中 textarea 节点的 defaultValue 在复制过程中会出错。clone 底层调用 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Node/cloneNode" target="_blank" rel="noopener">cloneNode</a>。</p>
 <h4 id="empty、detach、remove"><a href="#empty、detach、remove" class="headerlink" title="empty、detach、remove"></a>empty、detach、remove</h4><p>empty 方法会清除 jQuery 元素的缓存，然后将节点的 textContent 设为空字符串。detach 方法过滤节点，但会保留事件等缓存数据；remove 方法过滤节点并移除事件缓存。detach、remove 底层调用 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Node/removeChild" target="_blank" rel="noopener">removeChild</a>。</p>
-<h2 id="属性模块"><a href="#属性模块" class="headerlink" title="属性模块"></a>属性模块</h2><p>节点的属性分为固有属性和自定义属性两大类。可调用的接口包含 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/setAttribute" target="_blank" rel="noopener">setAttribute</a>、<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getAttribute" target="_blank" rel="noopener">getAttribute</a>、<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/removeAttribute" target="_blank" rel="noopener">removeAttribute</a>。</p>
+<h2 id="属性模块"><a href="#属性模块" class="headerlink" title="属性模块"></a>属性模块</h2><p>节点的属性分为固有属性和自定义属性两大类。可调用的接口包含 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/setAttribute" target="_blank" rel="noopener">setAttribute</a>、<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/setAttributeNS" target="_blank" rel="noopener">setAttributeNS</a>、<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getAttribute" target="_blank" rel="noopener">getAttribute</a>、<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/removeAttribute" target="_blank" rel="noopener">removeAttribute</a>、<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/hasAttribute" target="_blank" rel="noopener">hasAttribute</a>。</p>
 <p>jQuery 将节点的 class、value 以及其他属性处理均归为一类，虽然三者有不同的调用接口，参见 <a href="https://github.com/jquery/jquery/blob/master/src/attributes" target="_blank" rel="noopener">attributes</a>。三者的基本处理逻辑也类同，设置或获取的属性值均先经由 hooks 处理兼容性、归一性问题（主要是 IE）后，再赋值给元素或返回给调用方。兼容性或归一性问题，比如对 radio、checkbox 节点设置值时即是将节点的 checked 属性设置为 true 或 false。</p>
 <h2 id="样式模块"><a href="#样式模块" class="headerlink" title="样式模块"></a>样式模块</h2><p>节点的样式可以通过 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Window/getComputedStyle" target="_blank" rel="noopener">getComputedStyle</a> 获取；通过 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLElement/style" target="_blank" rel="noopener">style</a> 属性赋值，通过 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/CSSStyleDeclaration/setProperty" target="_blank" rel="noopener">style.setProperty</a> 设置自定义样式。</p>
 <p>针对样式，需要处理的内容有：样式名转换（连字符、驼峰式）；样式名携带 -ms- 等前缀；样式值添加单位；width、height 等样式根据盒模式或滚动作特殊处理。在 jQuery 的样式模块中，hooks 同样用于处理兼容性、归一性问题。</p>
-<h2 id="react"><a href="#react" class="headerlink" title="react"></a>react</h2>
+<h2 id="react"><a href="#react" class="headerlink" title="react"></a>react</h2><p>在 mvvm 框架中，虚拟节点树作为组件树和真实 DOM 树的桥梁，理论上，只要比照前后两颗虚拟节点树，然后调用浏览器接口插入或移除真实 DOM 节点，就能使真实 DOM 树与虚拟节点树保持一致。在 <a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-dom/src/client/ReactDOMHostConfig.js" target="_blank" rel="noopener">ReactDOMHostConfig 模块</a>中，我们可以看到，它提供了以下六个接口：appendChild、insertBefore、removeChild、appendChildToContainer、insertInContainerBefore、removeChildFromContainer 分别用于将节点从虚拟节点树转化形成的文档流中插入或移除，或将节点从 DOM 容器元素中插入或移除。</p>
+<p>ReactDOMHostConfig 和 ReactNativeHostConfig 一样，用于在深度遍历虚拟节点树提供添加、删除、更新节点的钩子，并呈现为不同端的视图。在 ReactDOMHostConfig 中，导出的 finalizeInitialChildren 基于 <a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-dom/src/client/ReactDOMComponent.js#L503" target="_blank" rel="noopener">setInitialProperties 函数</a> 为节点设置初始属性；prepareUpdate 基于 <a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-dom/src/client/ReactDOMComponent.js#L634" target="_blank" rel="noopener">diffProperties 函数</a> 更新节点的属性。</p>
+<p>虚拟节点树的变动不止于</p>
+<h3 id="节点模块-1"><a href="#节点模块-1" class="headerlink" title="节点模块"></a>节点模块</h3><p>react 在处理节点新增和删除时，</p>
+<h3 id="属性模块-1"><a href="#属性模块-1" class="headerlink" title="属性模块"></a>属性模块</h3><p>特殊的 DOM 属性被 react 抽象成了 <a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-dom/src/shared/DOMProperty.js#L184" target="_blank" rel="noopener">PropertyInfoRecord</a>。该类中包含 DOM 属性的真实名称（连字符形式），React 中表现的属性名称（驼峰式），属性值的类型，是否使用 property 属性，属性的命名空间，值为 url 时是否需要净化处理等信息。属性值的类型包含 RESERVED（React 内部保留字，如 children 等属性）、STRING 字符型、BOOLEANISH_STRING（字符串 true、false）、BOOLEAN 布尔型、OVERLOADED_BOOLEAN（布尔型，但可以接受字符串）、POSITIVE_NUMERIC 正数、NUMERIC 数值型。</p>
+<p>DOM 属性一般使用 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/setAttribute" target="_blank" rel="noopener">setAttribute</a> 设置；在声明使用 property 属性的时候，则使用 node[propertyName] 赋值或获取。</p>
+<p>我们可以看到，<a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-dom/src/client/DOMPropertyOperations.js" target="_blank" rel="noopener">DOMPropertyOperations 模块</a>透出了设置和获取 DOM 属性的接口。</p>
+<h3 id="样式模块-1"><a href="#样式模块-1" class="headerlink" title="样式模块"></a>样式模块</h3><ul>
+<li>样式的值添加 px 等单位（通过 <a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-dom/src/shared/CSSProperty.js" target="_blank" rel="noopener">CSSProperty</a> 模块记录不需要添加的数值类型样式值），见 <a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-dom/src/shared/dangerousStyleValue.js" target="_blank" rel="noopener">dangerousStyleValue</a>。</li>
+<li>样式长短名赋值冲突检测，如 background 与 backgroundImage 冲突等，见 <a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-dom/src/shared/CSSPropertyOperations.js#L126" target="_blank" rel="noopener">validateShorthandPropertyCollisionInDev</a>。</li>
+<li>样式赋值错误提示，比如使用连字符、不能使用分号等，见 <a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-dom/src/shared/warnValidStyle.js" target="_blank" rel="noopener">warnValidStyle</a>。</li>
+<li>最终的样式赋值还是会调用 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLElement/style" target="_blank" rel="noopener">style</a> 属性或 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/CSSStyleDeclaration/setProperty" target="_blank" rel="noopener">style.setProperty</a>，见 <a href="https://github.com/facebook/react/blob/v16.13.0/packages/react-dom/src/shared/CSSPropertyOperations.js" target="_blank" rel="noopener">setValueForStyles</a>。</li>
+</ul>
+
         </div>
         <footer class="article-footer">
             
@@ -256,10 +269,10 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
         "genre": "frontend html",
         "datePublished": "2020-06-20",
         "dateCreated": "2020-06-20",
-        "dateModified": "2020-06-22",
+        "dateModified": "2020-06-24",
         "url": "http://xzfyu.com/2020/06/20/frontend/architecture/节点、属性、样式模块/",
         "description": "节点模块节点模块包含针对 DOM 节点的增、删、改、克隆操作。总括起来，添加节点的方式有以下两种：基于 createElement 创建 Element 元素或基于 createDocumentFragment、createContextualFragment 创建 DocumentFragment 元素，然后通过 appendChild、insertBefore 将其添加到指定元素下；通过 in",
-        "wordCount": 308
+        "wordCount": 439
     }
 </script>
 

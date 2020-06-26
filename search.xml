@@ -75,6 +75,42 @@
       </tags>
   </entry>
   <entry>
+    <title>事件模块</title>
+    <url>/2020/07/01/frontend/architecture/%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9D%97/</url>
+    <content><![CDATA[<p>标准的现代浏览器为事件提供了 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener" target="_blank" rel="noopener">addEventListener</a>、<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/removeEventListener" target="_blank" rel="noopener">removeEventListener</a> 等接口。</p>
+<p>addEventListener 将事件监听器注册到 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget" target="_blank" rel="noopener">EventTarget</a> 对象上，而 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Node" target="_blank" rel="noopener">Node 接口</a>继承了 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget" target="_blank" rel="noopener">EventTarget</a>。事件监听器的 this 指向触发事件的元素引用。addEventListener 可以通过 capture 选项设置是否在捕获阶段执行（默认在冒泡阶段执行）；通过 once 选项设置只执行一次；通过 passive 选项阻止调用 preventDefault 函数。事件流机制可以参考 <a href="https://www.w3.org/TR/DOM-Level-3-Events/#event-flow" target="_blank" rel="noopener">DOM3 文档</a>。</p>
+<p>在IE 9之前，需要使用 attachEvent，此时 this 的值会指向 window 对象。IE 8可以通过添加 polyfill 使浏览器支持 addEventListener、preventDefault、stopPropagation，但是IE 7及以下不支持 Element.prototype，也即添加 polyfill 也是无效的。polyfill 的实现可以参看 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener" target="_blank" rel="noopener">addEventListener</a>。</p>
+<p>除了浏览器支持的事件外，事件系统还支持自定义事件（称为 synthetic events 合成事件）。<a href="https://developer.mozilla.org/zh-CN/docs/Web/Guide/Events/Creating_and_triggering_events" target="_blank" rel="noopener">创建和触发 events</a> 说明了创建、分发自定义事件的方法。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> event = <span class="keyword">new</span> Event(<span class="string">'build'</span>);<span class="comment">// 自定义事件</span></span><br><span class="line"><span class="keyword">const</span> event = <span class="keyword">new</span> CustomEvent(<span class="string">'build'</span>, &#123; <span class="string">'bubbles'</span>: <span class="literal">true</span>, <span class="string">'detail'</span>: elem.dataset.time &#125;);<span class="comment">// 自定义事件，通过 bubbles 设置冒泡，通过detail 添加数据</span></span><br><span class="line"></span><br><span class="line">elem.addEventListener(<span class="string">'build'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">e</span>) </span>&#123; <span class="comment">/* ... */</span> &#125;, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">elem.dispatchEvent(event);</span><br></pre></td></tr></table></figure>
+<p>事件处理的复杂性在于事件的多样性，可参看 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Event" target="_blank" rel="noopener">Event 接口</a>。</p>
+<h2 id="jQuery"><a href="#jQuery" class="headerlink" title="jQuery"></a>jQuery</h2><p>jQuery 使用 jQuery.Event 模拟事件对象，一方面可以解决 preventDefault、stopPropagation、stopImmediatePropagation 等方法的兼容性问题，另一方面可以通过 which 获取按键或鼠标按键类型。</p>
+<p>除模拟了事件对象之外，jQuery 还模拟了事件注册、移除、分发、事件冒泡、事件委托的整套机制。包含：</p>
+<ul>
+<li><a href="https://github.com/jquery/jquery/blob/3.5.0/src/event.js#L104" target="_blank" rel="noopener">jQuery.event.add</a>：注册事件。</li>
+<li><a href="https://github.com/jquery/jquery/blob/3.5.0/src/event.js#L216" target="_blank" rel="noopener">jQuery.event.remove</a>：移除事件。</li>
+<li><a href="https://github.com/jquery/jquery/blob/3.5.0/src/event.js#L289" target="_blank" rel="noopener">jQuery.event.dispatch</a>：触发事件。</li>
+<li><a href="https://github.com/jquery/jquery/blob/3.5.0/src/event.js#L357" target="_blank" rel="noopener">jQuery.event.handlers</a>：查找事件监听器。</li>
+</ul>
+<p>其手法是：</p>
+<ol>
+<li>通过缓存在元素上的 events 属性记录事件类型、绑定函数、命名空间、传递数据、实际触发事件的节点（在事件委托机制下，绑定函数会被记录到委托元素上）、guid 等信息。该属性的数据结构为数组对象，以时间类型为 key，绑定函数以数组形式作为 value。在绑定函数数组，委托事件监听器将处于数组的前列。</li>
+<li>所谓事件注册，就是向 events 缓存数据中添加事件监听器；所谓事件移除，就是移除 events 缓存数据中的事件监听器。当然，为了使用户的交互行为触发事件，jQuery 会使用 addEventListener 接口为元素绑定 jQuery 内部的事件分发函数 <a href="https://github.com/jquery/jquery/blob/3.5.0/src/event.js#L144" target="_blank" rel="noopener">jQuery.event.dispatch</a>。</li>
+<li>jQuery.event.dispatch 处理机制，先找到元素该事件的绑定函数，然后通过是否有委托，向上查找所有组件节点委托的绑定函数（设定的触发节点需要包含元素）。构成两维数组形式，存储着每个节点的绑定函数数组。通过双层遍历执行绑定函数，若有 stopPropagation 或 stopImmediatePropagation 行为，则中止遍历。</li>
+</ol>
+<p>特殊的，jQuery 通过 jQuery.event.special[eventType] 为特殊的事件类型设置钩子、转换的事件名等。详情可参看 <a href="https://github.com/jquery/jquery/blob/3.5.0/src/event.js" target="_blank" rel="noopener">event 模块</a>。</p>
+<p>在这套机制的基础上，jQuery 封装了 <a href="https://jquery.cuishifeng.cn/on.html" target="_blank" rel="noopener">$.on</a>、<a href="https://jquery.cuishifeng.cn/one.html" target="_blank" rel="noopener">$.one</a>、<a href="https://jquery.cuishifeng.cn/off.html" target="_blank" rel="noopener">$.off</a> 方法。</p>
+<p>如上所述，<a href="https://github.com/jquery/jquery/blob/3.5.0/src/event.js#L144" target="_blank" rel="noopener">jQuery.event.dispatch</a> 只能触发 jQuery 模拟事件，因此在 $.trigger 方法的实现上，jQuery 既需要触发模拟事件，又需要触发原生事件，以及冒泡机制。详情可参看 <a href="https://github.com/jquery/jquery/blob/3.5.0/src/event/trigger.js" target="_blank" rel="noopener">trigger 模块</a>。</p>
+<h2 id="react"><a href="#react" class="headerlink" title="react"></a>react</h2>]]></content>
+      <categories>
+        <category>frontend</category>
+        <category>html</category>
+      </categories>
+      <tags>
+        <tag>analyst</tag>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>节点、属性、样式模块</title>
     <url>/2020/06/25/frontend/architecture/%E8%8A%82%E7%82%B9%E3%80%81%E5%B1%9E%E6%80%A7%E3%80%81%E6%A0%B7%E5%BC%8F%E6%A8%A1%E5%9D%97/</url>
     <content><![CDATA[<p>节点、属性、样式在 DOM 接口或节点操作类库或 MVVM 框架中都是相互独立的模块，模块之间边界清晰，模块与环境之间通过几个主要接口进行通信，没有错综的关联线条。其处理的复杂度在于，模块内部需要对节点类型、属性、样式的多样性以及兼容性问题作出处理。针对多样性的一般处理手法是对共性进行归类（制作不同的编程接口，或制作不同的类以加区别）、对个性进行特殊处理（通过 hooks 留口子以应用 map 映射，或者使用条件分支等）。对于兼容性，本文所持有的观点是“到时候再说”。应用内需要解决的兼容性问题在点；而框架需要一次性、系统性解决兼容性问题。两者在应用广泛的前提下，程序中的兼容性问题会浮出水面，就中发生的枝节事前是不可设想的。除了还没有上到一次性解决兼容性问题的这个台面上外，知道生僻字越多也不一定能写出一篇好文章。</p>

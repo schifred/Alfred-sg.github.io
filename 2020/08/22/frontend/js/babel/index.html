@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+
+    
+
+    
+    <title>babel | 修子范语</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="analyst,js">
+    
+    <meta name="description" content="原理babel 处理三步骤：parse 解析、transform 转换、generate 生成。  解析过程由 babel-parse 模块实现，分为词法分析、语法分析两步。词法分析将源程序解析成令牌流，令牌的 type 包含一组属性描述该令牌；语法分析将令牌流转换成 AST。 转换过程将遍历 AST，对节点进行添加、更新及移除等操作。此时插件将介入工作。 生成过程将深度遍历 AST，将其转换成字">
+<meta name="keywords" content="analyst,js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="babel">
+<meta property="og:url" content="http://xzfyu.com/2020/08/22/frontend/js/babel/index.html">
+<meta property="og:site_name" content="修子范语">
+<meta property="og:description" content="原理babel 处理三步骤：parse 解析、transform 转换、generate 生成。  解析过程由 babel-parse 模块实现，分为词法分析、语法分析两步。词法分析将源程序解析成令牌流，令牌的 type 包含一组属性描述该令牌；语法分析将令牌流转换成 AST。 转换过程将遍历 AST，对节点进行添加、更新及移除等操作。此时插件将介入工作。 生成过程将深度遍历 AST，将其转换成字">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-07-04T13:15:31.736Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="babel">
+<meta name="twitter:description" content="原理babel 处理三步骤：parse 解析、transform 转换、generate 生成。  解析过程由 babel-parse 模块实现，分为词法分析、语法分析两步。词法分析将源程序解析成令牌流，令牌的 type 包含一组属性描述该令牌；语法分析将令牌流转换成 AST。 转换过程将遍历 AST，对节点进行添加、更新及移除等操作。此时插件将介入工作。 生成过程将深度遍历 AST，将其转换成字">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+    
+    
+
+
+</head>
+</html>
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">Alfredo&#39;s Notes</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/">backend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java/">java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/java-工程/">java 工程</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/spring/">spring</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/web-服务/">web 服务</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/其他/">其他</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/异步消息/">异步消息</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库/">数据库</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/数据库技术/">数据库技术</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/架构/">架构</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/模块/">模块</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/缓存/">缓存</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/远程通信/">远程通信</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/backend/部署/">部署</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/">frontend</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/antd/">antd</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/architecture/">architecture</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/editor/">editor</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/guide/">guide</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/html/">html</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/js/">js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/library/">library</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/react/">react</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/vue/">vue</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/frontend/前端工程化/">前端工程化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/">数据技术</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/sql/">sql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/大数据/">大数据</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/">计算机科学</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/操作系统/">操作系统</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/编译原理/">编译原理</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/设计模式/">设计模式</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机科学/软件工程/">软件工程</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/读书笔记/">读书笔记</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/踩坑/">踩坑</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/随笔/">随笔</a></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/frontend/js/">js</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-frontend/js/babel" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        babel
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/08/22/frontend/js/babel/" class="article-date">
+         <time datetime="2020-08-21T16:00:00.000Z" itemprop="datePublished">2020-08-22</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/analyst/">analyst</a>, <a class="tag-link" href="/tags/js/">js</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>babel 处理三步骤：parse 解析、transform 转换、generate 生成。</p>
+<ul>
+<li>解析过程由 <a href="https://github.com/babel/babel/tree/main/packages/babel-parser" target="_blank" rel="noopener">babel-parse</a> 模块实现，分为词法分析、语法分析两步。词法分析将源程序解析成令牌流，令牌的 type 包含一组属性描述该令牌；语法分析将令牌流转换成 AST。</li>
+<li>转换过程将遍历 AST，对节点进行添加、更新及移除等操作。此时插件将介入工作。</li>
+<li>生成过程将深度遍历 AST，将其转换成字符串形式的代码，并生成 source maps 源码映射。</li>
+</ul>
+<h3 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h3><p><a href="https://babeljs.io/docs/en/next/babel-parser.html" target="_blank" rel="noopener">@babel/parse</a> 源于 <a href="https://github.com/acornjs/acorn" target="_blank" rel="noopener">acorn</a>。acorn 为插件架构，因此 babel-parse 同样为插件架构，以便支持 es、flow、jsx、ts 语法。<a href="https://babeljs.io/docs/en/next/babel-parser.html" target="_blank" rel="noopener">@babel/parse</a> 会产出 AST 抽象语法树（<a href="https://github.com/babel/babel/tree/master/packages/babel-parser/ast/spec.md" target="_blank" rel="noopener">Babel AST format</a>）。<a href="https://github.com/babel/babel/tree/master/packages/babel-parser/ast/spec.md" target="_blank" rel="noopener">Babel AST format</a> 基于<a href="https://github.com/estree/estree" target="_blank" rel="noopener"> ESTree 规范</a>；对于 jsx 语法，则基于 <a href="https://github.com/facebook/jsx/blob/master/AST.md" target="_blank" rel="noopener">Facebook JSX AST</a>。<a href="http://astexplorer.net/" target="_blank" rel="noopener">AST Explorer</a> 直观地呈现了源程序会转变成怎样 AST 语法树及相应的 json 表现。AST 节点模型及语法节点为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">interface Node &#123;</span><br><span class="line">  type: string;</span><br><span class="line">  loc: SourceLocation | <span class="literal">null</span>;<span class="comment">// 行列信息</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface SourceLocation &#123;</span><br><span class="line">  source: string | <span class="literal">null</span>;</span><br><span class="line">  start: Position;</span><br><span class="line">  end: Position;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface Position &#123;</span><br><span class="line">  line: number; <span class="comment">// &gt;= 1</span></span><br><span class="line">  column: number; <span class="comment">// &gt;= 0</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface Program &lt;: Node &#123;<span class="comment">// 程序节点</span></span><br><span class="line">  type: <span class="string">"Program"</span>;</span><br><span class="line">  interpreter: InterpreterDirective | <span class="literal">null</span>;</span><br><span class="line">  sourceType: <span class="string">"script"</span> | <span class="string">"module"</span>;<span class="comment">// 是否支持模块</span></span><br><span class="line">  body: [ Statement | ModuleDeclaration ];<span class="comment">// 语句或模块</span></span><br><span class="line">  directives: [ Directive ];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="https://babeljs.io/docs/en/next/babel-parser.html" target="_blank" rel="noopener">@babel/parse</a> 插件机制基于 EstreeParser 子类扩展 Parser 父类实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>(<span class="string">"@babel/parser"</span>).parse(<span class="string">`function square(n) &#123;</span></span><br><span class="line"><span class="string">  return n * n;</span></span><br><span class="line"><span class="string">&#125;`</span>, &#123;</span><br><span class="line">  <span class="comment">// parse in strict mode and allow module declarations</span></span><br><span class="line">  sourceType: <span class="string">"module"</span>,</span><br><span class="line"></span><br><span class="line">  plugins: [</span><br><span class="line">    <span class="comment">// enable jsx and flow syntax</span></span><br><span class="line">    <span class="string">"jsx"</span>,</span><br><span class="line">    <span class="string">"flow"</span></span><br><span class="line">  ]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h4 id="遍历和访问"><a href="#遍历和访问" class="headerlink" title="遍历和访问"></a>遍历和访问</h4><p>对如下树：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  type: <span class="string">"FunctionDeclaration"</span>,</span><br><span class="line">  id: &#123;</span><br><span class="line">    type: <span class="string">"Identifier"</span>,</span><br><span class="line">    name: <span class="string">"square"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  params: [&#123;</span><br><span class="line">    type: <span class="string">"Identifier"</span>,</span><br><span class="line">    name: <span class="string">"n"</span></span><br><span class="line">  &#125;],</span><br><span class="line">  body: &#123;</span><br><span class="line">    type: <span class="string">"BlockStatement"</span>,</span><br><span class="line">    body: [&#123;</span><br><span class="line">      type: <span class="string">"ReturnStatement"</span>,</span><br><span class="line">      argument: &#123;</span><br><span class="line">        type: <span class="string">"BinaryExpression"</span>,</span><br><span class="line">        operator: <span class="string">"*"</span>,</span><br><span class="line">        left: &#123;</span><br><span class="line">          type: <span class="string">"Identifier"</span>,</span><br><span class="line">          name: <span class="string">"n"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        right: &#123;</span><br><span class="line">          type: <span class="string">"Identifier"</span>,</span><br><span class="line">          name: <span class="string">"n"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们通过<a href="https://baike.baidu.com/item/%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/1571621?fr=aladdin" target="_blank" rel="noopener">访问者模式</a>对其进行遍历。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> MyVisitor = &#123;</span><br><span class="line">  Identifier: &#123;</span><br><span class="line">    enter() &#123;<span class="comment">// 进入 Identifier 标识符节点时执行动作</span></span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Entered!"</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    exit() &#123;<span class="comment">// 退出 Identifier 标识符节点时执行动作</span></span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"Exited!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="路径"><a href="#路径" class="headerlink" title="路径"></a>路径</h4><p>为了新增、删除、更新节点，babel 使用 Paths 路径操纵节点。路径是一个节点在树中的位置以及节点信息的响应式 Reactive 表示。 访问者实际获得的参数是路径，而非节点。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"parent"</span>: &#123;...&#125;,</span><br><span class="line">  <span class="string">"node"</span>: &#123;...&#125;,</span><br><span class="line">  <span class="string">"hub"</span>: &#123;...&#125;,</span><br><span class="line">  <span class="string">"contexts"</span>: [],</span><br><span class="line">  <span class="string">"data"</span>: &#123;&#125;,</span><br><span class="line">  <span class="string">"shouldSkip"</span>: <span class="literal">false</span>,</span><br><span class="line">  <span class="string">"shouldStop"</span>: <span class="literal">false</span>,</span><br><span class="line">  <span class="string">"removed"</span>: <span class="literal">false</span>,</span><br><span class="line">  <span class="string">"state"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"opts"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"skipKeys"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"parentPath"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"context"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"container"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"listKey"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"inList"</span>: <span class="literal">false</span>,</span><br><span class="line">  <span class="string">"parentKey"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"key"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"scope"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"type"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"typeAnnotation"</span>: <span class="literal">null</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * function square(n) &#123; return n * n;&#125; 将 n 改成 x</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">const</span> updateParamNameVisitor = &#123;</span><br><span class="line">  Identifier(path) &#123;</span><br><span class="line">    <span class="keyword">if</span> (path.node.name === <span class="keyword">this</span>.paramName) &#123;</span><br><span class="line">      path.node.name = <span class="string">"x"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> MyVisitor = &#123;</span><br><span class="line">  FunctionDeclaration(path) &#123;</span><br><span class="line">    <span class="keyword">const</span> param = path.node.params[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">const</span> paramName = param.name;</span><br><span class="line">    param.name = <span class="string">"x"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用递归，作用域隔离，避免函数同层若存在 n，单纯使用 Identifier 访问器改写时也将其改写成 x</span></span><br><span class="line">    path.traverse(updateParamNameVisitor, &#123; paramName &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">path.traverse(MyVisitor);</span><br></pre></td></tr></table></figure>
+<h4 id="作用域"><a href="#作用域" class="headerlink" title="作用域"></a>作用域</h4><p>作用域抽象成如下形式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  path: path,</span><br><span class="line">  block: path.node,</span><br><span class="line">  parentBlock: path.parent,</span><br><span class="line">  parent: parentScope,<span class="comment">// 父级作用域</span></span><br><span class="line">  bindings: [...]<span class="comment">// 缓存引用变量等</span></span><br><span class="line">&#125;</span><br><span class="line">             </span><br><span class="line"><span class="comment">// 单个绑定形式</span></span><br><span class="line">&#123;</span><br><span class="line">  identifier: node,<span class="comment">// 标识符</span></span><br><span class="line">  scope: scope,<span class="comment">// 所属的作用域</span></span><br><span class="line">  path: path,</span><br><span class="line">  kind: <span class="string">'var'</span>,<span class="comment">// 类型：参数，定义等</span></span><br><span class="line"></span><br><span class="line">  referenced: <span class="literal">true</span>,</span><br><span class="line">  references: <span class="number">3</span>,</span><br><span class="line">  referencePaths: [path, path, path],</span><br><span class="line"></span><br><span class="line">  constant: <span class="literal">false</span>,<span class="comment">// 是不是常量（常量利于代码压缩）</span></span><br><span class="line">  constantViolations: [path]<span class="comment">// 哪个路径修改了它</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="模块"><a href="#模块" class="headerlink" title="模块"></a>模块</h2><h3 id="babel-traverse"><a href="#babel-traverse" class="headerlink" title="babel-traverse"></a>babel-traverse</h3><p><a href="https://github.com/babel/babel/tree/main/packages/babel-traverse" target="_blank" rel="noopener">babel-traverse</a> 该模块用于遍历和更新节点。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> babylon <span class="keyword">from</span> <span class="string">"babylon"</span>;</span><br><span class="line"><span class="keyword">import</span> traverse <span class="keyword">from</span> <span class="string">"babel-traverse"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> code = <span class="string">`function square(n) &#123;</span></span><br><span class="line"><span class="string">  return n * n;</span></span><br><span class="line"><span class="string">&#125;`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ast = babylon.parse(code);</span><br><span class="line"></span><br><span class="line">traverse(ast, &#123;</span><br><span class="line">  enter(path) &#123;</span><br><span class="line">    <span class="keyword">if</span> (</span><br><span class="line">      path.node.type === <span class="string">"Identifier"</span> &amp;&amp;</span><br><span class="line">      path.node.name === <span class="string">"n"</span></span><br><span class="line">    ) &#123;</span><br><span class="line">      path.node.name = <span class="string">"x"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="babel-types"><a href="#babel-types" class="headerlink" title="babel-types"></a>babel-types</h3><p><a href="https://github.com/babel/babel/tree/main/packages/babel-types" target="_blank" rel="noopener">babel-types</a> 适用于 AST 操作的 lodash 式工具库。功能包含类型检查、定义节点类型等。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">defineType(<span class="string">"BinaryExpression"</span>, &#123;<span class="comment">// 定义 BinaryExpression 节点</span></span><br><span class="line">  builder: [<span class="string">"operator"</span>, <span class="string">"left"</span>, <span class="string">"right"</span>],<span class="comment">// 从构造函数中获取参数，取别名 operator</span></span><br><span class="line">  fields: &#123;</span><br><span class="line">    operator: &#123;</span><br><span class="line">      validate: assertValueType(<span class="string">"string"</span>)</span><br><span class="line">    &#125;,</span><br><span class="line">    left: &#123;</span><br><span class="line">      validate: assertNodeType(<span class="string">"Expression"</span>)</span><br><span class="line">    &#125;,</span><br><span class="line">    right: &#123;</span><br><span class="line">      validate: assertNodeType(<span class="string">"Expression"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  visitor: [<span class="string">"left"</span>, <span class="string">"right"</span>],</span><br><span class="line">  aliases: [<span class="string">"Binary"</span>, <span class="string">"Expression"</span>]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<h3 id="babel-generator"><a href="#babel-generator" class="headerlink" title="babel-generator"></a>babel-generator</h3><p><a href="https://github.com/babel/babel/tree/main/packages/babel-generator" target="_blank" rel="noopener">babel-generator</a> 根据 AST 生成代码和源码映射。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> babylon <span class="keyword">from</span> <span class="string">"babylon"</span>;</span><br><span class="line"><span class="keyword">import</span> generate <span class="keyword">from</span> <span class="string">"babel-generator"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> code = <span class="string">`function square(n) &#123;</span></span><br><span class="line"><span class="string">  return n * n;</span></span><br><span class="line"><span class="string">&#125;`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ast = babylon.parse(code);</span><br><span class="line"></span><br><span class="line">generate(ast, &#123;&#125;, code);</span><br></pre></td></tr></table></figure>
+<h3 id="babel-template"><a href="#babel-template" class="headerlink" title="babel-template"></a>babel-template</h3><p>babel-template 手动以字符串编写 AST。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> template <span class="keyword">from</span> <span class="string">"babel-template"</span>;</span><br><span class="line"><span class="keyword">import</span> generate <span class="keyword">from</span> <span class="string">"babel-generator"</span>;</span><br><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> t <span class="keyword">from</span> <span class="string">"babel-types"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> buildRequire = template(<span class="string">`</span></span><br><span class="line"><span class="string">  var IMPORT_NAME = require(SOURCE);</span></span><br><span class="line"><span class="string">`</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ast = buildRequire(&#123;</span><br><span class="line">  IMPORT_NAME: t.identifier(<span class="string">"myModule"</span>),</span><br><span class="line">  SOURCE: t.stringLiteral(<span class="string">"my-module"</span>)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(generate(ast).code);<span class="comment">// var myModule = require("my-module");</span></span><br></pre></td></tr></table></figure>
+<h2 id="babel-插件"><a href="#babel-插件" class="headerlink" title="babel 插件"></a>babel 插件</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将原语句 foo === bar; 改写为 sebmck === bar;</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span>(<span class="params">&#123; types: t &#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    visitor: &#123;</span><br><span class="line">      BinaryExpression(path) &#123;</span><br><span class="line">        <span class="keyword">if</span> (path.node.operator !== <span class="string">"==="</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        path.node.left = t.identifier(<span class="string">"sebmck"</span>);</span><br><span class="line">        path.node.right = t.identifier(<span class="string">"dork"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>详情可参看 <a href="https://github.com/jamiebuilds/babel-handbook/blob/master/translations/zh-Hans/plugin-handbook.md#toc-introduction" target="_blank" rel="noopener">Babel 插件手册</a>。</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+    <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more">分享到：</a>
+    <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间">QQ空间</a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">新浪微博</a>
+    <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博">腾讯微博</a>
+    <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网">人人网</a>
+    <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信</a>
+</div>
+<script>
+window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{"bdSize":16}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+<style>
+    .bdshare_popup_box {
+        border-radius: 4px;
+        border: #e1e1e1 solid 1px;
+    }
+    .bdshare-button-style0-16 a,
+    .bdshare-button-style0-16 .bds_more {
+        padding-left: 20px;
+        margin: 6px 10px 6px 0;
+    }
+    .bdshare_dialog_list a,
+    .bdshare_popup_list a,
+    .bdshare_popup_bottom a {
+        font-family: 'Microsoft Yahei';
+    }
+    .bdshare_popup_top {
+        display: none;
+    }
+    .bdshare_popup_bottom {
+        height: auto;
+        padding: 5px;
+    }
+</style>
+
+
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Alfred"
+        },
+        "headline": "babel",
+        "image": "http://xzfyu.com",
+        "keywords": "analyst js",
+        "genre": "frontend js",
+        "datePublished": "2020-08-22",
+        "dateCreated": "2020-08-22",
+        "dateModified": "2020-07-04",
+        "url": "http://xzfyu.com/2020/08/22/frontend/js/babel/",
+        "description": "原理babel 处理三步骤：parse 解析、transform 转换、generate 生成。
+
+解析过程由 babel-parse 模块实现，分为词法分析、语法分析两步。词法分析将源程序解析成令牌流，令牌的 type 包含一组属性描述该令牌；语法分析将令牌流转换成 AST。
+转换过程将遍历 AST，对节点进行添加、更新及移除等操作。此时插件将介入工作。
+生成过程将深度遍历 AST，将其转换成字",
+        "wordCount": 1635
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+<div id="comment-container"></div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/Alfred-sg" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/12/31/frontend/architecture/前端工程体系/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            前端工程体系
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2020/07/29/计算机科学/软件工程/软件复用/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">软件复用</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="no-thumbnail">
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/architecture/">architecture</a></p>
+                            <p class="item-title"><a href="/2020/12/31/frontend/architecture/前端工程体系/" class="title">前端工程体系</a></p>
+                            <p class="item-date"><time datetime="2020-12-30T16:00:00.000Z" itemprop="datePublished">2020-12-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/js/">js</a></p>
+                            <p class="item-title"><a href="/2020/08/22/frontend/js/babel/" class="title">babel</a></p>
+                            <p class="item-date"><time datetime="2020-08-21T16:00:00.000Z" itemprop="datePublished">2020-08-22</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/软件工程/">软件工程</a></p>
+                            <p class="item-title"><a href="/2020/07/29/计算机科学/软件工程/软件复用/" class="title">软件复用</a></p>
+                            <p class="item-date"><time datetime="2020-07-28T16:00:00.000Z" itemprop="datePublished">2020-07-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机科学/">计算机科学</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/计算机科学/设计模式/">设计模式</a></p>
+                            <p class="item-title"><a href="/2020/07/19/计算机科学/设计模式/访问者模式/" class="title">访问者模式</a></p>
+                            <p class="item-date"><time datetime="2020-07-18T16:00:00.000Z" itemprop="datePublished">2020-07-19</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/frontend/">frontend</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/frontend/html/">html</a></p>
+                            <p class="item-title"><a href="/2020/07/04/frontend/html/html5/" class="title">html5</a></p>
+                            <p class="item-date"><time datetime="2020-07-03T16:00:00.000Z" itemprop="datePublished">2020-07-04</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/">backend</a><span class="category-list-count">36</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/java-工程/">java 工程</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/spring/">spring</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/web-服务/">web 服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/其他/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/异步消息/">异步消息</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库/">数据库</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/数据库技术/">数据库技术</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/架构/">架构</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/模块/">模块</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/缓存/">缓存</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/远程通信/">远程通信</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/backend/部署/">部署</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/">frontend</a><span class="category-list-count">97</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/antd/">antd</a><span class="category-list-count">15</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/architecture/">architecture</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/editor/">editor</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/guide/">guide</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/html/">html</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/js/">js</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/library/">library</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/react/">react</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/vue/">vue</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/frontend/前端工程化/">前端工程化</a><span class="category-list-count">19</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/">数据技术</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/sql/">sql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据技术/读书笔记/">读书笔记</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/">计算机科学</a><span class="category-list-count">17</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/操作系统/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/算法/">算法</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/编译原理/">编译原理</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/设计模式/">设计模式</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机科学/软件工程/">软件工程</a><span class="category-list-count">3</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/读书笔记/">读书笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/随笔/">随笔</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/analyst/" style="font-size: 20px;">analyst</a> <a href="/tags/antd/" style="font-size: 16px;">antd</a> <a href="/tags/carrier/" style="font-size: 19px;">carrier</a> <a href="/tags/css/" style="font-size: 11px;">css</a> <a href="/tags/fiber-renconciler/" style="font-size: 10px;">fiber-renconciler</a> <a href="/tags/git/" style="font-size: 11px;">git</a> <a href="/tags/java/" style="font-size: 18px;">java</a> <a href="/tags/jquery/" style="font-size: 10px;">jquery</a> <a href="/tags/js/" style="font-size: 15px;">js</a> <a href="/tags/js设计模式/" style="font-size: 13px;">js设计模式</a> <a href="/tags/lint/" style="font-size: 10px;">lint</a> <a href="/tags/prettier/" style="font-size: 10px;">prettier</a> <a href="/tags/proxy/" style="font-size: 11px;">proxy</a> <a href="/tags/react/" style="font-size: 17px;">react</a> <a href="/tags/react-components/" style="font-size: 10px;">react-components</a> <a href="/tags/react16/" style="font-size: 10px;">react16</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/test/" style="font-size: 12px;">test</a> <a href="/tags/tools/" style="font-size: 10px;">tools</a> <a href="/tags/validate/" style="font-size: 10px;">validate</a> <a href="/tags/vue/" style="font-size: 14px;">vue</a> <a href="/tags/webpack/" style="font-size: 16px;">webpack</a> <a href="/tags/性能/" style="font-size: 10px;">性能</a> <a href="/tags/算法/" style="font-size: 13px;">算法</a> <a href="/tags/编译原理/" style="font-size: 10px;">编译原理</a> <a href="/tags/虚拟-dom/" style="font-size: 10px;">虚拟 dom</a> <a href="/tags/计算机科学/" style="font-size: 10px;">计算机科学</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/xiu-fan-79/activities">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Alfred</p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: 'b91413aac6da3042133d',
+        clientSecret: '0ea2891e8a1163db789b8e5a4379771adb419be3',
+        id: '06ba6f1046fb7ad9db232e208b63f774',
+        repo: 'Alfred-sg.github.io',
+        owner: 'Alfred-sg',
+        admin: "Alfred-sg"
+    })
+    gitalk.render('comment-container')
+</script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>
